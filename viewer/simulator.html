@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Mbed Emscripten Runner</title>
+  <link rel="stylesheet" href="style/simulator.css">
+</head>
+<body>
+  <div id="status">Downloading...</div>
+
+  <section id="board">
+    <object id="board-svg" data="img/controller_mbed.svg" type="image/svg+xml"></object>
+  </section>
+
+  <section id="serial">
+    <h2>Serial output</h2>
+    <textarea id="output" rows="8"></textarea>
+  </section>
+
+  <!-- Required parts of the JS HAL -->
+  <script type="text/javascript" src="js-ui/init.js"></script>
+  <script type="text/javascript" src="js-hal/EventEmitter.js"></script>
+  <script type="text/javascript" src="js-hal/pins.js"></script>
+
+  <!-- UI handling -->
+  <script type="text/javascript" src="js-ui/board.js"></script>
+
+  <!-- User application -->
+  <script async type="text/javascript" src="app.js"></script>
+</body>
+</html>

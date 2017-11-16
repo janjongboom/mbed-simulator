@@ -18,3 +18,17 @@ This is a very experimental project.
     ```
     $ node build.js emcc demos/blinky
     ```
+
+1. Then, navigate to the `out` folder, and start a web server:
+
+    ```
+    $ cd demos/blinky/out/
+    $ python -m SimpleHTTPServer
+    ```
+
+1. Open http://localhost:8000/blinky.html in your browser.
+1. Blinky runs!
+
+## Attribution
+
+* `viewer/img/controller_mbed.svg` - created by [Fritzing](https://github.com/fritzing/fritzing-parts), licensed under Creative Commons Attribution-ShareALike 3.0 Unported.

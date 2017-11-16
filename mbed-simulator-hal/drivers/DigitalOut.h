@@ -48,20 +48,14 @@ public:
      *
      *  @param pin DigitalOut pin to connect to
      */
-    DigitalOut(PinName pin) : gpio() {
-        // No lock needed in the constructor
-        gpio_init_out(&gpio, pin);
-    }
+    DigitalOut(PinName pin);
 
     /** Create a DigitalOut connected to the specified pin
      *
      *  @param pin DigitalOut pin to connect to
      *  @param value the initial pin value
      */
-    DigitalOut(PinName pin, int value) : gpio() {
-        // No lock needed in the constructor
-        gpio_init_out_ex(&gpio, pin, value);
-    }
+    DigitalOut(PinName pin, int value);
 
     /** Set the output, specified as 0 or 1 (int)
      *
@@ -113,6 +107,10 @@ public:
         // Underlying call is thread safe
         return read();
     }
+
+private:
+    PinName _pin;
+    int _value;
 };
 
 } // namespace mbed
