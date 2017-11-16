@@ -9,6 +9,12 @@ Ideas:
 
 This is a very experimental project.
 
-## How to run
+## How to run blinky
 
-TBD
+1. Install a recent version of node.js.
+1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
+1. Run:
+
+    ```
+    $ node build.js emcc demos/blinky
+    ```

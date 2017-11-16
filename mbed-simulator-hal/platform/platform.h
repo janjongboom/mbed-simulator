@@ -20,7 +20,7 @@
 #define MBED_PLATFORM_H
 
 #include <cstddef>
-#include <cstdlib>
+// #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 

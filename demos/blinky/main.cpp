@@ -5,7 +5,7 @@
 int main() {
     while (1) {
         // led = !led;
-        printf("Blink! LED is now %d\n", led.read());
+        printf("Blink! LED is now %d\n", 1); //led.read());
 
         wait_ms(500);
     }
