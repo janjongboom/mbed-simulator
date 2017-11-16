@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "drivers/DigitalOut.h"
 #include "drivers/Ticker.h"
+#include "drivers/Timeout.h"
 #include "hal/lp_ticker_api.h"
 #include "hal/pinmap.h"
 #include "hal/ticker_api.h"
