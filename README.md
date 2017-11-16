@@ -26,7 +26,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
-    $ node build.js emcc demos/blinky
+    $ node build.js demos/blinky
     ```
 
 1. Then, navigate to the `out` folder, and start a web server:
