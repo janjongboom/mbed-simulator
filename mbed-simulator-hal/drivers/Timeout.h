@@ -54,10 +54,98 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Timeout : public Ticker, private NonCopyable<Timeout> {
+class Timeout : /*public TimerEvent, */private NonCopyable<Timeout> {
+
+public:
+    Timeout() : /*TimerEvent(), */_function(0), _lock_deepsleep(true) {
+    }
+
+    // When low power ticker is in use, then do not disable deep-sleep.
+    /*Timeout(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)  {
+        data->interface->init();
+#if DEVICE_LOWPOWERTIMER
+        _lock_deepsleep = (data != get_lp_ticker_data());
+#endif
+    }*/
+
+    /** Attach a function to be called by the Timeout, specifying the interval in seconds
+     *
+     *  @param func pointer to the function to be called
+     *  @param t the time between calls in seconds
+     */
+    void attach(Callback<void()> func, float t) {
+        attach_us(func, t * 1000000.0f);
+    }
+
+    /** Attach a member function to be called by the Timeout, specifying the interval in seconds
+     *
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
+     *  @param t the time between calls in seconds
+     *  @deprecated
+     *      The attach function does not support cv-qualifiers. Replaced by
+     *      attach(callback(obj, method), t).
+     */
+    template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method), t).")
+    void attach(T *obj, M method, float t) {
+        attach(callback(obj, method), t);
+    }
+
+    /** Attach a function to be called by the Timeout, specifying the interval in micro-seconds
+     *
+     *  @param func pointer to the function to be called
+     *  @param t the time between calls in micro-seconds
+     *
+     *  @note setting @a t to a value shorter that it takes to process the ticker callback
+     *  will cause the system to hang. Timeout callback will be called constantly with no time
+     *  for threads scheduling.
+     *
+     */
+    void attach_us(Callback<void()> func, us_timestamp_t t) {
+        // lock only for the initial callback setup and this is not low power Timeout
+        if(!_function && _lock_deepsleep) {
+            sleep_manager_lock_deep_sleep();
+        }
+        _function = func;
+        setup(t);
+    }
+
+    /** Attach a member function to be called by the Timeout, specifying the interval in micro-seconds
+     *
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
+     *  @param t the time between calls in micro-seconds
+     *  @deprecated
+     *      The attach_us function does not support cv-qualifiers. Replaced by
+     *      attach_us(callback(obj, method), t).
+     */
+    template<typename T, typename M>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach_us function does not support cv-qualifiers. Replaced by "
+        "attach_us(callback(obj, method), t).")
+    void attach_us(T *obj, M method, us_timestamp_t t) {
+        attach_us(Callback<void()>(obj, method), t);
+    }
+
+    virtual ~Timeout() {
+        detach();
+    }
+
+    /** Detach the function
+     */
+    void detach();
 
 protected:
+    void setup(us_timestamp_t t);
     virtual void handler();
+
+protected:
+    us_timestamp_t         _delay;  /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    Callback<void()>    _function;  /**< Callback. */
+    bool          _lock_deepsleep;  /**< Flag which indicates if deep-sleep should be disabled. */
 };
 
 } // namespace mbed

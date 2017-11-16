@@ -45,6 +45,19 @@
                 setBuiltInLed(pin, v);
             }
         });
+
+        // set up button handlers
+        Object.keys(builtInButtons).forEach(function(pin) {
+            var el = builtInButtons[pin];
+
+            el.onmousedown = function() {
+                window.MbedJSHal.pins.set_pin_value(pin, 1);
+            };
+
+            el.onmouseup = function() {
+                window.MbedJSHal.pins.set_pin_value(pin, 0);
+            };
+        });
     }
 
 })();

@@ -1,7 +1,7 @@
 #include "DigitalOut.h"
 #include "emscripten.h"
 
-using namespace mbed;
+namespace mbed {
 
 DigitalOut::DigitalOut(PinName pin) :
     _pin(pin), _value(0)
@@ -32,3 +32,5 @@ int DigitalOut::read()
 {
     return _value;
 }
+
+} // namespace mbed

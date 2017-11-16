@@ -215,4 +215,6 @@ typedef enum IRQn
 #define LPC_GPDMACH7          ((LPC_GPDMACH_TypeDef   *) LPC_GPDMACH7_BASE )
 #define LPC_USB               ((LPC_USB_TypeDef       *) LPC_USB_BASE      )
 
+#define DEVICE_INTERRUPTIN    1
+
 #endif  // __LPC17xx_H__

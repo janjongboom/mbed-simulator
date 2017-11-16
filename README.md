@@ -9,11 +9,15 @@ Ideas:
 
 This is a very experimental project.
 
+## Architecture
+
 The C++ HAL is in `mbed-simulator-hal`. This HAL reflects the Mbed C++ HAL, with most header files exactly the same as their Mbed OS counterparts. Sometimes this is not possible, as there is implementation details in the headers. One such example is `DigitalOut` which sets up pins using Mbed C HAL, which is not available. The implementation of the headers (`.cpp` files) contains the mapping to the JS HAL.
 
 The JS HAL lives in `viewer/js-hal`, and dispatches events around between JS UI components and C++ HAL. It implements an event bus to let the UI subscribe to events from C++.
 
 UI lives in `viewer/js-ui`, and handles UI events, and only communicates with JS HAL.
+
+Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
 ## How to run blinky
 
