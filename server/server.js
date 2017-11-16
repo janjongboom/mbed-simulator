@@ -95,7 +95,7 @@ app.post('/api/network/socket_send', (req, res, next) => {
         s.send(Buffer.from(req.body.data), s.port, s.hostname);
     }
 
-    res.send('0');
+    res.send(req.body.data.length + '');
 });
 
 app.post('/api/network/socket_connect', (req, res, next) => {

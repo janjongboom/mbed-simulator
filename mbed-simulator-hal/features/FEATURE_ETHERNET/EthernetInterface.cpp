@@ -48,13 +48,9 @@ const char * EthernetInterface::get_gateway() {
 int EthernetInterface::socket_open(void **handle, nsapi_protocol_t proto) {
     struct simulated_socket *socket = new struct simulated_socket();
 
-    printf("Proto is %d\n", proto);
-
     int socket_id = EM_ASM_INT({
         return window.MbedJSHal.network.socket_open($0);
     }, proto);
-
-    printf("Opened a socket with ID %d\n", socket_id);
 
     if (socket_id == -1) {
         return -3001;
@@ -91,7 +87,6 @@ int EthernetInterface::socket_close(void *handle)
 
 int EthernetInterface::socket_sendto(void *handle, const SocketAddress &addr, const void *data, unsigned size)
 {
-    printf("socket_sendto...\n");
     struct simulated_socket *socket = (struct simulated_socket *)handle;
 
     if (socket->connected && socket->addr != addr) {
@@ -162,3 +157,19 @@ int EthernetInterface::socket_recv(void *handle, void *data, unsigned size)
 
     return recv;
 }
+
+int EthernetInterface::socket_bind(void *handle, const SocketAddress &address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int EthernetInterface::socket_listen(void *handle, int backlog)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int EthernetInterface::socket_accept(void *handle, void **socket, SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+

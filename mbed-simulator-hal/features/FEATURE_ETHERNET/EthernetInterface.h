@@ -123,13 +123,6 @@ public:
      */
     using NetworkInterface::gethostbyname;
 
-    /** Add a domain name server to list of servers to query
-     *
-     *  @param addr     Destination for the host address
-     *  @return         0 on success, negative error code on failure
-     */
-    using NetworkInterface::add_dns_server;
-
 protected:
     /** Open a socket
      *  @param handle       Handle in which to store new socket
