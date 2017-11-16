@@ -21,6 +21,7 @@ int main() {
     TCPSocket socket;
     socket.open(&net);
     socket.connect("api.ipify.org", 80);
+
     char *buffer = new char[256];
 
     // Send an HTTP request
