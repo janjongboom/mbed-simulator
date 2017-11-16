@@ -54,6 +54,12 @@ if (!fs.existsSync(outFolder)) {
     fs.mkdirSync(outFolder);
 }
 
+const outSourceMainCpp = Path.join(outFolder, 'source', 'main.cpp');
+if (fs.existsSync(outSourceMainCpp)) {
+    fs.unlinkSync(outSourceMainCpp);
+}
+
+
 // OK, so now... we need to build a list with all folders
 let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = getAllCFiles(folder).concat(getAllCFiles(Path.join(__dirname, 'mbed-simulator-hal')));
@@ -79,6 +85,13 @@ cmd.on('close', code => {
     // copy the simulator files...
     copyRecursiveSync(Path.join(__dirname, 'viewer'), outFolder);
     fs.renameSync(Path.join(outFolder, 'simulator.html'), Path.join(outFolder, Path.basename(folder) + '.html'));
+
+    if (fs.existsSync(Path.join(folder, 'main.cpp'))) {
+        let sourceFolder = Path.join(outFolder, 'source');
+        if (!fs.existsSync(sourceFolder)) fs.mkdirSync(sourceFolder);
+
+        fs.linkSync(Path.join(folder, 'main.cpp'), outSourceMainCpp);
+    }
 
     if (code === 0) {
         process.stdout.write('Compilation successful, binary is at "' + Path.resolve(Path.join(outFolder, Path.basename(folder) + '.html')) + '"\n');

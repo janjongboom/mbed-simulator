@@ -3,7 +3,7 @@ body {
 }
 
 #output {
-  width: 100%;
+  width: calc(100% - 20px);
   height: 200px;
   margin: auto 10px auto 0;
   border: 0;
