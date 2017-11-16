@@ -1,5 +1,7 @@
 # Experimental simulator for Mbed OS 5 applications
 
+**Demo: http://janjongboom.com:7829/**
+
 Ideas:
 
 * Cross-compile Mbed OS applications with Emscripten.
@@ -19,7 +21,7 @@ UI lives in `viewer/js-ui`, and handles UI events, and only communicates with JS
 
 Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
-## How to run blinky
+## How to run blinky (or other demo's)
 
 1. Install a recent version of node.js.
 1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
@@ -27,17 +29,16 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
     ```
     $ npm install
-    $ node build.js demos/blinky
+    $ node build.js demos/blinky        # replace 'blinky' with 'interrupts' or 'network' for other demo's
     ```
 
-1. Then, navigate to the `out` folder, and start a web server:
+1. Then, start a web server:
 
     ```
-    $ cd demos/blinky/out/
-    $ python -m SimpleHTTPServer
+    $ node server/server.js
     ```
 
-1. Open http://localhost:8000/blinky.html in your browser.
+1. Open http://localhost:7829 in your browser and click 'Blinky'.
 1. Blinky runs!
 
 ## Attribution
