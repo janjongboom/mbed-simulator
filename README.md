@@ -26,6 +26,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
+    $ npm install
     $ node build.js demos/blinky
     ```
 

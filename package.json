@@ -1,0 +1,28 @@
+{
+  "name": "mbed-simulator",
+  "version": "1.0.0",
+  "description": "Mbed OS 5 simulator",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janjongboom/mbed-simulator.git"
+  },
+  "keywords": [
+    "mbed",
+    "simulator"
+  ],
+  "author": "Jan Jongboom <jan.jongboom@arm.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/janjongboom/mbed-simulator/issues"
+  },
+  "homepage": "https://github.com/janjongboom/mbed-simulator#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  }
+}
