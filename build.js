@@ -60,7 +60,7 @@ let cFiles = getAllCFiles(folder).concat(getAllCFiles(Path.join(__dirname, 'mbed
 
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
-    .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1' ])
+    .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-g' ])
     .concat([ '-Wall', '-o', Path.join(outFolder, 'app.js') ]);
 
 if (verbose) {

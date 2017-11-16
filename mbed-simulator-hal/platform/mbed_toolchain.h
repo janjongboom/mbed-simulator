@@ -359,6 +359,10 @@ typedef int FILEHANDLE;
 #define EXTERN extern
 #endif
 
+#ifndef __INLINE
+#define __INLINE inline
+#endif
+
 #endif
 
 /** @}*/
