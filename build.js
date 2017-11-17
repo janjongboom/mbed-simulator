@@ -3,7 +3,7 @@ const Path = require('path');
 const spawn = require('child_process').spawn;
 
 const isDirectory = source => fs.lstatSync(source).isDirectory();
-const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory);
+const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory).filter(d => Path.basename(d) !== '.git');
 const getCFiles = source => {
     return fs.readdirSync(source)
         .map(name => Path.join(source, name))
@@ -67,6 +67,11 @@ let cFiles = getAllCFiles(folder).concat(getAllCFiles(Path.join(__dirname, 'mbed
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
     .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-s', 'NO_EXIT_RUNTIME=1' ])
+    .concat([
+        '-D__MBED__',
+        '-DMBEDTLS_TEST_NULL_ENTROPY',
+        '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES'
+    ])
     .concat([ '-Wall', '-o', Path.join(outFolder, 'app.js') ]);
 
 if (verbose) {

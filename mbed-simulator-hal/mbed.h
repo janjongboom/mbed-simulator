@@ -8,6 +8,7 @@
 #include "drivers/InterruptIn.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
+#include "drivers/Timer.h"
 #include "features/netsocket/NetworkInterface.h"
 #include "features/netsocket/NetworkStack.h"
 #include "features/netsocket/nsapi_dns.h"
