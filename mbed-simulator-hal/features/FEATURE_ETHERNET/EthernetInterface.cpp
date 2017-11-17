@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "EthernetInterface.h"
 #include "emscripten.h"
+#include "mbed_wait_api.h"
+
+// NOTE: The wait_ms() calls are to make sure the main thread yields, instead of constantly blocks.
+// This way there's time to flush printf() calls in between network calls.
 
 EthernetInterface::EthernetInterface() {
     memset(_cbs, 0, sizeof(_cbs));
@@ -27,19 +31,25 @@ nsapi_error_t EthernetInterface::disconnect() {
 }
 
 const char * EthernetInterface::get_mac_address() {
-    return (const char*)EM_ASM_INT({
+    const char *ret = (const char*)EM_ASM_INT({
         return window.MbedJSHal.network.get_mac_address();
     }, 0);
+    wait_ms(1);
+    return ret;
 }
 const char * EthernetInterface::get_ip_address() {
-    return (const char*)EM_ASM_INT({
+    const char *ret = (const char*)EM_ASM_INT({
         return window.MbedJSHal.network.get_ip_address();
     }, 0);
+    wait_ms(1);
+    return ret;
 }
 const char * EthernetInterface::get_netmask() {
-    return (const char*)EM_ASM_INT({
+    const char *ret = (const char*)EM_ASM_INT({
         return window.MbedJSHal.network.get_netmask();
     }, 0);
+    wait_ms(1);
+    return ret;
 }
 const char * EthernetInterface::get_gateway() {
     return 0;
@@ -62,6 +72,8 @@ int EthernetInterface::socket_open(void **handle, nsapi_protocol_t proto) {
 
     *handle = socket;
 
+    wait_ms(1);
+
     return NSAPI_ERROR_OK;
 }
 
@@ -79,6 +91,8 @@ int EthernetInterface::socket_close(void *handle)
     int ret = EM_ASM_INT({
         return window.MbedJSHal.network.socket_close($0);
     }, socket->id);
+
+    wait_ms(1);
 
     socket->connected = false;
     delete socket;
@@ -102,6 +116,8 @@ int EthernetInterface::socket_sendto(void *handle, const SocketAddress &addr, co
         socket->addr = addr;
     }
 
+    wait_ms(1);
+
     return socket_send(socket, data, size);
 }
 
@@ -112,6 +128,8 @@ int EthernetInterface::socket_send(void *handle, const void *data, unsigned size
     int ret = EM_ASM_INT({
         return window.MbedJSHal.network.socket_send($0, $1, $2);
     }, socket->id, (uint32_t)data, size);
+
+    wait_ms(1);
 
     return ret;
 }
@@ -128,6 +146,8 @@ int EthernetInterface::socket_connect(void *handle, const SocketAddress &addr)
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
+    wait_ms(1);
+
     socket->connected = true;
     return 0;
 }
@@ -139,6 +159,8 @@ int EthernetInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *
     if (ret >= 0 && addr) {
         *addr = socket->addr;
     }
+
+    wait_ms(1);
 
     return ret;
 }
@@ -154,6 +176,8 @@ int EthernetInterface::socket_recv(void *handle, void *data, unsigned size)
     if (recv < 0) {
         return NSAPI_ERROR_WOULD_BLOCK;
     }
+
+    wait_ms(1);
 
     return recv;
 }
