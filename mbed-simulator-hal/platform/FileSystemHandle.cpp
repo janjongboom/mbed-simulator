@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,20 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PLATFORM_H
-#define MBED_PLATFORM_H
 
-#include <cstddef>
-// #include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include "mbed.h"
+#include "FileSystemHandle.h"
+#include <errno.h>
 
-#include "platform/mbed_retarget.h"
-// #include "platform/mbed_toolchain.h"
-#include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
+int FileSystemHandle::open(DirHandle **dir, const char *path)
+{
+    return -ENOSYS;
+}
 
-#endif
+int FileSystemHandle::remove(const char *path)
+{
+    return -ENOSYS;
+}
 
-/** @}*/
+int FileSystemHandle::rename(const char *path, const char *newpath)
+{
+    return -ENOSYS;
+}
+
+int FileSystemHandle::stat(const char *path, struct stat *st)
+{
+    return -ENOSYS;
+}
+
+int FileSystemHandle::mkdir(const char *path, mode_t mode)
+{
+    return -ENOSYS;
+}

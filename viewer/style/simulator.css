@@ -23,3 +23,8 @@ body {
   width: 50%;
   font-family: 'Lucida Console', Monaco, monospace;
 }
+
+#c12832 {
+  border: solid 1px;
+  padding: 5px;
+}

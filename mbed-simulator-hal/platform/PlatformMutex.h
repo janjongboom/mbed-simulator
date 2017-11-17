@@ -1,6 +1,5 @@
 
 /** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,20 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PLATFORM_H
-#define MBED_PLATFORM_H
+#ifndef PLATFORM_MUTEX_H
+#define PLATFORM_MUTEX_H
 
-#include <cstddef>
-// #include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include "platform/NonCopyable.h"
 
-#include "platform/mbed_retarget.h"
-// #include "platform/mbed_toolchain.h"
-#include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "rtos/Mutex.h"
+typedef rtos::Mutex PlatformMutex;
+#else
+/** A stub mutex for when an RTOS is not present
+ * @ingroup platform
+*/
+class PlatformMutex : private mbed::NonCopyable<PlatformMutex> {
+public:
+    PlatformMutex() {
+        // Stub
+
+    }
+    ~PlatformMutex() {
+        // Stub
+    }
+
+    void lock() {
+        // Do nothing
+    }
+
+    void unlock() {
+        // Do nothing
+    }
+};
 
 #endif
 
-/** @}*/
+#endif
+

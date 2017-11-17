@@ -119,6 +119,10 @@ typedef enum {
     I2C_SCL = I2C_SCL2,
     I2C_SDA = I2C_SDA2,
 
+    SPI_MOSI = p5,
+    SPI_MISO = p6,
+    SPI_SCK  = p7,
+
     BUTTON1 = 1337, // hope this is not used yet
 } PinName;
 

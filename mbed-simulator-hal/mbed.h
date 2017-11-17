@@ -17,6 +17,7 @@
 #include "platform/mbed_wait_api.h"
 #include "platform/NonCopyable.h"
 #include "platform/platform.h"
+#include "platform/Stream.h"
 #include "targets/TARGET_SIMULATOR/device.h"
 #include "targets/TARGET_SIMULATOR/PeripheralNames.h"
 #include "targets/TARGET_SIMULATOR/PinNames.h"

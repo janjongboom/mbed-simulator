@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,20 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PLATFORM_H
-#define MBED_PLATFORM_H
+#ifndef MBED_FILEPATH_H
+#define MBED_FILEPATH_H
 
-#include <cstddef>
-// #include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include "platform/platform.h"
 
-#include "platform/mbed_retarget.h"
-// #include "platform/mbed_toolchain.h"
-#include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
+#include "platform/FileSystemLike.h"
+#include "platform/FileLike.h"
+
+namespace mbed {
+/** \addtogroup platform */
+
+/**
+ * @class FileSystem
+ * @ingroup platform
+ */
+class FileSystem;
+
+class FilePath {
+public:
+    FilePath(const char* file_path);
+
+    const char* fileName(void);
+
+    bool          isFileSystem(void);
+    FileSystemLike* fileSystem(void);
+
+    bool    isFile(void);
+    FileLike* file(void);
+    bool    exists(void);
+
+private:
+    const char* file_name;
+    FileBase* fb;
+};
+
+} // namespace mbed
 
 #endif
-
-/** @}*/

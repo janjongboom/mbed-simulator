@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,20 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PLATFORM_H
-#define MBED_PLATFORM_H
-
-#include <cstddef>
-// #include <cstdlib>
-#include <cstdio>
-#include <cstring>
-
-#include "platform/mbed_retarget.h"
-// #include "platform/mbed_toolchain.h"
+#include <stdlib.h>
+#include <stdarg.h>
 #include "device.h"
-#include "PinNames.h"
-#include "PeripheralNames.h"
-
+#include "platform/mbed_toolchain.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_interface.h"
+#if DEVICE_STDIO_MESSAGES
+#include <stdio.h>
 #endif
 
-/** @}*/
+static uint8_t error_in_progress = 0;
+
+WEAK void error(const char* format, ...) {
+
+    // Prevent recursion if error is called again
+    if (error_in_progress) {
+        return;
+    }
+    error_in_progress = 1;
+
+#ifndef NDEBUG
+    va_list arg;
+    va_start(arg, format);
+    mbed_error_vfprintf(format, arg);
+    va_end(arg);
+#endif
+    exit(1);
+}
