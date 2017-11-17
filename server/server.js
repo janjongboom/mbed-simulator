@@ -6,23 +6,21 @@ const bodyParser = require('body-parser');
 const net = require('net');
 const dgram = require('dgram');
 
-if (ips.length === 0) {
-    console.error('Could not get a public network interface. Do you have any network interfaces configured?');
-    process.exit(1);
-}
-
 app.use(express.static(__dirname + '/../demos'));
 app.use(bodyParser.json())
 
 app.get('/api/network/ip', (req, res, next) => {
+    if (!ips.length) return res.send('');
     res.send(ips[0].iface.address);
 });
 
 app.get('/api/network/mac', (req, res, next) => {
+    if (!ips.length) return res.send('');
     res.send(ips[0].iface.mac);
 });
 
 app.get('/api/network/netmask', (req, res, next) => {
+    if (!ips.length) return res.send('');
     res.send(ips[0].iface.netmask);
 });
 
@@ -75,6 +73,8 @@ app.post('/api/network/socket_close', (req, res, next) => {
     else {
         s.close();
     }
+
+    delete sockets[req.body.id];
 
     res.send('0');
 });
