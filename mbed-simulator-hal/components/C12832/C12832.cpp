@@ -118,7 +118,7 @@ void C12832::pixel(int x, int y, int color)
             buffer[x + (y * 128)] = 1;
     } else { // XOR mode
         if(color == 1)
-            buffer[x + (y * 128)] ^= (1 << (y%8));
+            buffer[x + (y * 128)] ^= 1;
     }
 }
 

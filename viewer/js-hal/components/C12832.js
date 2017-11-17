@@ -23,7 +23,7 @@ window.MbedJSHal.C12832 = (function() {
         var ctx = cnvs.getContext('2d');
 
         for (var ix = 0; ix < buffer.length; ix++) {
-            ctx.fillStyle = buffer[ix] === 1 ? '#767c69' : '#fff';
+            ctx.fillStyle = buffer[ix] === 1 ? '#000' : '#767c69';
             ctx.fillRect(x, y, PIXEL_SIZE, PIXEL_SIZE);
 
             x += PIXEL_SIZE;
