@@ -15,16 +15,89 @@ body {
   outline: none;
 }
 
+#board {
+  display: flex;
+}
+
+#components {
+  clear: both;
+}
+
+#components > * {
+  margin: 0 5px;
+  float: left;
+}
+
 #serial h2 {
   margin-bottom: 5px;
 }
 
 #board-svg {
-  width: 50%;
+  width: 40vw;
+  height: 18vw;
   font-family: 'Lucida Console', Monaco, monospace;
 }
 
 #c12832 {
   border: solid 1px;
   padding: 5px;
+}
+
+.sht31 {
+  width: 300px;
+}
+
+.sht31 {
+  border: solid 1px black;
+  text-align: center;
+  display: flex;
+}
+
+/* Thermometer column and text */
+.sht31-comp {
+  margin: 10px auto 60px auto;
+  width:22px;
+  height:150px;
+  display:block;
+  font:bold 14px/152px helvetica, arial, sans-serif;
+  text-indent: 36px;
+  background: linear-gradient(top, #fff 0%, #fff 50%, #db3f02 50%, #db3f02 100%);
+  border-radius:22px 22px 0 0;
+  border:5px solid #4a1c03;
+  border-bottom:none;
+  position:relative;
+  box-shadow:inset 0 0 0 4px #fff;
+  color:#4a1c03;
+}
+
+/* Thermometer Bulb */
+.sht31-before {
+  content:' ';
+  width:44px;
+  height:44px;
+  display:block;
+  position:absolute;
+  top:142px;
+  left:-16px;
+  z-index:-1; /* Place the bulb under the column */
+  background:#db3f02;
+  border-radius:44px;
+  border:5px solid #4a1c03;
+  box-shadow:inset 0 0 0 4px #fff;
+}
+
+/* This piece here connects the column with the bulb */
+.sht31-after{
+  content:' ';
+  width:14px;
+  height:7px;
+  display:block;
+  position:absolute;
+  top:146px;
+  left:4px;
+  background:#db3f02;
+}
+
+.humidity .sht31-before, .humidity .sht31-after {
+  background: #86C5DA;
 }

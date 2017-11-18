@@ -8,10 +8,13 @@ window.MbedJSHal.C12832 = (function() {
     cnvs.height = 32 * PIXEL_SIZE;
     cnvs.width = 128 * PIXEL_SIZE;
 
+    cnvs.style.height = 32 * PIXEL_SIZE + 'px';
+    cnvs.style.width = 128 * PIXEL_SIZE + 'px';
+
     obj.init = function() {
         obj.emit('init');
 
-        document.querySelector('#board').appendChild(cnvs);
+        document.querySelector('#components').appendChild(cnvs);
     };
     obj.update_display = function(buffer) {
         obj.emit('update_display', buffer);

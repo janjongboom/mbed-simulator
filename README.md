@@ -63,3 +63,4 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 ## Attribution
 
 * `viewer/img/controller_mbed.svg` - created by [Fritzing](https://github.com/fritzing/fritzing-parts), licensed under Creative Commons Attribution-ShareALike 3.0 Unported.
+* Thermometer by https://codepen.io/mirceageorgescu/pen/Ceylz. Licensed under MIT.
