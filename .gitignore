@@ -2,3 +2,4 @@ out/
 node_modules/
 demos/mbed-cloud-client/
 *.bc
+mbed-simulator-hal/components/mbed-http/

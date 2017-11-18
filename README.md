@@ -28,9 +28,17 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
+    # resolve all C++ dependencies
+    $ mbed deploy
+
+    # resolve all JS dependencies
     $ npm install
-    $ node build-libmbed.js             # build the shared libmbed library (to speed up future compilations)
-    $ node build-demo.js demos/blinky        # replace 'blinky' with 'interrupts' or 'network' for other demo's
+
+    # build the shared libmbed library (to speed up future compilations)
+    $ node build-libmbed.js
+
+    # replace 'blinky' with 'interrupts' or 'network' for other demo's
+    $ node build-demo.js demos/blinky
     ```
 
 1. Then, start a web server:
