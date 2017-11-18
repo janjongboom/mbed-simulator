@@ -7,7 +7,8 @@ const net = require('net');
 const dgram = require('dgram');
 
 app.use(express.static(__dirname + '/../demos'));
-app.use(bodyParser.json())
+app.use(express.static(__dirname + '/../viewer'));
+app.use(bodyParser.json());
 
 app.get('/api/network/ip', (req, res, next) => {
     if (!ips.length) return res.send('');

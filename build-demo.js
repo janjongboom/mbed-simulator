@@ -94,8 +94,11 @@ cmd.stderr.on('data', data => {
 });
 cmd.on('close', code => {
     // copy the simulator files...
-    copyRecursiveSync(Path.join(__dirname, 'viewer'), outFolder);
-    fs.renameSync(Path.join(outFolder, 'simulator.html'), Path.join(outFolder, Path.basename(folder) + '.html'));
+    let outHtml = Path.join(outFolder, Path.basename(folder) + '.html');
+    if (fs.existsSync(outHtml)) {
+        fs.unlinkSync(outHtml);
+    }
+    fs.linkSync(Path.join(__dirname, 'viewer', 'simulator.html'), outHtml);
 
     if (fs.existsSync(Path.join(folder, 'main.cpp'))) {
         let sourceFolder = Path.join(outFolder, 'source');
