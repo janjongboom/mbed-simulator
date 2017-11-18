@@ -5,8 +5,16 @@ const ips = require('./get_ips')();
 const bodyParser = require('body-parser');
 const net = require('net');
 const dgram = require('dgram');
+const hbs = require('hbs');
+const Path = require('path');
+const compile = require('./compile');
 
-app.use(express.static(__dirname + '/../demos'));
+app.set('view engine', 'html');
+app.set('views', Path.join(__dirname, '../viewer'));
+app.engine('html', hbs.__express);
+
+app.use('/out', express.static(__dirname + '/../out'));
+app.use('/demos', express.static(__dirname + '/../demos'));
 app.use(express.static(__dirname + '/../viewer'));
 app.use(bodyParser.json());
 
@@ -149,6 +157,23 @@ app.post('/api/network/socket_recv', (req, res, next) => {
 
 });
 
+app.get('/view/:script', (req, res, next) => {
+    res.render('viewer.html', { script: req.params.script });
+});
+
+app.get('/', (req, res, next) => {
+    res.render('simulator.html');
+});
+
+app.post('/compile', (req, res, next) => {
+    compile(req.body.code, function(err, name) {
+        if (err) {
+            res.status(500).send(err);
+        }
+
+        res.send(name);
+    });
+});
 
 server.listen(process.env.PORT || 7829, process.env.HOST || '0.0.0.0', function () {
     console.log('Web server listening on port %s!', process.env.PORT || 7829);

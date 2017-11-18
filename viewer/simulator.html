@@ -12,35 +12,53 @@
   -->
 </head>
 <body>
-  <p>
-    <a href="https://github.com/janjongboom/mbed-simulator">GitHub project</a> |
-    <a href="source/main.cpp">Source code for this demo</a>
-  </p>
-  <div id="status">Downloading...</div>
+  <section id="header">
+    Arm Mbed OS simulator
 
-  <section id="board">
-    <object id="board-svg" data="/img/controller_mbed.svg" type="image/svg+xml"></object>
-    <section id="components"></section>
+    <a href="https://github.com/janjongboom/mbed-simulator">GitHub project</a>
   </section>
 
-  <section id="serial">
-    <h2>Serial output</h2>
-    <textarea id="output" rows="8"></textarea>
+  <section id="project">
+    <section id="editor-container">
+      <div id="editor-topbar">
+        <select id="select-project">
+          <option disabled>-- Peripheral demo's --</option>
+          <option selected name="blinky">Blinky</option>
+          <option name="interrupts">Interrupts</option>
+          <option name="lcd">LCD Display</option>
+          <option name="temperature">Temperature / humidity</option>
+          <option disabled>-- Networking --</option>
+          <option name="network">TCP Socket</option>
+          <option name="http">HTTP</option>
+          <option name="https">HTTPS</option>
+          <option name="coap">CoAP</option>
+        </select>
+        <button id="load-demo">Load demo</button>
+
+        <div id="run-container">
+          <span id="run-status"></span>
+          <button id="run">Run</button>
+        </div>
+      </div>
+      <div id="editor">#include "mbed.h"
+
+DigitalOut led(LED1);
+
+int main() {
+    while (1) {
+        led = !led;
+        printf("Blink! LED is now %d\n", led.read());
+
+        wait_ms(500);
+    }
+}
+</div>
+    </section>
+
+    <iframe src="/view/blinky"></iframe>
   </section>
 
-  <!-- Required parts of the JS HAL -->
-  <script type="text/javascript" src="/js-ui/init.js"></script>
-  <script type="text/javascript" src="/js-hal/EventEmitter.js"></script>
-  <script type="text/javascript" src="/js-hal/pins.js"></script>
-  <script type="text/javascript" src="/js-hal/timers.js"></script>
-  <script type="text/javascript" src="/js-hal/network.js"></script>
-  <script type="text/javascript" src="/js-hal/components/C12832.js"></script>
-  <script type="text/javascript" src="/js-hal/components/sht31.js"></script>
-
-  <!-- UI handling -->
-  <script type="text/javascript" src="/js-ui/board.js"></script>
-
-  <!-- User application -->
-  <script async type="text/javascript" src="app.js"></script>
+  <script type="text/javascript" src="/ace/ace.js"></script>
+  <script async type="text/javascript" src="/js-ui/editor.js"></script>
 </body>
 </html>

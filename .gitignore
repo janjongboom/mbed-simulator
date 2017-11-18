@@ -1,5 +1,7 @@
-out/
+out/user_*.js
+out/user_*.cpp
 node_modules/
 demos/mbed-cloud-client/
 *.bc
 mbed-simulator-hal/components/mbed-http/
+demos/*/out

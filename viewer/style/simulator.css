@@ -1,5 +1,7 @@
 body {
   font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 #output {
@@ -17,6 +19,7 @@ body {
 
 #board {
   display: flex;
+  flex-direction: column;
 }
 
 #components {
@@ -24,7 +27,7 @@ body {
 }
 
 #components > * {
-  margin: 0 5px;
+  margin: 5px;
   float: left;
 }
 
@@ -32,9 +35,13 @@ body {
   margin-bottom: 5px;
 }
 
+#serial {
+  padding: 10px;
+}
+
 #board-svg {
-  width: 40vw;
-  height: 18vw;
+  width: 50vw;
+  height: 22.5vw;
   font-family: 'Lucida Console', Monaco, monospace;
 }
 
@@ -100,4 +107,57 @@ body {
 
 .humidity .sht31-before, .humidity .sht31-after {
   background: #86C5DA;
+}
+
+#project {
+  width: 100%;
+  display: flex;
+}
+
+#project iframe {
+  border: 0;
+  width: 50vw;
+  height: calc(100vh - 63px);
+  border-left: solid 1px #ccc;
+}
+
+#editor-container {
+  width: 50vw;
+  height: calc(100vh - 63px);
+  position: relative;
+}
+
+#editor-topbar {
+  height: 39px;
+  line-height: 38px;
+  padding: 0 10px;
+  background: #bab9b8;
+  border-bottom: solid 1px rgb(117, 117, 117);
+}
+
+#editor {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#header {
+  background: #333e48;
+  color: white;
+  font-size: 32px;
+  padding: 10px;
+}
+
+#header a {
+  float: right;
+  line-height: 43px;
+  font-size: 14px;
+  color: white;
+}
+
+#run-container {
+  float: right;
+  font-size: 12px;
 }
