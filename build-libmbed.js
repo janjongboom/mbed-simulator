@@ -9,10 +9,10 @@ const getCFiles = source => {
         .map(name => Path.join(source, name))
         .filter(name => ['.c', '.cpp'].indexOf(Path.extname(name).toLowerCase()) > -1);
 };
-const getAllDirectories = source => {
+const getAllDirectoriesWithHeaders = source => {
     let dirs = [ Path.resolve(source) ];
     for (let d of getDirectories(source)) {
-        dirs = dirs.concat(getAllDirectories(d));
+        dirs = dirs.concat(getAllDirectoriesWithHeaders(d));
     }
     return dirs;
 };
@@ -41,38 +41,32 @@ const copyRecursiveSync = (src, dest) => {
     }
 };
 
-const folder = process.argv[2];
-if (!fs.existsSync(folder)) {
-    console.log(`Path ${Path.resolve(folder)} does not exist`);
-    process.exit(1);
-}
-
 const verbose = (process.argv.indexOf('--verbose')) > -1 || (process.argv.indexOf('-v') > -1);
 
-const outFolder = Path.join(folder, 'out');
-if (!fs.existsSync(outFolder)) {
-    fs.mkdirSync(outFolder);
-}
-
-const outSourceMainCpp = Path.join(outFolder, 'source', 'main.cpp');
-if (fs.existsSync(outSourceMainCpp)) {
-    fs.unlinkSync(outSourceMainCpp);
-}
-
+const outFolder = Path.join(__dirname, 'mbed-simulator-hal');
+const outFile = Path.resolve(Path.join(outFolder, 'libmbed.bc'));
 
 // OK, so now... we need to build a list with all folders
-let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
-let cFiles = getAllCFiles(folder).concat(getAllCFiles(Path.join(__dirname, 'mbed-simulator-hal')));
+let includeDirectories = getAllDirectoriesWithHeaders(Path.join(__dirname, 'mbed-simulator-hal'));
+let cFiles = getAllCFiles(Path.join(__dirname, 'mbed-simulator-hal'));
 
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
-    .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-s', 'NO_EXIT_RUNTIME=1' ])
     .concat([
+        '-s', 'EMTERPRETIFY=1',
+        '-s', 'EMTERPRETIFY_ASYNC=1',
+        '-s', 'NO_EXIT_RUNTIME=1',
+        '-s', 'SIDE_MODULE=1',
+
         '-D__MBED__',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
-        '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES'
-    ])
-    .concat([ '-Wall', '-o', Path.join(outFolder, 'app.js') ]);
+        '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
+
+        '-O2',
+
+        '-Wall',
+        '-o', outFile
+    ]);
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));
@@ -87,18 +81,7 @@ cmd.stderr.on('data', data => {
     process.stderr.write(data);
 });
 cmd.on('close', code => {
-    // copy the simulator files...
-    copyRecursiveSync(Path.join(__dirname, 'viewer'), outFolder);
-    fs.renameSync(Path.join(outFolder, 'simulator.html'), Path.join(outFolder, Path.basename(folder) + '.html'));
-
-    if (fs.existsSync(Path.join(folder, 'main.cpp'))) {
-        let sourceFolder = Path.join(outFolder, 'source');
-        if (!fs.existsSync(sourceFolder)) fs.mkdirSync(sourceFolder);
-
-        fs.linkSync(Path.join(folder, 'main.cpp'), outSourceMainCpp);
-    }
-
     if (code === 0) {
-        process.stdout.write('Compilation successful, binary is at "' + Path.resolve(Path.join(outFolder, Path.basename(folder) + '.html')) + '"\n');
+        process.stdout.write('Compilation successful, binary is at "' + outFile + '"\n');
     }
 });
