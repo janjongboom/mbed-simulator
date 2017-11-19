@@ -1,6 +1,8 @@
 # Experimental simulator for Mbed OS 5 applications
 
-**Demo: http://janjongboom.com:7829/**
+**Demo: http://188.226.142.146:7829/**
+
+![Screenshot](img/simulator.png)
 
 Ideas:
 
