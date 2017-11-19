@@ -36,9 +36,6 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
     # build the shared libmbed library (to speed up future compilations)
     $ node build-libmbed.js
-
-    # replace 'blinky' with 'interrupts' or 'network' for other demo's
-    $ node build-demo.js demos/blinky
     ```
 
 1. Then, start a web server:
@@ -47,7 +44,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
     $ node server/server.js
     ```
 
-1. Open http://localhost:7829 in your browser and click 'Blinky'.
+1. Open http://localhost:7829 in your browser.
 1. Blinky runs!
 
 ## Changing mbed-simulator-hal
@@ -59,6 +56,18 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
     ```
     $ node build-libmbed.js
     ```
+
+## Updating demo's
+
+In the `out` folder a number of pre-built demos are listed. To upgrade them:
+
+1. Re-build the demo:
+
+    ```
+    $ node build-demo.js demos\blinky
+    ```
+
+1. Then copy `app.js` from the `demos\blinky\out` into the `out` folder.
 
 ## Attribution
 
