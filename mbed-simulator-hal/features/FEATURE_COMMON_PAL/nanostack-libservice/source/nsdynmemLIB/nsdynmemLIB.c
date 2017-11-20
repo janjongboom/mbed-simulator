@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define STANDARD_MALLOC 1
+
 #include <stdint.h>
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "platform/arm_hal_interrupt.h"
 #include <stdlib.h>
 #include "ns_list.h"
+
+static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 
 #ifndef STANDARD_MALLOC
 typedef enum mem_stat_update_t {
@@ -42,8 +46,6 @@ struct ns_mem_book {
     NS_LIST_HEAD(hole_t, link) holes_list;
     ns_mem_heap_size_t heap_size;
 };
-
-static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 
 // size of a hole_t in our word units
 #define HOLE_T_SIZE ((sizeof(hole_t) + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t))
@@ -124,11 +126,13 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
         memset(book->mem_stat_info_ptr, 0, sizeof(mem_stat_t));
         book->mem_stat_info_ptr->heap_sector_size = book->heap_size;
     }
-#endif
     //There really is no support to standard malloc in this library anymore
     book->heap_failure_callback = passed_fptr;
 
     return book;
+#else
+    return NULL;
+#endif
 }
 
 const mem_stat_t *ns_mem_get_mem_stat(ns_mem_book_t *heap)

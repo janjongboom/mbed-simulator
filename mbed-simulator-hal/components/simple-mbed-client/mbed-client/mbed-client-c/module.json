@@ -1,0 +1,17 @@
+{
+  "name": "mbed-client-c",
+  "version": "5.0.1",
+  "description": "Nanostack NSDL library",
+  "keywords": [
+    "nanostack"
+  ],
+  "license": "Apache-2.0",
+  "extraIncludes": [
+    "nsdl-c",
+    "source/include"
+  ],
+  "dependencies": {
+    "mbed-coap": "^4.0.0"
+  },
+  "targetDependencies": {}
+}

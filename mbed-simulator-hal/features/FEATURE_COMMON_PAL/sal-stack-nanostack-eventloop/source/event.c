@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdio.h>
 #include <string.h>
 #include "ns_types.h"
 #include "ns_list.h"
@@ -23,7 +24,6 @@
 #include "ns_timer.h"
 #include "event.h"
 #include "platform/arm_hal_interrupt.h"
-
 
 typedef struct arm_core_tasklet {
     int8_t id; /**< Event handler Tasklet ID */
@@ -79,11 +79,13 @@ static int8_t tasklet_get_free_id(void)
 
 int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uint8_t init_event_type)
 {
+    printf("eventOS_event_handler_create\n");
     arm_event_storage_t *event_tmp;
 
     // XXX Do we really want to prevent multiple tasklets with same function?
     ns_list_foreach(arm_core_tasklet_t, cur, &arm_core_tasklet_list) {
         if (cur->func_ptr == handler_func_ptr) {
+            printf("-1\n");
             return -1;
         }
     }
@@ -91,12 +93,14 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uin
     //Allocate new
     arm_core_tasklet_t *new = tasklet_dynamically_allocate();
     if (!new) {
+        printf("-2\n");
         return -2;
     }
 
     event_tmp = event_core_get();
     if (!event_tmp) {
         ns_dyn_mem_free(new);
+        printf("-2a\n");
         return -2;
     }
 
@@ -112,6 +116,8 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uin
     event_tmp->data.event_data = 0;
     event_core_write(event_tmp);
 
+    printf("created it %d\n", new->id);
+
     return new->id;
 }
 
@@ -121,7 +127,8 @@ int8_t eventOS_event_send(const arm_event_t *event)
         arm_event_storage_t *event_tmp = event_core_get();
         if (event_tmp) {
             event_tmp->data = *event;
-            event_core_write(event_tmp);
+            event_tasklet_handler_get(event->receiver)->func_ptr((arm_event_s *)event);
+            // event_core_write(event_tmp);
             return 0;
         }
     }
@@ -131,13 +138,18 @@ int8_t eventOS_event_send(const arm_event_t *event)
 void eventOS_event_send_user_allocated(arm_event_storage_t *event)
 {
     event->allocator = ARM_LIB_EVENT_USER;
-    event_core_write(event);
+
+    event_tasklet_handler_get(event->data.receiver)->func_ptr((arm_event_s *)&event->data);
+
+    // event_core_write(event);
 }
 
 void eventOS_event_send_timer_allocated(arm_event_storage_t *event)
 {
     event->allocator = ARM_LIB_EVENT_TIMER;
-    event_core_write(event);
+
+    event_tasklet_handler_get(event->data.receiver)->func_ptr((arm_event_s *)&event->data);
+    // event_core_write(event);
 }
 
 void eventOS_event_cancel_critical(arm_event_storage_t *event)

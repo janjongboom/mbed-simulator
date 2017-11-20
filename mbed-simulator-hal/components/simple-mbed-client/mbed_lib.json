@@ -1,0 +1,14 @@
+{
+    "name": "simple-mbed-client",
+    "config": {
+        "update-interval": {
+            "help": "How often the device registration needs to be updated (in ms.)",
+            "value": 25000
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["CLIENT"]
+        }
+    }
+}

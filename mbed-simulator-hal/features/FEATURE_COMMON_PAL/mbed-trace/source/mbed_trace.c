@@ -17,9 +17,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef MBED_CONF_MBED_TRACE_ENABLE
-#undef MBED_CONF_MBED_TRACE_ENABLE
-#endif
 #define MBED_CONF_MBED_TRACE_ENABLE 1
 #ifndef MBED_CONF_MBED_TRACE_FEA_IPV6
 #define MBED_CONF_MBED_TRACE_FEA_IPV6 1

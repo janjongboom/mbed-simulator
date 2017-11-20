@@ -59,7 +59,7 @@ extern "C" {
 #include <stdarg.h>
 
 #ifndef YOTTA_CFG_MBED_TRACE
-#define YOTTA_CFG_MBED_TRACE 0
+#define YOTTA_CFG_MBED_TRACE 1
 #endif
 
 #ifndef YOTTA_CFG_MBED_TRACE_FEA_IPV6
@@ -70,7 +70,7 @@ extern "C" {
 #endif
 
 #ifndef MBED_CONF_MBED_TRACE_ENABLE
-#define MBED_CONF_MBED_TRACE_ENABLE 0
+#define MBED_CONF_MBED_TRACE_ENABLE 1
 #endif
 
 #ifndef MBED_CONF_MBED_TRACE_FEA_IPV6
