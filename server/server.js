@@ -165,12 +165,19 @@ app.get('/', (req, res, next) => {
     res.render('simulator.html');
 });
 
+let compilationId = 0;
 app.post('/compile', (req, res, next) => {
+    let id = compilationId++;
+
+    console.time('compile' + id);
     compile(req.body.code, function(err, name) {
+        console.timeEnd('compile' + id);
         if (err) {
-            res.status(500).send(err);
+            console.log('Compilation failed', id);
+            return res.status(500).send(err);
         }
 
+        console.log('Compilation succeeded', id);
         res.send(name);
     });
 });
