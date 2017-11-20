@@ -1,6 +1,6 @@
 # Experimental simulator for Mbed OS 5 applications
 
-**Demo: http://188.226.142.146:7829/**
+**Demo: http://ec2-52-211-146-247.eu-west-1.compute.amazonaws.com:7829**
 
 ![Screenshot](img/simulator.png)
 
