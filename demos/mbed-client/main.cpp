@@ -146,6 +146,7 @@ int main() {
     // Connect to mbed Device Connector
     struct MbedClientOptions opts = client.get_default_options(); // opts contains information like the DeviceType
     bool setup = client.setup(opts, &network);
+    printf("Client.setup called %d\n", setup);
     if (!setup) {
         printf("Client setup failed\n");
         return 1;

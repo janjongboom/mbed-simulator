@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdio.h>
 #include "ns_types.h"
 #include "ns_list.h"
 #include "timer_sys.h"
@@ -23,6 +24,8 @@
 #include "eventOS_event_timer.h"
 #include "event.h"
 #include "eventOS_callback_timer.h"
+#include "emscripten.h"
+#include "Ticker.h"
 
 #include "ns_timer.h"
 
@@ -61,14 +64,19 @@ static void tick_timer_eventOS_callback(int8_t timer_id, uint16_t slots)
     // Not interested in timer id or slots
     (void)slots;
     // Call the tick timer callback
-    if (tick_timer_callback != NULL && timer_id == tick_timer_id) {
+    // if (tick_timer_callback != NULL && timer_id == tick_timer_id) {
         platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
         tick_timer_callback();
-    }
+    // }
 }
 
 static int8_t platform_tick_timer_register(void (*tick_timer_cb)(void))
 {
+    printf("tick_timer_eventOS_callback!!!\n");
+    EM_ASM({
+        console.log('printf("tick_timer_eventOS_callback!!!\n");');
+    });
+
     tick_timer_callback = tick_timer_cb;
     tick_timer_id = eventOS_callback_timer_register(tick_timer_eventOS_callback);
     return tick_timer_id;
@@ -85,6 +93,8 @@ static int8_t platform_tick_timer_stop(void)
 }
 #endif // !NS_EVENTLOOP_USE_TICK_TIMER
 
+static mbed::Ticker t;
+
 /*
  * Initializes timers and starts system timer
  */
@@ -93,6 +103,13 @@ void timer_sys_init(void)
     for (uint8_t i = 0; i < ST_MAX; i++) {
         ns_list_add_to_start(&system_timer_free, &startup_sys_timer_pool[i]);
     }
+
+    printf("timer_sys_init!!!\n");
+    EM_ASM({
+        console.log('printf("timer_sys_init!!!\n");');
+    });
+
+    // t.attach(mbed::callback(&timer_sys_interrupt), 0.1f);
 
     platform_tick_timer_register(timer_sys_interrupt);
     platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
@@ -126,7 +143,7 @@ static void timer_sys_interrupt(void)
 
 static sys_timer_struct_s *sys_timer_dynamically_allocate(void)
 {
-    return ns_dyn_mem_alloc(sizeof(sys_timer_struct_s));
+    return (sys_timer_struct_s *)ns_dyn_mem_alloc(sizeof(sys_timer_struct_s));
 }
 
 static sys_timer_struct_s *timer_struct_get(void)
@@ -169,7 +186,7 @@ void timer_sys_event_cancel_critical(struct arm_event_storage *event)
     sys_timer_struct_s *timer = NS_CONTAINER_OF(event, sys_timer_struct_s, event);
     timer->period = 0;
     // If its unqueued it is on my timer list, otherwise it is in event-loop.
-    if (event->state == ARM_LIB_EVENT_UNQUEUED) {
+    if (event->state == arm_event_storage::ARM_LIB_EVENT_UNQUEUED) {
         ns_list_remove(&system_timer_list, timer);
     }
 }
@@ -219,8 +236,8 @@ static arm_event_storage_t *eventOS_event_timer_request_at_(const arm_event_t *e
     }
 
     timer->event.data = *event;
-    timer->event.allocator = ARM_LIB_EVENT_TIMER;
-    timer->event.state = ARM_LIB_EVENT_UNQUEUED;
+    timer->event.allocator = arm_event_storage::ARM_LIB_EVENT_TIMER;
+    timer->event.state = arm_event_storage::ARM_LIB_EVENT_UNQUEUED;
     timer->launch_time = at;
     timer->period = period;
 
@@ -302,7 +319,7 @@ int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t 
     return ret?0:-1;
 }
 
-int8_t eventOS_event_timer_cancel(uint8_t event_id, int8_t tasklet_id)
+extern "C" int8_t eventOS_event_timer_cancel(uint8_t event_id, int8_t tasklet_id)
 {
     platform_enter_critical();
 
@@ -315,8 +332,9 @@ int8_t eventOS_event_timer_cancel(uint8_t event_id, int8_t tasklet_id)
     }
 
     /* No pending timer, so check for already-pending event */
-    arm_event_storage_t *event = eventOS_event_find_by_id_critical(tasklet_id, event_id);
-    if (event && event->allocator == ARM_LIB_EVENT_TIMER) {
+    arm_event_storage_t *event;
+    event = eventOS_event_find_by_id_critical(tasklet_id, event_id);
+    if (event && event->allocator == arm_event_storage::ARM_LIB_EVENT_TIMER) {
         eventOS_cancel(event);
         goto done;
     }

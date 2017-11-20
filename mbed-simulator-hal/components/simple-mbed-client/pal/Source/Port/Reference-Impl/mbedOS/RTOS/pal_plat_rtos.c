@@ -2,6 +2,7 @@
 
 int32_t pal_plat_osAtomicIncrement(int32_t* valuePtr, int32_t increment) {
     *valuePtr = *valuePtr + 1;
+    return *valuePtr;
 }
 
 palStatus_t pal_plat_osSemaphoreRelease(palSemaphoreID_t semaphoreID) {

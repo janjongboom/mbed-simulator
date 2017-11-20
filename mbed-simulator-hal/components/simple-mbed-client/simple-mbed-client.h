@@ -94,7 +94,7 @@ public:
         client->test_register(register_object, object_list);
 
         // Keep alive ticker (every 25 seconds)
-        updateTicker.attach(callback(this, &SimpleMbedClientBase::keep_alive), MBED_CONF_SIMPLE_MBED_CLIENT_UPDATE_INTERVAL);
+        // updateTicker.attach(callback(this, &SimpleMbedClientBase::keep_alive), MBED_CONF_SIMPLE_MBED_CLIENT_UPDATE_INTERVAL);
 
         return true;
     }

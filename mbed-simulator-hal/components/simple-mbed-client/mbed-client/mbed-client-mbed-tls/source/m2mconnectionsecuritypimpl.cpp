@@ -71,6 +71,7 @@ M2MConnectionSecurityPimpl::M2MConnectionSecurityPimpl(M2MConnectionSecurity::Se
   : _flags(0),
     _sec_mode(mode)
 {
+    tr_debug("M2MConnectionSecurityPimpl::timer_expired");
     _init_done = false;
     cancelled = true;
     _timer = new M2MTimer(*this);
@@ -386,7 +387,7 @@ int f_recv_timeout(void *ctx, unsigned char *buf, size_t len, uint32_t /*some*/)
 
 int entropy_poll( void *, unsigned char *output, size_t len,
                            size_t *olen )
-{    
+{
     uint32_t rdm = 0;
     if(__random_number_callback) {
         rdm = __random_number_callback();
