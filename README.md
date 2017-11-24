@@ -15,9 +15,9 @@ This is a very experimental project.
 
 ## Architecture
 
-The C++ HAL is in `mbed-simulator-hal`. This HAL reflects the Mbed C++ HAL, with most header files exactly the same as their Mbed OS counterparts. Sometimes this is not possible, as there is implementation details in the headers. One such example is `DigitalOut` which sets up pins using Mbed C HAL, which is not available. The implementation of the headers (`.cpp` files) contains the mapping to the JS HAL.
+The C++ HAL is in `mbed-simulator-hal`. This HAL reflects the Mbed C++ HAL, with most header- and source files exactly the same as their Mbed OS counterparts. The C++ HAL maps into the JS HAL (in `targets`), which implements the Mbed C API for compatibility.
 
-The JS HAL lives in `viewer/js-hal`, and dispatches events around between JS UI components and C++ HAL. It implements an event bus to let the UI subscribe to events from C++.
+The JS HAL lives in `viewer/js-hal`, and dispatches events around between JS UI components and C++ HAL. It implements an event bus to let the UI subscribe to events from C++. For instance, see `js-hal/gpio.js` for GPIO and IRQ handling.
 
 UI lives in `viewer/js-ui`, and handles UI events, and only communicates with JS HAL.
 
@@ -63,13 +63,9 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 
 In the `out` folder a number of pre-built demos are listed. To upgrade them:
 
-1. Re-build the demo:
-
-    ```
-    $ node build-demo.js demos\blinky
-    ```
-
-1. Then copy `app.js` from the `demos\blinky\out` into the `out` folder.
+```
+$ sh build-demos.sh
+```
 
 ## Attribution
 

@@ -16,6 +16,10 @@ void Timeout::detach() {
     }, &_function);
 }
 
+void Timeout::handler() {
+    _function.call();
+}
+
 } // namespace mbed
 
 EMSCRIPTEN_KEEPALIVE

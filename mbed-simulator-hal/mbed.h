@@ -4,6 +4,9 @@
 #define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.
 
 #include <stdio.h>
+#include "drivers/BusIn.h"
+#include "drivers/BusInOut.h"
+#include "drivers/BusOut.h"
 #include "drivers/DigitalIn.h"
 #include "drivers/DigitalOut.h"
 #include "drivers/DigitalInOut.h"

@@ -16,6 +16,13 @@ void Ticker::detach() {
     }, &_function);
 }
 
+void Ticker::handler() {
+    // insert_absolute(event.timestamp + _delay);
+    if (_function) {
+        _function();
+    }
+}
+
 } // namespace mbed
 
 EMSCRIPTEN_KEEPALIVE

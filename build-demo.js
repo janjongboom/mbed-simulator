@@ -70,6 +70,8 @@ if (fs.existsSync(outSourceMainCpp)) {
 let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = [ libMbed ].concat(getAllCFiles(folder));
 
+let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');
+
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
     .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-s', 'NO_EXIT_RUNTIME=1' ])
@@ -78,7 +80,7 @@ let args = cFiles
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
     ])
-    .concat([ '-Wall', '-o', Path.join(outFolder, 'app.js') ]);
+    .concat([ '-Wall', '-o', outFile ]);
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));
@@ -93,21 +95,7 @@ cmd.stderr.on('data', data => {
     process.stderr.write(data);
 });
 cmd.on('close', code => {
-    // copy the simulator files...
-    let outHtml = Path.join(outFolder, Path.basename(folder) + '.html');
-    if (fs.existsSync(outHtml)) {
-        fs.unlinkSync(outHtml);
-    }
-    fs.linkSync(Path.join(__dirname, 'viewer', 'simulator.html'), outHtml);
-
-    if (fs.existsSync(Path.join(folder, 'main.cpp'))) {
-        let sourceFolder = Path.join(outFolder, 'source');
-        if (!fs.existsSync(sourceFolder)) fs.mkdirSync(sourceFolder);
-
-        fs.linkSync(Path.join(folder, 'main.cpp'), outSourceMainCpp);
-    }
-
     if (code === 0) {
-        process.stdout.write('Compilation successful, binary is at "' + Path.resolve(Path.join(outFolder, Path.basename(folder) + '.html')) + '"\n');
+        process.stdout.write('Compilation successful, binary is at "' + outFile + '"\n');
     }
 });

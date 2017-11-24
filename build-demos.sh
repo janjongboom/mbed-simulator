@@ -1,24 +1,7 @@
-echo "Building 'blinky'"
-node build-demo.js demos/blinky
-echo "Building 'coap'"
-node build-demo.js demos/coap
-echo "Building 'http'"
-node build-demo.js demos/http
-echo "Building 'https'"
-node build-demo.js demos/https
-echo "Building 'interrupts'"
-node build-demo.js demos/interrupts
-echo "Building 'lcd'"
-node build-demo.js demos/lcd
-echo "Building 'network'"
-node build-demo.js demos/network
-echo "Building 'temperature'"
-node build-demo.js demos/temperature
-
-cp demos/blinky/out/app.js out/blinky.js
-cp demos/coap/out/app.js out/coap.js
-cp demos/http/out/app.js out/http.js
-cp demos/https/out/app.js out/https.js
-cp demos/interrupts/out/app.js out/interrupts.js
-cp demos/lcd/out/app.js out/lcd.js
-cp demos/temperature/out/app.js out/temperature.js
+for dir in demos/*
+do
+    if [[ -d "$dir" && ! -L "$dir" ]]; then
+        echo "Building ${dir}..."
+        node build-demo.js ${dir}
+    fi
+done
