@@ -127,10 +127,13 @@ body {
   position: relative;
 }
 
-#editor-topbar {
+#editor-topbar, #viewer-topbar {
   height: 39px;
   line-height: 38px;
   padding: 0 10px;
+}
+
+#editor-topbar {
   background: #bab9b8;
   border-bottom: solid 1px rgb(117, 117, 117);
 }
@@ -160,4 +163,29 @@ body {
 #run-container {
   float: right;
   font-size: 12px;
+}
+
+#viewer-topbar {
+  background: #fff;
+  border-bottom: solid 1px #eee;
+  margin-bottom: 10px;
+}
+
+.viewer #status {
+  float: right;
+}
+
+#add-component {
+  border: solid 1px green;
+  display: inline-block;
+  padding: 10px;
+  line-height: 3px;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: green;
+}
+
+#add-component:hover {
+  background: rgb(209, 255, 209);
 }
