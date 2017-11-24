@@ -94,6 +94,30 @@ window.MbedJSHal.gpio = (function() {
         obj.emit('pin_write', pin, value);
     }
 
+    function init_analogin(ptr, pin) {
+        declaredPins[pin] = {
+            ptr: ptr,
+            type: TYPE.ANALOG,
+            direction: DIRECTION.INPUT,
+            mode: MODE.PullNone,
+            interrupt: false,
+            value: 0
+        };
+    }
+
+    function init_analogout(ptr, pin, value) {
+        declaredPins[pin] = {
+            ptr: ptr,
+            type: TYPE.ANALOG,
+            direction: DIRECTION.INPUT,
+            mode: MODE.PullNone,
+            interrupt: false,
+            value: value
+        };
+
+        obj.emit('pin_write', pin, value);
+    }
+
     function mode(pin, mode) {
         if (!(pin in declaredPins)) return console.error('Setting undeclared pin mode', pin, mode);
 
@@ -115,7 +139,22 @@ window.MbedJSHal.gpio = (function() {
     function write(pin, value) {
         if (!(pin in declaredPins)) return;
 
-        declaredPins[pin].value = value;
+        if (declaredPins[pin].type === TYPE.DIGITAL) {
+            if (value === 0 || value === 1) {
+                declaredPins[pin].value = value;
+            }
+            else {
+                return console.error('DIGITAL pin should be 0 or 1', pin, value);
+            }
+        }
+        else if (declaredPins[pin].type === TYPE.ANALOG) {
+            if (value >= 0 && value <= 1024) {
+                declaredPins[pin].value = Math.floor(value);
+            }
+            else {
+                return console.error('ANALOG pin should be between 0 and 1024', pin, value);
+            }
+        }
 
         obj.emit('pin_write', pin, value);
 
@@ -163,6 +202,8 @@ window.MbedJSHal.gpio = (function() {
     obj.init_out = init_out;
     obj.init_in = init_in;
     obj.init_inout = init_inout;
+    obj.init_analogin = init_analogin;
+    obj.init_analogout = init_analogout;
     obj.mode = mode;
     obj.dir = dir;
     obj.write = write;

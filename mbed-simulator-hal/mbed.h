@@ -4,6 +4,8 @@
 #define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.
 
 #include <stdio.h>
+#include "drivers/AnalogIn.h"
+#include "drivers/AnalogOut.h"
 #include "drivers/BusIn.h"
 #include "drivers/BusInOut.h"
 #include "drivers/BusOut.h"

@@ -35,5 +35,7 @@
 #include "PortNames.h"
 
 #define DEVICE_INTERRUPTIN    1
+#define DEVICE_ANALOGIN       1
+#define DEVICE_ANALOGOUT      1
 
 #endif  // __LPC17xx_H__

@@ -237,11 +237,11 @@ struct serial_s {
 };
 
 struct analogin_s {
-    ADCName adc;
+    PinName pin;
 };
 
 struct dac_s {
-    DACName dac;
+    PinName pin;
 };
 
 struct can_s {
@@ -260,6 +260,9 @@ struct flash_s {
 	/*  nothing to be stored for now */
 	uint32_t dummy;
 };
+
+typedef struct dac_s dac_t;
+
 #ifdef __cplusplus
 }
 #endif

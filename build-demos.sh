@@ -1,3 +1,5 @@
+node build-libmbed.js
+
 for dir in demos/*
 do
     if [[ -d "$dir" && ! -L "$dir" ]]; then
