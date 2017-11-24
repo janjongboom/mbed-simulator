@@ -20,8 +20,8 @@
 
 #if defined (DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
-// #include "hal/gpio_api.h"
-// #include "hal/gpio_irq_api.h"
+#include "hal/gpio_api.h"
+#include "hal/gpio_irq_api.h"
 #include "platform/Callback.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_toolchain.h"
@@ -145,13 +145,12 @@ public:
      */
     void disable_irq();
 
-    // static void _irq_handler(uint32_t id, gpio_irq_event event);
+    static void _irq_handler(uint32_t id, gpio_irq_event event);
 
 protected:
-    // gpio_t gpio;
-    // gpio_irq_t gpio_irq;
+    gpio_t gpio;
+    gpio_irq_t gpio_irq;
 
-    PinName _pin;
     Callback<void()> _rise;
     Callback<void()> _fall;
 };

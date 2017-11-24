@@ -13,10 +13,10 @@
 
     function attachHandlers(board) {
         var builtInLeds = {
-            537509938: board.querySelector('#led1'),
-            537509940: board.querySelector('#led2'),
-            537509941: board.querySelector('#led3'),
-            537509943: board.querySelector('#led4')
+            50: board.querySelector('#led1'),
+            52: board.querySelector('#led2'),
+            53: board.querySelector('#led3'),
+            55: board.querySelector('#led4')
         };
 
         var builtInButtons = {
@@ -32,7 +32,7 @@
             }
         }
 
-        window.MbedJSHal.pins.on('pin_write', function(pin, value) {
+        window.MbedJSHal.gpio.on('pin_write', function(pin, value) {
             if (pin in builtInLeds) {
                 setBuiltInLed(pin, value);
             }
@@ -40,7 +40,7 @@
 
         // also need to check for initial state
         Object.keys(builtInLeds).forEach(function(pin) {
-            var v = window.MbedJSHal.pins.get_pin_value(pin);
+            var v = window.MbedJSHal.gpio.read(pin);
             if (v !== -1) {
                 setBuiltInLed(pin, v);
             }
@@ -51,11 +51,11 @@
             var el = builtInButtons[pin];
 
             el.onmousedown = function() {
-                window.MbedJSHal.pins.set_pin_value(pin, 1);
+                window.MbedJSHal.gpio.write(pin, 1);
             };
 
             el.onmouseup = function() {
-                window.MbedJSHal.pins.set_pin_value(pin, 0);
+                window.MbedJSHal.gpio.write(pin, 0);
             };
         });
     }

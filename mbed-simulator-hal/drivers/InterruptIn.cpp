@@ -1,64 +1,108 @@
-#include "emscripten.h"
+/* mbed Microcontroller Library
+ * Copyright (c) 2006-2013 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "drivers/InterruptIn.h"
 
 #if DEVICE_INTERRUPTIN
 
 namespace mbed {
 
-InterruptIn::InterruptIn(PinName pin) : _pin(pin)
-{
-    EM_ASM_({
-        window.MbedJSHal.pins.interruptin_init($0);
-    }, _pin);
+InterruptIn::InterruptIn(PinName pin) : gpio(),
+                                        gpio_irq(),
+                                        _rise(NULL),
+                                        _fall(NULL) {
+    // No lock needed in the constructor
+
+    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    gpio_init_in(&gpio, pin);
 }
 
 InterruptIn::~InterruptIn() {
-    EM_ASM_({
-        window.MbedJSHal.pins.interruptin_dtor($0);
-    }, _pin);
+    // No lock needed in the destructor
+    gpio_irq_free(&gpio_irq);
 }
 
 int InterruptIn::read() {
-    return EM_ASM_INT({
-        return window.MbedJSHal.pins.get_pin_value($0);
-    }, _pin);
-}
-
-InterruptIn::operator int() {
-    return read();
-}
-
-void InterruptIn::rise(Callback<void()> func) {
-    _rise = func;
-
-    EM_ASM_({
-        window.MbedJSHal.pins.interruptin_rise_setup($0, $1);
-    }, _pin, &_rise);
-}
-
-void InterruptIn::fall(Callback<void()> func) {
-    _fall = func;
-
-    EM_ASM_({
-        window.MbedJSHal.pins.interruptin_fall_setup($0, $1);
-    }, _pin, &_fall);
+    // Read only
+    return gpio_read(&gpio);
 }
 
 void InterruptIn::mode(PinMode pull) {
-    printf("InterruptIn::mode is not supported in the simulator\n");
+    core_util_critical_section_enter();
+    gpio_mode(&gpio, pull);
+    core_util_critical_section_exit();
+}
+
+void InterruptIn::rise(Callback<void()> func) {
+    core_util_critical_section_enter();
+    if (func) {
+        _rise = func;
+        gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
+    } else {
+        _rise = NULL;
+        gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
+    }
+    core_util_critical_section_exit();
+}
+
+void InterruptIn::fall(Callback<void()> func) {
+    core_util_critical_section_enter();
+    if (func) {
+        _fall = func;
+        gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
+    } else {
+        _fall = NULL;
+        gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
+    }
+    core_util_critical_section_exit();
+}
+
+void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
+    InterruptIn *handler = (InterruptIn*)id;
+    switch (event) {
+        case IRQ_RISE:
+            if (handler->_rise) {
+                handler->_rise();
+            }
+            break;
+        case IRQ_FALL:
+            if (handler->_fall) {
+                handler->_fall();
+            }
+            break;
+        case IRQ_NONE: break;
+    }
 }
 
 void InterruptIn::enable_irq() {
+    core_util_critical_section_enter();
+    gpio_irq_enable(&gpio_irq);
+    core_util_critical_section_exit();
 }
 
 void InterruptIn::disable_irq() {
+    core_util_critical_section_enter();
+    gpio_irq_disable(&gpio_irq);
+    core_util_critical_section_exit();
+}
+
+InterruptIn::operator int() {
+    // Underlying call is atomic
+    return read();
 }
 
 } // namespace mbed
-
-EMSCRIPTEN_KEEPALIVE
-extern "C" void invoke_interruptin_callback(uint32_t fn) {
-    ((mbed::Callback<void()>*)fn)->call();
-}
 
 #endif

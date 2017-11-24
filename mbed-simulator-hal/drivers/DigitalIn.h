@@ -13,77 +13,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_DIGITALOUT_H
-#define MBED_DIGITALOUT_H
+#ifndef MBED_DIGITALIN_H
+#define MBED_DIGITALIN_H
 
 #include "platform/platform.h"
+
 #include "hal/gpio_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
 
-/** A digital output, used for setting the state of a pin
+/** A digital input, used for reading the state of a pin
  *
  * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
- * // Toggle a LED
+ * // Flash an LED while a DigitalIn is true
+ *
  * #include "mbed.h"
  *
+ * DigitalIn enable(p5);
  * DigitalOut led(LED1);
  *
  * int main() {
  *     while(1) {
- *         led = !led;
- *         wait(0.2);
+ *         if(enable) {
+ *             led = !led;
+ *         }
+ *         wait(0.25);
  *     }
  * }
  * @endcode
  * @ingroup drivers
  */
-class DigitalOut {
+class DigitalIn {
 
 public:
-    /** Create a DigitalOut connected to the specified pin
+    /** Create a DigitalIn connected to the specified pin
      *
-     *  @param pin DigitalOut pin to connect to
+     *  @param pin DigitalIn pin to connect to
      */
-    DigitalOut(PinName pin) : gpio() {
+    DigitalIn(PinName pin) : gpio() {
         // No lock needed in the constructor
-        gpio_init_out(&gpio, pin);
+        gpio_init_in(&gpio, pin);
     }
 
-    /** Create a DigitalOut connected to the specified pin
+    /** Create a DigitalIn connected to the specified pin
      *
-     *  @param pin DigitalOut pin to connect to
-     *  @param value the initial pin value
+     *  @param pin DigitalIn pin to connect to
+     *  @param mode the initial mode of the pin
      */
-    DigitalOut(PinName pin, int value) : gpio() {
+    DigitalIn(PinName pin, PinMode mode) : gpio() {
         // No lock needed in the constructor
-        gpio_init_out_ex(&gpio, pin, value);
+        gpio_init_in_ex(&gpio, pin, mode);
     }
-
-    /** Set the output, specified as 0 or 1 (int)
-     *
-     *  @param value An integer specifying the pin output value,
-     *      0 for logical 0, 1 (or any other non-zero value) for logical 1
-     */
-    void write(int value) {
-        // Thread safe / atomic HAL call
-        gpio_write(&gpio, value);
-    }
-
-    /** Return the output setting, represented as 0 or 1 (int)
+    /** Read the input, represented as 0 or 1 (int)
      *
      *  @returns
-     *    an integer representing the output setting of the pin,
+     *    An integer representing the state of the input pin,
      *    0 for logical 0, 1 for logical 1
      */
     int read() {
         // Thread safe / atomic HAL call
         return gpio_read(&gpio);
+    }
+
+    /** Set the input pin mode
+     *
+     *  @param pull PullUp, PullDown, PullNone, OpenDrain
+     */
+    void mode(PinMode pull) {
+        core_util_critical_section_enter();
+        gpio_mode(&gpio, pull);
+        core_util_critical_section_exit();
     }
 
     /** Return the output setting, represented as 0 or 1 (int)
@@ -97,30 +101,11 @@ public:
         return gpio_is_connected(&gpio);
     }
 
-    /** A shorthand for write()
-     * \sa DigitalOut::write()
-     */
-    DigitalOut& operator= (int value) {
-        // Underlying write is thread safe
-        write(value);
-        return *this;
-    }
-
-    /** A shorthand for write()
-     * \sa DigitalOut::write()
-     */
-    DigitalOut& operator= (DigitalOut& rhs) {
-        core_util_critical_section_enter();
-        write(rhs.read());
-        core_util_critical_section_exit();
-        return *this;
-    }
-
-    /** A shorthand for read()
-     * \sa DigitalOut::read()
+    /** An operator shorthand for read()
+     * \sa DigitalIn::read()
      */
     operator int() {
-        // Underlying call is thread safe
+        // Underlying read is thread safe
         return read();
     }
 
