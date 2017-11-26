@@ -32,16 +32,18 @@ var components = [
     // }
 ];
 
-var model = sessionStorage.getItem('model');
-if (model) {
-    model = JSON.parse(model);
+document.body.onload = function() {
+    var model = sessionStorage.getItem('model');
+    if (model) {
+        model = JSON.parse(model);
 
-    model.forEach(function(m) {
-        var component = new window.MbedJSUI[m.component](m.args);
-        component.init();
-        activeComponents.push(component);
-    });
-}
+        model.forEach(function(m) {
+            var component = new window.MbedJSUI[m.component](m.args);
+            component.init();
+            activeComponents.push(component);
+        });
+    }
+};
 
 document.querySelector('#add-component').onclick = function() {
     document.querySelector('#overlay').style.display = 'flex';

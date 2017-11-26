@@ -12,6 +12,12 @@
     }
 
     function attachHandlers(board) {
+        MbedJSHal.gpio.init_out(null, MbedJSHal.PinNames.LED1, 0);
+        MbedJSHal.gpio.init_out(null, MbedJSHal.PinNames.LED2, 0);
+        MbedJSHal.gpio.init_out(null, MbedJSHal.PinNames.LED3, 0);
+        MbedJSHal.gpio.init_out(null, MbedJSHal.PinNames.LED4, 0);
+        MbedJSHal.gpio.init_in(null, MbedJSHal.PinNames.BUTTON1, 0);
+
         var builtInLeds = {};
         builtInLeds[MbedJSHal.PinNames.LED1] = board.querySelector('#led1');
         builtInLeds[MbedJSHal.PinNames.LED2] = board.querySelector('#led2');

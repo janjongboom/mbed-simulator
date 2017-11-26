@@ -55,7 +55,7 @@ window.MbedJSHal.gpio = (function() {
             value: 0
         };
 
-        obj.emit('pin_write', pin, 0, TYPE.DIGITAL);
+        obj.emit('pin_write', Number(pin), 0, TYPE.DIGITAL);
     }
 
     function init_out(ptr, pin, value) {
@@ -68,7 +68,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value, TYPE.DIGITAL);
+        obj.emit('pin_write', Number(pin), value, TYPE.DIGITAL);
     }
 
     function init_in(ptr, pin, mode) {
@@ -92,7 +92,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value, TYPE.DIGITAL);
+        obj.emit('pin_write', Number(pin), value, TYPE.DIGITAL);
     }
 
     function init_analogin(ptr, pin) {
@@ -116,7 +116,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value, TYPE.ANALOG);
+        obj.emit('pin_write', Number(pin), value, TYPE.ANALOG);
     }
 
     function init_pwmout(ptr, pin, pulsewidth_ms, value) {
@@ -131,7 +131,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value, TYPE.PWM);
+        obj.emit('pin_write', Number(pin), value, TYPE.PWM);
     }
 
     function mode(pin, mode) {
@@ -191,7 +191,7 @@ window.MbedJSHal.gpio = (function() {
             }
         }
 
-        obj.emit('pin_write', pin, value, declaredPins[pin].type);
+        obj.emit('pin_write', Number(pin), value, declaredPins[pin].type);
 
         // handle interrupts, if registered
         if (irqPins[pin]) {
@@ -202,6 +202,11 @@ window.MbedJSHal.gpio = (function() {
                 ccall('handle_interrupt_in', 'void', [ 'number', 'number' ], [ irqPins[pin].ptr, IRQ_EVENT.IRQ_RISE ]);
             }
         }
+    }
+
+    function get_type(pin) {
+        if (!declaredPins[pin]) return -1;
+        return declaredPins[pin].type;
     }
 
     function irq_init(irq_ptr, pin) {
@@ -246,6 +251,7 @@ window.MbedJSHal.gpio = (function() {
     obj.dir = dir;
     obj.write = write;
     obj.read = read;
+    obj.get_type = get_type;
 
     obj.irq_init = irq_init;
     obj.irq_free = irq_free;

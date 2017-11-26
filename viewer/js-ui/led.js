@@ -37,6 +37,8 @@
         el.appendChild(img);
 
         this.componentsEl.appendChild(el);
+
+        this._on_pin_write(this.dataPin, MbedJSHal.gpio.read(this.dataPin), MbedJSHal.gpio.get_type(this.dataPin));
     };
 
     Led.prototype.destroy = function() {

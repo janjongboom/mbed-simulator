@@ -213,6 +213,19 @@ body {
   margin-top: 0;
 }
 
+#add-component-btn {
+  margin-top: 20px;
+}
+
+#pins label {
+  margin-right: 10px;
+  font-size: 12px;
+}
+
+#pins select:not(:last-child) {
+  margin-right: 10px;
+}
+
 .component {
   border: solid 1px black;
   text-align: center;
