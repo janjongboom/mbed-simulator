@@ -60,3 +60,5 @@ window.MbedJSHal = {
         Module.printErr('[post-exception status] mbed_die() was called');
     }
 };
+
+window.MbedJSUI = {};

@@ -13,7 +13,7 @@
 </head>
 <body class="viewer">
   <div id="viewer-topbar">
-    <!--div id="add-component">+ Add component</div-->
+    <div id="add-component">+ Add component</div>
     <div id="status">Downloading...</div>
   </div>
 
@@ -29,10 +29,24 @@
       <textarea id="output" rows="8"></textarea>
   </section>
 
+  <section id="overlay">
+    <div id="add-component-modal">
+      <h2>Add component</h2>
+      <select id="select-component">
+      </select>
+      <div>
+        <p>Which pin to use</p>
+        <div id="pins"></div>
+      </div>
+      <button id="add-component-btn">Add component</button>
+    </div>
+  </section>
+
 
   <!-- Required parts of the JS HAL -->
   <script type="text/javascript" src="/js-ui/init.js"></script>
   <script type="text/javascript" src="/js-hal/EventEmitter.js"></script>
+  <script type="text/javascript" src="/js-hal/pinnames.js"></script>
   <script type="text/javascript" src="/js-hal/gpio.js"></script>
   <script type="text/javascript" src="/js-hal/timers.js"></script>
   <script type="text/javascript" src="/js-hal/network.js"></script>
@@ -41,6 +55,8 @@
 
   <!-- UI handling -->
   <script type="text/javascript" src="/js-ui/board.js"></script>
+  <script type="text/javascript" src="/js-ui/led.js"></script>
+  <script type="text/javascript" src="/js-ui/viewer.js"></script>
 
   <!-- User application -->
   <script async type="text/javascript" src="/out/{{script}}.js"></script>

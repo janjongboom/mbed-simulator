@@ -19,7 +19,8 @@ window.MbedJSHal.gpio = (function() {
 
     var TYPE = {
         DIGITAL: 1,
-        ANALOG: 2
+        ANALOG: 2,
+        PWM: 3
     };
 
     var IRQ_EVENT = {
@@ -54,7 +55,7 @@ window.MbedJSHal.gpio = (function() {
             value: 0
         };
 
-        obj.emit('pin_write', pin, 0);
+        obj.emit('pin_write', pin, 0, TYPE.DIGITAL);
     }
 
     function init_out(ptr, pin, value) {
@@ -67,7 +68,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value);
+        obj.emit('pin_write', pin, value, TYPE.DIGITAL);
     }
 
     function init_in(ptr, pin, mode) {
@@ -91,7 +92,7 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value);
+        obj.emit('pin_write', pin, value, TYPE.DIGITAL);
     }
 
     function init_analogin(ptr, pin) {
@@ -115,7 +116,22 @@ window.MbedJSHal.gpio = (function() {
             value: value
         };
 
-        obj.emit('pin_write', pin, value);
+        obj.emit('pin_write', pin, value, TYPE.ANALOG);
+    }
+
+    function init_pwmout(ptr, pin, pulsewidth_ms, value) {
+        declaredPins[pin] = {
+            ptr: ptr,
+            type: TYPE.PWM,
+            direction: DIRECTION.OUTPUT,
+            mode: MODE.PullNone,
+            interrupt: false,
+            pulsewidth_ms: pulsewidth_ms,
+            period_ms: 0,
+            value: value
+        };
+
+        obj.emit('pin_write', pin, value, TYPE.PWM);
     }
 
     function mode(pin, mode) {
@@ -128,6 +144,22 @@ window.MbedJSHal.gpio = (function() {
         if (!(pin in declaredPins)) return console.error('Setting undeclared pin direction', pin, dir);
 
         declaredPins[pin].direction = dir;
+    }
+
+    function pulsewidth_ms(pin, pw) {
+        if (!(pin in declaredPins)) return console.error('Setting undeclared pin pulsewidth', pin, pw);
+
+        declaredPins[pin].pulsewidth_ms = pw;
+
+        obj.emit('pin_pulsewidthms', pin, pw);
+    }
+
+    function period_ms(pin, pw) {
+        if (!(pin in declaredPins)) return console.error('Setting undeclared pin period', pin, pw);
+
+        declaredPins[pin].period_ms = pw;
+
+        obj.emit('pin_period', pin, pw);
     }
 
     function read(pin) {
@@ -147,16 +179,19 @@ window.MbedJSHal.gpio = (function() {
                 return console.error('DIGITAL pin should be 0 or 1', pin, value);
             }
         }
-        else if (declaredPins[pin].type === TYPE.ANALOG) {
+        else if (declaredPins[pin].type === TYPE.ANALOG || declaredPins[pin].type === TYPE.PWM) {
+            if (value < 0) value = 0;
+            if (value > 1024) value = 1024;
+
             if (value >= 0 && value <= 1024) {
                 declaredPins[pin].value = Math.floor(value);
             }
             else {
-                return console.error('ANALOG pin should be between 0 and 1024', pin, value);
+                return console.error('ANALOG|PWMOUT pin should be between 0 and 1024', pin, value);
             }
         }
 
-        obj.emit('pin_write', pin, value);
+        obj.emit('pin_write', pin, value, declaredPins[pin].type);
 
         // handle interrupts, if registered
         if (irqPins[pin]) {
@@ -204,6 +239,9 @@ window.MbedJSHal.gpio = (function() {
     obj.init_inout = init_inout;
     obj.init_analogin = init_analogin;
     obj.init_analogout = init_analogout;
+    obj.init_pwmout = init_pwmout;
+    obj.pulsewidth_ms = pulsewidth_ms;
+    obj.period_ms = period_ms;
     obj.mode = mode;
     obj.dir = dir;
     obj.write = write;
@@ -212,6 +250,8 @@ window.MbedJSHal.gpio = (function() {
     obj.irq_init = irq_init;
     obj.irq_free = irq_free;
     obj.irq_set  = irq_set;
+
+    obj.TYPE = TYPE;
 
     return obj;
 

@@ -12,18 +12,20 @@
     }
 
     function attachHandlers(board) {
-        var builtInLeds = {
-            50: board.querySelector('#led1'),
-            52: board.querySelector('#led2'),
-            53: board.querySelector('#led3'),
-            55: board.querySelector('#led4')
-        };
+        var builtInLeds = {};
+        builtInLeds[MbedJSHal.PinNames.LED1] = board.querySelector('#led1');
+        builtInLeds[MbedJSHal.PinNames.LED2] = board.querySelector('#led2');
+        builtInLeds[MbedJSHal.PinNames.LED3] = board.querySelector('#led3');
+        builtInLeds[MbedJSHal.PinNames.LED4] = board.querySelector('#led4');
 
-        var builtInButtons = {
-            1337: board.querySelector('#button1')
-        };
+        var builtInButtons = {};
+        builtInButtons[MbedJSHal.PinNames.BUTTON1] = board.querySelector('#button1');
 
-        function setBuiltInLed(pin, value) {
+        function setBuiltInLed(pin, value, type) {
+            if (type !== MbedJSHal.gpio.TYPE.DIGITAL) {
+                return console.error('PwmOut not supported on built-in LEDs');
+            }
+
             if (value === 1) {
                 builtInLeds[pin].setAttribute('fill', '#FBBE0E');
             }
@@ -32,9 +34,9 @@
             }
         }
 
-        window.MbedJSHal.gpio.on('pin_write', function(pin, value) {
+        window.MbedJSHal.gpio.on('pin_write', function(pin, value, type) {
             if (pin in builtInLeds) {
-                setBuiltInLed(pin, value);
+                setBuiltInLed(pin, value, type);
             }
         });
 
@@ -42,7 +44,7 @@
         Object.keys(builtInLeds).forEach(function(pin) {
             var v = window.MbedJSHal.gpio.read(pin);
             if (v !== -1) {
-                setBuiltInLed(pin, v);
+                setBuiltInLed(pin, v, MbedJSHal.gpio.TYPE.DIGITAL);
             }
         });
 

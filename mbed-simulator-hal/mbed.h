@@ -12,6 +12,7 @@
 #include "drivers/DigitalIn.h"
 #include "drivers/DigitalOut.h"
 #include "drivers/DigitalInOut.h"
+#include "drivers/PwmOut.h"
 #include "drivers/InterruptIn.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"

@@ -2,6 +2,10 @@ var editor = ace.edit("editor");
 editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
 
+var demoComponents = {
+    pwmout: [ { "component": "LedRed", "args": { "LED" : MbedJSHal.PinNames.p5 } } ]
+};
+
 if (document.location.hash) {
     if (document.location.hash.indexOf('#user') === 0) {
         // user script
@@ -36,6 +40,12 @@ function load_demo(demo) {
     var x = new XMLHttpRequest();
     x.onload = function() {
         if (x.status === 200) {
+            sessionStorage.removeItem('model');
+
+            if (demoComponents[demo]) {
+                sessionStorage.setItem('model', JSON.stringify(demoComponents[demo]));
+            }
+
             editor.setValue(x.responseText);
             editor.selection.clearSelection();
             editor.selection.moveCursorTo(0, 0);

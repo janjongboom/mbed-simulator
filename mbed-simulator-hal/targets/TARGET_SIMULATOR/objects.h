@@ -228,8 +228,7 @@ struct port_s {
 };
 
 struct pwmout_s {
-    __IO uint32_t *MR;
-    PWMName pwm;
+    PinName pin;
 };
 
 struct serial_s {
@@ -262,6 +261,7 @@ struct flash_s {
 };
 
 typedef struct dac_s dac_t;
+typedef struct pwmout_s pwmout_t;
 
 #ifdef __cplusplus
 }
