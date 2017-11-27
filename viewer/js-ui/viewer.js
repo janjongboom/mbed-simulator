@@ -16,11 +16,11 @@ var components = [
     // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
     // { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
     // { component: 'TMP35', name: 'TMP35 Analog temperature sensor', pins: [ 'Temperature' ] },
-    // {
-    //     component: 'SHT31',
-    //     name: 'SHT31 Digital temperature / humidity sensor',
-    //     pins: [ { name: 'SDA', value: 'I2C_SDA' }, { name: 'SCL', value: 'I2C_SCL' } ]
-    // },
+    {
+        component: 'sht31',
+        name: 'SHT31 temperature / humidity sensor',
+        pins: [ { name: 'SDA', value: [ 'p9' ] }, { name: 'SCL', value: [ 'p10' ] } ]
+    },
     {
         component: 'C12832',
         name: 'C12832 LCD display',

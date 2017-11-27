@@ -3,8 +3,21 @@ editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
 
 var demoComponents = {
-    pwmout: [ { "component": "LedRed", "args": { "LED" : MbedJSHal.PinNames.p5 } } ],
-    lcd: [ { "component": "C12832", "args": { "MOSI": 9, "MISO": 8, "SCK": 7 } } ]
+    pwmout: [
+        { component: "LedRed", args: { LED : MbedJSHal.PinNames.p5 } }
+    ],
+    lcd: [{
+        component: "C12832",
+        args: {
+            MOSI: MbedJSHal.PinNames.SPI_MOSI,
+            MISO: MbedJSHal.PinNames.SPI_MISO,
+            SCK: MbedJSHal.PinNames.SPI_SCK
+        }
+    }],
+    temperature: [
+        { component: "C12832", args: { MOSI: MbedJSHal.PinNames.SPI_MOSI, MISO: MbedJSHal.PinNames.SPI_MISO, SCK: MbedJSHal.PinNames.SPI_SCK } },
+        { component: "sht31", args: { SDA: MbedJSHal.PinNames.I2C_SDA, SCL: MbedJSHal.PinNames.I2C_SCL } }
+    ]
 };
 
 if (document.location.hash) {
