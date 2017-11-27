@@ -300,6 +300,11 @@ protected:
     unsigned int contrast;
     unsigned int auto_up;
 
+private:
+    PinName _mosi;
+    PinName _miso;
+    PinName _sck;
+
 };
 
 

@@ -30,11 +30,11 @@
 
 
 C12832::C12832(PinName mosi, PinName sck, PinName reset, PinName a0, PinName ncs, const char* name)
-    : GraphicsDisplay(name)
+    : GraphicsDisplay(name), _mosi(mosi), _miso(reset), _sck(sck)
 {
-    EM_ASM({
-        window.MbedJSHal.C12832.init();
-    });
+    EM_ASM_({
+        window.MbedJSHal.C12832.init($0, $1, $2);
+    }, _mosi, _miso, _sck);
     orientation = 1;
     draw_mode = NORMAL;
     char_x = 0;
@@ -127,8 +127,8 @@ void C12832::pixel(int x, int y, int color)
 void C12832::copy_to_lcd(void)
 {
     EM_ASM_({
-        window.MbedJSHal.C12832.update_display(new Uint8Array(Module.HEAPU8.buffer, $0, 4096));
-    }, buffer);
+        window.MbedJSHal.C12832.update_display($0, $1, $2, new Uint8Array(Module.HEAPU8.buffer, $3, 4096));
+    }, _mosi, _miso, _sck, buffer);
 }
 
 void C12832::cls(void)

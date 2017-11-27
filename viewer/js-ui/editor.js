@@ -3,7 +3,8 @@ editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
 
 var demoComponents = {
-    pwmout: [ { "component": "LedRed", "args": { "LED" : MbedJSHal.PinNames.p5 } } ]
+    pwmout: [ { "component": "LedRed", "args": { "LED" : MbedJSHal.PinNames.p5 } } ],
+    lcd: [ { "component": "C12832", "args": { "MOSI": 9, "MISO": 8, "SCK": 7 } } ]
 };
 
 if (document.location.hash) {

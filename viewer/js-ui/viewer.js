@@ -10,7 +10,7 @@ window.removeComponent = function(instance) {
 };
 
 var components = [
-    { component: 'LedRed', name: 'Red LED', pins: [ 'LED' ] }
+    { component: 'LedRed', name: 'Red LED', pins: [ 'LED' ] },
     // { component: 'LedGreen', name: 'Green LED', pins: [ 'LED' ] },
     // { component: 'LedBlue', name: 'Blue LED', pins: [ 'LED' ] },
     // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
@@ -21,15 +21,15 @@ var components = [
     //     name: 'SHT31 Digital temperature / humidity sensor',
     //     pins: [ { name: 'SDA', value: 'I2C_SDA' }, { name: 'SCL', value: 'I2C_SCL' } ]
     // },
-    // {
-    //     component: 'C12832',
-    //     name: 'C12832 LCD display',
-    //     pins: [
-    //         { name: 'MOSI', value: 'I2C_SDA' },
-    //         { name: 'MISO', value: 'I2C_SCL' },
-    //         { name: 'SCK',  value: 'I2C_SCK' }
-    //     ]
-    // }
+    {
+        component: 'C12832',
+        name: 'C12832 LCD display',
+        pins: [
+            { name: 'MOSI', value: 'SPI_MOSI' },
+            { name: 'MISO', value: 'SPI_MISO' },
+            { name: 'SCK',  value: 'SPI_SCK' }
+        ]
+    }
 ];
 
 document.body.onload = function() {
@@ -41,6 +41,7 @@ document.body.onload = function() {
             var component = new window.MbedJSUI[m.component](m.args);
             component.init();
             activeComponents.push(component);
+            activeComponentModel.push(m);
         });
     }
 };
@@ -71,14 +72,18 @@ document.querySelector('#select-component').onchange = function(e) {
         var label = document.createElement('label');
         label.textContent = typeof pin === 'object' ? pin.name : pin;
         var select = document.createElement('select');
-        select.dataset.pin = pin;
 
         if (typeof pin === 'object') {
+            select.dataset.pin = pin.name;
+
             var opt = document.createElement('option');
             opt.textContent = pin.value;
+            opt.value = MbedJSHal.PinNames[pin.value];
             select.appendChild(opt);
         }
         else {
+            select.dataset.pin = pin;
+
             Object.keys(MbedJSHal.PinNames).map(function(p) {
                 var opt = document.createElement('option');
                 opt.textContent = p;
@@ -96,6 +101,7 @@ document.querySelector('#select-component').onchange = function(e) {
             curr[select.dataset.pin] = Number(s.value);
             return curr;
         }, {});
+        console.log('args', args);
         var component = new window.MbedJSUI[obj.component](args);
         component.init();
         activeComponents.push(component);
