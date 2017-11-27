@@ -10,12 +10,12 @@ window.removeComponent = function(instance) {
 };
 
 var components = [
-    { component: 'LedRed', name: 'Red LED', pins: [ 'LED' ] },
-    { component: 'LedGreen', name: 'Green LED', pins: [ 'LED' ] },
-    { component: 'LedBlue', name: 'Blue LED', pins: [ 'LED' ] },
-    { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
-    { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
-    { component: 'TMP35', name: 'TMP35 Analog temperature sensor', pins: [ 'Temperature' ] },
+    { component: 'LedRed', name: 'Red LED', pins: [ 'LED' ] }
+    // { component: 'LedGreen', name: 'Green LED', pins: [ 'LED' ] },
+    // { component: 'LedBlue', name: 'Blue LED', pins: [ 'LED' ] },
+    // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
+    // { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
+    // { component: 'TMP35', name: 'TMP35 Analog temperature sensor', pins: [ 'Temperature' ] },
     // {
     //     component: 'SHT31',
     //     name: 'SHT31 Digital temperature / humidity sensor',
