@@ -32,11 +32,6 @@ else {
     window.addEventListener('load', setDemoComponents);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('editor.onload');
-
-});
-
 if (document.location.hash) {
     if (document.location.hash.indexOf('#user') === 0) {
         // user script
