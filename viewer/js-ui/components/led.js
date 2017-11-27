@@ -58,7 +58,8 @@
     };
 
     exports.LedRed = Led.bind(Led, 'led_red.png');
-    exports.LedGreen = Led.bind(Led, 'led_green.png');
     exports.LedBlue = Led.bind(Led, 'led_blue.png');
+    exports.LedYellow = Led.bind(Led, 'led_yellow.png');
+    exports.LedWhite = Led.bind(Led, 'led_white.png');
 
 })(window.MbedJSUI);

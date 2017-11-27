@@ -205,7 +205,7 @@ window.MbedJSHal.gpio = (function() {
     }
 
     function get_type(pin) {
-        if (!declaredPins[pin]) return -1;
+        if (!declaredPins[pin]) return TYPE.DIGITAL;
         return declaredPins[pin].type;
     }
 

@@ -11,15 +11,16 @@ window.removeComponent = function(instance) {
 
 var components = [
     { component: 'LedRed', name: 'Red LED', pins: [ 'LED' ] },
-    // { component: 'LedGreen', name: 'Green LED', pins: [ 'LED' ] },
-    // { component: 'LedBlue', name: 'Blue LED', pins: [ 'LED' ] },
+    { component: 'LedBlue', name: 'Blue LED', pins: [ 'LED' ] },
+    { component: 'LedYellow', name: 'Yellow LED', pins: [ 'LED' ] },
+    { component: 'LedWhite', name: 'White LED', pins: [ 'LED' ] },
     // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
     // { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
     // { component: 'TMP35', name: 'TMP35 Analog temperature sensor', pins: [ 'Temperature' ] },
     {
         component: 'sht31',
         name: 'SHT31 temperature / humidity sensor',
-        pins: [ { name: 'SDA', value: [ 'p9' ] }, { name: 'SCL', value: [ 'p10' ] } ]
+        pins: [ { name: 'SDA', value: [ 'p28', 'p9' ] }, { name: 'SCL', value: [ 'p27', 'p10' ] } ]
     },
     {
         component: 'C12832',

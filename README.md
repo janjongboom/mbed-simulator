@@ -71,3 +71,4 @@ $ sh build-demos.sh
 
 * `viewer/img/controller_mbed.svg` - created by [Fritzing](https://github.com/fritzing/fritzing-parts), licensed under Creative Commons Attribution-ShareALike 3.0 Unported.
 * Thermometer by https://codepen.io/mirceageorgescu/pen/Ceylz. Licensed under MIT.
+* LED icons from https://pixabay.com/en/led-icon-logo-business-light-1715226/, Licensed under CC0 Creative Commons.

@@ -26,11 +26,13 @@
         p.appendChild(this.createDestroyEl());
         el.appendChild(p);
 
-        el.innerHTML +=
-            '<div class="sht31">' +
-                '<div class="thermometer sht31-comp"><div class="sht31-before"></div><span class="sht31-content">20&deg;C</span><div class="sht31-after"></div></div>' +
-                '<div class="humidity sht31-comp"><div class="sht31-before"></div><span class="sht31-content">31%</span><div class="sht31-after"></div></div>' +
-            '</div>';
+        var wrapper = document.createElement('div');
+        wrapper.classList.add('sht31');
+        wrapper.innerHTML =
+            '<div class="thermometer sht31-comp"><div class="sht31-before"></div><span class="sht31-content">20&deg;C</span><div class="sht31-after"></div></div>' +
+            '<div class="humidity sht31-comp"><div class="sht31-before"></div><span class="sht31-content">31%</span><div class="sht31-after"></div></div>';
+
+        el.appendChild(wrapper);
 
         this.tempEl = el.querySelector('.thermometer');
         this.humiEl = el.querySelector('.humidity');
