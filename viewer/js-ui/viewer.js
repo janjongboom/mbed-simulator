@@ -25,9 +25,9 @@ var components = [
         component: 'C12832',
         name: 'C12832 LCD display',
         pins: [
-            { name: 'MOSI', value: 'SPI_MOSI' },
-            { name: 'MISO', value: 'SPI_MISO' },
-            { name: 'SCK',  value: 'SPI_SCK' }
+            { name: 'MOSI', value: [ 'p5', 'p11' ] },
+            { name: 'MISO', value: [ 'p6', 'p12' ] },
+            { name: 'SCK',  value: [ 'p7', 'p13' ] }
         ]
     }
 ];
@@ -76,10 +76,12 @@ document.querySelector('#select-component').onchange = function(e) {
         if (typeof pin === 'object') {
             select.dataset.pin = pin.name;
 
-            var opt = document.createElement('option');
-            opt.textContent = pin.value;
-            opt.value = MbedJSHal.PinNames[pin.value];
-            select.appendChild(opt);
+            pin.value.forEach(function(p) {
+                var opt = document.createElement('option');
+                opt.textContent = p;
+                opt.value = MbedJSHal.PinNames[p];
+                select.appendChild(opt);
+            });
         }
         else {
             select.dataset.pin = pin;
