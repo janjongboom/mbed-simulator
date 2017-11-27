@@ -2,23 +2,40 @@ var editor = ace.edit("editor");
 editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
 
-var demoComponents = {
-    pwmout: [
-        { component: "LedRed", args: { LED : MbedJSHal.PinNames.p5 } }
-    ],
-    lcd: [{
-        component: "C12832",
-        args: {
-            MOSI: MbedJSHal.PinNames.SPI_MOSI,
-            MISO: MbedJSHal.PinNames.SPI_MISO,
-            SCK: MbedJSHal.PinNames.SPI_SCK
-        }
-    }],
-    temperature: [
-        { component: "C12832", args: { MOSI: MbedJSHal.PinNames.SPI_MOSI, MISO: MbedJSHal.PinNames.SPI_MISO, SCK: MbedJSHal.PinNames.SPI_SCK } },
-        { component: "sht31", args: { SDA: MbedJSHal.PinNames.I2C_SDA, SCL: MbedJSHal.PinNames.I2C_SCL } }
-    ]
-};
+var demoComponents = {};
+
+function setDemoComponents() {
+    demoComponents = {
+        pwmout: [
+            { component: "LedRed", args: { LED : MbedJSHal.PinNames.p5 } }
+        ],
+        lcd: [{
+            component: "C12832",
+            args: {
+                MOSI: MbedJSHal.PinNames.SPI_MOSI,
+                MISO: MbedJSHal.PinNames.SPI_MISO,
+                SCK: MbedJSHal.PinNames.SPI_SCK
+            }
+        }],
+        temperature: [
+            { component: "C12832", args: { MOSI: MbedJSHal.PinNames.SPI_MOSI, MISO: MbedJSHal.PinNames.SPI_MISO, SCK: MbedJSHal.PinNames.SPI_SCK } },
+            { component: "sht31", args: { SDA: MbedJSHal.PinNames.I2C_SDA, SCL: MbedJSHal.PinNames.I2C_SCL } }
+        ]
+    };
+}
+
+console.log(document.readyState);
+if (document.readyState === 'complete') {
+    setDemoComponents();
+}
+else {
+    window.addEventListener('load', setDemoComponents);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('editor.onload');
+
+});
 
 if (document.location.hash) {
     if (document.location.hash.indexOf('#user') === 0) {
