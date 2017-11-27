@@ -1,11 +1,15 @@
 (function(exports) {
     function Led(img, pins) {
+        exports.BaseComponent.call(this);
+
         this.img = img;
         this.dataPin = pins.LED;
 
         this.componentsEl = document.querySelector('#components');
         this._on_pin_write = this.on_pin_write.bind(this);
     }
+
+    Led.prototype = Object.create(exports.BaseComponent.prototype);
 
     Led.prototype.init = function() {
         window.MbedJSHal.gpio.on('pin_write', this._on_pin_write);
@@ -16,19 +20,9 @@
         var p = document.createElement('p');
         p.classList.add('description');
 
-        var destroy = document.createElement('span');
-        destroy.classList.add('destroy');
-        destroy.textContent = 'X';
-        destroy.onclick = function() {
-            if (confirm('Do you want to delete this component?')) {
-                this.destroy();
-            }
-        }.bind(this);
+        p.textContent = 'LED (' + this.pinNameForPin(this.dataPin) + ')';
 
-        p.textContent = 'LED (' + Object.keys(MbedJSHal.PinNames).find(function(p) {
-            return MbedJSHal.PinNames[p] === this.dataPin;
-        }.bind(this)) + ')';
-        p.appendChild(destroy);
+        p.appendChild(this.createDestroyEl());
         el.appendChild(p);
 
         var img = document.createElement('img');
