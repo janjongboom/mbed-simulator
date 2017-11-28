@@ -24,7 +24,6 @@ function setDemoComponents() {
     };
 }
 
-console.log(document.readyState);
 if (document.readyState === 'complete') {
     setDemoComponents();
 }

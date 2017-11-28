@@ -175,6 +175,17 @@ body {
   float: right;
 }
 
+.viewer #refresh {
+  float: right;
+  margin-left: 20px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.viewer #refresh:hover {
+  color: #333;
+}
+
 #add-component {
   border: solid 1px green;
   display: inline-block;
