@@ -53,8 +53,10 @@ let cFiles = getAllCFiles(Path.join(__dirname, 'mbed-simulator-hal'));
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
     .concat([
-        '-s', 'EMTERPRETIFY=1',
-        '-s', 'EMTERPRETIFY_ASYNC=1',
+        //'-s', 'EMTERPRETIFY=1',
+        //'-s', 'EMTERPRETIFY_ASYNC=1',
+
+        '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
         '-s', 'SIDE_MODULE=1',
 

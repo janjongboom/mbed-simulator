@@ -74,13 +74,22 @@ let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');
 
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
-    .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-s', 'NO_EXIT_RUNTIME=1' ])
     .concat([
+        //'-s', 'EMTERPRETIFY=1',
+        //'-s', 'EMTERPRETIFY_ASYNC=1',
+
+        '-s', 'ASYNCIFY=1',
+        '-s', 'NO_EXIT_RUNTIME=1',
+
         '-D__MBED__',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
-    ])
-    .concat([ '-Wall', '-o', outFile ]);
+
+        '-g4',
+
+        '-Wall',
+        '-o', outFile
+    ]);
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));

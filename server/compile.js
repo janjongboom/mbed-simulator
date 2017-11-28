@@ -65,13 +65,23 @@ module.exports = function(content, callback) {
 
         let args = c
             .concat(includeDirectories.map(i => '-I' + i))
-            .concat([ '-s', 'EMTERPRETIFY=1', '-s', 'EMTERPRETIFY_ASYNC=1', '-s', 'NO_EXIT_RUNTIME=1' ])
             .concat([
+                // '-s', 'EMTERPRETIFY=1',
+                // '-s', 'EMTERPRETIFY_ASYNC=1',
+
+                '-s', 'ASYNCIFY=1',
+                '-s', 'NO_EXIT_RUNTIME=1',
+
+                '-g4',
+                // '-O2',
+
                 '-D__MBED__',
                 '-DMBEDTLS_TEST_NULL_ENTROPY',
                 '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
-            ])
-            .concat([ '-Wall', '-o', Path.join(outFolder, name + '.js') ]);
+
+                '-Wall',
+                '-o', Path.join(outFolder, name + '.js')
+            ]);
 
         let cmd = spawn('emcc', args);
 

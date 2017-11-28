@@ -11,5 +11,5 @@ void wait_ms(int ms) {
 }
 
 void wait_us(int us) {
-    emscripten_sleep_with_yield(us / 1000);
+    emscripten_sleep(us / 1000);
 }

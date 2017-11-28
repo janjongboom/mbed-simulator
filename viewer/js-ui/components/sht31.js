@@ -78,7 +78,7 @@
 
         this.humiEl.querySelector('.sht31-content').textContent = (this.humidity / 100).toFixed(2) + '%';
 
-        MbedJSHal.sht31.update_humidity(this.pins.SDA, this.pins.SCL, this.temp);
+        MbedJSHal.sht31.update_humidity(this.pins.SDA, this.pins.SCL, this.humidity);
     };
 
     Sht31.prototype.change = function(ev) {
