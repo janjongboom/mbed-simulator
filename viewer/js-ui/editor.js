@@ -1,3 +1,11 @@
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-3800502-30', { cookieDomain: 'none' });
+ga('send', 'pageview');
+
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
@@ -82,6 +90,14 @@ function load_demo(demo) {
             alert('Failed to compile, see browser console...');
             console.error('Failed to load demo...', x.status);
         }
+
+        if (ga && typeof ga === 'function') {
+            ga('send', {
+                hitType: 'event',
+                eventCategory: 'load-demo',
+                eventAction: demo
+            });
+        }
     };
     x.open('GET', '/demos/' + demo + '/main.cpp');
     x.send();
@@ -114,6 +130,14 @@ document.querySelector('#run').onclick = function() {
             console.error(x.responseText);
 
             status.textContent = 'Compilation failed, see console!';
+        }
+
+        if (ga && typeof ga === 'function') {
+            ga('send', {
+                hitType: 'event',
+                eventCategory: 'compile',
+                eventAction: x.status === 200 ? 'success' : 'failure'
+            });
         }
     };
     x.open('POST', '/compile');
