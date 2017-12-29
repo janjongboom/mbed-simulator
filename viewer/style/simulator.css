@@ -159,10 +159,13 @@ body {
   padding: 10px;
 }
 
-#header a {
+#header #links {
   float: right;
   line-height: 43px;
   font-size: 14px;
+}
+
+#links a {
   color: white;
 }
 
