@@ -115,11 +115,16 @@ body {
   display: flex;
 }
 
-#project iframe {
+#viewer {
   border: 0;
   width: 50vw;
-  height: calc(100vh - 63px);
   border-left: solid 1px #ccc;
+}
+
+#project iframe {
+  border: 0;
+  width: 100%;
+  height: calc(100vh - 63px);
 }
 
 #editor-container {
@@ -259,4 +264,21 @@ body {
 
 .component .destroy:hover {
   color: #333;
+}
+
+#compilation-failed {
+  padding: 15px;
+  display: none;
+}
+
+#compilation-failed h3 {
+  margin-top: 0;
+  font-weight: 300;
+  color: darkred;
+  border-bottom: solid 1px darkred;
+  padding-bottom: 13px;
+}
+
+#compilation-failed pre {
+  white-space: pre-wrap;
 }

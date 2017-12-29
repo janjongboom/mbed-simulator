@@ -1,11 +1,3 @@
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-3800502-30');
-ga('send', 'pageview');
-
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
@@ -39,6 +31,9 @@ else {
     window.addEventListener('load', setDemoComponents);
 }
 
+var simulatorFrame = document.querySelector('#viewer iframe');
+var compilationFailed = document.querySelector('#compilation-failed');
+
 if (document.location.hash) {
     if (document.location.hash.indexOf('#user') === 0) {
         // user script
@@ -50,7 +45,9 @@ if (document.location.hash) {
                 editor.selection.clearSelection();
                 editor.selection.moveCursorTo(0, 0);
 
-                document.querySelector('iframe').src = '/view/' + script;
+                simulatorFrame.src = '/view/' + script;
+                simulatorFrame.style.display = 'block';
+                compilationFailed.style.display = 'none';
             }
         };
         x.open('GET', '/out/' + script + '.cpp');
@@ -83,7 +80,10 @@ function load_demo(demo) {
             editor.selection.clearSelection();
             editor.selection.moveCursorTo(0, 0);
 
-            document.querySelector('iframe').src = '/view/' + demo;
+            simulatorFrame.src = '/view/' + demo;
+            simulatorFrame.style.display = 'block';
+            compilationFailed.style.display = 'none';
+
             document.location.hash = '#' + demo;
         }
         else {
@@ -121,15 +121,23 @@ document.querySelector('#run').onclick = function() {
         btn.removeAttribute('disabled');
 
         if (x.status === 200) {
-            document.querySelector('iframe').src = '/view/' + x.responseText;
+            simulatorFrame.src = '/view/' + x.responseText;
             status.textContent = '';
             document.location.hash = '#' + x.responseText;
+
+            simulatorFrame.style.display = 'block';
+            compilationFailed.style.display = 'none';
         }
         else {
             console.error('Compilation failed', x.status);
             console.error(x.responseText);
 
-            status.textContent = 'Compilation failed, see console!';
+            status.textContent = 'Compilation failed';
+
+            compilationFailed.querySelector('pre').textContent = x.responseText;
+            compilationFailed.style.display = 'block';
+
+            simulatorFrame.style.display = 'none';
         }
 
         if (ga && typeof ga === 'function') {

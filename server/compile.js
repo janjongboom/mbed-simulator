@@ -98,6 +98,9 @@ module.exports = function(content, callback) {
                 callback(null, name);
             }
             else {
+                // remove all paths to the mbed-simulator folder from the output
+                stdout = stdout.split(Path.join(__dirname, '..')).join('');
+
                 callback(stdout);
             }
         });

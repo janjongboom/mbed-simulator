@@ -58,11 +58,27 @@ int main() {
 </div>
     </section>
 
-    <iframe src="/view/blinky"></iframe>
+    <section id="viewer">
+      <div id="compilation-failed">
+        <h3>Compilation failed</h3>
+        <pre>editor.js:122 out/user_1514549383023.cpp:8:42: error: use of undeclared identifier 'led1'; did you mean 'led'?
+          printf("Blink! LED is now %d\n", led1.read());
+                                          ^~~~
+                                          led
+  out/user_1514549383023.cpp:3:12: note: 'led' declared here
+  DigitalOut led(LED1);
+            ^
+  1 error generated.
+  ERROR:root:compiler frontend failed to generate LLVM bitcode, halting
+        </pre>
+      </div>
+      <iframe src="/view/blinky"></iframe>
+    </section>
   </section>
 
   <script type="text/javascript" src="/ace/ace.js"></script>
-  <script async type="text/javascript" src="/js-hal/pinnames.js"></script>
-  <script async type="text/javascript" src="/js-ui/editor.js"></script>
+  <script type="text/javascript" src="/js-hal/pinnames.js"></script>
+  <script type="text/javascript" src="/js-ui/ga.js"></script>
+  <script type="text/javascript" src="/js-ui/editor.js"></script>
 </body>
 </html>
