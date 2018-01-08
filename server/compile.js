@@ -78,6 +78,7 @@ module.exports = function(content, callback) {
                 '-D__MBED__',
                 '-DMBEDTLS_TEST_NULL_ENTROPY',
                 '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
+                '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
 
                 '-Wall',
                 '-o', Path.join(outFolder, name + '.js')
