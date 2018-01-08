@@ -17,6 +17,8 @@
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
 #include "drivers/Timer.h"
+#include "events/Event.h"
+#include "events/EventQueue.h"
 #include "features/netsocket/NetworkInterface.h"
 #include "features/netsocket/NetworkStack.h"
 #include "features/netsocket/nsapi_dns.h"
@@ -41,5 +43,6 @@
 #include "targets/TARGET_SIMULATOR/PinNames.h"
 
 using namespace mbed;
+using namespace events;
 
 #endif // _MBED_SIMULATOR_CPP_HAL_MBED_H_
