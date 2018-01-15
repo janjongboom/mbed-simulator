@@ -158,6 +158,18 @@ app.post('/api/network/socket_recv', (req, res, next) => {
 });
 
 app.get('/view/:script', (req, res, next) => {
+    if (/\.js\.mem$/.test(req.params.script)) {
+        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+    }
+
+    if (/\.js\.map$/.test(req.params.script)) {
+        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+    }
+
+    if (/\.data$/.test(req.params.script)) {
+        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+    }
+
     res.render('viewer.html', { script: req.params.script });
 });
 
