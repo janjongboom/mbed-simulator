@@ -44,23 +44,34 @@ let args = cFiles
         //'-s', 'EMTERPRETIFY=1',
         //'-s', 'EMTERPRETIFY_ASYNC=1',
 
+        '-std=c++11',
+
         '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
+        // '-s', 'ASSERTIONS=2',
+
+        '--preload-file', '/Users/janjon01/repos/uTensor/TESTS/scripts@/fs',
 
         '-D__MBED__',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
 
+        // '-O2',
+
+        // '-s ASSERTIONS=1',
+
         '-g4',
 
-        '-Wall',
+        //'-Wall',
         '-o', outFile
     ]);
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));
 }
+
+console.log('emcc starting...');
 
 let cmd = spawn('emcc', args);
 
@@ -71,6 +82,7 @@ cmd.stderr.on('data', data => {
     process.stderr.write(data);
 });
 cmd.on('close', code => {
+    console.log('close', code);
     if (code === 0) {
         process.stdout.write('Compilation successful, binary is at "' + outFile + '"\n');
     }
