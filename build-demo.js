@@ -71,8 +71,6 @@ if (verbose) {
     console.log('emcc ' + args.join(' '));
 }
 
-console.log('emcc starting...');
-
 let cmd = spawn('emcc', args);
 
 cmd.stdout.on('data', data => {
