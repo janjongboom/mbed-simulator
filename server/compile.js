@@ -6,7 +6,7 @@ const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles,
 const libMbed = Path.resolve(__dirname, '../mbed-simulator-hal', 'libmbed.bc');
 if (!fs.existsSync(libMbed)) {
     console.log(libMbed + ' does not exist. Run `node build-libmbed.js` first.');
-    process.exit(1);
+    // process.exit(1);
 }
 
 const outFolder = Path.join(__dirname, '..', 'out');
