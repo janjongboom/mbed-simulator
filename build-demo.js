@@ -57,13 +57,13 @@ let args = cFiles
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
 
-        // '-O2',
+        // '-v',
 
-        // '-s ASSERTIONS=1',
+        '-O2',
 
-        '-g4',
+        // '-g4',
 
-        //'-Wall',
+        '-Wall',
         '-o', outFile
     ]);
 
@@ -80,7 +80,6 @@ cmd.stderr.on('data', data => {
     process.stderr.write(data);
 });
 cmd.on('close', code => {
-    console.log('close', code);
     if (code === 0) {
         process.stdout.write('Compilation successful, binary is at "' + outFile + '"\n');
     }

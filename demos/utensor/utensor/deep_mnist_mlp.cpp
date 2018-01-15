@@ -30,7 +30,7 @@ void tensorQuantize(Context& ctx, TName input, TName output,
 void ReluLayer(Context& ctx, TName x, TName x_min, TName x_max,
    TName w, TName w_min, TName w_max, TName b,
     TName z_output) {
-  
+
     //quantized matmul
 
     S_TENSOR out_c = ctx.add(new RamTensor<int>(), "out_c");
@@ -97,7 +97,7 @@ void PredLayer(Context &ctx, TName input, TName input_min,
   ctx.push(new DequantizeOp(), {"reqnt_out_pred", "reqnt_out_min_pred", "reqnt_out_max_pred"}, {"deqnt_out_pred"});
 
   //Add
-  ctx.add(new RamTensor<float>(), "output_z_pred"); 
+  ctx.add(new RamTensor<float>(), "output_z_pred");
   ctx.push(new AddOp<float, float>(), {"deqnt_out_pred", bias}, {"output_z_pred"});
 
   //ArgMax
@@ -107,9 +107,9 @@ void PredLayer(Context &ctx, TName input, TName input_min,
 int runMLP(string inputIdxFile) {
   TensorIdxImporter t_import;
   Context ctx;
-  ctx.add(new RamTensor<unsigned char>(), "x_quantized"); 
+  ctx.add(new RamTensor<unsigned char>(), "x_quantized");
   ctx.add(new RamTensor<float>({1}), "x_min");
-  ctx.add(new RamTensor<float>({1}), "x_max"); 
+  ctx.add(new RamTensor<float>({1}), "x_max");
   ctx.add(t_import.float_import(inputIdxFile), "x");
 
   tensorQuantize(ctx, "x", "x_quantized", "x_min", "x_max");
@@ -125,7 +125,7 @@ int runMLP(string inputIdxFile) {
   ctx.add(new RamTensor<unsigned char>(), "relu_output");
   ctx.add(new RamTensor<float>({1}), "relu_min");
   ctx.add(new RamTensor<float>({1}), "relu_max");
-  ctx.add(new RamTensor<float>(), "z_output"); 
+  ctx.add(new RamTensor<float>(), "z_output");
 
   ReluLayer(ctx, "x_quantized", "x_min", "x_max", "w", "w_min", "w_max", "b", "z_output");
   ctx.eval();
@@ -151,7 +151,7 @@ int runMLP(string inputIdxFile) {
   ctx.add(new RamTensor<float>({1}), "relu_min2");
   ctx.add(new RamTensor<float>({1}), "relu_max2");
 
-  ctx.add(new RamTensor<float>(), "z_output2"); 
+  ctx.add(new RamTensor<float>(), "z_output2");
   ReluLayer(ctx, "relu_output", "relu_min", "relu_max", "w2", "w_min2", "w_max2", "b2", "z_output2");
   ctx.eval();
 
@@ -189,12 +189,12 @@ int runMLP(string inputIdxFile) {
   Tensor* ref_pred = TensorCast<float, int>(ref_out);
 
   double result = Test::meanPercentErr<int>(ref_pred, pred.get());
-  
-  if (result < 0.0001) {
-    printf("PASSED %.8f\r\n\r\n", result);
-  } else {
-    printf("FAILED %.8f\r\n\r\n", result);
-  }
+
+//   if (result < 0.0001) {
+//     printf("PASSED %.8f\r\n\r\n", result);
+//   } else {
+//     printf("FAILED %.8f\r\n\r\n", result);
+//   }
 
   return *(pred->read<int>(0, 0));
   // output layer

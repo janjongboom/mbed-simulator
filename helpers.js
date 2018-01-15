@@ -3,7 +3,12 @@ const Path = require('path');
 const ignore = require('ignore');
 
 const isDirectory = source => fs.lstatSync(source).isDirectory();
-const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory).filter(d => Path.basename(d) !== '.git');
+const getDirectories = source => {
+    return fs.readdirSync(source)
+        .map(name => Path.join(source, name))
+        .filter(isDirectory)
+        .filter(d => Path.basename(d) !== '.git' && Path.basename(d) !== '.hg');
+};
 const getCFiles = source => {
     return fs.readdirSync(source)
         .map(name => Path.join(source, name))
