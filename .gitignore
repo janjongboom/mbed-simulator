@@ -7,3 +7,4 @@ demos/mbed-cloud-client/
 *.bc
 mbed-simulator-hal/components/mbed-http/
 demos/*/out
+mbed-simulator-hal/components/MQTT/
