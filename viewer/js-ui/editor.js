@@ -20,6 +20,9 @@ function setDemoComponents() {
         temperature: [
             { component: "C12832", args: { MOSI: MbedJSHal.PinNames.SPI_MOSI, MISO: MbedJSHal.PinNames.SPI_MISO, SCK: MbedJSHal.PinNames.SPI_SCK } },
             { component: "sht31", args: { SDA: MbedJSHal.PinNames.I2C_SDA, SCL: MbedJSHal.PinNames.I2C_SCL } }
+        ],
+        touchscreen: [
+            { component: 'ST7789H2', args: {} }
         ]
     };
 }
@@ -66,23 +69,33 @@ if (document.location.hash) {
     }
 }
 
+function set_demo_components(demo, cb) {
+    if (document.readyState === 'complete') {
+        if (demoComponents[demo]) {
+            sessionStorage.setItem('model', JSON.stringify(demoComponents[demo]));
+        }
+        cb();
+    }
+    else {
+        window.addEventListener('load', set_demo_components.bind(this, demo, cb));
+    }
+}
+
 function load_demo(demo) {
     var x = new XMLHttpRequest();
     x.onload = function() {
         if (x.status === 200) {
             sessionStorage.removeItem('model');
 
-            if (demoComponents[demo]) {
-                sessionStorage.setItem('model', JSON.stringify(demoComponents[demo]));
-            }
+            set_demo_components(demo, function() {
+                simulatorFrame.src = '/view/' + demo;
+                simulatorFrame.style.display = 'block';
+                compilationFailed.style.display = 'none';
+            });
 
             editor.setValue(x.responseText);
             editor.selection.clearSelection();
             editor.selection.moveCursorTo(0, 0);
-
-            simulatorFrame.src = '/view/' + demo;
-            simulatorFrame.style.display = 'block';
-            compilationFailed.style.display = 'none';
 
             document.location.hash = '#' + demo;
         }

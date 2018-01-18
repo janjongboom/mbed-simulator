@@ -285,3 +285,7 @@ body {
 #compilation-failed pre {
   white-space: pre-wrap;
 }
+
+.st7789h2 canvas {
+  border: solid 1px #ccc;
+}
