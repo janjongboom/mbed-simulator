@@ -30,10 +30,15 @@ var components = [
             { name: 'MISO', value: [ 'p6', 'p12' ] },
             { name: 'SCK',  value: [ 'p7', 'p13' ] }
         ]
+    },
+    {
+        component: 'ST7789H2',
+        name: 'ST7789H2 LCD + FT6x06 Touch Screen',
+        pins: []
     }
 ];
 
-document.body.onload = function() {
+Module.preRun.push(function() {
     var model = sessionStorage.getItem('model');
     if (model) {
         model = JSON.parse(model);
@@ -45,7 +50,7 @@ document.body.onload = function() {
             activeComponentModel.push(m);
         });
     }
-};
+});
 
 document.querySelector('#add-component').onclick = function() {
     document.querySelector('#overlay').style.display = 'flex';
