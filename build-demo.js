@@ -39,8 +39,18 @@ cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.mb
 let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');
 
 let args = cFiles
-    .concat(includeDirectories.map(i => '-I' + i))
-    .concat([
+    .concat(includeDirectories.map(i => '-I' + i));
+
+if (folder === 'demos/utensor') {
+    var utensor_folder = Path.resolve('../uTensor/TESTS/scripts');
+    if (!fs.existsSync(utensor_folder)) {
+        console.error(utensor_folder, 'does not exist, please fix in build-demo.js');
+        process.exit(1);
+    }
+    args.push('--preload-file', utensor_folder + '@/fs');
+}
+
+args = args.concat([
         //'-s', 'EMTERPRETIFY=1',
         //'-s', 'EMTERPRETIFY_ASYNC=1',
 
@@ -49,8 +59,6 @@ let args = cFiles
         '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
         // '-s', 'ASSERTIONS=2',
-
-        '--preload-file', '/Users/janjon01/repos/uTensor/TESTS/scripts@/fs',
 
         '-D__MBED__',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
@@ -61,7 +69,7 @@ let args = cFiles
 
         '-O2',
 
-        // '-g4',
+        '-g4',
 
         '-Wall',
         '-o', outFile

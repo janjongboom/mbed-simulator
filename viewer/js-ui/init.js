@@ -25,9 +25,9 @@ window.dumpCanvasToTmpFile = function() {
         var copyContext = canvasCopy.getContext('2d');
         canvasCopy.width = 28;
         canvasCopy.height = 28;
-        copyContext.drawImage(document.querySelector('#mlp'), 0, 0, 28, 28);
+        copyContext.drawImage(document.querySelector('.st7789h2 canvas'), 0, 0, 28, 28);
 
-        // document.querySelector('#components').appendChild(canvasCopy);
+        document.querySelector('#components').appendChild(canvasCopy);
 
         var imgData = copyContext.getImageData(0, 0, 28, 28).data;
         for (var jx = 0; jx < (28 * 28 * 4); jx += 4) {
@@ -51,68 +51,7 @@ window.dumpCanvasToTmpFile = function() {
 
 var Module = {
     preRun: [],
-    postRun: [
-        function() {
-            var file = new DataView(FS.readFile('/fs/testData/deep_mlp/import-Placeholder_0.idx').buffer, 12, (28 * 28 * 4));
-            window.f = file;
-
-            var c = document.createElement('div');
-            c.innerHTML = '<canvas id="mlp"></canvas><button id="clear-utensor">Clear canvas</button>';
-            c.style.border = 'solid 1px black';
-
-            var PX_SIZE = 4;
-
-            var canvas = c.querySelector('#mlp');
-            canvas.width = 28 * PX_SIZE;
-            canvas.height = 28 * PX_SIZE;
-            var ctx = canvas.getContext('2d');
-            document.querySelector('#components').appendChild(c);
-
-            canvas.onmousedown = function(e) {
-                var x = e.clientX - canvas.offsetLeft;
-                var y = e.clientY - canvas.offsetTop;
-
-                this.X = x;
-                this.Y = y;
-            };
-
-            canvas.onmousemove = function(e) {
-                if (e.buttons !== 1) return;
-                var x = e.clientX - canvas.offsetLeft;
-                var y = e.clientY - canvas.offsetTop;
-
-                ctx.beginPath();
-                ctx.imageSmoothingEnabled = true;
-                ctx.moveTo(this.X, this.Y);
-                ctx.lineCap = 'round';
-                ctx.lineWidth = 5;
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = 'black';
-                ctx.stroke();
-
-                this.X = x;
-                this.Y = y;
-            };
-
-            c.querySelector('#clear-utensor').onclick = function() {
-                ctx.clearRect(0, 0, 28 * PX_SIZE, 28 * PX_SIZE);
-
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(4 * PX_SIZE, 4 * PX_SIZE, 20 * PX_SIZE, 20 * PX_SIZE);
-            };
-
-            c.querySelector('#clear-utensor').onclick();
-
-            // for (var row = 0; row < 28; row++) {
-            //     for (var col = 0; col < 28; col++) {
-            //         var v = file.getFloat32(((row * 28) + col) * 4, false);
-            //         ctx.fillStyle = 'rgba(0, 0, 0, ' + v + ')';
-            //         ctx.fillRect(col * PX_SIZE, row * PX_SIZE, PX_SIZE, PX_SIZE);
-            //     }
-            // }
-        }
-    ],
+    postRun: [],
     print: (function() {
         var element = document.getElementById('output');
         if (element) element.value = ''; // clear browser cache
