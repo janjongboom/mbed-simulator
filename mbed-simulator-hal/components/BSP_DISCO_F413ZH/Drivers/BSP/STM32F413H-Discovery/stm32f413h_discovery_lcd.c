@@ -395,9 +395,10 @@ void BSP_LCD_DisplayStringAtLine(uint16_t Line, uint8_t *ptr)
   */
 uint16_t BSP_LCD_ReadPixel(uint16_t Xpos, uint16_t Ypos)
 {
-  return ((uint16_t)EM_ASM_INT({
-    window.MbedJSHal.ST7789H2.readPixel($0, $1);
-  }, Xpos, Ypos));
+  int pixel = EM_ASM_INT({
+    return window.MbedJSHal.ST7789H2.readPixel($0, $1);
+  }, Xpos, Ypos);
+  return (uint16_t)pixel;
 }
 
 /**
