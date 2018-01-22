@@ -57,12 +57,21 @@ window.MbedJSHal.ST7789H2 = (function() {
     obj.CURR_REG = null;
     obj.CURR_DATA = [];
 
+    obj.pixels = {};
+
     obj.init = function() {
         obj.emit('init');
         console.log('init');
     };
 
+    obj.readPixel = function(x, y) {
+        if (!this.pixels[x] || !this.pixels[x][y]) return 0;
+        return this.pixels[x][y];
+    }
+
     obj.drawPixel = function(x, y, color) {
+        this.pixels[x] = this.pixels[x] || {};
+        this.pixels[x][y] = color;
 
         var r5 = (color >> 11);
         var g6 = (color >> 5) & 0x3f;
