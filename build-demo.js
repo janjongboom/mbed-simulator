@@ -32,7 +32,7 @@ if (fs.existsSync(outSourceMainCpp)) {
 let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = [ libMbed ].concat(getAllCFiles(folder));
 
-includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'))
+includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'));
 cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'));
 
 let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');

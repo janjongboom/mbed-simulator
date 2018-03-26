@@ -7,13 +7,23 @@ const net = require('net');
 const dgram = require('dgram');
 const hbs = require('hbs');
 const Path = require('path');
+const fs = require('fs');
 const compile = require('./compile');
 
 app.set('view engine', 'html');
 app.set('views', Path.join(__dirname, '../viewer'));
 app.engine('html', hbs.__express);
 
-app.use('/out', express.static(__dirname + '/../out'));
+console.log('exists?', fs.existsSync(process.argv[2]));
+
+if (process.argv[2] && fs.existsSync(process.argv[2])) {
+    let folder = Path.join(Path.resolve(process.argv[2]), 'BUILD', 'SIMULATOR');
+    app.use('/out', express.static(folder));
+}
+else {
+    app.use('/out', express.static(__dirname + '/../out'));
+}
+
 app.use('/demos', express.static(__dirname + '/../demos'));
 app.use(express.static(__dirname + '/../viewer'));
 app.use(bodyParser.json());

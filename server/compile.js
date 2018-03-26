@@ -18,7 +18,7 @@ if (!fs.existsSync(outFolder)) {
 let includeDirectories = getAllDirectories(Path.join(__dirname, '../mbed-simulator-hal'));
 let cFiles = [ libMbed ];
 
-includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.mbedignore'))
+includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, '..', 'mbed-simulator-hal', '.simignore'));
 
 module.exports = function(content, callback) {
     var name = 'user_' + Date.now();
