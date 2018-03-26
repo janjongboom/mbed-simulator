@@ -1,20 +1,21 @@
 // The Module object: Our interface to the outside world. We import
-// and export values on it, and do the work to get that through
-// closure compiler if necessary. There are various ways Module can be used:
+// and export values on it. There are various ways Module can be used:
 // 1. Not defined. We create it here
 // 2. A function parameter, function(Module) { ..generated code.. }
 // 3. pre-run appended it, var Module = {}; ..generated code..
 // 4. External script tag defines var Module.
-// We need to do an eval in order to handle the closure compiler
-// case, where this code here is minified but Module was defined
-// elsewhere (e.g. case 4 above). We also need to check if Module
-// already exists (e.g. case 3 above).
+// We need to check if Module already exists (e.g. case 3 above).
+// Substitution will be replaced with actual code on later stage of the build,
+// this way Closure Compiler will not mangle it (e.g. case 4. above).
 // Note that if you want to run closure, and also to use Module
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module;
-if (!Module) Module = (typeof Module !== 'undefined' ? Module : null) || {};
+var Module = typeof Module !== 'undefined' ? Module : {};
+
+// --pre-jses are emitted after the Module integration code, so that they can
+// refer to Module (if they choose; they can also define Module)
+// {{PRE_JSES}}
 
 // Sometimes an existing Module object exists with properties
 // meant to overwrite the default module functionality. Here
@@ -22,7 +23,8 @@ if (!Module) Module = (typeof Module !== 'undefined' ? Module : null) || {};
 // the current environment's defaults to avoid having to be so
 // defensive during initialization.
 var moduleOverrides = {};
-for (var key in Module) {
+var key;
+for (key in Module) {
   if (Module.hasOwnProperty(key)) {
     moduleOverrides[key] = Module[key];
   }
@@ -70,10 +72,11 @@ if (ENVIRONMENT_IS_NODE) {
   var nodePath;
 
   Module['read'] = function shell_read(filename, binary) {
-    if (!nodeFS) nodeFS = require('fs');
-    if (!nodePath) nodePath = require('path');
-    filename = nodePath['normalize'](filename);
-    var ret = nodeFS['readFileSync'](filename);
+    var ret;
+      if (!nodeFS) nodeFS = require('fs');
+      if (!nodePath) nodePath = require('path');
+      filename = nodePath['normalize'](filename);
+      ret = nodeFS['readFileSync'](filename);
     return binary ? ret : ret.toString();
   };
 
@@ -84,10 +87,6 @@ if (ENVIRONMENT_IS_NODE) {
     }
     assert(ret.buffer);
     return ret;
-  };
-
-  Module['load'] = function load(f) {
-    globalEval(read(f));
   };
 
   if (!Module['thisProgram']) {
@@ -110,6 +109,12 @@ if (ENVIRONMENT_IS_NODE) {
       throw ex;
     }
   });
+  // Currently node will swallow unhandled rejections, but this behavior is
+  // deprecated, and in the future it will exit with error status.
+  process['on']('unhandledRejection', function(reason, p) {
+    Module['printErr']('node.js exiting due to unhandled promise rejection');
+    process['exit'](1);
+  });
 
   Module['inspect'] = function () { return '[Emscripten Module object]'; };
 }
@@ -118,16 +123,19 @@ else if (ENVIRONMENT_IS_SHELL) {
   if (typeof printErr != 'undefined') Module['printErr'] = printErr; // not present in v8 or older sm
 
   if (typeof read != 'undefined') {
-    Module['read'] = read;
+    Module['read'] = function shell_read(f) {
+      return read(f);
+    };
   } else {
     Module['read'] = function shell_read() { throw 'no read() available' };
   }
 
   Module['readBinary'] = function readBinary(f) {
+    var data;
     if (typeof readbuffer === 'function') {
       return new Uint8Array(readbuffer(f));
     }
-    var data = read(f, 'binary');
+    data = read(f, 'binary');
     assert(typeof data === 'object');
     return data;
   };
@@ -143,23 +151,22 @@ else if (ENVIRONMENT_IS_SHELL) {
       quit(status);
     }
   }
-
 }
 else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
   Module['read'] = function shell_read(url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
-    xhr.send(null);
-    return xhr.responseText;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, false);
+      xhr.send(null);
+      return xhr.responseText;
   };
 
   if (ENVIRONMENT_IS_WORKER) {
     Module['readBinary'] = function readBinary(url) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, false);
-      xhr.responseType = 'arraybuffer';
-      xhr.send(null);
-      return new Uint8Array(xhr.response);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, false);
+        xhr.responseType = 'arraybuffer';
+        xhr.send(null);
+        return new Uint8Array(xhr.response);
     };
   }
 
@@ -170,9 +177,9 @@ else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
     xhr.onload = function xhr_onload() {
       if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) { // file URLs can return 0
         onload(xhr.response);
-      } else {
-        onerror();
+        return;
       }
+      onerror();
     };
     xhr.onerror = onerror;
     xhr.send(null);
@@ -199,27 +206,15 @@ else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
     }));
   }
 
-  if (ENVIRONMENT_IS_WORKER) {
-    Module['load'] = importScripts;
-  }
-
   if (typeof Module['setWindowTitle'] === 'undefined') {
     Module['setWindowTitle'] = function(title) { document.title = title };
   }
 }
 else {
-  // Unreachable because SHELL is dependant on the others
-  throw 'Unknown runtime environment. Where are we?';
+  // Unreachable because SHELL is dependent on the others
+  throw new Error('Unknown runtime environment. Where are we?');
 }
 
-function globalEval(x) {
-  eval.call(null, x);
-}
-if (!Module['load'] && Module['read']) {
-  Module['load'] = function load(f) {
-    globalEval(Module['read'](f));
-  };
-}
 if (!Module['print']) {
   Module['print'] = function(){};
 }
@@ -249,7 +244,7 @@ Module['preRun'] = [];
 Module['postRun'] = [];
 
 // Merge back in the overrides
-for (var key in moduleOverrides) {
+for (key in moduleOverrides) {
   if (moduleOverrides.hasOwnProperty(key)) {
     Module[key] = moduleOverrides[key];
   }
@@ -262,6 +257,160 @@ moduleOverrides = undefined;
 
 // {{PREAMBLE_ADDITIONS}}
 
+var STACK_ALIGN = 16;
+
+// stack management, and other functionality that is provided by the compiled code,
+// should not be used before it is ready
+stackSave = stackRestore = stackAlloc = setTempRet0 = getTempRet0 = function() {
+  abort('cannot use the stack before compiled code is ready to run, and has provided stack access');
+};
+
+function staticAlloc(size) {
+  assert(!staticSealed);
+  var ret = STATICTOP;
+  STATICTOP = (STATICTOP + size + 15) & -16;
+  return ret;
+}
+
+function dynamicAlloc(size) {
+  assert(DYNAMICTOP_PTR);
+  var ret = HEAP32[DYNAMICTOP_PTR>>2];
+  var end = (ret + size + 15) & -16;
+  HEAP32[DYNAMICTOP_PTR>>2] = end;
+  if (end >= TOTAL_MEMORY) {
+    var success = enlargeMemory();
+    if (!success) {
+      HEAP32[DYNAMICTOP_PTR>>2] = ret;
+      return 0;
+    }
+  }
+  return ret;
+}
+
+function alignMemory(size, factor) {
+  if (!factor) factor = STACK_ALIGN; // stack alignment (16-byte) by default
+  var ret = size = Math.ceil(size / factor) * factor;
+  return ret;
+}
+
+function getNativeTypeSize(type) {
+  switch (type) {
+    case 'i1': case 'i8': return 1;
+    case 'i16': return 2;
+    case 'i32': return 4;
+    case 'i64': return 8;
+    case 'float': return 4;
+    case 'double': return 8;
+    default: {
+      if (type[type.length-1] === '*') {
+        return 4; // A pointer
+      } else if (type[0] === 'i') {
+        var bits = parseInt(type.substr(1));
+        assert(bits % 8 === 0);
+        return bits / 8;
+      } else {
+        return 0;
+      }
+    }
+  }
+}
+
+function warnOnce(text) {
+  if (!warnOnce.shown) warnOnce.shown = {};
+  if (!warnOnce.shown[text]) {
+    warnOnce.shown[text] = 1;
+    Module.printErr(text);
+  }
+}
+
+
+
+var functionPointers = new Array(0);
+
+function addFunction(func) {
+  for (var i = 0; i < functionPointers.length; i++) {
+    if (!functionPointers[i]) {
+      functionPointers[i] = func;
+      return 2*(1 + i);
+    }
+  }
+  throw 'Finished up all reserved function pointers. Use a higher value for RESERVED_FUNCTION_POINTERS.';
+}
+
+function removeFunction(index) {
+  functionPointers[(index-2)/2] = null;
+}
+
+var funcWrappers = {};
+
+function getFuncWrapper(func, sig) {
+  if (!func) return; // on null pointer, return undefined
+  assert(sig);
+  if (!funcWrappers[sig]) {
+    funcWrappers[sig] = {};
+  }
+  var sigCache = funcWrappers[sig];
+  if (!sigCache[func]) {
+    // optimize away arguments usage in common cases
+    if (sig.length === 1) {
+      sigCache[func] = function dynCall_wrapper() {
+        return dynCall(sig, func);
+      };
+    } else if (sig.length === 2) {
+      sigCache[func] = function dynCall_wrapper(arg) {
+        return dynCall(sig, func, [arg]);
+      };
+    } else {
+      // general case
+      sigCache[func] = function dynCall_wrapper() {
+        return dynCall(sig, func, Array.prototype.slice.call(arguments));
+      };
+    }
+  }
+  return sigCache[func];
+}
+
+
+function makeBigInt(low, high, unsigned) {
+  return unsigned ? ((+((low>>>0)))+((+((high>>>0)))*4294967296.0)) : ((+((low>>>0)))+((+((high|0)))*4294967296.0));
+}
+
+function dynCall(sig, ptr, args) {
+  if (args && args.length) {
+    assert(args.length == sig.length-1);
+    assert(('dynCall_' + sig) in Module, 'bad function pointer type - no table for sig \'' + sig + '\'');
+    return Module['dynCall_' + sig].apply(null, [ptr].concat(args));
+  } else {
+    assert(sig.length == 1);
+    assert(('dynCall_' + sig) in Module, 'bad function pointer type - no table for sig \'' + sig + '\'');
+    return Module['dynCall_' + sig].call(null, ptr);
+  }
+}
+
+
+function getCompilerSetting(name) {
+  throw 'You must build with -s RETAIN_COMPILER_SETTINGS=1 for Runtime.getCompilerSetting or emscripten_get_compiler_setting to work';
+}
+
+var Runtime = {
+  // FIXME backwards compatibility layer for ports. Support some Runtime.*
+  //       for now, fix it there, then remove it from here. That way we
+  //       can minimize any period of breakage.
+  dynCall: dynCall, // for SDL2 port
+  // helpful errors
+  getTempRet0: function() { abort('getTempRet0() is now a top-level function, after removing the Runtime object. Remove "Runtime."') },
+  staticAlloc: function() { abort('staticAlloc() is now a top-level function, after removing the Runtime object. Remove "Runtime."') },
+  stackAlloc: function() { abort('stackAlloc() is now a top-level function, after removing the Runtime object. Remove "Runtime."') },
+};
+
+// The address globals begin at. Very low in memory, for code size and optimization opportunities.
+// Above 0 is static memory, starting with globals.
+// Then the stack.
+// Then 'dynamic' memory for sbrk.
+var GLOBAL_BASE = 8;
+
+
+
 // === Preamble library stuff ===
 
 // Documentation for the public APIs defined in this file must be updated in:
@@ -271,142 +420,6 @@ moduleOverrides = undefined;
 // You can also build docs locally as HTML or other formats in site/
 // An online HTML version (which may be of a different version of Emscripten)
 //    is up at http://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html
-
-//========================================
-// Runtime code shared with compiler
-//========================================
-
-var Runtime = {
-  setTempRet0: function (value) {
-    tempRet0 = value;
-    return value;
-  },
-  getTempRet0: function () {
-    return tempRet0;
-  },
-  stackSave: function () {
-    return STACKTOP;
-  },
-  stackRestore: function (stackTop) {
-    STACKTOP = stackTop;
-  },
-  getNativeTypeSize: function (type) {
-    switch (type) {
-      case 'i1': case 'i8': return 1;
-      case 'i16': return 2;
-      case 'i32': return 4;
-      case 'i64': return 8;
-      case 'float': return 4;
-      case 'double': return 8;
-      default: {
-        if (type[type.length-1] === '*') {
-          return Runtime.QUANTUM_SIZE; // A pointer
-        } else if (type[0] === 'i') {
-          var bits = parseInt(type.substr(1));
-          assert(bits % 8 === 0);
-          return bits/8;
-        } else {
-          return 0;
-        }
-      }
-    }
-  },
-  getNativeFieldSize: function (type) {
-    return Math.max(Runtime.getNativeTypeSize(type), Runtime.QUANTUM_SIZE);
-  },
-  STACK_ALIGN: 16,
-  prepVararg: function (ptr, type) {
-    if (type === 'double' || type === 'i64') {
-      // move so the load is aligned
-      if (ptr & 7) {
-        assert((ptr & 7) === 4);
-        ptr += 4;
-      }
-    } else {
-      assert((ptr & 3) === 0);
-    }
-    return ptr;
-  },
-  getAlignSize: function (type, size, vararg) {
-    // we align i64s and doubles on 64-bit boundaries, unlike x86
-    if (!vararg && (type == 'i64' || type == 'double')) return 8;
-    if (!type) return Math.min(size, 8); // align structures internally to 64 bits
-    return Math.min(size || (type ? Runtime.getNativeFieldSize(type) : 0), Runtime.QUANTUM_SIZE);
-  },
-  dynCall: function (sig, ptr, args) {
-    if (args && args.length) {
-      assert(args.length == sig.length-1);
-      assert(('dynCall_' + sig) in Module, 'bad function pointer type - no table for sig \'' + sig + '\'');
-      return Module['dynCall_' + sig].apply(null, [ptr].concat(args));
-    } else {
-      assert(sig.length == 1);
-      assert(('dynCall_' + sig) in Module, 'bad function pointer type - no table for sig \'' + sig + '\'');
-      return Module['dynCall_' + sig].call(null, ptr);
-    }
-  },
-  functionPointers: [],
-  addFunction: function (func) {
-    for (var i = 0; i < Runtime.functionPointers.length; i++) {
-      if (!Runtime.functionPointers[i]) {
-        Runtime.functionPointers[i] = func;
-        return 2*(1 + i);
-      }
-    }
-    throw 'Finished up all reserved function pointers. Use a higher value for RESERVED_FUNCTION_POINTERS.';
-  },
-  removeFunction: function (index) {
-    Runtime.functionPointers[(index-2)/2] = null;
-  },
-  warnOnce: function (text) {
-    if (!Runtime.warnOnce.shown) Runtime.warnOnce.shown = {};
-    if (!Runtime.warnOnce.shown[text]) {
-      Runtime.warnOnce.shown[text] = 1;
-      Module.printErr(text);
-    }
-  },
-  funcWrappers: {},
-  getFuncWrapper: function (func, sig) {
-    if (!func) return; // on null pointer, return undefined
-    assert(sig);
-    if (!Runtime.funcWrappers[sig]) {
-      Runtime.funcWrappers[sig] = {};
-    }
-    var sigCache = Runtime.funcWrappers[sig];
-    if (!sigCache[func]) {
-      // optimize away arguments usage in common cases
-      if (sig.length === 1) {
-        sigCache[func] = function dynCall_wrapper() {
-          return Runtime.dynCall(sig, func);
-        };
-      } else if (sig.length === 2) {
-        sigCache[func] = function dynCall_wrapper(arg) {
-          return Runtime.dynCall(sig, func, [arg]);
-        };
-      } else {
-        // general case
-        sigCache[func] = function dynCall_wrapper() {
-          return Runtime.dynCall(sig, func, Array.prototype.slice.call(arguments));
-        };
-      }
-    }
-    return sigCache[func];
-  },
-  getCompilerSetting: function (name) {
-    throw 'You must build with -s RETAIN_COMPILER_SETTINGS=1 for Runtime.getCompilerSetting or emscripten_get_compiler_setting to work';
-  },
-  stackAlloc: function (size) { var ret = STACKTOP;STACKTOP = (STACKTOP + size)|0;STACKTOP = (((STACKTOP)+15)&-16);(assert((((STACKTOP|0) < (STACK_MAX|0))|0))|0); return ret; },
-  staticAlloc: function (size) { var ret = STATICTOP;STATICTOP = (STATICTOP + (assert(!staticSealed),size))|0;STATICTOP = (((STATICTOP)+15)&-16); return ret; },
-  dynamicAlloc: function (size) { assert(DYNAMICTOP_PTR);var ret = HEAP32[DYNAMICTOP_PTR>>2];var end = (((ret + size + 15)|0) & -16);HEAP32[DYNAMICTOP_PTR>>2] = end;if (end >= TOTAL_MEMORY) {var success = enlargeMemory();if (!success) {HEAP32[DYNAMICTOP_PTR>>2] = ret;return 0;}}return ret;},
-  alignMemory: function (size,quantum) { var ret = size = Math.ceil((size)/(quantum ? quantum : 16))*(quantum ? quantum : 16); return ret; },
-  makeBigInt: function (low,high,unsigned) { var ret = (unsigned ? ((+((low>>>0)))+((+((high>>>0)))*4294967296.0)) : ((+((low>>>0)))+((+((high|0)))*4294967296.0))); return ret; },
-  GLOBAL_BASE: 8,
-  QUANTUM_SIZE: 4,
-  __dummy__: 0
-}
-
-
-
-Module["Runtime"] = Runtime;
 
 
 
@@ -429,152 +442,82 @@ var globalScope = this;
 // Returns the C function with a specified identifier (for C++, you need to do manual name mangling)
 function getCFunc(ident) {
   var func = Module['_' + ident]; // closure exported function
-  if (!func) {
-    try { func = eval('_' + ident); } catch(e) {}
-  }
-  assert(func, 'Cannot call unknown function ' + ident + ' (perhaps LLVM optimizations or closure removed it?)');
+  assert(func, 'Cannot call unknown function ' + ident + ', make sure it is exported');
   return func;
 }
 
-var cwrap, ccall;
-(function(){
-  var JSfuncs = {
-    // Helpers for cwrap -- it can't refer to Runtime directly because it might
-    // be renamed by closure, instead it calls JSfuncs['stackSave'].body to find
-    // out what the minified function name is.
-    'stackSave': function() {
-      Runtime.stackSave()
-    },
-    'stackRestore': function() {
-      Runtime.stackRestore()
-    },
-    // type conversion from js to c
-    'arrayToC' : function(arr) {
-      var ret = Runtime.stackAlloc(arr.length);
-      writeArrayToMemory(arr, ret);
-      return ret;
-    },
-    'stringToC' : function(str) {
-      var ret = 0;
-      if (str !== null && str !== undefined && str !== 0) { // null string
-        // at most 4 bytes per UTF-8 code point, +1 for the trailing '\0'
-        var len = (str.length << 2) + 1;
-        ret = Runtime.stackAlloc(len);
-        stringToUTF8(str, ret, len);
-      }
-      return ret;
-    }
-  };
-  // For fast lookup of conversion functions
-  var toC = {'string' : JSfuncs['stringToC'], 'array' : JSfuncs['arrayToC']};
-
-  // C calling interface.
-  ccall = function ccallFunc(ident, returnType, argTypes, args, opts) {
-    var func = getCFunc(ident);
-    var cArgs = [];
-    var stack = 0;
-    assert(returnType !== 'array', 'Return type should not be "array".');
-    if (args) {
-      for (var i = 0; i < args.length; i++) {
-        var converter = toC[argTypes[i]];
-        if (converter) {
-          if (stack === 0) stack = Runtime.stackSave();
-          cArgs[i] = converter(args[i]);
-        } else {
-          cArgs[i] = args[i];
-        }
-      }
-    }
-    var ret = func.apply(null, cArgs);
-    if ((!opts || !opts.async) && typeof EmterpreterAsync === 'object') {
-      assert(!EmterpreterAsync.state, 'cannot start async op with normal JS calling ccall');
-    }
-    if (opts && opts.async) assert(!returnType, 'async ccalls cannot return values');
-    if (returnType === 'string') ret = Pointer_stringify(ret);
-    if (stack !== 0) {
-      if (opts && opts.async) {
-        EmterpreterAsync.asyncFinalizers.push(function() {
-          Runtime.stackRestore(stack);
-        });
-        return;
-      }
-      Runtime.stackRestore(stack);
+var JSfuncs = {
+  // Helpers for cwrap -- it can't refer to Runtime directly because it might
+  // be renamed by closure, instead it calls JSfuncs['stackSave'].body to find
+  // out what the minified function name is.
+  'stackSave': function() {
+    stackSave()
+  },
+  'stackRestore': function() {
+    stackRestore()
+  },
+  // type conversion from js to c
+  'arrayToC' : function(arr) {
+    var ret = stackAlloc(arr.length);
+    writeArrayToMemory(arr, ret);
+    return ret;
+  },
+  'stringToC' : function(str) {
+    var ret = 0;
+    if (str !== null && str !== undefined && str !== 0) { // null string
+      // at most 4 bytes per UTF-8 code point, +1 for the trailing '\0'
+      var len = (str.length << 2) + 1;
+      ret = stackAlloc(len);
+      stringToUTF8(str, ret, len);
     }
     return ret;
   }
+};
+// For fast lookup of conversion functions
+var toC = {'string' : JSfuncs['stringToC'], 'array' : JSfuncs['arrayToC']};
 
-  var sourceRegex = /^function\s*[a-zA-Z$_0-9]*\s*\(([^)]*)\)\s*{\s*([^*]*?)[\s;]*(?:return\s*(.*?)[;\s]*)?}$/;
-  function parseJSFunc(jsfunc) {
-    // Match the body and the return value of a javascript function source
-    var parsed = jsfunc.toString().match(sourceRegex).slice(1);
-    return {arguments : parsed[0], body : parsed[1], returnValue: parsed[2]}
-  }
-
-  // sources of useful functions. we create this lazily as it can trigger a source decompression on this entire file
-  var JSsource = null;
-  function ensureJSsource() {
-    if (!JSsource) {
-      JSsource = {};
-      for (var fun in JSfuncs) {
-        if (JSfuncs.hasOwnProperty(fun)) {
-          // Elements of toCsource are arrays of three items:
-          // the code, and the return value
-          JSsource[fun] = parseJSFunc(JSfuncs[fun]);
-        }
+// C calling interface.
+function ccall (ident, returnType, argTypes, args, opts) {
+  var func = getCFunc(ident);
+  var cArgs = [];
+  var stack = 0;
+  assert(returnType !== 'array', 'Return type should not be "array".');
+  if (args) {
+    for (var i = 0; i < args.length; i++) {
+      var converter = toC[argTypes[i]];
+      if (converter) {
+        if (stack === 0) stack = stackSave();
+        cArgs[i] = converter(args[i]);
+      } else {
+        cArgs[i] = args[i];
       }
     }
   }
+  var ret = func.apply(null, cArgs);
+  if (returnType === 'string') ret = Pointer_stringify(ret);
+  if (stack !== 0) {
+    stackRestore(stack);
+  }
+  return ret;
+}
 
-  cwrap = function cwrap(ident, returnType, argTypes) {
-    argTypes = argTypes || [];
-    var cfunc = getCFunc(ident);
-    // When the function takes numbers and returns a number, we can just return
-    // the original function
-    var numericArgs = argTypes.every(function(type){ return type === 'number'});
-    var numericRet = (returnType !== 'string');
-    if ( numericRet && numericArgs) {
-      return cfunc;
-    }
-    // Creation of the arguments list (["$1","$2",...,"$nargs"])
-    var argNames = argTypes.map(function(x,i){return '$'+i});
-    var funcstr = "(function(" + argNames.join(',') + ") {";
-    var nargs = argTypes.length;
-    if (!numericArgs) {
-      // Generate the code needed to convert the arguments from javascript
-      // values to pointers
-      ensureJSsource();
-      funcstr += 'var stack = ' + JSsource['stackSave'].body + ';';
-      for (var i = 0; i < nargs; i++) {
-        var arg = argNames[i], type = argTypes[i];
-        if (type === 'number') continue;
-        var convertCode = JSsource[type + 'ToC']; // [code, return]
-        funcstr += 'var ' + convertCode.arguments + ' = ' + arg + ';';
-        funcstr += convertCode.body + ';';
-        funcstr += arg + '=(' + convertCode.returnValue + ');';
-      }
-    }
+function cwrap (ident, returnType, argTypes) {
+  argTypes = argTypes || [];
+  var cfunc = getCFunc(ident);
+  // When the function takes numbers and returns a number, we can just return
+  // the original function
+  var numericArgs = argTypes.every(function(type){ return type === 'number'});
+  var numericRet = returnType !== 'string';
+  if (numericRet && numericArgs) {
+    return cfunc;
+  }
+  return function() {
+    return ccall(ident, returnType, argTypes, arguments);
+  }
+}
 
-    // When the code is compressed, the name of cfunc is not literally 'cfunc' anymore
-    var cfuncname = parseJSFunc(function(){return cfunc}).returnValue;
-    // Call the function
-    funcstr += 'var ret = ' + cfuncname + '(' + argNames.join(',') + ');';
-    if (!numericRet) { // Return type can only by 'string' or 'number'
-      // Convert the result to a string
-      var strgfy = parseJSFunc(function(){return Pointer_stringify}).returnValue;
-      funcstr += 'ret = ' + strgfy + '(ret);';
-    }
-    funcstr += "if (typeof EmterpreterAsync === 'object') { assert(!EmterpreterAsync.state, 'cannot start async op with normal JS calling cwrap') }";
-    if (!numericArgs) {
-      // If we had a stack, restore it
-      ensureJSsource();
-      funcstr += JSsource['stackRestore'].body.replace('()', '(stack)') + ';';
-    }
-    funcstr += 'return ret})';
-    return eval(funcstr);
-  };
-})();
-Module["ccall"] = ccall;
-Module["cwrap"] = cwrap;
+if (!Module["ccall"]) Module["ccall"] = function() { abort("'ccall' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
+if (!Module["cwrap"]) Module["cwrap"] = function() { abort("'cwrap' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 /** @type {function(number, number, string, boolean=)} */
 function setValue(ptr, value, type, noSafe) {
@@ -591,7 +534,7 @@ function setValue(ptr, value, type, noSafe) {
       default: abort('invalid type for setValue: ' + type);
     }
 }
-Module["setValue"] = setValue;
+if (!Module["setValue"]) Module["setValue"] = function() { abort("'setValue' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 /** @type {function(number, string, boolean=)} */
 function getValue(ptr, type, noSafe) {
@@ -605,11 +548,11 @@ function getValue(ptr, type, noSafe) {
       case 'i64': return HEAP32[((ptr)>>2)];
       case 'float': return HEAPF32[((ptr)>>2)];
       case 'double': return HEAPF64[((ptr)>>3)];
-      default: abort('invalid type for setValue: ' + type);
+      default: abort('invalid type for getValue: ' + type);
     }
   return null;
 }
-Module["getValue"] = getValue;
+if (!Module["getValue"]) Module["getValue"] = function() { abort("'getValue' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 var ALLOC_NORMAL = 0; // Tries to use _malloc()
 var ALLOC_STACK = 1; // Lives for the duration of the current function call
@@ -652,11 +595,12 @@ function allocate(slab, types, allocator, ptr) {
   if (allocator == ALLOC_NONE) {
     ret = ptr;
   } else {
-    ret = [typeof _malloc === 'function' ? _malloc : Runtime.staticAlloc, Runtime.stackAlloc, Runtime.staticAlloc, Runtime.dynamicAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size, singleType ? 1 : types.length));
+    ret = [typeof _malloc === 'function' ? _malloc : staticAlloc, stackAlloc, staticAlloc, dynamicAlloc][allocator === undefined ? ALLOC_STATIC : allocator](Math.max(size, singleType ? 1 : types.length));
   }
 
   if (zeroinit) {
-    var ptr = ret, stop;
+    var stop;
+    ptr = ret;
     assert((ret & 3) == 0);
     stop = ret + (size & ~3);
     for (; ptr < stop; ptr += 4) {
@@ -682,10 +626,6 @@ function allocate(slab, types, allocator, ptr) {
   while (i < size) {
     var curr = slab[i];
 
-    if (typeof curr === 'function') {
-      curr = Runtime.getFunctionIndex(curr);
-    }
-
     type = singleType || types[i];
     if (type === 0) {
       i++;
@@ -699,7 +639,7 @@ function allocate(slab, types, allocator, ptr) {
 
     // no need to look up size unless type changes, so cache it
     if (previousType !== type) {
-      typeSize = Runtime.getNativeTypeSize(type);
+      typeSize = getNativeTypeSize(type);
       previousType = type;
     }
     i += typeSize;
@@ -707,12 +647,12 @@ function allocate(slab, types, allocator, ptr) {
 
   return ret;
 }
-Module["allocate"] = allocate;
+if (!Module["allocate"]) Module["allocate"] = function() { abort("'allocate' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Allocate memory during any stage of startup - static memory early on, dynamic memory later, malloc when ready
 function getMemory(size) {
-  if (!staticSealed) return Runtime.staticAlloc(size);
-  if (!runtimeInitialized) return Runtime.dynamicAlloc(size);
+  if (!staticSealed) return staticAlloc(size);
+  if (!runtimeInitialized) return dynamicAlloc(size);
   return _malloc(size);
 }
 Module["getMemory"] = getMemory;
@@ -748,9 +688,9 @@ function Pointer_stringify(ptr, length) {
     }
     return ret;
   }
-  return Module['UTF8ToString'](ptr);
+  return UTF8ToString(ptr);
 }
-Module["Pointer_stringify"] = Pointer_stringify;
+if (!Module["Pointer_stringify"]) Module["Pointer_stringify"] = function() { abort("'Pointer_stringify' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Given a pointer 'ptr' to a null-terminated ASCII-encoded string in the emscripten HEAP, returns
 // a copy of that string as a Javascript String object.
@@ -763,7 +703,7 @@ function AsciiToString(ptr) {
     str += String.fromCharCode(ch);
   }
 }
-Module["AsciiToString"] = AsciiToString;
+if (!Module["AsciiToString"]) Module["AsciiToString"] = function() { abort("'AsciiToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Copies the given Javascript String object 'str' to the emscripten HEAP at address 'outPtr',
 // null-terminated and encoded in ASCII form. The copy will require at most str.length+1 bytes of space in the HEAP.
@@ -771,7 +711,7 @@ Module["AsciiToString"] = AsciiToString;
 function stringToAscii(str, outPtr) {
   return writeAsciiToMemory(str, outPtr, false);
 }
-Module["stringToAscii"] = stringToAscii;
+if (!Module["stringToAscii"]) Module["stringToAscii"] = function() { abort("'stringToAscii' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the given array that contains uint8 values, returns
 // a copy of that string as a Javascript String object.
@@ -822,7 +762,7 @@ function UTF8ArrayToString(u8Array, idx) {
     }
   }
 }
-Module["UTF8ArrayToString"] = UTF8ArrayToString;
+if (!Module["UTF8ArrayToString"]) Module["UTF8ArrayToString"] = function() { abort("'UTF8ArrayToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the emscripten HEAP, returns
 // a copy of that string as a Javascript String object.
@@ -830,7 +770,7 @@ Module["UTF8ArrayToString"] = UTF8ArrayToString;
 function UTF8ToString(ptr) {
   return UTF8ArrayToString(HEAPU8,ptr);
 }
-Module["UTF8ToString"] = UTF8ToString;
+if (!Module["UTF8ToString"]) Module["UTF8ToString"] = function() { abort("'UTF8ToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Copies the given Javascript String object 'str' to the given byte array at address 'outIdx',
 // encoded in UTF8 form and null-terminated. The copy will require at most str.length*4+1 bytes of space in the HEAP.
@@ -895,7 +835,7 @@ function stringToUTF8Array(str, outU8Array, outIdx, maxBytesToWrite) {
   outU8Array[outIdx] = 0;
   return outIdx - startIdx;
 }
-Module["stringToUTF8Array"] = stringToUTF8Array;
+if (!Module["stringToUTF8Array"]) Module["stringToUTF8Array"] = function() { abort("'stringToUTF8Array' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Copies the given Javascript String object 'str' to the emscripten HEAP at address 'outPtr',
 // null-terminated and encoded in UTF8 form. The copy will require at most str.length*4+1 bytes of space in the HEAP.
@@ -906,7 +846,7 @@ function stringToUTF8(str, outPtr, maxBytesToWrite) {
   assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
   return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
 }
-Module["stringToUTF8"] = stringToUTF8;
+if (!Module["stringToUTF8"]) Module["stringToUTF8"] = function() { abort("'stringToUTF8' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Returns the number of bytes the given Javascript string takes if encoded as a UTF8 byte array, EXCLUDING the null terminator byte.
 
@@ -933,7 +873,7 @@ function lengthBytesUTF8(str) {
   }
   return len;
 }
-Module["lengthBytesUTF8"] = lengthBytesUTF8;
+if (!Module["lengthBytesUTF8"]) Module["lengthBytesUTF8"] = function() { abort("'lengthBytesUTF8' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Given a pointer 'ptr' to a null-terminated UTF16LE-encoded string in the emscripten HEAP, returns
 // a copy of that string as a Javascript String object.
@@ -963,7 +903,7 @@ function UTF16ToString(ptr) {
     }
   }
 }
-
+if (!Module["UTF16ToString"]) Module["UTF16ToString"] = function() { abort("'UTF16ToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Copies the given Javascript String object 'str' to the emscripten HEAP at address 'outPtr',
 // null-terminated and encoded in UTF16 form. The copy will require at most str.length*4+2 bytes of space in the HEAP.
@@ -997,14 +937,14 @@ function stringToUTF16(str, outPtr, maxBytesToWrite) {
   HEAP16[((outPtr)>>1)]=0;
   return outPtr - startPtr;
 }
-
+if (!Module["stringToUTF16"]) Module["stringToUTF16"] = function() { abort("'stringToUTF16' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Returns the number of bytes the given Javascript string takes if encoded as a UTF16 byte array, EXCLUDING the null terminator byte.
 
 function lengthBytesUTF16(str) {
   return str.length*2;
 }
-
+if (!Module["lengthBytesUTF16"]) Module["lengthBytesUTF16"] = function() { abort("'lengthBytesUTF16' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function UTF32ToString(ptr) {
   assert(ptr % 4 == 0, 'Pointer passed to UTF32ToString must be aligned to four bytes!');
@@ -1026,7 +966,7 @@ function UTF32ToString(ptr) {
     }
   }
 }
-
+if (!Module["UTF32ToString"]) Module["UTF32ToString"] = function() { abort("'UTF32ToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Copies the given Javascript String object 'str' to the emscripten HEAP at address 'outPtr',
 // null-terminated and encoded in UTF32 form. The copy will require at most str.length*4+4 bytes of space in the HEAP.
@@ -1065,7 +1005,7 @@ function stringToUTF32(str, outPtr, maxBytesToWrite) {
   HEAP32[((outPtr)>>2)]=0;
   return outPtr - startPtr;
 }
-
+if (!Module["stringToUTF32"]) Module["stringToUTF32"] = function() { abort("'stringToUTF32' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Returns the number of bytes the given Javascript string takes if encoded as a UTF16 byte array, EXCLUDING the null terminator byte.
 
@@ -1081,34 +1021,10 @@ function lengthBytesUTF32(str) {
 
   return len;
 }
-
+if (!Module["lengthBytesUTF32"]) Module["lengthBytesUTF32"] = function() { abort("'lengthBytesUTF32' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function demangle(func) {
-  var __cxa_demangle_func = Module['___cxa_demangle'] || Module['__cxa_demangle'];
-  if (__cxa_demangle_func) {
-    try {
-      var s =
-        func.substr(1);
-      var len = lengthBytesUTF8(s)+1;
-      var buf = _malloc(len);
-      stringToUTF8(s, buf, len);
-      var status = _malloc(4);
-      var ret = __cxa_demangle_func(buf, 0, 0, status);
-      if (getValue(status, 'i32') === 0 && ret) {
-        return Pointer_stringify(ret);
-      }
-      // otherwise, libcxxabi failed
-    } catch(e) {
-      // ignore problems here
-    } finally {
-      if (buf) _free(buf);
-      if (status) _free(status);
-      if (ret) _free(ret);
-    }
-    // failure when using libcxxabi, don't demangle
-    return func;
-  }
-  Runtime.warnOnce('warning: build with  -s DEMANGLE_SUPPORT=1  to link in libcxxabi demangling');
+  warnOnce('warning: build with  -s DEMANGLE_SUPPORT=1  to link in libcxxabi demangling');
   return func;
 }
 
@@ -1144,7 +1060,7 @@ function stackTrace() {
   if (Module['extraStackTrace']) js += '\n' + Module['extraStackTrace']();
   return demangleAll(js);
 }
-Module["stackTrace"] = stackTrace;
+if (!Module["stackTrace"]) Module["stackTrace"] = function() { abort("'stackTrace' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Memory management
 
@@ -1351,53 +1267,27 @@ function postRun() {
 function addOnPreRun(cb) {
   __ATPRERUN__.unshift(cb);
 }
-Module["addOnPreRun"] = addOnPreRun;
+if (!Module["addOnPreRun"]) Module["addOnPreRun"] = function() { abort("'addOnPreRun' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function addOnInit(cb) {
   __ATINIT__.unshift(cb);
 }
-Module["addOnInit"] = addOnInit;
+if (!Module["addOnInit"]) Module["addOnInit"] = function() { abort("'addOnInit' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function addOnPreMain(cb) {
   __ATMAIN__.unshift(cb);
 }
-Module["addOnPreMain"] = addOnPreMain;
+if (!Module["addOnPreMain"]) Module["addOnPreMain"] = function() { abort("'addOnPreMain' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function addOnExit(cb) {
   __ATEXIT__.unshift(cb);
 }
-Module["addOnExit"] = addOnExit;
+if (!Module["addOnExit"]) Module["addOnExit"] = function() { abort("'addOnExit' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function addOnPostRun(cb) {
   __ATPOSTRUN__.unshift(cb);
 }
-Module["addOnPostRun"] = addOnPostRun;
-
-// Tools
-
-/** @type {function(string, boolean=, number=)} */
-function intArrayFromString(stringy, dontAddNull, length) {
-  var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
-  var u8array = new Array(len);
-  var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
-  if (dontAddNull) u8array.length = numBytesWritten;
-  return u8array;
-}
-Module["intArrayFromString"] = intArrayFromString;
-
-function intArrayToString(array) {
-  var ret = [];
-  for (var i = 0; i < array.length; i++) {
-    var chr = array[i];
-    if (chr > 0xFF) {
-      assert(false, 'Character code ' + chr + ' (' + String.fromCharCode(chr) + ')  at offset ' + i + ' not in 0x00-0xFF.');
-      chr &= 0xFF;
-    }
-    ret.push(String.fromCharCode(chr));
-  }
-  return ret.join('');
-}
-Module["intArrayToString"] = intArrayToString;
+if (!Module["addOnPostRun"]) Module["addOnPostRun"] = function() { abort("'addOnPostRun' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 // Deprecated: This function should not be called because it is unsafe and does not provide
 // a maximum length limit of how many bytes it is allowed to write. Prefer calling the
@@ -1405,7 +1295,7 @@ Module["intArrayToString"] = intArrayToString;
 // to be secure from out of bounds writes.
 /** @deprecated */
 function writeStringToMemory(string, buffer, dontAddNull) {
-  Runtime.warnOnce('writeStringToMemory is deprecated and should not be called! Use stringToUTF8() instead!');
+  warnOnce('writeStringToMemory is deprecated and should not be called! Use stringToUTF8() instead!');
 
   var /** @type {number} */ lastChar, /** @type {number} */ end;
   if (dontAddNull) {
@@ -1418,13 +1308,13 @@ function writeStringToMemory(string, buffer, dontAddNull) {
   stringToUTF8(string, buffer, Infinity);
   if (dontAddNull) HEAP8[end] = lastChar; // Restore the value under the null character.
 }
-Module["writeStringToMemory"] = writeStringToMemory;
+if (!Module["writeStringToMemory"]) Module["writeStringToMemory"] = function() { abort("'writeStringToMemory' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function writeArrayToMemory(array, buffer) {
   assert(array.length >= 0, 'writeArrayToMemory array must have a length (should be an array or typed array)')
   HEAP8.set(array, buffer);
 }
-Module["writeArrayToMemory"] = writeArrayToMemory;
+if (!Module["writeArrayToMemory"]) Module["writeArrayToMemory"] = function() { abort("'writeArrayToMemory' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function writeAsciiToMemory(str, buffer, dontAddNull) {
   for (var i = 0; i < str.length; ++i) {
@@ -1434,7 +1324,7 @@ function writeAsciiToMemory(str, buffer, dontAddNull) {
   // Null-terminate the pointer to the HEAP.
   if (!dontAddNull) HEAP8[((buffer)>>0)]=0;
 }
-Module["writeAsciiToMemory"] = writeAsciiToMemory;
+if (!Module["writeAsciiToMemory"]) Module["writeAsciiToMemory"] = function() { abort("'writeAsciiToMemory' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
 function unSign(value, bits, ignore) {
   if (value >= 0) {
@@ -1457,30 +1347,7 @@ function reSign(value, bits, ignore) {
   return value;
 }
 
-// check for imul support, and also for correctness ( https://bugs.webkit.org/show_bug.cgi?id=126345 )
-if (!Math['imul'] || Math['imul'](0xffffffff, 5) !== -5) Math['imul'] = function imul(a, b) {
-  var ah  = a >>> 16;
-  var al = a & 0xffff;
-  var bh  = b >>> 16;
-  var bl = b & 0xffff;
-  return (al*bl + ((ah*bl + al*bh) << 16))|0;
-};
-Math.imul = Math['imul'];
-
-
-if (!Math['clz32']) Math['clz32'] = function(x) {
-  x = x >>> 0;
-  for (var i = 0; i < 32; i++) {
-    if (x & (1 << (31 - i))) return i;
-  }
-  return 32;
-};
-Math.clz32 = Math['clz32']
-
-if (!Math['trunc']) Math['trunc'] = function(x) {
-  return x < 0 ? Math.ceil(x) : Math.floor(x);
-};
-Math.trunc = Math['trunc'];
+assert(Math['imul'] && Math['fround'] && Math['clz32'] && Math['trunc'], 'this is a legacy browser, build with LEGACY_VM_SUPPORT');
 
 var Math_abs = Math.abs;
 var Math_cos = Math.cos;
@@ -1614,12 +1481,25 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
 
 
 
+// Prefix of data URIs emitted by SINGLE_FILE and related options.
+var dataURIPrefix = 'data:application/octet-stream;base64,';
+
+// Indicates whether filename is a base64 data URI.
+function isDataURI(filename) {
+  return String.prototype.startsWith ?
+      filename.startsWith(dataURIPrefix) :
+      filename.indexOf(dataURIPrefix) === 0;
+}
+
+
+
+
+
 // === Body ===
 
 var ASM_CONSTS = [function($0) { window.MbedJSHal.timers.ticker_detach($0); },
  function($0, $1) { window.MbedJSHal.timers.ticker_setup($0, $1); },
  function($0) { window.MbedJSHal.timers.timeout_detach($0); },
- function($0, $1) { window.MbedJSHal.timers.timeout_setup($0, $1); },
  function() { window.MbedJSHal.die(); },
  function($0, $1) { MbedJSHal.gpio.init_in($0, $1, 3); },
  function($0, $1) { MbedJSHal.gpio.init_out($0, $1, 0); },
@@ -1629,31 +1509,31 @@ var ASM_CONSTS = [function($0) { window.MbedJSHal.timers.ticker_detach($0); },
  function($0, $1) { MbedJSHal.gpio.write($0, $1); },
  function($0) { return MbedJSHal.gpio.read($0); }];
 
-function _emscripten_asm_const_ii(code, a0) {
-  return ASM_CONSTS[code](a0);
+function _emscripten_asm_const_iii(code, a0, a1) {
+  return ASM_CONSTS[code](a0, a1);
 }
 
-function _emscripten_asm_const_i(code) {
-  return ASM_CONSTS[code]();
+function _emscripten_asm_const_ii(code, a0) {
+  return ASM_CONSTS[code](a0);
 }
 
 function _emscripten_asm_const_iiii(code, a0, a1, a2) {
   return ASM_CONSTS[code](a0, a1, a2);
 }
 
-function _emscripten_asm_const_iii(code, a0, a1) {
-  return ASM_CONSTS[code](a0, a1);
+function _emscripten_asm_const_i(code) {
+  return ASM_CONSTS[code]();
 }
 
 
 
-STATIC_BASE = Runtime.GLOBAL_BASE;
+STATIC_BASE = GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 6912;
+STATICTOP = STATIC_BASE + 6928;
 /* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__sub_I_arm_hal_timer_cpp() } }, { func: function() { __GLOBAL__sub_I_main_cpp() } });
 
 
-/* memory initializer */ allocate([140,3,0,0,172,3,0,0,0,0,0,0,1,0,0,0,32,0,0,0,0,0,0,0,60,3,0,0,193,3,0,0,140,3,0,0,24,4,0,0,0,0,0,0,1,0,0,0,64,0,0,0,0,0,0,0,60,3,0,0,39,4,0,0,140,3,0,0,252,4,0,0,0,0,0,0,1,0,0,0,96,0,0,0,0,0,0,0,60,3,0,0,12,5,0,0,60,3,0,0,140,17,0,0,100,3,0,0,236,17,0,0,128,0,0,0,0,0,0,0,100,3,0,0,153,17,0,0,144,0,0,0,0,0,0,0,60,3,0,0,186,17,0,0,100,3,0,0,199,17,0,0,112,0,0,0,0,0,0,0,100,3,0,0,36,19,0,0,128,0,0,0,0,0,0,0,100,3,0,0,0,19,0,0,168,0,0,0,0,0,0,0,100,3,0,0,70,19,0,0,112,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,1,0,0,0,2,0,0,0,0,0,0,0,40,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,0,0,0,0,72,0,0,0,6,0,0,0,7,0,0,0,8,0,0,0,9,0,0,0,10,0,0,0,11,0,0,0,36,1,0,0,184,19,0,0,12,0,0,0,13,0,0,0,14,0,0,0,15,0,0,0,16,0,0,0,17,0,0,0,64,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,20,0,0,0,244,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,204,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,180,2,0,0,5,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,0,0,0,20,0,0,0,252,22,0,0,0,4,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,0,0,0,0,0,0,0,112,0,0,0,23,0,0,0,24,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,28,0,0,0,29,0,0,0,30,0,0,0,0,0,0,0,152,0,0,0,23,0,0,0,31,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,32,0,0,0,33,0,0,0,34,0,0,0,0,0,0,0,200,0,0,0,23,0,0,0,35,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,36,0,0,0,37,0,0,0,38,0,0,0,78,52,109,98,101,100,49,49,73,110,116,101,114,114,117,112,116,73,110,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,49,49,73,110,116,101,114,114,117,112,116,73,110,69,69,69,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,99,107,101,114,95,100,101,116,97,99,104,40,36,48,41,59,32,125,0,78,52,109,98,101,100,54,84,105,99,107,101,114,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,54,84,105,99,107,101,114,69,69,69,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,99,107,101,114,95,115,101,116,117,112,40,36,48,44,32,36,49,41,59,32,125,0,95,111,112,115,0,47,85,115,101,114,115,47,106,97,110,106,111,110,48,49,47,114,101,112,111,115,47,109,98,101,100,45,115,105,109,117,108,97,116,111,114,47,109,98,101,100,45,115,105,109,117,108,97,116,111,114,45,104,97,108,47,112,108,97,116,102,111,114,109,47,67,97,108,108,98,97,99,107,46,104,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,109,101,111,117,116,95,100,101,116,97,99,104,40,36,48,41,59,32,125,0,78,52,109,98,101,100,55,84,105,109,101,111,117,116,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,55,84,105,109,101,111,117,116,69,69,69,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,109,101,111,117,116,95,115,101,116,117,112,40,36,48,44,32,36,49,41,59,32,125,0,109,98,101,100,32,97,115,115,101,114,116,97,116,105,111,110,32,102,97,105,108,101,100,58,32,37,115,44,32,102,105,108,101,58,32,37,115,44,32,108,105,110,101,32,37,100,32,10,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,100,105,101,40,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,110,105,116,95,105,110,40,36,48,44,32,36,49,44,32,51,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,110,105,116,95,111,117,116,40,36,48,44,32,36,49,44,32,48,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,105,110,105,116,40,36,48,44,32,36,49,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,102,114,101,101,40,36,48,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,115,101,116,40,36,48,44,32,36,49,44,32,36,50,41,59,32,125,0,84,105,99,107,101,114,32,102,105,114,101,100,10,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,119,114,105,116,101,40,36,48,44,32,36,49,41,59,32,125,0,123,32,114,101,116,117,114,110,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,114,101,97,100,40,36,48,41,59,32,125,0,66,85,84,84,79,78,49,32,102,97,108,108,32,105,110,118,111,107,101,100,10,0,84,105,109,101,111,117,116,32,102,105,114,101,100,10,0,72,101,108,108,111,32,119,111,114,108,100,33,10,0,76,69,68,49,32,119,105,108,108,32,98,108,105,110,107,32,101,118,101,114,121,32,115,101,99,111,110,100,44,32,76,69,68,51,32,119,105,108,108,32,116,111,103,103,108,101,32,97,102,116,101,114,32,50,46,53,32,115,101,99,111,110,100,115,44,32,76,69,68,50,32,99,97,110,32,98,101,32,116,111,103,103,108,101,100,32,116,104,114,111,117,103,104,32,66,85,84,84,79,78,49,46,10,0,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,10,10,0,17,0,10,0,17,17,17,0,0,0,0,5,0,0,0,0,0,0,9,0,0,0,0,11,0,0,0,0,0,0,0,0,17,0,15,10,17,17,17,3,10,7,0,1,19,9,11,11,0,0,9,6,11,0,0,11,0,6,17,0,0,0,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,17,0,10,10,17,17,17,0,10,0,0,2,0,9,11,0,0,0,9,0,11,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,12,0,0,0,0,9,12,0,0,0,0,0,12,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,4,13,0,0,0,0,9,14,0,0,0,0,0,14,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,0,15,0,0,0,0,9,16,0,0,0,0,0,16,0,0,16,0,0,18,0,0,0,18,18,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,18,18,18,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,10,0,0,0,0,9,11,0,0,0,0,0,11,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,12,0,0,0,0,9,12,0,0,0,0,0,12,0,0,12,0,0,45,43,32,32,32,48,88,48,120,0,40,110,117,108,108,41,0,45,48,88,43,48,88,32,48,88,45,48,120,43,48,120,32,48,120,0,105,110,102,0,73,78,70,0,110,97,110,0,78,65,78,0,48,49,50,51,52,53,54,55,56,57,65,66,67,68,69,70,46,0,84,33,34,25,13,1,2,3,17,75,28,12,16,4,11,29,18,30,39,104,110,111,112,113,98,32,5,6,15,19,20,21,26,8,22,7,40,36,23,24,9,10,14,27,31,37,35,131,130,125,38,42,43,60,61,62,63,67,71,74,77,88,89,90,91,92,93,94,95,96,97,99,100,101,102,103,105,106,107,108,114,115,116,121,122,123,124,0,73,108,108,101,103,97,108,32,98,121,116,101,32,115,101,113,117,101,110,99,101,0,68,111,109,97,105,110,32,101,114,114,111,114,0,82,101,115,117,108,116,32,110,111,116,32,114,101,112,114,101,115,101,110,116,97,98,108,101,0,78,111,116,32,97,32,116,116,121,0,80,101,114,109,105,115,115,105,111,110,32,100,101,110,105,101,100,0,79,112,101,114,97,116,105,111,110,32,110,111,116,32,112,101,114,109,105,116,116,101,100,0,78,111,32,115,117,99,104,32,102,105,108,101,32,111,114,32,100,105,114,101,99,116,111,114,121,0,78,111,32,115,117,99,104,32,112,114,111,99,101,115,115,0,70,105,108,101,32,101,120,105,115,116,115,0,86,97,108,117,101,32,116,111,111,32,108,97,114,103,101,32,102,111,114,32,100,97,116,97,32,116,121,112,101,0,78,111,32,115,112,97,99,101,32,108,101,102,116,32,111,110,32,100,101,118,105,99,101,0,79,117,116,32,111,102,32,109,101,109,111,114,121,0,82,101,115,111,117,114,99,101,32,98,117,115,121,0,73,110,116,101,114,114,117,112,116,101,100,32,115,121,115,116,101,109,32,99,97,108,108,0,82,101,115,111,117,114,99,101,32,116,101,109,112,111,114,97,114,105,108,121,32,117,110,97,118,97,105,108,97,98,108,101,0,73,110,118,97,108,105,100,32,115,101,101,107,0,67,114,111,115,115,45,100,101,118,105,99,101,32,108,105,110,107,0,82,101,97,100,45,111,110,108,121,32,102,105,108,101,32,115,121,115,116,101,109,0,68,105,114,101,99,116,111,114,121,32,110,111,116,32,101,109,112,116,121,0,67,111,110,110,101,99,116,105,111,110,32,114,101,115,101,116,32,98,121,32,112,101,101,114,0,79,112,101,114,97,116,105,111,110,32,116,105,109,101,100,32,111,117,116,0,67,111,110,110,101,99,116,105,111,110,32,114,101,102,117,115,101,100,0,72,111,115,116,32,105,115,32,100,111,119,110,0,72,111,115,116,32,105,115,32,117,110,114,101,97,99,104,97,98,108,101,0,65,100,100,114,101,115,115,32,105,110,32,117,115,101,0,66,114,111,107,101,110,32,112,105,112,101,0,73,47,79,32,101,114,114,111,114,0,78,111,32,115,117,99,104,32,100,101,118,105,99,101,32,111,114,32,97,100,100,114,101,115,115,0,66,108,111,99,107,32,100,101,118,105,99,101,32,114,101,113,117,105,114,101,100,0,78,111,32,115,117,99,104,32,100,101,118,105,99,101,0,78,111,116,32,97,32,100,105,114,101,99,116,111,114,121,0,73,115,32,97,32,100,105,114,101,99,116,111,114,121,0,84,101,120,116,32,102,105,108,101,32,98,117,115,121,0,69,120,101,99,32,102,111,114,109,97,116,32,101,114,114,111,114,0,73,110,118,97,108,105,100,32,97,114,103,117,109,101,110,116,0,65,114,103,117,109,101,110,116,32,108,105,115,116,32,116,111,111,32,108,111,110,103,0,83,121,109,98,111,108,105,99,32,108,105,110,107,32,108,111,111,112,0,70,105,108,101,110,97,109,101,32,116,111,111,32,108,111,110,103,0,84,111,111,32,109,97,110,121,32,111,112,101,110,32,102,105,108,101,115,32,105,110,32,115,121,115,116,101,109,0,78,111,32,102,105,108,101,32,100,101,115,99,114,105,112,116,111,114,115,32,97,118,97,105,108,97,98,108,101,0,66,97,100,32,102,105,108,101,32,100,101,115,99,114,105,112,116,111,114,0,78,111,32,99,104,105,108,100,32,112,114,111,99,101,115,115,0,66,97,100,32,97,100,100,114,101,115,115,0,70,105,108,101,32,116,111,111,32,108,97,114,103,101,0,84,111,111,32,109,97,110,121,32,108,105,110,107,115,0,78,111,32,108,111,99,107,115,32,97,118,97,105,108,97,98,108,101,0,82,101,115,111,117,114,99,101,32,100,101,97,100,108,111,99,107,32,119,111,117,108,100,32,111,99,99,117,114,0,83,116,97,116,101,32,110,111,116,32,114,101,99,111,118,101,114,97,98,108,101,0,80,114,101,118,105,111,117,115,32,111,119,110,101,114,32,100,105,101,100,0,79,112,101,114,97,116,105,111,110,32,99,97,110,99,101,108,101,100,0,70,117,110,99,116,105,111,110,32,110,111,116,32,105,109,112,108,101,109,101,110,116,101,100,0,78,111,32,109,101,115,115,97,103,101,32,111,102,32,100,101,115,105,114,101,100,32,116,121,112,101,0,73,100,101,110,116,105,102,105,101,114,32,114,101,109,111,118,101,100,0,68,101,118,105,99,101,32,110,111,116,32,97,32,115,116,114,101,97,109,0,78,111,32,100,97,116,97,32,97,118,97,105,108,97,98,108,101,0,68,101,118,105,99,101,32,116,105,109,101,111,117,116,0,79,117,116,32,111,102,32,115,116,114,101,97,109,115,32,114,101,115,111,117,114,99,101,115,0,76,105,110,107,32,104,97,115,32,98,101,101,110,32,115,101,118,101,114,101,100,0,80,114,111,116,111,99,111,108,32,101,114,114,111,114,0,66,97,100,32,109,101,115,115,97,103,101,0,70,105,108,101,32,100,101,115,99,114,105,112,116,111,114,32,105,110,32,98,97,100,32,115,116,97,116,101,0,78,111,116,32,97,32,115,111,99,107,101,116,0,68,101,115,116,105,110,97,116,105,111,110,32,97,100,100,114,101,115,115,32,114,101,113,117,105,114,101,100,0,77,101,115,115,97,103,101,32,116,111,111,32,108,97,114,103,101,0,80,114,111,116,111,99,111,108,32,119,114,111,110,103,32,116,121,112,101,32,102,111,114,32,115,111,99,107,101,116,0,80,114,111,116,111,99,111,108,32,110,111,116,32,97,118,97,105,108,97,98,108,101,0,80,114,111,116,111,99,111,108,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,83,111,99,107,101,116,32,116,121,112,101,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,78,111,116,32,115,117,112,112,111,114,116,101,100,0,80,114,111,116,111,99,111,108,32,102,97,109,105,108,121,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,65,100,100,114,101,115,115,32,102,97,109,105,108,121,32,110,111,116,32,115,117,112,112,111,114,116,101,100,32,98,121,32,112,114,111,116,111,99,111,108,0,65,100,100,114,101,115,115,32,110,111,116,32,97,118,97,105,108,97,98,108,101,0,78,101,116,119,111,114,107,32,105,115,32,100,111,119,110,0,78,101,116,119,111,114,107,32,117,110,114,101,97,99,104,97,98,108,101,0,67,111,110,110,101,99,116,105,111,110,32,114,101,115,101,116,32,98,121,32,110,101,116,119,111,114,107,0,67,111,110,110,101,99,116,105,111,110,32,97,98,111,114,116,101,100,0,78,111,32,98,117,102,102,101,114,32,115,112,97,99,101,32,97,118,97,105,108,97,98,108,101,0,83,111,99,107,101,116,32,105,115,32,99,111,110,110,101,99,116,101,100,0,83,111,99,107,101,116,32,110,111,116,32,99,111,110,110,101,99,116,101,100,0,67,97,110,110,111,116,32,115,101,110,100,32,97,102,116,101,114,32,115,111,99,107,101,116,32,115,104,117,116,100,111,119,110,0,79,112,101,114,97,116,105,111,110,32,97,108,114,101,97,100,121,32,105,110,32,112,114,111,103,114,101,115,115,0,79,112,101,114,97,116,105,111,110,32,105,110,32,112,114,111,103,114,101,115,115,0,83,116,97,108,101,32,102,105,108,101,32,104,97,110,100,108,101,0,82,101,109,111,116,101,32,73,47,79,32,101,114,114,111,114,0,81,117,111,116,97,32,101,120,99,101,101,100,101,100,0,78,111,32,109,101,100,105,117,109,32,102,111,117,110,100,0,87,114,111,110,103,32,109,101,100,105,117,109,32,116,121,112,101,0,78,111,32,101,114,114,111,114,32,105,110,102,111,114,109,97,116,105,111,110,0,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,101,120,99,101,112,116,105,111,110,32,111,102,32,116,121,112,101,32,37,115,58,32,37,115,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,101,120,99,101,112,116,105,111,110,32,111,102,32,116,121,112,101,32,37,115,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,102,111,114,101,105,103,110,32,101,120,99,101,112,116,105,111,110,0,116,101,114,109,105,110,97,116,105,110,103,0,117,110,99,97,117,103,104,116,0,83,116,57,101,120,99,101,112,116,105,111,110,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,54,95,95,115,104,105,109,95,116,121,112,101,95,105,110,102,111,69,0,83,116,57,116,121,112,101,95,105,110,102,111,0,78,49,48,95,95,99,120,120,97,98,105,118,49,50,48,95,95,115,105,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,55,95,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0,112,116,104,114,101,97,100,95,111,110,99,101,32,102,97,105,108,117,114,101,32,105,110,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,95,102,97,115,116,40,41,0,99,97,110,110,111,116,32,99,114,101,97,116,101,32,112,116,104,114,101,97,100,32,107,101,121,32,102,111,114,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,40,41,0,99,97,110,110,111,116,32,122,101,114,111,32,111,117,116,32,116,104,114,101,97,100,32,118,97,108,117,101,32,102,111,114,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,40,41,0,116,101,114,109,105,110,97,116,101,95,104,97,110,100,108,101,114,32,117,110,101,120,112,101,99,116,101,100,108,121,32,114,101,116,117,114,110,101,100,0,116,101,114,109,105,110,97,116,101,95,104,97,110,100,108,101,114,32,117,110,101,120,112,101,99,116,101,100,108,121,32,116,104,114,101,119,32,97,110,32,101,120,99,101,112,116,105,111,110,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,57,95,95,112,111,105,110,116,101,114,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,55,95,95,112,98,97,115,101,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,50,49,95,95,118,109,105,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0], "i8", ALLOC_NONE, Runtime.GLOBAL_BASE);
+/* memory initializer */ allocate([144,3,0,0,176,3,0,0,0,0,0,0,1,0,0,0,32,0,0,0,0,0,0,0,64,3,0,0,197,3,0,0,144,3,0,0,28,4,0,0,0,0,0,0,1,0,0,0,64,0,0,0,0,0,0,0,64,3,0,0,43,4,0,0,144,3,0,0,0,5,0,0,0,0,0,0,1,0,0,0,96,0,0,0,0,0,0,0,64,3,0,0,16,5,0,0,64,3,0,0,93,17,0,0,104,3,0,0,189,17,0,0,128,0,0,0,0,0,0,0,104,3,0,0,106,17,0,0,144,0,0,0,0,0,0,0,64,3,0,0,139,17,0,0,104,3,0,0,152,17,0,0,112,0,0,0,0,0,0,0,104,3,0,0,245,18,0,0,128,0,0,0,0,0,0,0,104,3,0,0,209,18,0,0,168,0,0,0,0,0,0,0,104,3,0,0,23,19,0,0,112,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,1,0,0,0,2,0,0,0,0,0,0,0,40,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,0,0,0,0,72,0,0,0,6,0,0,0,7,0,0,0,8,0,0,0,9,0,0,0,10,0,0,0,11,0,0,0,36,1,0,0,136,19,0,0,12,0,0,0,13,0,0,0,14,0,0,0,15,0,0,0,16,0,0,0,17,0,0,0,64,1,0,0,5,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,20,0,0,0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,204,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,180,2,0,0,5,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,0,0,0,20,0,0,0,8,23,0,0,0,4,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,180,2,0,0,22,0,0,0,0,0,0,0,112,0,0,0,23,0,0,0,24,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,28,0,0,0,29,0,0,0,30,0,0,0,0,0,0,0,152,0,0,0,23,0,0,0,31,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,32,0,0,0,33,0,0,0,34,0,0,0,0,0,0,0,200,0,0,0,23,0,0,0,35,0,0,0,25,0,0,0,26,0,0,0,27,0,0,0,36,0,0,0,37,0,0,0,38,0,0,0,78,52,109,98,101,100,49,49,73,110,116,101,114,114,117,112,116,73,110,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,49,49,73,110,116,101,114,114,117,112,116,73,110,69,69,69,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,99,107,101,114,95,100,101,116,97,99,104,40,36,48,41,59,32,125,0,78,52,109,98,101,100,54,84,105,99,107,101,114,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,54,84,105,99,107,101,114,69,69,69,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,99,107,101,114,95,115,101,116,117,112,40,36,48,44,32,36,49,41,59,32,125,0,95,111,112,115,0,47,85,115,101,114,115,47,106,97,110,106,111,110,48,49,47,114,101,112,111,115,47,109,98,101,100,45,115,105,109,117,108,97,116,111,114,47,109,98,101,100,45,115,105,109,117,108,97,116,111,114,45,104,97,108,47,112,108,97,116,102,111,114,109,47,67,97,108,108,98,97,99,107,46,104,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,116,105,109,101,114,115,46,116,105,109,101,111,117,116,95,100,101,116,97,99,104,40,36,48,41,59,32,125,0,78,52,109,98,101,100,55,84,105,109,101,111,117,116,69,0,78,52,109,98,101,100,49,49,78,111,110,67,111,112,121,97,98,108,101,73,78,83,95,55,84,105,109,101,111,117,116,69,69,69,0,109,98,101,100,32,97,115,115,101,114,116,97,116,105,111,110,32,102,97,105,108,101,100,58,32,37,115,44,32,102,105,108,101,58,32,37,115,44,32,108,105,110,101,32,37,100,32,10,0,123,32,119,105,110,100,111,119,46,77,98,101,100,74,83,72,97,108,46,100,105,101,40,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,110,105,116,95,105,110,40,36,48,44,32,36,49,44,32,51,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,110,105,116,95,111,117,116,40,36,48,44,32,36,49,44,32,48,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,105,110,105,116,40,36,48,44,32,36,49,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,102,114,101,101,40,36,48,41,59,32,125,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,105,114,113,95,115,101,116,40,36,48,44,32,36,49,44,32,36,50,41,59,32,125,0,84,105,99,107,101,114,32,102,105,114,101,100,10,0,123,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,119,114,105,116,101,40,36,48,44,32,36,49,41,59,32,125,0,123,32,114,101,116,117,114,110,32,77,98,101,100,74,83,72,97,108,46,103,112,105,111,46,114,101,97,100,40,36,48,41,59,32,125,0,66,85,84,84,79,78,49,32,102,97,108,108,32,105,110,118,111,107,101,100,10,0,84,105,109,101,111,117,116,32,102,105,114,101,100,10,0,72,101,108,108,111,32,119,111,114,108,100,33,10,0,76,69,68,49,32,119,105,108,108,32,98,108,105,110,107,32,101,118,101,114,121,32,115,101,99,111,110,100,44,32,76,69,68,51,32,119,105,108,108,32,116,111,103,103,108,101,32,97,102,116,101,114,32,50,46,53,32,115,101,99,111,110,100,115,44,32,76,69,68,50,32,99,97,110,32,98,101,32,116,111,103,103,108,101,100,32,116,104,114,111,117,103,104,32,66,85,84,84,79,78,49,46,10,0,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,10,10,0,17,0,10,0,17,17,17,0,0,0,0,5,0,0,0,0,0,0,9,0,0,0,0,11,0,0,0,0,0,0,0,0,17,0,15,10,17,17,17,3,10,7,0,1,19,9,11,11,0,0,9,6,11,0,0,11,0,6,17,0,0,0,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,17,0,10,10,17,17,17,0,10,0,0,2,0,9,11,0,0,0,9,0,11,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,12,0,0,0,0,9,12,0,0,0,0,0,12,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,4,13,0,0,0,0,9,14,0,0,0,0,0,14,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,0,15,0,0,0,0,9,16,0,0,0,0,0,16,0,0,16,0,0,18,0,0,0,18,18,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,18,18,18,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,10,0,0,0,0,9,11,0,0,0,0,0,11,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,12,0,0,0,0,9,12,0,0,0,0,0,12,0,0,12,0,0,45,43,32,32,32,48,88,48,120,0,40,110,117,108,108,41,0,45,48,88,43,48,88,32,48,88,45,48,120,43,48,120,32,48,120,0,105,110,102,0,73,78,70,0,110,97,110,0,78,65,78,0,48,49,50,51,52,53,54,55,56,57,65,66,67,68,69,70,46,0,84,33,34,25,13,1,2,3,17,75,28,12,16,4,11,29,18,30,39,104,110,111,112,113,98,32,5,6,15,19,20,21,26,8,22,7,40,36,23,24,9,10,14,27,31,37,35,131,130,125,38,42,43,60,61,62,63,67,71,74,77,88,89,90,91,92,93,94,95,96,97,99,100,101,102,103,105,106,107,108,114,115,116,121,122,123,124,0,73,108,108,101,103,97,108,32,98,121,116,101,32,115,101,113,117,101,110,99,101,0,68,111,109,97,105,110,32,101,114,114,111,114,0,82,101,115,117,108,116,32,110,111,116,32,114,101,112,114,101,115,101,110,116,97,98,108,101,0,78,111,116,32,97,32,116,116,121,0,80,101,114,109,105,115,115,105,111,110,32,100,101,110,105,101,100,0,79,112,101,114,97,116,105,111,110,32,110,111,116,32,112,101,114,109,105,116,116,101,100,0,78,111,32,115,117,99,104,32,102,105,108,101,32,111,114,32,100,105,114,101,99,116,111,114,121,0,78,111,32,115,117,99,104,32,112,114,111,99,101,115,115,0,70,105,108,101,32,101,120,105,115,116,115,0,86,97,108,117,101,32,116,111,111,32,108,97,114,103,101,32,102,111,114,32,100,97,116,97,32,116,121,112,101,0,78,111,32,115,112,97,99,101,32,108,101,102,116,32,111,110,32,100,101,118,105,99,101,0,79,117,116,32,111,102,32,109,101,109,111,114,121,0,82,101,115,111,117,114,99,101,32,98,117,115,121,0,73,110,116,101,114,114,117,112,116,101,100,32,115,121,115,116,101,109,32,99,97,108,108,0,82,101,115,111,117,114,99,101,32,116,101,109,112,111,114,97,114,105,108,121,32,117,110,97,118,97,105,108,97,98,108,101,0,73,110,118,97,108,105,100,32,115,101,101,107,0,67,114,111,115,115,45,100,101,118,105,99,101,32,108,105,110,107,0,82,101,97,100,45,111,110,108,121,32,102,105,108,101,32,115,121,115,116,101,109,0,68,105,114,101,99,116,111,114,121,32,110,111,116,32,101,109,112,116,121,0,67,111,110,110,101,99,116,105,111,110,32,114,101,115,101,116,32,98,121,32,112,101,101,114,0,79,112,101,114,97,116,105,111,110,32,116,105,109,101,100,32,111,117,116,0,67,111,110,110,101,99,116,105,111,110,32,114,101,102,117,115,101,100,0,72,111,115,116,32,105,115,32,100,111,119,110,0,72,111,115,116,32,105,115,32,117,110,114,101,97,99,104,97,98,108,101,0,65,100,100,114,101,115,115,32,105,110,32,117,115,101,0,66,114,111,107,101,110,32,112,105,112,101,0,73,47,79,32,101,114,114,111,114,0,78,111,32,115,117,99,104,32,100,101,118,105,99,101,32,111,114,32,97,100,100,114,101,115,115,0,66,108,111,99,107,32,100,101,118,105,99,101,32,114,101,113,117,105,114,101,100,0,78,111,32,115,117,99,104,32,100,101,118,105,99,101,0,78,111,116,32,97,32,100,105,114,101,99,116,111,114,121,0,73,115,32,97,32,100,105,114,101,99,116,111,114,121,0,84,101,120,116,32,102,105,108,101,32,98,117,115,121,0,69,120,101,99,32,102,111,114,109,97,116,32,101,114,114,111,114,0,73,110,118,97,108,105,100,32,97,114,103,117,109,101,110,116,0,65,114,103,117,109,101,110,116,32,108,105,115,116,32,116,111,111,32,108,111,110,103,0,83,121,109,98,111,108,105,99,32,108,105,110,107,32,108,111,111,112,0,70,105,108,101,110,97,109,101,32,116,111,111,32,108,111,110,103,0,84,111,111,32,109,97,110,121,32,111,112,101,110,32,102,105,108,101,115,32,105,110,32,115,121,115,116,101,109,0,78,111,32,102,105,108,101,32,100,101,115,99,114,105,112,116,111,114,115,32,97,118,97,105,108,97,98,108,101,0,66,97,100,32,102,105,108,101,32,100,101,115,99,114,105,112,116,111,114,0,78,111,32,99,104,105,108,100,32,112,114,111,99,101,115,115,0,66,97,100,32,97,100,100,114,101,115,115,0,70,105,108,101,32,116,111,111,32,108,97,114,103,101,0,84,111,111,32,109,97,110,121,32,108,105,110,107,115,0,78,111,32,108,111,99,107,115,32,97,118,97,105,108,97,98,108,101,0,82,101,115,111,117,114,99,101,32,100,101,97,100,108,111,99,107,32,119,111,117,108,100,32,111,99,99,117,114,0,83,116,97,116,101,32,110,111,116,32,114,101,99,111,118,101,114,97,98,108,101,0,80,114,101,118,105,111,117,115,32,111,119,110,101,114,32,100,105,101,100,0,79,112,101,114,97,116,105,111,110,32,99,97,110,99,101,108,101,100,0,70,117,110,99,116,105,111,110,32,110,111,116,32,105,109,112,108,101,109,101,110,116,101,100,0,78,111,32,109,101,115,115,97,103,101,32,111,102,32,100,101,115,105,114,101,100,32,116,121,112,101,0,73,100,101,110,116,105,102,105,101,114,32,114,101,109,111,118,101,100,0,68,101,118,105,99,101,32,110,111,116,32,97,32,115,116,114,101,97,109,0,78,111,32,100,97,116,97,32,97,118,97,105,108,97,98,108,101,0,68,101,118,105,99,101,32,116,105,109,101,111,117,116,0,79,117,116,32,111,102,32,115,116,114,101,97,109,115,32,114,101,115,111,117,114,99,101,115,0,76,105,110,107,32,104,97,115,32,98,101,101,110,32,115,101,118,101,114,101,100,0,80,114,111,116,111,99,111,108,32,101,114,114,111,114,0,66,97,100,32,109,101,115,115,97,103,101,0,70,105,108,101,32,100,101,115,99,114,105,112,116,111,114,32,105,110,32,98,97,100,32,115,116,97,116,101,0,78,111,116,32,97,32,115,111,99,107,101,116,0,68,101,115,116,105,110,97,116,105,111,110,32,97,100,100,114,101,115,115,32,114,101,113,117,105,114,101,100,0,77,101,115,115,97,103,101,32,116,111,111,32,108,97,114,103,101,0,80,114,111,116,111,99,111,108,32,119,114,111,110,103,32,116,121,112,101,32,102,111,114,32,115,111,99,107,101,116,0,80,114,111,116,111,99,111,108,32,110,111,116,32,97,118,97,105,108,97,98,108,101,0,80,114,111,116,111,99,111,108,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,83,111,99,107,101,116,32,116,121,112,101,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,78,111,116,32,115,117,112,112,111,114,116,101,100,0,80,114,111,116,111,99,111,108,32,102,97,109,105,108,121,32,110,111,116,32,115,117,112,112,111,114,116,101,100,0,65,100,100,114,101,115,115,32,102,97,109,105,108,121,32,110,111,116,32,115,117,112,112,111,114,116,101,100,32,98,121,32,112,114,111,116,111,99,111,108,0,65,100,100,114,101,115,115,32,110,111,116,32,97,118,97,105,108,97,98,108,101,0,78,101,116,119,111,114,107,32,105,115,32,100,111,119,110,0,78,101,116,119,111,114,107,32,117,110,114,101,97,99,104,97,98,108,101,0,67,111,110,110,101,99,116,105,111,110,32,114,101,115,101,116,32,98,121,32,110,101,116,119,111,114,107,0,67,111,110,110,101,99,116,105,111,110,32,97,98,111,114,116,101,100,0,78,111,32,98,117,102,102,101,114,32,115,112,97,99,101,32,97,118,97,105,108,97,98,108,101,0,83,111,99,107,101,116,32,105,115,32,99,111,110,110,101,99,116,101,100,0,83,111,99,107,101,116,32,110,111,116,32,99,111,110,110,101,99,116,101,100,0,67,97,110,110,111,116,32,115,101,110,100,32,97,102,116,101,114,32,115,111,99,107,101,116,32,115,104,117,116,100,111,119,110,0,79,112,101,114,97,116,105,111,110,32,97,108,114,101,97,100,121,32,105,110,32,112,114,111,103,114,101,115,115,0,79,112,101,114,97,116,105,111,110,32,105,110,32,112,114,111,103,114,101,115,115,0,83,116,97,108,101,32,102,105,108,101,32,104,97,110,100,108,101,0,82,101,109,111,116,101,32,73,47,79,32,101,114,114,111,114,0,81,117,111,116,97,32,101,120,99,101,101,100,101,100,0,78,111,32,109,101,100,105,117,109,32,102,111,117,110,100,0,87,114,111,110,103,32,109,101,100,105,117,109,32,116,121,112,101,0,78,111,32,101,114,114,111,114,32,105,110,102,111,114,109,97,116,105,111,110,0,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,101,120,99,101,112,116,105,111,110,32,111,102,32,116,121,112,101,32,37,115,58,32,37,115,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,101,120,99,101,112,116,105,111,110,32,111,102,32,116,121,112,101,32,37,115,0,116,101,114,109,105,110,97,116,105,110,103,32,119,105,116,104,32,37,115,32,102,111,114,101,105,103,110,32,101,120,99,101,112,116,105,111,110,0,116,101,114,109,105,110,97,116,105,110,103,0,117,110,99,97,117,103,104,116,0,83,116,57,101,120,99,101,112,116,105,111,110,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,54,95,95,115,104,105,109,95,116,121,112,101,95,105,110,102,111,69,0,83,116,57,116,121,112,101,95,105,110,102,111,0,78,49,48,95,95,99,120,120,97,98,105,118,49,50,48,95,95,115,105,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,55,95,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0,112,116,104,114,101,97,100,95,111,110,99,101,32,102,97,105,108,117,114,101,32,105,110,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,95,102,97,115,116,40,41,0,99,97,110,110,111,116,32,99,114,101,97,116,101,32,112,116,104,114,101,97,100,32,107,101,121,32,102,111,114,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,40,41,0,99,97,110,110,111,116,32,122,101,114,111,32,111,117,116,32,116,104,114,101,97,100,32,118,97,108,117,101,32,102,111,114,32,95,95,99,120,97,95,103,101,116,95,103,108,111,98,97,108,115,40,41,0,116,101,114,109,105,110,97,116,101,95,104,97,110,100,108,101,114,32,117,110,101,120,112,101,99,116,101,100,108,121,32,114,101,116,117,114,110,101,100,0,116,101,114,109,105,110,97,116,101,95,104,97,110,100,108,101,114,32,117,110,101,120,112,101,99,116,101,100,108,121,32,116,104,114,101,119,32,97,110,32,101,120,99,101,112,116,105,111,110,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,57,95,95,112,111,105,110,116,101,114,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,49,55,95,95,112,98,97,115,101,95,116,121,112,101,95,105,110,102,111,69,0,78,49,48,95,95,99,120,120,97,98,105,118,49,50,49,95,95,118,109,105,95,99,108,97,115,115,95,116,121,112,101,95,105,110,102,111,69,0], "i8", ALLOC_NONE, GLOBAL_BASE);
 
 
 
@@ -1699,57 +1579,17 @@ function copyTempDouble(ptr) {
 // {{PRE_LIBRARY}}
 
 
-  
-  function _emscripten_get_now() { abort() }
-  
-  function _emscripten_get_now_is_monotonic() {
-      // return whether emscripten_get_now is guaranteed monotonic; the Date.now
-      // implementation is not :(
-      return ENVIRONMENT_IS_NODE || (typeof dateNow !== 'undefined') ||
-          ((ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && self['performance'] && self['performance']['now']);
-    }
-  
-  var ERRNO_CODES={EPERM:1,ENOENT:2,ESRCH:3,EINTR:4,EIO:5,ENXIO:6,E2BIG:7,ENOEXEC:8,EBADF:9,ECHILD:10,EAGAIN:11,EWOULDBLOCK:11,ENOMEM:12,EACCES:13,EFAULT:14,ENOTBLK:15,EBUSY:16,EEXIST:17,EXDEV:18,ENODEV:19,ENOTDIR:20,EISDIR:21,EINVAL:22,ENFILE:23,EMFILE:24,ENOTTY:25,ETXTBSY:26,EFBIG:27,ENOSPC:28,ESPIPE:29,EROFS:30,EMLINK:31,EPIPE:32,EDOM:33,ERANGE:34,ENOMSG:42,EIDRM:43,ECHRNG:44,EL2NSYNC:45,EL3HLT:46,EL3RST:47,ELNRNG:48,EUNATCH:49,ENOCSI:50,EL2HLT:51,EDEADLK:35,ENOLCK:37,EBADE:52,EBADR:53,EXFULL:54,ENOANO:55,EBADRQC:56,EBADSLT:57,EDEADLOCK:35,EBFONT:59,ENOSTR:60,ENODATA:61,ETIME:62,ENOSR:63,ENONET:64,ENOPKG:65,EREMOTE:66,ENOLINK:67,EADV:68,ESRMNT:69,ECOMM:70,EPROTO:71,EMULTIHOP:72,EDOTDOT:73,EBADMSG:74,ENOTUNIQ:76,EBADFD:77,EREMCHG:78,ELIBACC:79,ELIBBAD:80,ELIBSCN:81,ELIBMAX:82,ELIBEXEC:83,ENOSYS:38,ENOTEMPTY:39,ENAMETOOLONG:36,ELOOP:40,EOPNOTSUPP:95,EPFNOSUPPORT:96,ECONNRESET:104,ENOBUFS:105,EAFNOSUPPORT:97,EPROTOTYPE:91,ENOTSOCK:88,ENOPROTOOPT:92,ESHUTDOWN:108,ECONNREFUSED:111,EADDRINUSE:98,ECONNABORTED:103,ENETUNREACH:101,ENETDOWN:100,ETIMEDOUT:110,EHOSTDOWN:112,EHOSTUNREACH:113,EINPROGRESS:115,EALREADY:114,EDESTADDRREQ:89,EMSGSIZE:90,EPROTONOSUPPORT:93,ESOCKTNOSUPPORT:94,EADDRNOTAVAIL:99,ENETRESET:102,EISCONN:106,ENOTCONN:107,ETOOMANYREFS:109,EUSERS:87,EDQUOT:122,ESTALE:116,ENOTSUP:95,ENOMEDIUM:123,EILSEQ:84,EOVERFLOW:75,ECANCELED:125,ENOTRECOVERABLE:131,EOWNERDEAD:130,ESTRPIPE:86};
-  
-  function ___setErrNo(value) {
-      if (Module['___errno_location']) HEAP32[((Module['___errno_location']())>>2)]=value;
-      else Module.printErr('failed to set errno from JS');
-      return value;
-    }function _clock_gettime(clk_id, tp) {
-      // int clock_gettime(clockid_t clk_id, struct timespec *tp);
-      var now;
-      if (clk_id === 0) {
-        now = Date.now();
-      } else if (clk_id === 1 && _emscripten_get_now_is_monotonic()) {
-        now = _emscripten_get_now();
-      } else {
-        ___setErrNo(ERRNO_CODES.EINVAL);
-        return -1;
-      }
-      HEAP32[((tp)>>2)]=(now/1000)|0; // seconds
-      HEAP32[(((tp)+(4))>>2)]=((now % 1000)*1000*1000)|0; // nanoseconds
-      return 0;
-    }
+  function __ZN4mbed10TimerEventC2Ev() {
+  Module['printErr']('missing function: _ZN4mbed10TimerEventC2Ev'); abort(-1);
+  }
 
-   
-
-   
-
-   
-
-   
-
-  function _abort() {
-      Module['abort']();
-    }
+  function __ZN4mbed10TimerEventD2Ev() {
+  Module['printErr']('missing function: _ZN4mbed10TimerEventD2Ev'); abort(-1);
+  }
 
   
-  function ___cxa_free_exception(ptr) {
-      try {
-        return _free(ptr);
-      } catch(e) { // XXX FIXME
-        Module.printErr('exception during cxa_free_exception: ' + e);
-      }
+  function __ZSt18uncaught_exceptionv() { // std::uncaught_exception()
+      return !!__ZSt18uncaught_exceptionv.uncaught_exception;
     }
   
   var EXCEPTIONS={last:0,caught:[],infos:{},deAdjust:function (adjusted) {
@@ -1784,7 +1624,26 @@ function copyTempDouble(ptr) {
         if (!ptr) return;
         var info = EXCEPTIONS.infos[ptr];
         info.refcount = 0;
-      }};function ___cxa_end_catch() {
+      }};function ___cxa_begin_catch(ptr) {
+      var info = EXCEPTIONS.infos[ptr];
+      if (info && !info.caught) {
+        info.caught = true;
+        __ZSt18uncaught_exceptionv.uncaught_exception--;
+      }
+      if (info) info.rethrown = false;
+      EXCEPTIONS.caught.push(ptr);
+      EXCEPTIONS.addRef(EXCEPTIONS.deAdjust(ptr));
+      return ptr;
+    }
+
+  
+  function ___cxa_free_exception(ptr) {
+      try {
+        return _free(ptr);
+      } catch(e) { // XXX FIXME
+        Module.printErr('exception during cxa_free_exception: ' + e);
+      }
+    }function ___cxa_end_catch() {
       // Clear state flag.
       Module['setThrew'](0);
       // Call destructor if one is registered then clear it.
@@ -1795,15 +1654,225 @@ function copyTempDouble(ptr) {
       }
     }
 
+  function ___cxa_find_matching_catch_2() {
+          return ___cxa_find_matching_catch.apply(null, arguments);
+        }
+
+  function ___cxa_find_matching_catch_3() {
+          return ___cxa_find_matching_catch.apply(null, arguments);
+        }
+
+  
+  
+  function ___resumeException(ptr) {
+      if (!EXCEPTIONS.last) { EXCEPTIONS.last = ptr; }
+      throw ptr;
+    }function ___cxa_find_matching_catch() {
+      var thrown = EXCEPTIONS.last;
+      if (!thrown) {
+        // just pass through the null ptr
+        return ((setTempRet0(0),0)|0);
+      }
+      var info = EXCEPTIONS.infos[thrown];
+      var throwntype = info.type;
+      if (!throwntype) {
+        // just pass through the thrown ptr
+        return ((setTempRet0(0),thrown)|0);
+      }
+      var typeArray = Array.prototype.slice.call(arguments);
+  
+      var pointer = Module['___cxa_is_pointer_type'](throwntype);
+      // can_catch receives a **, add indirection
+      if (!___cxa_find_matching_catch.buffer) ___cxa_find_matching_catch.buffer = _malloc(4);
+      HEAP32[((___cxa_find_matching_catch.buffer)>>2)]=thrown;
+      thrown = ___cxa_find_matching_catch.buffer;
+      // The different catch blocks are denoted by different types.
+      // Due to inheritance, those types may not precisely match the
+      // type of the thrown object. Find one which matches, and
+      // return the type of the catch block which should be called.
+      for (var i = 0; i < typeArray.length; i++) {
+        if (typeArray[i] && Module['___cxa_can_catch'](typeArray[i], throwntype, thrown)) {
+          thrown = HEAP32[((thrown)>>2)]; // undo indirection
+          info.adjusted = thrown;
+          return ((setTempRet0(typeArray[i]),thrown)|0);
+        }
+      }
+      // Shouldn't happen unless we have bogus data in typeArray
+      // or encounter a type for which emscripten doesn't have suitable
+      // typeinfo defined. Best-efforts match just in case.
+      thrown = HEAP32[((thrown)>>2)]; // undo indirection
+      return ((setTempRet0(throwntype),thrown)|0);
+    }function ___gxx_personality_v0() {
+    }
+
+  function ___lock() {}
+
+
+  
+  var SYSCALLS={varargs:0,get:function (varargs) {
+        SYSCALLS.varargs += 4;
+        var ret = HEAP32[(((SYSCALLS.varargs)-(4))>>2)];
+        return ret;
+      },getStr:function () {
+        var ret = Pointer_stringify(SYSCALLS.get());
+        return ret;
+      },get64:function () {
+        var low = SYSCALLS.get(), high = SYSCALLS.get();
+        if (low >= 0) assert(high === 0);
+        else assert(high === -1);
+        return low;
+      },getZero:function () {
+        assert(SYSCALLS.get() === 0);
+      }};function ___syscall140(which, varargs) {SYSCALLS.varargs = varargs;
+  try {
+   // llseek
+      var stream = SYSCALLS.getStreamFromFD(), offset_high = SYSCALLS.get(), offset_low = SYSCALLS.get(), result = SYSCALLS.get(), whence = SYSCALLS.get();
+      // NOTE: offset_high is unused - Emscripten's off_t is 32-bit
+      var offset = offset_low;
+      FS.llseek(stream, offset, whence);
+      HEAP32[((result)>>2)]=stream.position;
+      if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  
+  function flush_NO_FILESYSTEM() {
+      // flush anything remaining in the buffers during shutdown
+      var fflush = Module["_fflush"];
+      if (fflush) fflush(0);
+      var printChar = ___syscall146.printChar;
+      if (!printChar) return;
+      var buffers = ___syscall146.buffers;
+      if (buffers[1].length) printChar(1, 10);
+      if (buffers[2].length) printChar(2, 10);
+    }function ___syscall146(which, varargs) {SYSCALLS.varargs = varargs;
+  try {
+   // writev
+      // hack to support printf in NO_FILESYSTEM
+      var stream = SYSCALLS.get(), iov = SYSCALLS.get(), iovcnt = SYSCALLS.get();
+      var ret = 0;
+      if (!___syscall146.buffer) {
+        ___syscall146.buffers = [null, [], []]; // 1 => stdout, 2 => stderr
+        ___syscall146.printChar = function(stream, curr) {
+          var buffer = ___syscall146.buffers[stream];
+          assert(buffer);
+          if (curr === 0 || curr === 10) {
+            (stream === 1 ? Module['print'] : Module['printErr'])(UTF8ArrayToString(buffer, 0));
+            buffer.length = 0;
+          } else {
+            buffer.push(curr);
+          }
+        };
+      }
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAP32[(((iov)+(i*8))>>2)];
+        var len = HEAP32[(((iov)+(i*8 + 4))>>2)];
+        for (var j = 0; j < len; j++) {
+          ___syscall146.printChar(stream, HEAPU8[ptr+j]);
+        }
+        ret += len;
+      }
+      return ret;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  function ___syscall54(which, varargs) {SYSCALLS.varargs = varargs;
+  try {
+   // ioctl
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  function ___syscall6(which, varargs) {SYSCALLS.varargs = varargs;
+  try {
+   // close
+      var stream = SYSCALLS.getStreamFromFD();
+      FS.close(stream);
+      return 0;
+    } catch (e) {
+    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
+    return -e.errno;
+  }
+  }
+
+  
+  
+   
+  
+   
+  
+  var cttz_i8 = allocate([8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0], "i8", ALLOC_STATIC);   
+
+  function ___unlock() {}
+
+   
+
+  function _abort() {
+      Module['abort']();
+    }
+
+   
+
+   
+
+  
+  function _emscripten_get_now() { abort() }
+  
+  function _emscripten_get_now_is_monotonic() {
+      // return whether emscripten_get_now is guaranteed monotonic; the Date.now
+      // implementation is not :(
+      return ENVIRONMENT_IS_NODE || (typeof dateNow !== 'undefined') ||
+          ((ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && self['performance'] && self['performance']['now']);
+    }
+  
+  var ERRNO_CODES={EPERM:1,ENOENT:2,ESRCH:3,EINTR:4,EIO:5,ENXIO:6,E2BIG:7,ENOEXEC:8,EBADF:9,ECHILD:10,EAGAIN:11,EWOULDBLOCK:11,ENOMEM:12,EACCES:13,EFAULT:14,ENOTBLK:15,EBUSY:16,EEXIST:17,EXDEV:18,ENODEV:19,ENOTDIR:20,EISDIR:21,EINVAL:22,ENFILE:23,EMFILE:24,ENOTTY:25,ETXTBSY:26,EFBIG:27,ENOSPC:28,ESPIPE:29,EROFS:30,EMLINK:31,EPIPE:32,EDOM:33,ERANGE:34,ENOMSG:42,EIDRM:43,ECHRNG:44,EL2NSYNC:45,EL3HLT:46,EL3RST:47,ELNRNG:48,EUNATCH:49,ENOCSI:50,EL2HLT:51,EDEADLK:35,ENOLCK:37,EBADE:52,EBADR:53,EXFULL:54,ENOANO:55,EBADRQC:56,EBADSLT:57,EDEADLOCK:35,EBFONT:59,ENOSTR:60,ENODATA:61,ETIME:62,ENOSR:63,ENONET:64,ENOPKG:65,EREMOTE:66,ENOLINK:67,EADV:68,ESRMNT:69,ECOMM:70,EPROTO:71,EMULTIHOP:72,EDOTDOT:73,EBADMSG:74,ENOTUNIQ:76,EBADFD:77,EREMCHG:78,ELIBACC:79,ELIBBAD:80,ELIBSCN:81,ELIBMAX:82,ELIBEXEC:83,ENOSYS:38,ENOTEMPTY:39,ENAMETOOLONG:36,ELOOP:40,EOPNOTSUPP:95,EPFNOSUPPORT:96,ECONNRESET:104,ENOBUFS:105,EAFNOSUPPORT:97,EPROTOTYPE:91,ENOTSOCK:88,ENOPROTOOPT:92,ESHUTDOWN:108,ECONNREFUSED:111,EADDRINUSE:98,ECONNABORTED:103,ENETUNREACH:101,ENETDOWN:100,ETIMEDOUT:110,EHOSTDOWN:112,EHOSTUNREACH:113,EINPROGRESS:115,EALREADY:114,EDESTADDRREQ:89,EMSGSIZE:90,EPROTONOSUPPORT:93,ESOCKTNOSUPPORT:94,EADDRNOTAVAIL:99,ENETRESET:102,EISCONN:106,ENOTCONN:107,ETOOMANYREFS:109,EUSERS:87,EDQUOT:122,ESTALE:116,ENOTSUP:95,ENOMEDIUM:123,EILSEQ:84,EOVERFLOW:75,ECANCELED:125,ENOTRECOVERABLE:131,EOWNERDEAD:130,ESTRPIPE:86};
+  
+  function ___setErrNo(value) {
+      if (Module['___errno_location']) HEAP32[((Module['___errno_location']())>>2)]=value;
+      else Module.printErr('failed to set errno from JS');
+      return value;
+    }function _clock_gettime(clk_id, tp) {
+      // int clock_gettime(clockid_t clk_id, struct timespec *tp);
+      var now;
+      if (clk_id === 0) {
+        now = Date.now();
+      } else if (clk_id === 1 && _emscripten_get_now_is_monotonic()) {
+        now = _emscripten_get_now();
+      } else {
+        ___setErrNo(ERRNO_CODES.EINVAL);
+        return -1;
+      }
+      HEAP32[((tp)>>2)]=(now/1000)|0; // seconds
+      HEAP32[(((tp)+(4))>>2)]=((now % 1000)*1000*1000)|0; // nanoseconds
+      return 0;
+    }
+
+  
+  var ___async_cur_frame=0; 
+
+  var _emscripten_asm_const_int=true;
+
+   
+
+   
+
   
   
   var ___async=0;
   
   var ___async_unwind=1;
   
-  var ___async_retval=STATICTOP; STATICTOP += 16;;
-  
-  var ___async_cur_frame=0; 
+  var ___async_retval=STATICTOP; STATICTOP += 16;; 
   
   
   
@@ -1828,28 +1897,30 @@ function copyTempDouble(ptr) {
         };
         Browser.mainLoop.method = 'rAF';
       } else if (mode == 2 /*EM_TIMING_SETIMMEDIATE*/) {
-        if (!window['setImmediate']) {
+        if (typeof setImmediate === 'undefined') {
           // Emulate setImmediate. (note: not a complete polyfill, we don't emulate clearImmediate() to keep code size to minimum, since not needed)
           var setImmediates = [];
           var emscriptenMainLoopMessageId = 'setimmediate';
           function Browser_setImmediate_messageHandler(event) {
-            if (event.source === window && event.data === emscriptenMainLoopMessageId) {
+            // When called in current thread or Worker, the main loop ID is structured slightly different to accommodate for --proxy-to-worker runtime listening to Worker events,
+            // so check for both cases.
+            if (event.data === emscriptenMainLoopMessageId || event.data.target === emscriptenMainLoopMessageId) {
               event.stopPropagation();
               setImmediates.shift()();
             }
           }
-          window.addEventListener("message", Browser_setImmediate_messageHandler, true);
-          window['setImmediate'] = function Browser_emulated_setImmediate(func) {
+          addEventListener("message", Browser_setImmediate_messageHandler, true);
+          setImmediate = function Browser_emulated_setImmediate(func) {
             setImmediates.push(func);
             if (ENVIRONMENT_IS_WORKER) {
               if (Module['setImmediates'] === undefined) Module['setImmediates'] = [];
               Module['setImmediates'].push(func);
-              window.postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
-            } else window.postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
+              postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
+            } else postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
           }
         }
         Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setImmediate() {
-          window['setImmediate'](Browser.mainLoop.runner);
+          setImmediate(Browser.mainLoop.runner);
         };
         Browser.mainLoop.method = 'immediate';
       }
@@ -2038,7 +2109,7 @@ function copyTempDouble(ptr) {
                 b = new Blob([(new Uint8Array(byteArray)).buffer], { type: Browser.getMimetype(name) });
               }
             } catch(e) {
-              Runtime.warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
+              warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
             }
           }
           if (!b) {
@@ -2408,13 +2479,13 @@ function copyTempDouble(ptr) {
           
           // check if SDL is available
           if (typeof SDL != "undefined") {
-          	Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
-          	Browser.mouseY = SDL.mouseY + Browser.mouseMovementY;
+            Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
+            Browser.mouseY = SDL.mouseY + Browser.mouseMovementY;
           } else {
-          	// just add the mouse delta to the current absolut mouse position
-          	// FIXME: ideally this should be clamped against the canvas size and zero
-          	Browser.mouseX += Browser.mouseMovementX;
-          	Browser.mouseY += Browser.mouseMovementY;
+            // just add the mouse delta to the current absolut mouse position
+            // FIXME: ideally this should be clamped against the canvas size and zero
+            Browser.mouseX += Browser.mouseMovementX;
+            Browser.mouseY += Browser.mouseMovementY;
           }        
         } else {
           // Otherwise, calculate the movement based on the changes
@@ -2498,17 +2569,17 @@ function copyTempDouble(ptr) {
       },windowedWidth:0,windowedHeight:0,setFullscreenCanvasSize:function () {
         // check if SDL is available   
         if (typeof SDL != "undefined") {
-        	var flags = HEAPU32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)];
-        	flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
-        	HEAP32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)]=flags
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)]=flags
         }
         Browser.updateResizeListeners();
       },setWindowedCanvasSize:function () {
         // check if SDL is available       
         if (typeof SDL != "undefined") {
-        	var flags = HEAPU32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)];
-        	flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
-        	HEAP32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)]=flags
+          var flags = HEAPU32[((SDL.screen)>>2)];
+          flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
+          HEAP32[((SDL.screen)>>2)]=flags
         }
         Browser.updateResizeListeners();
       },updateCanvasDimensions:function (canvas, wNative, hNative) {
@@ -2560,16 +2631,21 @@ function copyTempDouble(ptr) {
         Browser.nextWgetRequestHandle++;
         return handle;
       }};function _emscripten_sleep(ms) {
-      Module['asm'].setAsync(); // tell the scheduler that we have a callback on hold
+      Module['setAsync'](); // tell the scheduler that we have a callback on hold
       Browser.safeSetTimeout(_emscripten_async_resume, ms);
     }
 
-  function _pthread_once(ptr, func) {
-      if (!_pthread_once.seen) _pthread_once.seen = {};
-      if (ptr in _pthread_once.seen) return;
-      Module['dynCall_v'](func);
-      _pthread_once.seen[ptr] = 1;
-    }
+
+
+   
+
+  
+  function _emscripten_memcpy_big(dest, src, num) {
+      HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
+      return dest;
+    } 
+
+   
 
   
   var PTHREAD_SPECIFIC={};function _pthread_getspecific(key) {
@@ -2588,7 +2664,12 @@ function copyTempDouble(ptr) {
       return 0;
     }
 
-  var _emscripten_asm_const_int=true;
+  function _pthread_once(ptr, func) {
+      if (!_pthread_once.seen) _pthread_once.seen = {};
+      if (ptr in _pthread_once.seen) return;
+      Module['dynCall_v'](func);
+      _pthread_once.seen[ptr] = 1;
+    }
 
   function _pthread_setspecific(key, value) {
       if (!(key in PTHREAD_SPECIFIC)) {
@@ -2597,182 +2678,6 @@ function copyTempDouble(ptr) {
       PTHREAD_SPECIFIC[key] = value;
       return 0;
     }
-
-  
-  var SYSCALLS={varargs:0,get:function (varargs) {
-        SYSCALLS.varargs += 4;
-        var ret = HEAP32[(((SYSCALLS.varargs)-(4))>>2)];
-        return ret;
-      },getStr:function () {
-        var ret = Pointer_stringify(SYSCALLS.get());
-        return ret;
-      },get64:function () {
-        var low = SYSCALLS.get(), high = SYSCALLS.get();
-        if (low >= 0) assert(high === 0);
-        else assert(high === -1);
-        return low;
-      },getZero:function () {
-        assert(SYSCALLS.get() === 0);
-      }};function ___syscall54(which, varargs) {SYSCALLS.varargs = varargs;
-  try {
-   // ioctl
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return -e.errno;
-  }
-  }
-
-   
-
-   
-
-   
-
-  function ___cxa_find_matching_catch_2() {
-          return ___cxa_find_matching_catch.apply(null, arguments);
-        }
-
-  function ___cxa_find_matching_catch_3() {
-          return ___cxa_find_matching_catch.apply(null, arguments);
-        }
-
-  
-  function __ZSt18uncaught_exceptionv() { // std::uncaught_exception()
-      return !!__ZSt18uncaught_exceptionv.uncaught_exception;
-    }function ___cxa_begin_catch(ptr) {
-      var info = EXCEPTIONS.infos[ptr];
-      if (info && !info.caught) {
-        info.caught = true;
-        __ZSt18uncaught_exceptionv.uncaught_exception--;
-      }
-      if (info) info.rethrown = false;
-      EXCEPTIONS.caught.push(ptr);
-      EXCEPTIONS.addRef(EXCEPTIONS.deAdjust(ptr));
-      return ptr;
-    }
-
-  
-  function _emscripten_memcpy_big(dest, src, num) {
-      HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
-      return dest;
-    } 
-
-  function ___syscall6(which, varargs) {SYSCALLS.varargs = varargs;
-  try {
-   // close
-      var stream = SYSCALLS.getStreamFromFD();
-      FS.close(stream);
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return -e.errno;
-  }
-  }
-
-  
-  
-  var cttz_i8 = allocate([8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0], "i8", ALLOC_STATIC);   
-
-   
-
-  
-  
-  function ___resumeException(ptr) {
-      if (!EXCEPTIONS.last) { EXCEPTIONS.last = ptr; }
-      throw ptr;
-    }function ___cxa_find_matching_catch() {
-      var thrown = EXCEPTIONS.last;
-      if (!thrown) {
-        // just pass through the null ptr
-        return ((Runtime.setTempRet0(0),0)|0);
-      }
-      var info = EXCEPTIONS.infos[thrown];
-      var throwntype = info.type;
-      if (!throwntype) {
-        // just pass through the thrown ptr
-        return ((Runtime.setTempRet0(0),thrown)|0);
-      }
-      var typeArray = Array.prototype.slice.call(arguments);
-  
-      var pointer = Module['___cxa_is_pointer_type'](throwntype);
-      // can_catch receives a **, add indirection
-      if (!___cxa_find_matching_catch.buffer) ___cxa_find_matching_catch.buffer = _malloc(4);
-      HEAP32[((___cxa_find_matching_catch.buffer)>>2)]=thrown;
-      thrown = ___cxa_find_matching_catch.buffer;
-      // The different catch blocks are denoted by different types.
-      // Due to inheritance, those types may not precisely match the
-      // type of the thrown object. Find one which matches, and
-      // return the type of the catch block which should be called.
-      for (var i = 0; i < typeArray.length; i++) {
-        if (typeArray[i] && Module['___cxa_can_catch'](typeArray[i], throwntype, thrown)) {
-          thrown = HEAP32[((thrown)>>2)]; // undo indirection
-          info.adjusted = thrown;
-          return ((Runtime.setTempRet0(typeArray[i]),thrown)|0);
-        }
-      }
-      // Shouldn't happen unless we have bogus data in typeArray
-      // or encounter a type for which emscripten doesn't have suitable
-      // typeinfo defined. Best-efforts match just in case.
-      thrown = HEAP32[((thrown)>>2)]; // undo indirection
-      return ((Runtime.setTempRet0(throwntype),thrown)|0);
-    }function ___gxx_personality_v0() {
-    }
-
-   
-
-   
-
-
-  function ___syscall140(which, varargs) {SYSCALLS.varargs = varargs;
-  try {
-   // llseek
-      var stream = SYSCALLS.getStreamFromFD(), offset_high = SYSCALLS.get(), offset_low = SYSCALLS.get(), result = SYSCALLS.get(), whence = SYSCALLS.get();
-      // NOTE: offset_high is unused - Emscripten's off_t is 32-bit
-      var offset = offset_low;
-      FS.llseek(stream, offset, whence);
-      HEAP32[((result)>>2)]=stream.position;
-      if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
-      return 0;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return -e.errno;
-  }
-  }
-
-  function ___syscall146(which, varargs) {SYSCALLS.varargs = varargs;
-  try {
-   // writev
-      // hack to support printf in NO_FILESYSTEM
-      var stream = SYSCALLS.get(), iov = SYSCALLS.get(), iovcnt = SYSCALLS.get();
-      var ret = 0;
-      if (!___syscall146.buffer) {
-        ___syscall146.buffers = [null, [], []]; // 1 => stdout, 2 => stderr
-        ___syscall146.printChar = function(stream, curr) {
-          var buffer = ___syscall146.buffers[stream];
-          assert(buffer);
-          if (curr === 0 || curr === 10) {
-            (stream === 1 ? Module['print'] : Module['printErr'])(UTF8ArrayToString(buffer, 0));
-            buffer.length = 0;
-          } else {
-            buffer.push(curr);
-          }
-        };
-      }
-      for (var i = 0; i < iovcnt; i++) {
-        var ptr = HEAP32[(((iov)+(i*8))>>2)];
-        var len = HEAP32[(((iov)+(i*8 + 4))>>2)];
-        for (var j = 0; j < len; j++) {
-          ___syscall146.printChar(stream, HEAPU8[ptr+j]);
-        }
-        ret += len;
-      }
-      return ret;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return -e.errno;
-  }
-  }
 
    
 if (ENVIRONMENT_IS_NODE) {
@@ -2797,14 +2702,13 @@ Module["requestFullScreen"] = function Module_requestFullScreen(lockPointer, res
   Module["resumeMainLoop"] = function Module_resumeMainLoop() { Browser.mainLoop.resume() };
   Module["getUserMedia"] = function Module_getUserMedia() { Browser.getUserMedia() }
   Module["createContext"] = function Module_createContext(canvas, useWebGL, setInModule, webGLContextAttributes) { return Browser.createContext(canvas, useWebGL, setInModule, webGLContextAttributes) };
-/* flush anything remaining in the buffer during shutdown */ __ATEXIT__.push(function() { var fflush = Module["_fflush"]; if (fflush) fflush(0); var printChar = ___syscall146.printChar; if (!printChar) return; var buffers = ___syscall146.buffers; if (buffers[1].length) printChar(1, 10); if (buffers[2].length) printChar(2, 10); });;
-DYNAMICTOP_PTR = allocate(1, "i32", ALLOC_STATIC);
+DYNAMICTOP_PTR = staticAlloc(4);
 
-STACK_BASE = STACKTOP = Runtime.alignMemory(STATICTOP);
+STACK_BASE = STACKTOP = alignMemory(STATICTOP);
 
 STACK_MAX = STACK_BASE + TOTAL_STACK;
 
-DYNAMIC_BASE = Runtime.alignMemory(STACK_MAX);
+DYNAMIC_BASE = alignMemory(STACK_MAX);
 
 HEAP32[DYNAMICTOP_PTR>>2] = DYNAMIC_BASE;
 
@@ -2812,28 +2716,77 @@ staticSealed = true; // seal the static portion of memory
 
 assert(DYNAMIC_BASE < TOTAL_MEMORY, "TOTAL_MEMORY not big enough for stack");
 
+var ASSERTIONS = true;
+
+// All functions here should be maybeExported from jsifier.js
+
+/** @type {function(string, boolean=, number=)} */
+function intArrayFromString(stringy, dontAddNull, length) {
+  var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
+  var u8array = new Array(len);
+  var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
+  if (dontAddNull) u8array.length = numBytesWritten;
+  return u8array;
+}
+
+function intArrayToString(array) {
+  var ret = [];
+  for (var i = 0; i < array.length; i++) {
+    var chr = array[i];
+    if (chr > 0xFF) {
+      if (ASSERTIONS) {
+        assert(false, 'Character code ' + chr + ' (' + String.fromCharCode(chr) + ')  at offset ' + i + ' not in 0x00-0xFF.');
+      }
+      chr &= 0xFF;
+    }
+    ret.push(String.fromCharCode(chr));
+  }
+  return ret.join('');
+}
+
+
+if (!Module["intArrayFromString"]) Module["intArrayFromString"] = function() { abort("'intArrayFromString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
+if (!Module["intArrayToString"]) Module["intArrayToString"] = function() { abort("'intArrayToString' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
+
+function nullFunc_i(x) { Module["printErr"]("Invalid function pointer called with signature 'i'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
+function nullFunc_ii(x) { Module["printErr"]("Invalid function pointer called with signature 'ii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_iiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_viiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+function nullFunc_iiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_i(x) { Module["printErr"]("Invalid function pointer called with signature 'i'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+function nullFunc_v(x) { Module["printErr"]("Invalid function pointer called with signature 'v'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_vi(x) { Module["printErr"]("Invalid function pointer called with signature 'vi'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_vii(x) { Module["printErr"]("Invalid function pointer called with signature 'vii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_ii(x) { Module["printErr"]("Invalid function pointer called with signature 'ii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
-
-function nullFunc_v(x) { Module["printErr"]("Invalid function pointer called with signature 'v'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
-
 function nullFunc_viid(x) { Module["printErr"]("Invalid function pointer called with signature 'viid'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_iiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+function nullFunc_viiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
+function nullFunc_viiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_viiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_viiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+function invoke_i(index) {
+  try {
+    return Module["dynCall_i"](index);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
+function invoke_ii(index,a1) {
+  try {
+    return Module["dynCall_ii"](index,a1);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
 
 function invoke_iiii(index,a1,a2,a3) {
   try {
@@ -2844,18 +2797,18 @@ function invoke_iiii(index,a1,a2,a3) {
   }
 }
 
-function invoke_viiiii(index,a1,a2,a3,a4,a5) {
+function invoke_iiiii(index,a1,a2,a3,a4) {
   try {
-    Module["dynCall_viiiii"](index,a1,a2,a3,a4,a5);
+    return Module["dynCall_iiiii"](index,a1,a2,a3,a4);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
   }
 }
 
-function invoke_i(index) {
+function invoke_v(index) {
   try {
-    return Module["dynCall_i"](index);
+    Module["dynCall_v"](index);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
@@ -2880,45 +2833,9 @@ function invoke_vii(index,a1,a2) {
   }
 }
 
-function invoke_ii(index,a1) {
-  try {
-    return Module["dynCall_ii"](index,a1);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_v(index) {
-  try {
-    Module["dynCall_v"](index);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
 function invoke_viid(index,a1,a2,a3) {
   try {
     Module["dynCall_viid"](index,a1,a2,a3);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_iiiii(index,a1,a2,a3,a4) {
-  try {
-    return Module["dynCall_iiiii"](index,a1,a2,a3,a4);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
-  try {
-    Module["dynCall_viiiiii"](index,a1,a2,a3,a4,a5,a6);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
@@ -2934,11 +2851,29 @@ function invoke_viiii(index,a1,a2,a3,a4) {
   }
 }
 
+function invoke_viiiii(index,a1,a2,a3,a4,a5) {
+  try {
+    Module["dynCall_viiiii"](index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
+function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
+  try {
+    Module["dynCall_viiiiii"](index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
 Module.asmGlobalArg = { "Math": Math, "Int8Array": Int8Array, "Int16Array": Int16Array, "Int32Array": Int32Array, "Uint8Array": Uint8Array, "Uint16Array": Uint16Array, "Uint32Array": Uint32Array, "Float32Array": Float32Array, "Float64Array": Float64Array, "NaN": NaN, "Infinity": Infinity };
 
-Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_i": nullFunc_i, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_viiii": nullFunc_viiii, "invoke_iiii": invoke_iiii, "invoke_viiiii": invoke_viiiii, "invoke_i": invoke_i, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_iiiii": invoke_iiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_viiii": invoke_viiii, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "___syscall54": ___syscall54, "_abort": _abort, "___setErrNo": ___setErrNo, "___gxx_personality_v0": ___gxx_personality_v0, "___cxa_free_exception": ___cxa_free_exception, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "_emscripten_asm_const_i": _emscripten_asm_const_i, "_clock_gettime": _clock_gettime, "_emscripten_set_main_loop_timing": _emscripten_set_main_loop_timing, "___cxa_begin_catch": ___cxa_begin_catch, "_emscripten_memcpy_big": _emscripten_memcpy_big, "___cxa_end_catch": ___cxa_end_catch, "___resumeException": ___resumeException, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "_pthread_getspecific": _pthread_getspecific, "_pthread_once": _pthread_once, "_pthread_key_create": _pthread_key_create, "_emscripten_sleep": _emscripten_sleep, "_emscripten_set_main_loop": _emscripten_set_main_loop, "_emscripten_asm_const_iii": _emscripten_asm_const_iii, "_pthread_setspecific": _pthread_setspecific, "_emscripten_asm_const_iiii": _emscripten_asm_const_iiii, "___syscall6": ___syscall6, "_emscripten_get_now": _emscripten_get_now, "___syscall140": ___syscall140, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "___syscall146": ___syscall146, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "cttz_i8": cttz_i8, "___async": ___async, "___async_unwind": ___async_unwind, "___async_retval": ___async_retval, "___async_cur_frame": ___async_cur_frame };
+Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_i": nullFunc_i, "nullFunc_ii": nullFunc_ii, "nullFunc_iiii": nullFunc_iiii, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_v": nullFunc_v, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_viid": nullFunc_viid, "nullFunc_viiii": nullFunc_viiii, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "invoke_i": invoke_i, "invoke_ii": invoke_ii, "invoke_iiii": invoke_iiii, "invoke_iiiii": invoke_iiiii, "invoke_v": invoke_v, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_viid": invoke_viid, "invoke_viiii": invoke_viiii, "invoke_viiiii": invoke_viiiii, "invoke_viiiiii": invoke_viiiiii, "__ZN4mbed10TimerEventC2Ev": __ZN4mbed10TimerEventC2Ev, "__ZN4mbed10TimerEventD2Ev": __ZN4mbed10TimerEventD2Ev, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "___cxa_begin_catch": ___cxa_begin_catch, "___cxa_end_catch": ___cxa_end_catch, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "___cxa_free_exception": ___cxa_free_exception, "___gxx_personality_v0": ___gxx_personality_v0, "___lock": ___lock, "___resumeException": ___resumeException, "___setErrNo": ___setErrNo, "___syscall140": ___syscall140, "___syscall146": ___syscall146, "___syscall54": ___syscall54, "___syscall6": ___syscall6, "___unlock": ___unlock, "_abort": _abort, "_clock_gettime": _clock_gettime, "_emscripten_asm_const_i": _emscripten_asm_const_i, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "_emscripten_asm_const_iii": _emscripten_asm_const_iii, "_emscripten_asm_const_iiii": _emscripten_asm_const_iiii, "_emscripten_get_now": _emscripten_get_now, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "_emscripten_memcpy_big": _emscripten_memcpy_big, "_emscripten_set_main_loop": _emscripten_set_main_loop, "_emscripten_set_main_loop_timing": _emscripten_set_main_loop_timing, "_emscripten_sleep": _emscripten_sleep, "_pthread_getspecific": _pthread_getspecific, "_pthread_key_create": _pthread_key_create, "_pthread_once": _pthread_once, "_pthread_setspecific": _pthread_setspecific, "flush_NO_FILESYSTEM": flush_NO_FILESYSTEM, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "cttz_i8": cttz_i8, "___async": ___async, "___async_unwind": ___async_unwind, "___async_retval": ___async_retval, "___async_cur_frame": ___async_cur_frame };
 // EMSCRIPTEN_START_ASM
-var asm = (function(global, env, buffer) {
+var asm = (/** @suppress {uselessCode} */ function(global, env, buffer) {
 'almost asm';
 
 
@@ -2994,58 +2929,63 @@ var asm = (function(global, env, buffer) {
   var getTotalMemory=env.getTotalMemory;
   var abortOnCannotGrowMemory=env.abortOnCannotGrowMemory;
   var abortStackOverflow=env.abortStackOverflow;
-  var nullFunc_iiii=env.nullFunc_iiii;
-  var nullFunc_viiiii=env.nullFunc_viiiii;
   var nullFunc_i=env.nullFunc_i;
+  var nullFunc_ii=env.nullFunc_ii;
+  var nullFunc_iiii=env.nullFunc_iiii;
+  var nullFunc_iiiii=env.nullFunc_iiiii;
+  var nullFunc_v=env.nullFunc_v;
   var nullFunc_vi=env.nullFunc_vi;
   var nullFunc_vii=env.nullFunc_vii;
-  var nullFunc_ii=env.nullFunc_ii;
-  var nullFunc_v=env.nullFunc_v;
   var nullFunc_viid=env.nullFunc_viid;
-  var nullFunc_iiiii=env.nullFunc_iiiii;
-  var nullFunc_viiiiii=env.nullFunc_viiiiii;
   var nullFunc_viiii=env.nullFunc_viiii;
-  var invoke_iiii=env.invoke_iiii;
-  var invoke_viiiii=env.invoke_viiiii;
+  var nullFunc_viiiii=env.nullFunc_viiiii;
+  var nullFunc_viiiiii=env.nullFunc_viiiiii;
   var invoke_i=env.invoke_i;
+  var invoke_ii=env.invoke_ii;
+  var invoke_iiii=env.invoke_iiii;
+  var invoke_iiiii=env.invoke_iiiii;
+  var invoke_v=env.invoke_v;
   var invoke_vi=env.invoke_vi;
   var invoke_vii=env.invoke_vii;
-  var invoke_ii=env.invoke_ii;
-  var invoke_v=env.invoke_v;
   var invoke_viid=env.invoke_viid;
-  var invoke_iiiii=env.invoke_iiiii;
-  var invoke_viiiiii=env.invoke_viiiiii;
   var invoke_viiii=env.invoke_viiii;
-  var _emscripten_get_now_is_monotonic=env._emscripten_get_now_is_monotonic;
-  var ___syscall54=env.___syscall54;
-  var _abort=env._abort;
-  var ___setErrNo=env.___setErrNo;
-  var ___gxx_personality_v0=env.___gxx_personality_v0;
-  var ___cxa_free_exception=env.___cxa_free_exception;
+  var invoke_viiiii=env.invoke_viiiii;
+  var invoke_viiiiii=env.invoke_viiiiii;
+  var __ZN4mbed10TimerEventC2Ev=env.__ZN4mbed10TimerEventC2Ev;
+  var __ZN4mbed10TimerEventD2Ev=env.__ZN4mbed10TimerEventD2Ev;
+  var __ZSt18uncaught_exceptionv=env.__ZSt18uncaught_exceptionv;
+  var ___cxa_begin_catch=env.___cxa_begin_catch;
+  var ___cxa_end_catch=env.___cxa_end_catch;
+  var ___cxa_find_matching_catch=env.___cxa_find_matching_catch;
   var ___cxa_find_matching_catch_2=env.___cxa_find_matching_catch_2;
   var ___cxa_find_matching_catch_3=env.___cxa_find_matching_catch_3;
-  var _emscripten_asm_const_ii=env._emscripten_asm_const_ii;
-  var _emscripten_asm_const_i=env._emscripten_asm_const_i;
-  var _clock_gettime=env._clock_gettime;
-  var _emscripten_set_main_loop_timing=env._emscripten_set_main_loop_timing;
-  var ___cxa_begin_catch=env.___cxa_begin_catch;
-  var _emscripten_memcpy_big=env._emscripten_memcpy_big;
-  var ___cxa_end_catch=env.___cxa_end_catch;
+  var ___cxa_free_exception=env.___cxa_free_exception;
+  var ___gxx_personality_v0=env.___gxx_personality_v0;
+  var ___lock=env.___lock;
   var ___resumeException=env.___resumeException;
-  var __ZSt18uncaught_exceptionv=env.__ZSt18uncaught_exceptionv;
-  var _pthread_getspecific=env._pthread_getspecific;
-  var _pthread_once=env._pthread_once;
-  var _pthread_key_create=env._pthread_key_create;
-  var _emscripten_sleep=env._emscripten_sleep;
-  var _emscripten_set_main_loop=env._emscripten_set_main_loop;
-  var _emscripten_asm_const_iii=env._emscripten_asm_const_iii;
-  var _pthread_setspecific=env._pthread_setspecific;
-  var _emscripten_asm_const_iiii=env._emscripten_asm_const_iiii;
-  var ___syscall6=env.___syscall6;
-  var _emscripten_get_now=env._emscripten_get_now;
+  var ___setErrNo=env.___setErrNo;
   var ___syscall140=env.___syscall140;
-  var ___cxa_find_matching_catch=env.___cxa_find_matching_catch;
   var ___syscall146=env.___syscall146;
+  var ___syscall54=env.___syscall54;
+  var ___syscall6=env.___syscall6;
+  var ___unlock=env.___unlock;
+  var _abort=env._abort;
+  var _clock_gettime=env._clock_gettime;
+  var _emscripten_asm_const_i=env._emscripten_asm_const_i;
+  var _emscripten_asm_const_ii=env._emscripten_asm_const_ii;
+  var _emscripten_asm_const_iii=env._emscripten_asm_const_iii;
+  var _emscripten_asm_const_iiii=env._emscripten_asm_const_iiii;
+  var _emscripten_get_now=env._emscripten_get_now;
+  var _emscripten_get_now_is_monotonic=env._emscripten_get_now_is_monotonic;
+  var _emscripten_memcpy_big=env._emscripten_memcpy_big;
+  var _emscripten_set_main_loop=env._emscripten_set_main_loop;
+  var _emscripten_set_main_loop_timing=env._emscripten_set_main_loop_timing;
+  var _emscripten_sleep=env._emscripten_sleep;
+  var _pthread_getspecific=env._pthread_getspecific;
+  var _pthread_key_create=env._pthread_key_create;
+  var _pthread_once=env._pthread_once;
+  var _pthread_setspecific=env._pthread_setspecific;
+  var flush_NO_FILESYSTEM=env.flush_NO_FILESYSTEM;
   var tempFloat = 0.0;
 
 // EMSCRIPTEN_START_FUNCS
@@ -3685,9 +3625,9 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE($0,$1) {
       $35 = ((($AsyncCtx5)) + 8|0);
       HEAP32[$35>>2] = $2;
       $36 = ((($AsyncCtx5)) + 12|0);
-      HEAP32[$36>>2] = $0;
+      HEAP32[$36>>2] = $29;
       $37 = ((($AsyncCtx5)) + 16|0);
-      HEAP32[$37>>2] = $29;
+      HEAP32[$37>>2] = $0;
       $38 = ((($AsyncCtx5)) + 20|0);
       HEAP32[$38>>2] = $27;
       sp = STACKTOP;
@@ -3911,7 +3851,7 @@ function _invoke_ticker($0) {
  $3 = HEAP32[$2>>2]|0;
  $4 = ($3|0)==(0|0);
  if ($4) {
-  _mbed_assert_internal(1147,1152,526);
+  _mbed_assert_internal(1151,1156,526);
   $$pre$i = HEAP32[$2>>2]|0;
   $6 = $$pre$i;
  } else {
@@ -4029,7 +3969,7 @@ function __ZN4mbed7Timeout7handlerEv($0) {
  $3 = HEAP32[$2>>2]|0;
  $4 = ($3|0)==(0|0);
  if ($4) {
-  _mbed_assert_internal(1147,1152,526);
+  _mbed_assert_internal(1151,1156,526);
   $$pre$i = HEAP32[$2>>2]|0;
   $6 = $$pre$i;
  } else {
@@ -4057,7 +3997,7 @@ function _invoke_timeout($0) {
  $3 = HEAP32[$2>>2]|0;
  $4 = ($3|0)==(0|0);
  if ($4) {
-  _mbed_assert_internal(1147,1152,526);
+  _mbed_assert_internal(1151,1156,526);
   $$pre$i = HEAP32[$2>>2]|0;
   $6 = $$pre$i;
  } else {
@@ -4076,18 +4016,6 @@ function _invoke_timeout($0) {
   _emscripten_free_async_context(($AsyncCtx|0));
   return;
  }
-}
-function __ZN4mbed7Timeout5setupEy($0,$1,$2) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = $2|0;
- var $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $3 = ((($0)) + 16|0);
- $4 = (___udivdi3(($1|0),($2|0),1000,0)|0);
- $5 = tempRet0;
- $6 = _emscripten_asm_const_iii(3, ($3|0), ($4|0))|0;
- return;
 }
 function __ZN4mbed5TimerC2Ev($0) {
  $0 = $0|0;
@@ -4136,7 +4064,7 @@ function __GLOBAL__sub_I_arm_hal_timer_cpp() {
  var $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
- __ZN4mbed5TimerC2Ev(4976);
+ __ZN4mbed5TimerC2Ev(4928);
  $IsAsync = ___async;
  if ($IsAsync) {
   HEAP32[$AsyncCtx>>2] = 70;
@@ -4144,9 +4072,9 @@ function __GLOBAL__sub_I_arm_hal_timer_cpp() {
   return;
  } else {
   _emscripten_free_async_context(($AsyncCtx|0));
-  HEAP32[1252] = (260);
-  ;HEAP32[(5024)>>2]=0|0;HEAP32[(5024)+4>>2]=0|0;HEAP32[(5024)+8>>2]=0|0;HEAP32[(5024)+12>>2]=0|0;
-  HEAP8[(5040)>>0] = 1;
+  HEAP32[1240] = (260);
+  ;HEAP32[(4976)>>2]=0|0;HEAP32[(4976)+4>>2]=0|0;HEAP32[(4976)+8>>2]=0|0;HEAP32[(4976)+12>>2]=0|0;
+  HEAP8[(4992)>>0] = 1;
   return;
  }
 }
@@ -4296,8 +4224,8 @@ function _mbed_assert_internal($0,$1,$2) {
  HEAP32[$vararg_ptr1>>2] = $1;
  $vararg_ptr2 = ((($vararg_buffer)) + 8|0);
  HEAP32[$vararg_ptr2>>2] = $2;
- (_printf(1378,$vararg_buffer)|0);
- $3 = _emscripten_asm_const_i(4)|0;
+ (_printf(1331,$vararg_buffer)|0);
+ $3 = _emscripten_asm_const_i(3)|0;
  STACKTOP = sp;return;
 }
 function _core_util_critical_section_enter() {
@@ -4306,11 +4234,6 @@ function _core_util_critical_section_enter() {
  return;
 }
 function _core_util_critical_section_exit() {
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _sleep_manager_lock_deep_sleep() {
  var label = 0, sp = 0;
  sp = STACKTOP;
  return;
@@ -4343,7 +4266,7 @@ function _gpio_init_in($0,$1) {
  }
  $3 = ((($0)) + 4|0);
  HEAP32[$3>>2] = $1;
- $4 = _emscripten_asm_const_iii(5, ($0|0), ($1|0))|0;
+ $4 = _emscripten_asm_const_iii(4, ($0|0), ($1|0))|0;
  return;
 }
 function _gpio_init_out($0,$1) {
@@ -4358,7 +4281,7 @@ function _gpio_init_out($0,$1) {
  }
  $3 = ((($0)) + 4|0);
  HEAP32[$3>>2] = $1;
- $4 = _emscripten_asm_const_iii(6, ($0|0), ($1|0))|0;
+ $4 = _emscripten_asm_const_iii(5, ($0|0), ($1|0))|0;
  return;
 }
 function _handle_interrupt_in($0,$1) {
@@ -4395,7 +4318,7 @@ function _gpio_irq_init($0,$1,$2,$3) {
  HEAP32[$0>>2] = $1;
  $5 = ((($0)) + 4|0);
  HEAP32[$5>>2] = $1;
- $6 = _emscripten_asm_const_iii(7, ($3|0), ($1|0))|0;
+ $6 = _emscripten_asm_const_iii(6, ($3|0), ($1|0))|0;
  $$0 = 0;
  return ($$0|0);
 }
@@ -4405,7 +4328,7 @@ function _gpio_irq_free($0) {
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = _emscripten_asm_const_ii(8, ($2|0))|0;
+ $3 = _emscripten_asm_const_ii(7, ($2|0))|0;
  return;
 }
 function _gpio_irq_set($0,$1,$2) {
@@ -4416,7 +4339,7 @@ function _gpio_irq_set($0,$1,$2) {
  sp = STACKTOP;
  $3 = ((($0)) + 4|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = _emscripten_asm_const_iiii(9, ($4|0), ($1|0), ($2|0))|0;
+ $5 = _emscripten_asm_const_iiii(8, ($4|0), ($1|0), ($2|0))|0;
  return;
 }
 function __GLOBAL__sub_I_main_cpp() {
@@ -4477,7 +4400,7 @@ function ___cxx_global_var_init_3() {
  var $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
- __ZN4mbed6TickerC2Ev(5072); //@line 7 "demos/interrupts/main.cpp"
+ __ZN4mbed6TickerC2Ev(5024); //@line 7 "demos/interrupts/main.cpp"
  $IsAsync = ___async;
  if ($IsAsync) {
   HEAP32[$AsyncCtx>>2] = 78;
@@ -4492,7 +4415,7 @@ function ___cxx_global_var_init_4() {
  var $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
- __ZN4mbed7TimeoutC2Ev(5112); //@line 8 "demos/interrupts/main.cpp"
+ __ZN4mbed7TimeoutC2Ev(5088); //@line 8 "demos/interrupts/main.cpp"
  $IsAsync = ___async;
  if ($IsAsync) {
   HEAP32[$AsyncCtx>>2] = 79;
@@ -4520,41 +4443,118 @@ function ___cxx_global_var_init_5() {
 }
 function __ZN4mbed7TimeoutC2Ev($0) {
  $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $AsyncCtx3 = 0, $IsAsync4 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
+ $2 = sp + 4|0;
+ $3 = sp;
+ $1 = $0;
+ $4 = $1;
+ $AsyncCtx3 = _emscripten_alloc_async_context(16,sp)|0;
+ __ZN4mbed6TickerC2Ev($4); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ $IsAsync4 = ___async;
+ if ($IsAsync4) {
+  HEAP32[$AsyncCtx3>>2] = 81;
+  $5 = ((($AsyncCtx3)) + 4|0);
+  HEAP32[$5>>2] = $4;
+  $6 = ((($AsyncCtx3)) + 8|0);
+  HEAP32[$6>>2] = $2;
+  $7 = ((($AsyncCtx3)) + 12|0);
+  HEAP32[$7>>2] = $3;
+  sp = STACKTOP;
+  STACKTOP = sp;return;
+ }
+ _emscripten_free_async_context(($AsyncCtx3|0));
+ __THREW__ = 0;
+ invoke_vi(82,($4|0)); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ $8 = __THREW__; __THREW__ = 0;
+ $9 = $8&1;
+ if (!($9)) {
+  HEAP32[$4>>2] = (260); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  STACKTOP = sp;return; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ }
+ $10 = ___cxa_find_matching_catch_2()|0;
+ $11 = tempRet0;
+ HEAP32[$2>>2] = $10; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ HEAP32[$3>>2] = $11; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ __THREW__ = 0;
+ invoke_vi(3,($4|0)); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ $12 = __THREW__; __THREW__ = 0;
+ $13 = $12&1;
+ if ($13) {
+  $16 = ___cxa_find_matching_catch_3(0|0)|0;
+  $17 = tempRet0;
+  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
+  ___clang_call_terminate($16); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  // unreachable;
+ } else {
+  $14 = HEAP32[$2>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  $15 = HEAP32[$3>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  ___resumeException($14|0);
+  // unreachable;
+ }
+}
+function __ZN4mbed6TickerC2Ev($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0;
+ var $8 = 0, $9 = 0, $AsyncCtx = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
  $4 = $1;
- __ZN4mbed11NonCopyableINS_7TimeoutEEC2Ev($4); //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- HEAP32[$4>>2] = (260); //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $5 = ((($4)) + 16|0); //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+ __ZN4mbed10TimerEventC2Ev(($4|0)); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  __THREW__ = 0;
- invoke_vii(81,($5|0),(0|0)); //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $6 = __THREW__; __THREW__ = 0;
- $7 = $6&1;
- if (!($7)) {
-  $8 = ((($4)) + 32|0); //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  HEAP8[$8>>0] = 1; //@line 60 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  STACKTOP = sp;return; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+ invoke_vi(83,($4|0)); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $11 = ___cxa_find_matching_catch_2()|0;
+  $12 = tempRet0;
+  $2 = $11; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $3 = $12; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ } else {
+  HEAP32[$4>>2] = (240); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $7 = ((($4)) + 40|0); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  __THREW__ = 0;
+  invoke_vii(84,($7|0),(0|0)); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $8 = __THREW__; __THREW__ = 0;
+  $9 = $8&1;
+  if (!($9)) {
+   $10 = ((($4)) + 56|0); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+   HEAP8[$10>>0] = 1; //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+   STACKTOP = sp;return; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  }
+  $13 = ___cxa_find_matching_catch_2()|0;
+  $14 = tempRet0;
+  $2 = $13; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $3 = $14; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  __THREW__ = 0;
+  invoke_vi(85,($4|0)); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $15 = __THREW__; __THREW__ = 0;
+  $16 = $15&1;
+  if ($16) {
+   $21 = ___cxa_find_matching_catch_3(0|0)|0;
+   $22 = tempRet0;
+   $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
+   ___clang_call_terminate($21); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+   // unreachable;
+  }
  }
- $9 = ___cxa_find_matching_catch_2()|0;
- $10 = tempRet0;
- $2 = $9; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $3 = $10; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
  __THREW__ = 0;
- invoke_vi(82,($4|0)); //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $11 = __THREW__; __THREW__ = 0;
- $12 = $11&1;
- if ($12) {
-  $15 = ___cxa_find_matching_catch_3(0|0)|0;
-  $16 = tempRet0;
+ invoke_vi(86,($4|0)); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $17 = __THREW__; __THREW__ = 0;
+ $18 = $17&1;
+ if ($18) {
+  $21 = ___cxa_find_matching_catch_3(0|0)|0;
+  $22 = tempRet0;
   $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
-  ___clang_call_terminate($15); //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+  ___clang_call_terminate($21); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
   // unreachable;
  } else {
-  $13 = $2; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $14 = $3; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  ___resumeException($13|0);
+  $19 = $2; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $20 = $3; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  ___resumeException($19|0);
   // unreachable;
  }
 }
@@ -4564,7 +4564,15 @@ function __ZN4mbed11NonCopyableINS_7TimeoutEEC2Ev($0) {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
- STACKTOP = sp;return; //@line 146 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/NonCopyable.h"
+ STACKTOP = sp;return; //@line 155 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/NonCopyable.h"
+}
+function __ZN4mbed11NonCopyableINS_6TickerEEC2Ev($0) {
+ $0 = $0|0;
+ var $1 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
+ $1 = $0;
+ STACKTOP = sp;return; //@line 155 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/NonCopyable.h"
 }
 function __ZN4mbed8CallbackIFvvEEC2EPS1_($0,$1) {
  $0 = $0|0;
@@ -4576,23 +4584,23 @@ function __ZN4mbed8CallbackIFvvEEC2EPS1_($0,$1) {
  $2 = $0;
  HEAP32[$3>>2] = $1;
  $4 = $2;
- $5 = HEAP32[$3>>2]|0; //@line 79 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $6 = ($5|0)!=(0|0); //@line 79 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $5 = HEAP32[$3>>2]|0; //@line 81 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $6 = ($5|0)!=(0|0); //@line 81 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  if ($6) {
-  __ZN4mbed8CallbackIFvvEE8generateIPS1_EEvRKT_($4,$3); //@line 82 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-  STACKTOP = sp;return; //@line 84 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+  __ZN4mbed8CallbackIFvvEE8generateIPS1_EEvRKT_($4,$3); //@line 84 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+  STACKTOP = sp;return; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  } else {
-  ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0; //@line 80 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-  STACKTOP = sp;return; //@line 84 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+  ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0; //@line 82 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+  STACKTOP = sp;return; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  }
 }
-function __ZN4mbed11NonCopyableINS_7TimeoutEED2Ev($0) {
+function __ZN4mbed11NonCopyableINS_6TickerEED2Ev($0) {
  $0 = $0|0;
  var $1 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
- STACKTOP = sp;return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/NonCopyable.h"
+ STACKTOP = sp;return; //@line 159 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/NonCopyable.h"
 }
 function __ZN4mbed8CallbackIFvvEE8generateIPS1_EEvRKT_($0,$1) {
  $0 = $0|0;
@@ -4603,69 +4611,13 @@ function __ZN4mbed8CallbackIFvvEE8generateIPS1_EEvRKT_($0,$1) {
  $2 = $0;
  $3 = $1;
  $4 = $2;
- ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0; //@line 593 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $5 = $3; //@line 594 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $6 = HEAP32[$5>>2]|0; //@line 594 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- HEAP32[$4>>2] = $6; //@line 594 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $7 = ((($4)) + 12|0); //@line 595 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- HEAP32[$7>>2] = 272; //@line 595 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- STACKTOP = sp;return; //@line 596 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-}
-function __ZN4mbed6TickerC2Ev($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $1 = $0;
- $4 = $1;
- __ZN4mbed11NonCopyableINS_6TickerEEC2Ev($4); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- HEAP32[$4>>2] = (240); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $5 = ((($4)) + 16|0); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- __THREW__ = 0;
- invoke_vii(81,($5|0),(0|0)); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $6 = __THREW__; __THREW__ = 0;
- $7 = $6&1;
- if (!($7)) {
-  $8 = ((($4)) + 32|0); //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  HEAP8[$8>>0] = 1; //@line 69 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  STACKTOP = sp;return; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- }
- $9 = ___cxa_find_matching_catch_2()|0;
- $10 = tempRet0;
- $2 = $9; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $3 = $10; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- __THREW__ = 0;
- invoke_vi(83,($4|0)); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $11 = __THREW__; __THREW__ = 0;
- $12 = $11&1;
- if ($12) {
-  $15 = ___cxa_find_matching_catch_3(0|0)|0;
-  $16 = tempRet0;
-  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
-  ___clang_call_terminate($15); //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  // unreachable;
- } else {
-  $13 = $2; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $14 = $3; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  ___resumeException($13|0);
-  // unreachable;
- }
-}
-function __ZN4mbed11NonCopyableINS_6TickerEEC2Ev($0) {
- $0 = $0|0;
- var $1 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $1 = $0;
- STACKTOP = sp;return; //@line 146 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/NonCopyable.h"
-}
-function __ZN4mbed11NonCopyableINS_6TickerEED2Ev($0) {
- $0 = $0|0;
- var $1 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $1 = $0;
- STACKTOP = sp;return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/NonCopyable.h"
+ ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0; //@line 595 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $5 = $3; //@line 596 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $6 = HEAP32[$5>>2]|0; //@line 596 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ HEAP32[$4>>2] = $6; //@line 596 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $7 = ((($4)) + 12|0); //@line 597 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ HEAP32[$7>>2] = 272; //@line 597 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ STACKTOP = sp;return; //@line 598 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
 function __ZN4mbed10DigitalOutC2E7PinName($0,$1) {
  $0 = $0|0;
@@ -4676,17 +4628,17 @@ function __ZN4mbed10DigitalOutC2E7PinName($0,$1) {
  $2 = $0;
  $3 = $1;
  $4 = $2;
- ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0;HEAP32[$4+16>>2]=0|0;HEAP32[$4+20>>2]=0|0; //@line 53 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- $5 = $3; //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- _gpio_init_out($4,$5); //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- STACKTOP = sp;return; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
+ ;HEAP32[$4>>2]=0|0;HEAP32[$4+4>>2]=0|0;HEAP32[$4+8>>2]=0|0;HEAP32[$4+12>>2]=0|0;HEAP32[$4+16>>2]=0|0;HEAP32[$4+20>>2]=0|0; //@line 53 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ $5 = $3; //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ _gpio_init_out($4,$5); //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ STACKTOP = sp;return; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
 }
 function __Z10blink_led1v() {
  var $0 = 0, $1 = 0, $2 = 0, $3 = 0, $vararg_buffer = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp; //@line 12 "demos/interrupts/main.cpp"
- (_printf(1644,$vararg_buffer)|0); //@line 12 "demos/interrupts/main.cpp"
+ (_printf(1597,$vararg_buffer)|0); //@line 12 "demos/interrupts/main.cpp"
  $0 = (__ZN4mbed10DigitalOutcviEv(5156)|0); //@line 13 "demos/interrupts/main.cpp"
  $1 = ($0|0)!=(0); //@line 13 "demos/interrupts/main.cpp"
  $2 = $1 ^ 1; //@line 13 "demos/interrupts/main.cpp"
@@ -4701,8 +4653,8 @@ function __ZN4mbed10DigitalOutcviEv($0) {
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
  $2 = $1;
- $3 = (__ZN4mbed10DigitalOut4readEv($2)|0); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- STACKTOP = sp;return ($3|0); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
+ $3 = (__ZN4mbed10DigitalOut4readEv($2)|0); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ STACKTOP = sp;return ($3|0); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
 }
 function __ZN4mbed10DigitalOutaSEi($0,$1) {
  $0 = $0|0;
@@ -4713,9 +4665,9 @@ function __ZN4mbed10DigitalOutaSEi($0,$1) {
  $2 = $0;
  $3 = $1;
  $4 = $2;
- $5 = $3; //@line 105 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- __ZN4mbed10DigitalOut5writeEi($4,$5); //@line 105 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- STACKTOP = sp;return ($4|0); //@line 106 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
+ $5 = $3; //@line 105 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ __ZN4mbed10DigitalOut5writeEi($4,$5); //@line 105 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ STACKTOP = sp;return ($4|0); //@line 106 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
 }
 function __ZN4mbed10DigitalOut5writeEi($0,$1) {
  $0 = $0|0;
@@ -4726,9 +4678,9 @@ function __ZN4mbed10DigitalOut5writeEi($0,$1) {
  $2 = $0;
  $3 = $1;
  $4 = $2;
- $5 = $3; //@line 75 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- __ZL10gpio_writeP6gpio_ti($4,$5); //@line 75 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- STACKTOP = sp;return; //@line 76 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
+ $5 = $3; //@line 75 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ __ZL10gpio_writeP6gpio_ti($4,$5); //@line 75 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ STACKTOP = sp;return; //@line 76 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
 }
 function __ZL10gpio_writeP6gpio_ti($0,$1) {
  $0 = $0|0;
@@ -4738,11 +4690,11 @@ function __ZL10gpio_writeP6gpio_ti($0,$1) {
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $2 = $0;
  $3 = $1;
- $4 = $2; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- $5 = HEAP32[$4>>2]|0; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- $6 = $3; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- $7 = _emscripten_asm_const_iii(10, ($5|0), ($6|0))|0; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- STACKTOP = sp;return; //@line 54 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
+ $4 = $2; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ $5 = HEAP32[$4>>2]|0; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ $6 = $3; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ $7 = _emscripten_asm_const_iii(9, ($5|0), ($6|0))|0; //@line 51 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ STACKTOP = sp;return; //@line 54 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
 }
 function __ZN4mbed10DigitalOut4readEv($0) {
  $0 = $0|0;
@@ -4751,8 +4703,8 @@ function __ZN4mbed10DigitalOut4readEv($0) {
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
  $2 = $1;
- $3 = (__ZL9gpio_readP6gpio_t($2)|0); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
- STACKTOP = sp;return ($3|0); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/DigitalOut.h"
+ $3 = (__ZL9gpio_readP6gpio_t($2)|0); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
+ STACKTOP = sp;return ($3|0); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/DigitalOut.h"
 }
 function __ZL9gpio_readP6gpio_t($0) {
  $0 = $0|0;
@@ -4760,17 +4712,17 @@ function __ZL9gpio_readP6gpio_t($0) {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
- $2 = $1; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- $3 = HEAP32[$2>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- $4 = _emscripten_asm_const_ii(11, ($3|0))|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
- STACKTOP = sp;return ($4|0); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/targets/TARGET_SIMULATOR/gpio_object.h"
+ $2 = $1; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ $3 = HEAP32[$2>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ $4 = _emscripten_asm_const_ii(10, ($3|0))|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
+ STACKTOP = sp;return ($4|0); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/targets/TARGET_SIMULATOR/gpio_object.h"
 }
 function __Z11toggle_led2v() {
  var $0 = 0, $1 = 0, $2 = 0, $3 = 0, $vararg_buffer = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp; //@line 17 "demos/interrupts/main.cpp"
- (_printf(1728,$vararg_buffer)|0); //@line 17 "demos/interrupts/main.cpp"
+ (_printf(1681,$vararg_buffer)|0); //@line 17 "demos/interrupts/main.cpp"
  $0 = (__ZN4mbed10DigitalOutcviEv(5180)|0); //@line 18 "demos/interrupts/main.cpp"
  $1 = ($0|0)!=(0); //@line 18 "demos/interrupts/main.cpp"
  $2 = $1 ^ 1; //@line 18 "demos/interrupts/main.cpp"
@@ -4783,7 +4735,7 @@ function __Z12turn_led3_onv() {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp; //@line 22 "demos/interrupts/main.cpp"
- (_printf(1750,$vararg_buffer)|0); //@line 22 "demos/interrupts/main.cpp"
+ (_printf(1703,$vararg_buffer)|0); //@line 22 "demos/interrupts/main.cpp"
  (__ZN4mbed10DigitalOutaSEi(5204,1)|0); //@line 23 "demos/interrupts/main.cpp"
  STACKTOP = sp;return; //@line 24 "demos/interrupts/main.cpp"
 }
@@ -4802,30 +4754,30 @@ function _main() {
  $2 = sp + 56|0;
  $3 = sp + 40|0;
  $4 = sp + 24|0;
- (_printf(1765,$vararg_buffer)|0); //@line 27 "demos/interrupts/main.cpp"
- (_printf(1779,$vararg_buffer1)|0); //@line 28 "demos/interrupts/main.cpp"
- (_printf(1883,$vararg_buffer3)|0); //@line 29 "demos/interrupts/main.cpp"
- __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($0,84); //@line 31 "demos/interrupts/main.cpp"
+ (_printf(1718,$vararg_buffer)|0); //@line 27 "demos/interrupts/main.cpp"
+ (_printf(1732,$vararg_buffer1)|0); //@line 28 "demos/interrupts/main.cpp"
+ (_printf(1836,$vararg_buffer3)|0); //@line 29 "demos/interrupts/main.cpp"
+ __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($0,87); //@line 31 "demos/interrupts/main.cpp"
  __THREW__ = 0;
- $AsyncCtx7 = _emscripten_alloc_async_context(24,sp)|0;
- invoke_viid(85,(5072|0),($0|0),1.0); //@line 31 "demos/interrupts/main.cpp"
- $IsAsync8 = ___async;
- if ($IsAsync8) {
-  HEAP32[$AsyncCtx7>>2] = 86;
-  $5 = ((($AsyncCtx7)) + 4|0);
-  HEAP32[$5>>2] = $1;
-  $6 = ((($AsyncCtx7)) + 8|0);
-  HEAP32[$6>>2] = $2;
-  $7 = ((($AsyncCtx7)) + 12|0);
-  HEAP32[$7>>2] = $4;
-  $8 = ((($AsyncCtx7)) + 16|0);
-  HEAP32[$8>>2] = $0;
-  $9 = ((($AsyncCtx7)) + 20|0);
-  HEAP32[$9>>2] = $3;
+ $AsyncCtx11 = _emscripten_alloc_async_context(24,sp)|0;
+ invoke_viid(88,(5024|0),($0|0),1.0); //@line 31 "demos/interrupts/main.cpp"
+ $IsAsync12 = ___async;
+ if ($IsAsync12) {
+  HEAP32[$AsyncCtx11>>2] = 89;
+  $5 = ((($AsyncCtx11)) + 4|0);
+  HEAP32[$5>>2] = $4;
+  $6 = ((($AsyncCtx11)) + 8|0);
+  HEAP32[$6>>2] = $3;
+  $7 = ((($AsyncCtx11)) + 12|0);
+  HEAP32[$7>>2] = $1;
+  $8 = ((($AsyncCtx11)) + 16|0);
+  HEAP32[$8>>2] = $2;
+  $9 = ((($AsyncCtx11)) + 20|0);
+  HEAP32[$9>>2] = $0;
   sp = STACKTOP;
   STACKTOP = sp;return 0;
  }
- _emscripten_free_async_context(($AsyncCtx7|0));
+ _emscripten_free_async_context(($AsyncCtx11|0));
  $10 = __THREW__; __THREW__ = 0;
  $11 = $10&1;
  if ($11) {
@@ -4835,10 +4787,10 @@ function _main() {
   HEAP32[$2>>2] = $31; //@line 36 "demos/interrupts/main.cpp"
   __THREW__ = 0;
   $AsyncCtx23 = _emscripten_alloc_async_context(12,sp)|0;
-  invoke_vi(97,($0|0)); //@line 31 "demos/interrupts/main.cpp"
+  invoke_vi(99,($0|0)); //@line 31 "demos/interrupts/main.cpp"
   $IsAsync24 = ___async;
   if ($IsAsync24) {
-   HEAP32[$AsyncCtx23>>2] = 98;
+   HEAP32[$AsyncCtx23>>2] = 100;
    $32 = ((($AsyncCtx23)) + 4|0);
    HEAP32[$32>>2] = $1;
    $33 = ((($AsyncCtx23)) + 8|0);
@@ -4866,38 +4818,38 @@ function _main() {
  __ZN4mbed8CallbackIFvvEED2Ev($0); //@line 31 "demos/interrupts/main.cpp"
  $IsAsync36 = ___async;
  if ($IsAsync36) {
-  HEAP32[$AsyncCtx35>>2] = 87;
+  HEAP32[$AsyncCtx35>>2] = 90;
   $12 = ((($AsyncCtx35)) + 4|0);
-  HEAP32[$12>>2] = $1;
+  HEAP32[$12>>2] = $4;
   $13 = ((($AsyncCtx35)) + 8|0);
-  HEAP32[$13>>2] = $2;
+  HEAP32[$13>>2] = $3;
   $14 = ((($AsyncCtx35)) + 12|0);
-  HEAP32[$14>>2] = $4;
+  HEAP32[$14>>2] = $1;
   $15 = ((($AsyncCtx35)) + 16|0);
-  HEAP32[$15>>2] = $3;
+  HEAP32[$15>>2] = $2;
   sp = STACKTOP;
   STACKTOP = sp;return 0;
  }
  _emscripten_free_async_context(($AsyncCtx35|0));
- __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($3,88); //@line 32 "demos/interrupts/main.cpp"
+ __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($3,91); //@line 32 "demos/interrupts/main.cpp"
  __THREW__ = 0;
- $AsyncCtx11 = _emscripten_alloc_async_context(20,sp)|0;
- invoke_viid(89,(5112|0),($3|0),2.5); //@line 32 "demos/interrupts/main.cpp"
- $IsAsync12 = ___async;
- if ($IsAsync12) {
-  HEAP32[$AsyncCtx11>>2] = 90;
-  $16 = ((($AsyncCtx11)) + 4|0);
-  HEAP32[$16>>2] = $1;
-  $17 = ((($AsyncCtx11)) + 8|0);
-  HEAP32[$17>>2] = $2;
-  $18 = ((($AsyncCtx11)) + 12|0);
-  HEAP32[$18>>2] = $4;
-  $19 = ((($AsyncCtx11)) + 16|0);
-  HEAP32[$19>>2] = $3;
+ $AsyncCtx7 = _emscripten_alloc_async_context(20,sp)|0;
+ invoke_viid(88,(5088|0),($3|0),2.5); //@line 32 "demos/interrupts/main.cpp"
+ $IsAsync8 = ___async;
+ if ($IsAsync8) {
+  HEAP32[$AsyncCtx7>>2] = 92;
+  $16 = ((($AsyncCtx7)) + 4|0);
+  HEAP32[$16>>2] = $4;
+  $17 = ((($AsyncCtx7)) + 8|0);
+  HEAP32[$17>>2] = $3;
+  $18 = ((($AsyncCtx7)) + 12|0);
+  HEAP32[$18>>2] = $1;
+  $19 = ((($AsyncCtx7)) + 16|0);
+  HEAP32[$19>>2] = $2;
   sp = STACKTOP;
   STACKTOP = sp;return 0;
  }
- _emscripten_free_async_context(($AsyncCtx11|0));
+ _emscripten_free_async_context(($AsyncCtx7|0));
  $20 = __THREW__; __THREW__ = 0;
  $21 = $20&1;
  if ($21) {
@@ -4907,10 +4859,10 @@ function _main() {
   HEAP32[$2>>2] = $37; //@line 36 "demos/interrupts/main.cpp"
   __THREW__ = 0;
   $AsyncCtx19 = _emscripten_alloc_async_context(12,sp)|0;
-  invoke_vi(97,($3|0)); //@line 32 "demos/interrupts/main.cpp"
+  invoke_vi(99,($3|0)); //@line 32 "demos/interrupts/main.cpp"
   $IsAsync20 = ___async;
   if ($IsAsync20) {
-   HEAP32[$AsyncCtx19>>2] = 99;
+   HEAP32[$AsyncCtx19>>2] = 101;
    $38 = ((($AsyncCtx19)) + 4|0);
    HEAP32[$38>>2] = $1;
    $39 = ((($AsyncCtx19)) + 8|0);
@@ -4938,7 +4890,7 @@ function _main() {
  __ZN4mbed8CallbackIFvvEED2Ev($3); //@line 32 "demos/interrupts/main.cpp"
  $IsAsync32 = ___async;
  if ($IsAsync32) {
-  HEAP32[$AsyncCtx31>>2] = 91;
+  HEAP32[$AsyncCtx31>>2] = 93;
   $22 = ((($AsyncCtx31)) + 4|0);
   HEAP32[$22>>2] = $4;
   $23 = ((($AsyncCtx31)) + 8|0);
@@ -4949,13 +4901,13 @@ function _main() {
   STACKTOP = sp;return 0;
  }
  _emscripten_free_async_context(($AsyncCtx31|0));
- __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($4,92); //@line 33 "demos/interrupts/main.cpp"
+ __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($4,94); //@line 33 "demos/interrupts/main.cpp"
  __THREW__ = 0;
  $AsyncCtx38 = _emscripten_alloc_async_context(16,sp)|0;
- invoke_vii(93,(5228|0),($4|0)); //@line 33 "demos/interrupts/main.cpp"
+ invoke_vii(95,(5228|0),($4|0)); //@line 33 "demos/interrupts/main.cpp"
  $IsAsync39 = ___async;
  if ($IsAsync39) {
-  HEAP32[$AsyncCtx38>>2] = 94;
+  HEAP32[$AsyncCtx38>>2] = 96;
   $25 = ((($AsyncCtx38)) + 4|0);
   HEAP32[$25>>2] = $1;
   $26 = ((($AsyncCtx38)) + 8|0);
@@ -4975,10 +4927,10 @@ function _main() {
   HEAP32[$2>>2] = $43; //@line 36 "demos/interrupts/main.cpp"
   __THREW__ = 0;
   $AsyncCtx15 = _emscripten_alloc_async_context(12,sp)|0;
-  invoke_vi(97,($4|0)); //@line 33 "demos/interrupts/main.cpp"
+  invoke_vi(99,($4|0)); //@line 33 "demos/interrupts/main.cpp"
   $IsAsync16 = ___async;
   if ($IsAsync16) {
-   HEAP32[$AsyncCtx15>>2] = 100;
+   HEAP32[$AsyncCtx15>>2] = 102;
    $44 = ((($AsyncCtx15)) + 4|0);
    HEAP32[$44>>2] = $1;
    $45 = ((($AsyncCtx15)) + 8|0);
@@ -5006,7 +4958,7 @@ function _main() {
   __ZN4mbed8CallbackIFvvEED2Ev($4); //@line 33 "demos/interrupts/main.cpp"
   $IsAsync28 = ___async;
   if ($IsAsync28) {
-   HEAP32[$AsyncCtx27>>2] = 95;
+   HEAP32[$AsyncCtx27>>2] = 97;
    sp = STACKTOP;
    STACKTOP = sp;return 0;
   }
@@ -5015,7 +4967,7 @@ function _main() {
   _wait_ms(-1); //@line 35 "demos/interrupts/main.cpp"
   $IsAsync42 = ___async;
   if ($IsAsync42) {
-   HEAP32[$AsyncCtx41>>2] = 96;
+   HEAP32[$AsyncCtx41>>2] = 98;
    sp = STACKTOP;
    STACKTOP = sp;return 0;
   } else {
@@ -5032,9 +4984,9 @@ function __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($0,$1) {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $2 = $1;
- $3 = $2; //@line 3543 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- __ZN4mbed8CallbackIFvvEEC2EPS1_($0,$3); //@line 3543 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- STACKTOP = sp;return; //@line 3543 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $3 = $2; //@line 3540 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ __ZN4mbed8CallbackIFvvEEC2EPS1_($0,$3); //@line 3540 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ STACKTOP = sp;return; //@line 3540 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
 function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
  $0 = $0|0;
@@ -5053,10 +5005,10 @@ function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
  HEAPF32[$4>>2] = $2;
  $8 = $3;
  $AsyncCtx3 = _emscripten_alloc_async_context(24,sp)|0;
- __ZN4mbed8CallbackIFvvEEC2ERKS2_($5,$1); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ __ZN4mbed8CallbackIFvvEEC2ERKS2_($5,$1); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  $IsAsync4 = ___async;
  if ($IsAsync4) {
-  HEAP32[$AsyncCtx3>>2] = 101;
+  HEAP32[$AsyncCtx3>>2] = 103;
   $9 = ((($AsyncCtx3)) + 4|0);
   HEAP32[$9>>2] = $4;
   $10 = ((($AsyncCtx3)) + 8|0);
@@ -5071,16 +5023,16 @@ function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
   STACKTOP = sp;return;
  }
  _emscripten_free_async_context(($AsyncCtx3|0));
- $14 = +HEAPF32[$4>>2]; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $15 = $14 * 1.0E+6; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $16 = (~~$15)>>>0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $17 = +Math_abs($15) >= 1.0 ? $15 > 0.0 ? (~~+Math_min(+Math_floor($15 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($15 - +(~~$15 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ $14 = +HEAPF32[$4>>2]; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $15 = $14 * 1.0E+6; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $16 = (~~$15)>>>0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $17 = +Math_abs($15) >= 1.0 ? $15 > 0.0 ? (~~+Math_min(+Math_floor($15 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($15 - +(~~$15 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  __THREW__ = 0;
  $AsyncCtx6 = _emscripten_alloc_async_context(16,sp)|0;
- invoke_viiii(102,($8|0),($5|0),($16|0),($17|0)); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ invoke_viiii(104,($8|0),($5|0),($16|0),($17|0)); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  $IsAsync7 = ___async;
  if ($IsAsync7) {
-  HEAP32[$AsyncCtx6>>2] = 103;
+  HEAP32[$AsyncCtx6>>2] = 105;
   $18 = ((($AsyncCtx6)) + 4|0);
   HEAP32[$18>>2] = $6;
   $19 = ((($AsyncCtx6)) + 8|0);
@@ -5095,27 +5047,27 @@ function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
  $22 = $21&1;
  if (!($22)) {
   $AsyncCtx14 = _emscripten_alloc_async_context(4,sp)|0;
-  __ZN4mbed8CallbackIFvvEED2Ev($5); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+  __ZN4mbed8CallbackIFvvEED2Ev($5); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
   $IsAsync15 = ___async;
   if ($IsAsync15) {
-   HEAP32[$AsyncCtx14>>2] = 104;
+   HEAP32[$AsyncCtx14>>2] = 106;
    sp = STACKTOP;
    STACKTOP = sp;return;
   } else {
    _emscripten_free_async_context(($AsyncCtx14|0));
-   STACKTOP = sp;return; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+   STACKTOP = sp;return; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
   }
  }
  $23 = ___cxa_find_matching_catch_2()|0;
  $24 = tempRet0;
- HEAP32[$6>>2] = $23; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- HEAP32[$7>>2] = $24; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ HEAP32[$6>>2] = $23; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ HEAP32[$7>>2] = $24; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  __THREW__ = 0;
  $AsyncCtx10 = _emscripten_alloc_async_context(12,sp)|0;
- invoke_vi(97,($5|0)); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ invoke_vi(99,($5|0)); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  $IsAsync11 = ___async;
  if ($IsAsync11) {
-  HEAP32[$AsyncCtx10>>2] = 105;
+  HEAP32[$AsyncCtx10>>2] = 107;
   $25 = ((($AsyncCtx10)) + 4|0);
   HEAP32[$25>>2] = $6;
   $26 = ((($AsyncCtx10)) + 8|0);
@@ -5130,11 +5082,11 @@ function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
   $31 = ___cxa_find_matching_catch_3(0|0)|0;
   $32 = tempRet0;
   $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
-  ___clang_call_terminate($31); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+  ___clang_call_terminate($31); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
   // unreachable;
  } else {
-  $29 = HEAP32[$6>>2]|0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $30 = HEAP32[$7>>2]|0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+  $29 = HEAP32[$6>>2]|0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $30 = HEAP32[$7>>2]|0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
   ___resumeException($29|0);
   // unreachable;
  }
@@ -5146,129 +5098,26 @@ function __ZN4mbed8CallbackIFvvEED2Ev($0) {
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = $0;
  $2 = $1;
- $3 = ((($2)) + 12|0); //@line 259 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $4 = HEAP32[$3>>2]|0; //@line 259 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $5 = ($4|0)!=(0|0); //@line 259 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $3 = ((($2)) + 12|0); //@line 261 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $4 = HEAP32[$3>>2]|0; //@line 261 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $5 = ($4|0)!=(0|0); //@line 261 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  if (!($5)) {
-  STACKTOP = sp;return; //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+  STACKTOP = sp;return; //@line 264 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  }
- $6 = ((($2)) + 12|0); //@line 260 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $7 = HEAP32[$6>>2]|0; //@line 260 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $8 = ((($7)) + 8|0); //@line 260 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $9 = HEAP32[$8>>2]|0; //@line 260 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $6 = ((($2)) + 12|0); //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $7 = HEAP32[$6>>2]|0; //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $8 = ((($7)) + 8|0); //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $9 = HEAP32[$8>>2]|0; //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
- FUNCTION_TABLE_vi[$9 & 255]($2); //@line 260 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ FUNCTION_TABLE_vi[$9 & 255]($2); //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 106;
+  HEAP32[$AsyncCtx>>2] = 108;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
  _emscripten_free_async_context(($AsyncCtx|0));
- STACKTOP = sp;return; //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf($0,$1,$2) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = +$2;
- var $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0.0, $15 = 0.0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0;
- var $3 = 0, $30 = 0, $31 = 0, $32 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $AsyncCtx10 = 0, $AsyncCtx14 = 0, $AsyncCtx3 = 0, $AsyncCtx6 = 0, $IsAsync11 = 0, $IsAsync15 = 0, $IsAsync4 = 0, $IsAsync7 = 0, label = 0;
- var sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 32|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(32|0);
- $4 = sp + 24|0;
- $5 = sp + 8|0;
- $6 = sp + 4|0;
- $7 = sp;
- $3 = $0;
- HEAPF32[$4>>2] = $2;
- $8 = $3;
- $AsyncCtx3 = _emscripten_alloc_async_context(24,sp)|0;
- __ZN4mbed8CallbackIFvvEEC2ERKS2_($5,$1); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $IsAsync4 = ___async;
- if ($IsAsync4) {
-  HEAP32[$AsyncCtx3>>2] = 107;
-  $9 = ((($AsyncCtx3)) + 4|0);
-  HEAP32[$9>>2] = $4;
-  $10 = ((($AsyncCtx3)) + 8|0);
-  HEAP32[$10>>2] = $8;
-  $11 = ((($AsyncCtx3)) + 12|0);
-  HEAP32[$11>>2] = $5;
-  $12 = ((($AsyncCtx3)) + 16|0);
-  HEAP32[$12>>2] = $6;
-  $13 = ((($AsyncCtx3)) + 20|0);
-  HEAP32[$13>>2] = $7;
-  sp = STACKTOP;
-  STACKTOP = sp;return;
- }
- _emscripten_free_async_context(($AsyncCtx3|0));
- $14 = +HEAPF32[$4>>2]; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $15 = $14 * 1.0E+6; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $16 = (~~$15)>>>0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $17 = +Math_abs($15) >= 1.0 ? $15 > 0.0 ? (~~+Math_min(+Math_floor($15 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($15 - +(~~$15 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- __THREW__ = 0;
- $AsyncCtx6 = _emscripten_alloc_async_context(16,sp)|0;
- invoke_viiii(108,($8|0),($5|0),($16|0),($17|0)); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $IsAsync7 = ___async;
- if ($IsAsync7) {
-  HEAP32[$AsyncCtx6>>2] = 109;
-  $18 = ((($AsyncCtx6)) + 4|0);
-  HEAP32[$18>>2] = $6;
-  $19 = ((($AsyncCtx6)) + 8|0);
-  HEAP32[$19>>2] = $7;
-  $20 = ((($AsyncCtx6)) + 12|0);
-  HEAP32[$20>>2] = $5;
-  sp = STACKTOP;
-  STACKTOP = sp;return;
- }
- _emscripten_free_async_context(($AsyncCtx6|0));
- $21 = __THREW__; __THREW__ = 0;
- $22 = $21&1;
- if (!($22)) {
-  $AsyncCtx14 = _emscripten_alloc_async_context(4,sp)|0;
-  __ZN4mbed8CallbackIFvvEED2Ev($5); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $IsAsync15 = ___async;
-  if ($IsAsync15) {
-   HEAP32[$AsyncCtx14>>2] = 110;
-   sp = STACKTOP;
-   STACKTOP = sp;return;
-  } else {
-   _emscripten_free_async_context(($AsyncCtx14|0));
-   STACKTOP = sp;return; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  }
- }
- $23 = ___cxa_find_matching_catch_2()|0;
- $24 = tempRet0;
- HEAP32[$6>>2] = $23; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- HEAP32[$7>>2] = $24; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- __THREW__ = 0;
- $AsyncCtx10 = _emscripten_alloc_async_context(12,sp)|0;
- invoke_vi(97,($5|0)); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $IsAsync11 = ___async;
- if ($IsAsync11) {
-  HEAP32[$AsyncCtx10>>2] = 111;
-  $25 = ((($AsyncCtx10)) + 4|0);
-  HEAP32[$25>>2] = $6;
-  $26 = ((($AsyncCtx10)) + 8|0);
-  HEAP32[$26>>2] = $7;
-  sp = STACKTOP;
-  STACKTOP = sp;return;
- }
- _emscripten_free_async_context(($AsyncCtx10|0));
- $27 = __THREW__; __THREW__ = 0;
- $28 = $27&1;
- if ($28) {
-  $31 = ___cxa_find_matching_catch_3(0|0)|0;
-  $32 = tempRet0;
-  $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
-  ___clang_call_terminate($31); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  // unreachable;
- } else {
-  $29 = HEAP32[$6>>2]|0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $30 = HEAP32[$7>>2]|0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  ___resumeException($29|0);
-  // unreachable;
- }
+ STACKTOP = sp;return; //@line 264 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
 function __ZN4mbed8CallbackIFvvEEC2ERKS2_($0,$1) {
  $0 = $0|0;
@@ -5281,23 +5130,23 @@ function __ZN4mbed8CallbackIFvvEEC2ERKS2_($0,$1) {
  $2 = $0;
  HEAP32[$3>>2] = $1;
  $4 = $2;
- $5 = HEAP32[$3>>2]|0; //@line 90 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $6 = ((($5)) + 12|0); //@line 90 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $7 = HEAP32[$6>>2]|0; //@line 90 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $8 = ($7|0)!=(0|0); //@line 90 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $5 = HEAP32[$3>>2]|0; //@line 92 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $6 = ((($5)) + 12|0); //@line 92 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $7 = HEAP32[$6>>2]|0; //@line 92 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $8 = ($7|0)!=(0|0); //@line 92 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  do {
   if ($8) {
-   $9 = HEAP32[$3>>2]|0; //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-   $10 = ((($9)) + 12|0); //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-   $11 = HEAP32[$10>>2]|0; //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-   $12 = ((($11)) + 4|0); //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-   $13 = HEAP32[$12>>2]|0; //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-   $14 = HEAP32[$3>>2]|0; //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+   $9 = HEAP32[$3>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+   $10 = ((($9)) + 12|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+   $11 = HEAP32[$10>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+   $12 = ((($11)) + 4|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+   $13 = HEAP32[$12>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+   $14 = HEAP32[$3>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
    $AsyncCtx = _emscripten_alloc_async_context(12,sp)|0;
-   FUNCTION_TABLE_vii[$13 & 255]($4,$14); //@line 91 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+   FUNCTION_TABLE_vii[$13 & 255]($4,$14); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 112;
+    HEAP32[$AsyncCtx>>2] = 109;
     $15 = ((($AsyncCtx)) + 4|0);
     HEAP32[$15>>2] = $3;
     $16 = ((($AsyncCtx)) + 8|0);
@@ -5310,20 +5159,19 @@ function __ZN4mbed8CallbackIFvvEEC2ERKS2_($0,$1) {
    }
   }
  } while(0);
- $17 = HEAP32[$3>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $18 = ((($17)) + 12|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $19 = HEAP32[$18>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $20 = ((($4)) + 12|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- HEAP32[$20>>2] = $19; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- STACKTOP = sp;return; //@line 94 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $17 = HEAP32[$3>>2]|0; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $18 = ((($17)) + 12|0); //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $19 = HEAP32[$18>>2]|0; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $20 = ((($4)) + 12|0); //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ HEAP32[$20>>2] = $19; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ STACKTOP = sp;return; //@line 96 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
-function __ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy($0,$1,$2,$3) {
+function __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy($0,$1,$2,$3) {
  $0 = $0|0;
  $1 = $1|0;
  $2 = $2|0;
  $3 = $3|0;
- var $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
+ var $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $5 = sp;
@@ -5335,50 +5183,29 @@ function __ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy($0,$1,$2,$3) {
  $9 = $8;
  HEAP32[$9>>2] = $3;
  $10 = $4;
- $11 = ((($10)) + 16|0); //@line 109 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $12 = (__ZNK4mbed8CallbackIFvvEEcvbEv($11)|0); //@line 109 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- if (!($12)) {
-  $13 = ((($10)) + 32|0); //@line 109 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $14 = HEAP8[$13>>0]|0; //@line 109 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $15 = $14&1; //@line 109 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  if ($15) {
-  }
- }
- $16 = ((($10)) + 16|0); //@line 112 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+ $11 = ((($10)) + 40|0); //@line 123 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  $AsyncCtx = _emscripten_alloc_async_context(12,sp)|0;
- (__ZN4mbed8CallbackIFvvEEaSERKS2_($16,$1)|0); //@line 112 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+ (__ZN4mbed8CallbackIFvvEEaSERKS2_($11,$1)|0); //@line 123 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 113;
-  $17 = ((($AsyncCtx)) + 4|0);
-  HEAP32[$17>>2] = $5;
-  $18 = ((($AsyncCtx)) + 8|0);
-  HEAP32[$18>>2] = $10;
+  HEAP32[$AsyncCtx>>2] = 110;
+  $12 = ((($AsyncCtx)) + 4|0);
+  HEAP32[$12>>2] = $5;
+  $13 = ((($AsyncCtx)) + 8|0);
+  HEAP32[$13>>2] = $10;
   sp = STACKTOP;
   STACKTOP = sp;return;
  } else {
   _emscripten_free_async_context(($AsyncCtx|0));
-  $19 = $5; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $20 = $19; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $21 = HEAP32[$20>>2]|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $22 = (($19) + 4)|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $23 = $22; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $24 = HEAP32[$23>>2]|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  __ZN4mbed7Timeout5setupEy($10,$21,$24); //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  STACKTOP = sp;return; //@line 114 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
+  $14 = $5; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $15 = $14; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $16 = HEAP32[$15>>2]|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $17 = (($14) + 4)|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $18 = $17; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $19 = HEAP32[$18>>2]|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  __ZN4mbed6Ticker5setupEy($10,$16,$19); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  STACKTOP = sp;return; //@line 126 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
  }
-}
-function __ZNK4mbed8CallbackIFvvEEcvbEv($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $1 = $0;
- $2 = $1;
- $3 = ((($2)) + 12|0); //@line 539 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $4 = HEAP32[$3>>2]|0; //@line 539 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $5 = ($4|0)!=(0|0); //@line 539 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- STACKTOP = sp;return ($5|0); //@line 539 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
 }
 function __ZN4mbed8CallbackIFvvEEaSERKS2_($0,$1) {
  $0 = $0|0;
@@ -5390,16 +5217,16 @@ function __ZN4mbed8CallbackIFvvEEaSERKS2_($0,$1) {
  $2 = $0;
  HEAP32[$3>>2] = $1;
  $4 = $2;
- $5 = HEAP32[$3>>2]|0; //@line 515 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $6 = ($4|0)!=($5|0); //@line 515 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $5 = HEAP32[$3>>2]|0; //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $6 = ($4|0)!=($5|0); //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  if (!($6)) {
-  STACKTOP = sp;return ($4|0); //@line 520 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+  STACKTOP = sp;return ($4|0); //@line 522 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  }
  $AsyncCtx3 = _emscripten_alloc_async_context(12,sp)|0;
- __ZN4mbed8CallbackIFvvEED2Ev($4); //@line 516 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ __ZN4mbed8CallbackIFvvEED2Ev($4); //@line 518 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $IsAsync4 = ___async;
  if ($IsAsync4) {
-  HEAP32[$AsyncCtx3>>2] = 114;
+  HEAP32[$AsyncCtx3>>2] = 111;
   $7 = ((($AsyncCtx3)) + 4|0);
   HEAP32[$7>>2] = $4;
   $8 = ((($AsyncCtx3)) + 8|0);
@@ -5408,70 +5235,19 @@ function __ZN4mbed8CallbackIFvvEEaSERKS2_($0,$1) {
   STACKTOP = sp;return (0|0);
  }
  _emscripten_free_async_context(($AsyncCtx3|0));
- $9 = HEAP32[$3>>2]|0; //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $9 = HEAP32[$3>>2]|0; //@line 519 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
- __ZN4mbed8CallbackIFvvEEC2ERKS2_($4,$9); //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ __ZN4mbed8CallbackIFvvEEC2ERKS2_($4,$9); //@line 519 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 115;
+  HEAP32[$AsyncCtx>>2] = 112;
   $10 = ((($AsyncCtx)) + 4|0);
   HEAP32[$10>>2] = $4;
   sp = STACKTOP;
   STACKTOP = sp;return (0|0);
  }
  _emscripten_free_async_context(($AsyncCtx|0));
- STACKTOP = sp;return ($4|0); //@line 520 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-}
-function __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy($0,$1,$2,$3) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = $2|0;
- $3 = $3|0;
- var $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $5 = sp;
- $4 = $0;
- $6 = $5;
- $7 = $6;
- HEAP32[$7>>2] = $2;
- $8 = (($6) + 4)|0;
- $9 = $8;
- HEAP32[$9>>2] = $3;
- $10 = $4;
- $11 = ((($10)) + 16|0); //@line 118 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $12 = (__ZNK4mbed8CallbackIFvvEEcvbEv($11)|0); //@line 118 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- if (!($12)) {
-  $13 = ((($10)) + 32|0); //@line 118 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $14 = HEAP8[$13>>0]|0; //@line 118 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $15 = $14&1; //@line 118 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  if ($15) {
-  }
- }
- $16 = ((($10)) + 16|0); //@line 121 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $AsyncCtx = _emscripten_alloc_async_context(12,sp)|0;
- (__ZN4mbed8CallbackIFvvEEaSERKS2_($16,$1)|0); //@line 121 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $IsAsync = ___async;
- if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 116;
-  $17 = ((($AsyncCtx)) + 4|0);
-  HEAP32[$17>>2] = $5;
-  $18 = ((($AsyncCtx)) + 8|0);
-  HEAP32[$18>>2] = $10;
-  sp = STACKTOP;
-  STACKTOP = sp;return;
- } else {
-  _emscripten_free_async_context(($AsyncCtx|0));
-  $19 = $5; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $20 = $19; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $21 = HEAP32[$20>>2]|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $22 = (($19) + 4)|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $23 = $22; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $24 = HEAP32[$23>>2]|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  __ZN4mbed6Ticker5setupEy($10,$21,$24); //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  STACKTOP = sp;return; //@line 123 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- }
+ STACKTOP = sp;return ($4|0); //@line 522 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
 function _malloc($0) {
  $0 = $0|0;
@@ -8582,7 +8358,7 @@ function ___stdio_close($0) {
  $vararg_buffer = sp;
  $1 = ((($0)) + 60|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = (_dummy_570($2)|0);
+ $3 = (_dummy($2)|0);
  HEAP32[$vararg_buffer>>2] = $3;
  $4 = (___syscall6(6,($vararg_buffer|0))|0);
  $5 = (___syscall_ret($4)|0);
@@ -8752,11 +8528,11 @@ function ___syscall_ret($0) {
 function ___errno_location() {
  var $0 = 0, $1 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- $0 = (___pthread_self_103()|0);
+ $0 = (___pthread_self_85()|0);
  $1 = ((($0)) + 64|0);
  return ($1|0);
 }
-function ___pthread_self_103() {
+function ___pthread_self_85() {
  var $0 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $0 = (_pthread_self()|0);
@@ -8767,7 +8543,7 @@ function _pthread_self() {
  sp = STACKTOP;
  return (444|0);
 }
-function _dummy_570($0) {
+function _dummy($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
@@ -8842,6 +8618,729 @@ function _strcmp($0,$1) {
  $14 = (($12) - ($13))|0;
  return ($14|0);
 }
+function ___unlockfile($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function ___lockfile($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return 0;
+}
+function ___overflow($0,$1) {
+ $0 = $0|0;
+ $1 = $1|0;
+ var $$0 = 0, $$pre = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $3 = 0;
+ var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
+ $2 = sp;
+ $3 = $1&255;
+ HEAP8[$2>>0] = $3;
+ $4 = ((($0)) + 16|0);
+ $5 = HEAP32[$4>>2]|0;
+ $6 = ($5|0)==(0|0);
+ if ($6) {
+  $7 = (___towrite($0)|0);
+  $8 = ($7|0)==(0);
+  if ($8) {
+   $$pre = HEAP32[$4>>2]|0;
+   $12 = $$pre;
+   label = 4;
+  } else {
+   $$0 = -1;
+  }
+ } else {
+  $12 = $5;
+  label = 4;
+ }
+ do {
+  if ((label|0) == 4) {
+   $9 = ((($0)) + 20|0);
+   $10 = HEAP32[$9>>2]|0;
+   $11 = ($10>>>0)<($12>>>0);
+   if ($11) {
+    $13 = $1 & 255;
+    $14 = ((($0)) + 75|0);
+    $15 = HEAP8[$14>>0]|0;
+    $16 = $15 << 24 >> 24;
+    $17 = ($13|0)==($16|0);
+    if (!($17)) {
+     $18 = ((($10)) + 1|0);
+     HEAP32[$9>>2] = $18;
+     HEAP8[$10>>0] = $3;
+     $$0 = $13;
+     break;
+    }
+   }
+   $19 = ((($0)) + 36|0);
+   $20 = HEAP32[$19>>2]|0;
+   $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
+   $21 = (FUNCTION_TABLE_iiii[$20 & 31]($0,$2,1)|0);
+   $IsAsync = ___async;
+   if ($IsAsync) {
+    HEAP32[$AsyncCtx>>2] = 113;
+    $22 = ((($AsyncCtx)) + 4|0);
+    HEAP32[$22>>2] = $2;
+    sp = STACKTOP;
+    STACKTOP = sp;return 0;
+   }
+   _emscripten_free_async_context(($AsyncCtx|0));
+   $23 = ($21|0)==(1);
+   if ($23) {
+    $24 = HEAP8[$2>>0]|0;
+    $25 = $24&255;
+    $$0 = $25;
+   } else {
+    $$0 = -1;
+   }
+  }
+ } while(0);
+ STACKTOP = sp;return ($$0|0);
+}
+function ___towrite($0) {
+ $0 = $0|0;
+ var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
+ var $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 74|0);
+ $2 = HEAP8[$1>>0]|0;
+ $3 = $2 << 24 >> 24;
+ $4 = (($3) + 255)|0;
+ $5 = $4 | $3;
+ $6 = $5&255;
+ HEAP8[$1>>0] = $6;
+ $7 = HEAP32[$0>>2]|0;
+ $8 = $7 & 8;
+ $9 = ($8|0)==(0);
+ if ($9) {
+  $11 = ((($0)) + 8|0);
+  HEAP32[$11>>2] = 0;
+  $12 = ((($0)) + 4|0);
+  HEAP32[$12>>2] = 0;
+  $13 = ((($0)) + 44|0);
+  $14 = HEAP32[$13>>2]|0;
+  $15 = ((($0)) + 28|0);
+  HEAP32[$15>>2] = $14;
+  $16 = ((($0)) + 20|0);
+  HEAP32[$16>>2] = $14;
+  $17 = ((($0)) + 48|0);
+  $18 = HEAP32[$17>>2]|0;
+  $19 = (($14) + ($18)|0);
+  $20 = ((($0)) + 16|0);
+  HEAP32[$20>>2] = $19;
+  $$0 = 0;
+ } else {
+  $10 = $7 | 32;
+  HEAP32[$0>>2] = $10;
+  $$0 = -1;
+ }
+ return ($$0|0);
+}
+function ___fwritex($0,$1,$2) {
+ $0 = $0|0;
+ $1 = $1|0;
+ $2 = $2|0;
+ var $$038 = 0, $$042 = 0, $$1 = 0, $$139 = 0, $$141 = 0, $$143 = 0, $$pre = 0, $$pre47 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0;
+ var $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $3 = ((($2)) + 16|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ($4|0)==(0|0);
+ if ($5) {
+  $7 = (___towrite($2)|0);
+  $8 = ($7|0)==(0);
+  if ($8) {
+   $$pre = HEAP32[$3>>2]|0;
+   $12 = $$pre;
+   label = 5;
+  } else {
+   $$1 = 0;
+  }
+ } else {
+  $6 = $4;
+  $12 = $6;
+  label = 5;
+ }
+ L5: do {
+  if ((label|0) == 5) {
+   $9 = ((($2)) + 20|0);
+   $10 = HEAP32[$9>>2]|0;
+   $11 = (($12) - ($10))|0;
+   $13 = ($11>>>0)<($1>>>0);
+   $14 = $10;
+   if ($13) {
+    $15 = ((($2)) + 36|0);
+    $16 = HEAP32[$15>>2]|0;
+    $17 = (FUNCTION_TABLE_iiii[$16 & 31]($2,$0,$1)|0);
+    $$1 = $17;
+    break;
+   }
+   $18 = ((($2)) + 75|0);
+   $19 = HEAP8[$18>>0]|0;
+   $20 = ($19<<24>>24)>(-1);
+   L10: do {
+    if ($20) {
+     $$038 = $1;
+     while(1) {
+      $21 = ($$038|0)==(0);
+      if ($21) {
+       $$139 = 0;$$141 = $0;$$143 = $1;$31 = $14;
+       break L10;
+      }
+      $22 = (($$038) + -1)|0;
+      $23 = (($0) + ($22)|0);
+      $24 = HEAP8[$23>>0]|0;
+      $25 = ($24<<24>>24)==(10);
+      if ($25) {
+       break;
+      } else {
+       $$038 = $22;
+      }
+     }
+     $26 = ((($2)) + 36|0);
+     $27 = HEAP32[$26>>2]|0;
+     $28 = (FUNCTION_TABLE_iiii[$27 & 31]($2,$0,$$038)|0);
+     $29 = ($28>>>0)<($$038>>>0);
+     if ($29) {
+      $$1 = $28;
+      break L5;
+     }
+     $30 = (($0) + ($$038)|0);
+     $$042 = (($1) - ($$038))|0;
+     $$pre47 = HEAP32[$9>>2]|0;
+     $$139 = $$038;$$141 = $30;$$143 = $$042;$31 = $$pre47;
+    } else {
+     $$139 = 0;$$141 = $0;$$143 = $1;$31 = $14;
+    }
+   } while(0);
+   _memcpy(($31|0),($$141|0),($$143|0))|0;
+   $32 = HEAP32[$9>>2]|0;
+   $33 = (($32) + ($$143)|0);
+   HEAP32[$9>>2] = $33;
+   $34 = (($$139) + ($$143))|0;
+   $$1 = $34;
+  }
+ } while(0);
+ return ($$1|0);
+}
+function ___lctrans_impl($0,$1) {
+ $0 = $0|0;
+ $1 = $1|0;
+ var $$0 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $2 = ($1|0)==(0|0);
+ if ($2) {
+  $$0 = 0;
+ } else {
+  $3 = HEAP32[$1>>2]|0;
+  $4 = ((($1)) + 4|0);
+  $5 = HEAP32[$4>>2]|0;
+  $6 = (___mo_lookup($3,$5,$0)|0);
+  $$0 = $6;
+ }
+ $7 = ($$0|0)!=(0|0);
+ $8 = $7 ? $$0 : $0;
+ return ($8|0);
+}
+function ___mo_lookup($0,$1,$2) {
+ $0 = $0|0;
+ $1 = $1|0;
+ $2 = $2|0;
+ var $$ = 0, $$090 = 0, $$094 = 0, $$191 = 0, $$195 = 0, $$4 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
+ var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
+ var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
+ var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond102 = 0, $or$cond104 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $3 = HEAP32[$0>>2]|0;
+ $4 = (($3) + 1794895138)|0;
+ $5 = ((($0)) + 8|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = (_swapc($6,$4)|0);
+ $8 = ((($0)) + 12|0);
+ $9 = HEAP32[$8>>2]|0;
+ $10 = (_swapc($9,$4)|0);
+ $11 = ((($0)) + 16|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = (_swapc($12,$4)|0);
+ $14 = $1 >>> 2;
+ $15 = ($7>>>0)<($14>>>0);
+ L1: do {
+  if ($15) {
+   $16 = $7 << 2;
+   $17 = (($1) - ($16))|0;
+   $18 = ($10>>>0)<($17>>>0);
+   $19 = ($13>>>0)<($17>>>0);
+   $or$cond = $18 & $19;
+   if ($or$cond) {
+    $20 = $13 | $10;
+    $21 = $20 & 3;
+    $22 = ($21|0)==(0);
+    if ($22) {
+     $23 = $10 >>> 2;
+     $24 = $13 >>> 2;
+     $$090 = 0;$$094 = $7;
+     while(1) {
+      $25 = $$094 >>> 1;
+      $26 = (($$090) + ($25))|0;
+      $27 = $26 << 1;
+      $28 = (($27) + ($23))|0;
+      $29 = (($0) + ($28<<2)|0);
+      $30 = HEAP32[$29>>2]|0;
+      $31 = (_swapc($30,$4)|0);
+      $32 = (($28) + 1)|0;
+      $33 = (($0) + ($32<<2)|0);
+      $34 = HEAP32[$33>>2]|0;
+      $35 = (_swapc($34,$4)|0);
+      $36 = ($35>>>0)<($1>>>0);
+      $37 = (($1) - ($35))|0;
+      $38 = ($31>>>0)<($37>>>0);
+      $or$cond102 = $36 & $38;
+      if (!($or$cond102)) {
+       $$4 = 0;
+       break L1;
+      }
+      $39 = (($35) + ($31))|0;
+      $40 = (($0) + ($39)|0);
+      $41 = HEAP8[$40>>0]|0;
+      $42 = ($41<<24>>24)==(0);
+      if (!($42)) {
+       $$4 = 0;
+       break L1;
+      }
+      $43 = (($0) + ($35)|0);
+      $44 = (_strcmp($2,$43)|0);
+      $45 = ($44|0)==(0);
+      if ($45) {
+       break;
+      }
+      $62 = ($$094|0)==(1);
+      $63 = ($44|0)<(0);
+      $64 = (($$094) - ($25))|0;
+      $$195 = $63 ? $25 : $64;
+      $$191 = $63 ? $$090 : $26;
+      if ($62) {
+       $$4 = 0;
+       break L1;
+      } else {
+       $$090 = $$191;$$094 = $$195;
+      }
+     }
+     $46 = (($27) + ($24))|0;
+     $47 = (($0) + ($46<<2)|0);
+     $48 = HEAP32[$47>>2]|0;
+     $49 = (_swapc($48,$4)|0);
+     $50 = (($46) + 1)|0;
+     $51 = (($0) + ($50<<2)|0);
+     $52 = HEAP32[$51>>2]|0;
+     $53 = (_swapc($52,$4)|0);
+     $54 = ($53>>>0)<($1>>>0);
+     $55 = (($1) - ($53))|0;
+     $56 = ($49>>>0)<($55>>>0);
+     $or$cond104 = $54 & $56;
+     if ($or$cond104) {
+      $57 = (($0) + ($53)|0);
+      $58 = (($53) + ($49))|0;
+      $59 = (($0) + ($58)|0);
+      $60 = HEAP8[$59>>0]|0;
+      $61 = ($60<<24>>24)==(0);
+      $$ = $61 ? $57 : 0;
+      $$4 = $$;
+     } else {
+      $$4 = 0;
+     }
+    } else {
+     $$4 = 0;
+    }
+   } else {
+    $$4 = 0;
+   }
+  } else {
+   $$4 = 0;
+  }
+ } while(0);
+ return ($$4|0);
+}
+function _swapc($0,$1) {
+ $0 = $0|0;
+ $1 = $1|0;
+ var $$ = 0, $2 = 0, $3 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $2 = ($1|0)==(0);
+ $3 = (_llvm_bswap_i32(($0|0))|0);
+ $$ = $2 ? $0 : $3;
+ return ($$|0);
+}
+function _memchr($0,$1,$2) {
+ $0 = $0|0;
+ $1 = $1|0;
+ $2 = $2|0;
+ var $$0$lcssa = 0, $$035$lcssa = 0, $$035$lcssa65 = 0, $$03555 = 0, $$036$lcssa = 0, $$036$lcssa64 = 0, $$03654 = 0, $$046 = 0, $$137$lcssa = 0, $$13745 = 0, $$140 = 0, $$2 = 0, $$23839 = 0, $$3 = 0, $$lcssa = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0;
+ var $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0;
+ var $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond53 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $3 = $1 & 255;
+ $4 = $0;
+ $5 = $4 & 3;
+ $6 = ($5|0)!=(0);
+ $7 = ($2|0)!=(0);
+ $or$cond53 = $7 & $6;
+ L1: do {
+  if ($or$cond53) {
+   $8 = $1&255;
+   $$03555 = $0;$$03654 = $2;
+   while(1) {
+    $9 = HEAP8[$$03555>>0]|0;
+    $10 = ($9<<24>>24)==($8<<24>>24);
+    if ($10) {
+     $$035$lcssa65 = $$03555;$$036$lcssa64 = $$03654;
+     label = 6;
+     break L1;
+    }
+    $11 = ((($$03555)) + 1|0);
+    $12 = (($$03654) + -1)|0;
+    $13 = $11;
+    $14 = $13 & 3;
+    $15 = ($14|0)!=(0);
+    $16 = ($12|0)!=(0);
+    $or$cond = $16 & $15;
+    if ($or$cond) {
+     $$03555 = $11;$$03654 = $12;
+    } else {
+     $$035$lcssa = $11;$$036$lcssa = $12;$$lcssa = $16;
+     label = 5;
+     break;
+    }
+   }
+  } else {
+   $$035$lcssa = $0;$$036$lcssa = $2;$$lcssa = $7;
+   label = 5;
+  }
+ } while(0);
+ if ((label|0) == 5) {
+  if ($$lcssa) {
+   $$035$lcssa65 = $$035$lcssa;$$036$lcssa64 = $$036$lcssa;
+   label = 6;
+  } else {
+   $$2 = $$035$lcssa;$$3 = 0;
+  }
+ }
+ L8: do {
+  if ((label|0) == 6) {
+   $17 = HEAP8[$$035$lcssa65>>0]|0;
+   $18 = $1&255;
+   $19 = ($17<<24>>24)==($18<<24>>24);
+   if ($19) {
+    $$2 = $$035$lcssa65;$$3 = $$036$lcssa64;
+   } else {
+    $20 = Math_imul($3, 16843009)|0;
+    $21 = ($$036$lcssa64>>>0)>(3);
+    L11: do {
+     if ($21) {
+      $$046 = $$035$lcssa65;$$13745 = $$036$lcssa64;
+      while(1) {
+       $22 = HEAP32[$$046>>2]|0;
+       $23 = $22 ^ $20;
+       $24 = (($23) + -16843009)|0;
+       $25 = $23 & -2139062144;
+       $26 = $25 ^ -2139062144;
+       $27 = $26 & $24;
+       $28 = ($27|0)==(0);
+       if (!($28)) {
+        break;
+       }
+       $29 = ((($$046)) + 4|0);
+       $30 = (($$13745) + -4)|0;
+       $31 = ($30>>>0)>(3);
+       if ($31) {
+        $$046 = $29;$$13745 = $30;
+       } else {
+        $$0$lcssa = $29;$$137$lcssa = $30;
+        label = 11;
+        break L11;
+       }
+      }
+      $$140 = $$046;$$23839 = $$13745;
+     } else {
+      $$0$lcssa = $$035$lcssa65;$$137$lcssa = $$036$lcssa64;
+      label = 11;
+     }
+    } while(0);
+    if ((label|0) == 11) {
+     $32 = ($$137$lcssa|0)==(0);
+     if ($32) {
+      $$2 = $$0$lcssa;$$3 = 0;
+      break;
+     } else {
+      $$140 = $$0$lcssa;$$23839 = $$137$lcssa;
+     }
+    }
+    while(1) {
+     $33 = HEAP8[$$140>>0]|0;
+     $34 = ($33<<24>>24)==($18<<24>>24);
+     if ($34) {
+      $$2 = $$140;$$3 = $$23839;
+      break L8;
+     }
+     $35 = ((($$140)) + 1|0);
+     $36 = (($$23839) + -1)|0;
+     $37 = ($36|0)==(0);
+     if ($37) {
+      $$2 = $35;$$3 = 0;
+      break;
+     } else {
+      $$140 = $35;$$23839 = $36;
+     }
+    }
+   }
+  }
+ } while(0);
+ $38 = ($$3|0)!=(0);
+ $39 = $38 ? $$2 : 0;
+ return ($39|0);
+}
+function ___ofl_lock() {
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ ___lock((5860|0));
+ return (5868|0);
+}
+function ___ofl_unlock() {
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ ___unlock((5860|0));
+ return;
+}
+function _fflush($0) {
+ $0 = $0|0;
+ var $$0 = 0, $$023 = 0, $$02325 = 0, $$02327 = 0, $$024$lcssa = 0, $$02426 = 0, $$1 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0;
+ var $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
+ var $9 = 0, $AsyncCtx = 0, $AsyncCtx10 = 0, $AsyncCtx3 = 0, $AsyncCtx6 = 0, $IsAsync = 0, $IsAsync11 = 0, $IsAsync4 = 0, $IsAsync7 = 0, $phitmp = 0, $phitmp$expand_i1_val = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ($0|0)==(0|0);
+ do {
+  if ($1) {
+   $10 = HEAP32[204]|0;
+   $11 = ($10|0)==(0|0);
+   do {
+    if ($11) {
+     $34 = 0;
+    } else {
+     $12 = HEAP32[204]|0;
+     $AsyncCtx10 = _emscripten_alloc_async_context(4,sp)|0;
+     $13 = (_fflush($12)|0);
+     $IsAsync11 = ___async;
+     if ($IsAsync11) {
+      HEAP32[$AsyncCtx10>>2] = 116;
+      sp = STACKTOP;
+      return 0;
+     } else {
+      _emscripten_free_async_context(($AsyncCtx10|0));
+      $34 = $13;
+      break;
+     }
+    }
+   } while(0);
+   $14 = (___ofl_lock()|0);
+   $$02325 = HEAP32[$14>>2]|0;
+   $15 = ($$02325|0)==(0|0);
+   L9: do {
+    if ($15) {
+     $$024$lcssa = $34;
+    } else {
+     $$02327 = $$02325;$$02426 = $34;
+     while(1) {
+      $16 = ((($$02327)) + 76|0);
+      $17 = HEAP32[$16>>2]|0;
+      $18 = ($17|0)>(-1);
+      if ($18) {
+       $19 = (___lockfile($$02327)|0);
+       $28 = $19;
+      } else {
+       $28 = 0;
+      }
+      $20 = ((($$02327)) + 20|0);
+      $21 = HEAP32[$20>>2]|0;
+      $22 = ((($$02327)) + 28|0);
+      $23 = HEAP32[$22>>2]|0;
+      $24 = ($21>>>0)>($23>>>0);
+      if ($24) {
+       $AsyncCtx = _emscripten_alloc_async_context(16,sp)|0;
+       $25 = (___fflush_unlocked($$02327)|0);
+       $IsAsync = ___async;
+       if ($IsAsync) {
+        break;
+       }
+       _emscripten_free_async_context(($AsyncCtx|0));
+       $30 = $25 | $$02426;
+       $$1 = $30;
+      } else {
+       $$1 = $$02426;
+      }
+      $31 = ($28|0)==(0);
+      if (!($31)) {
+       ___unlockfile($$02327);
+      }
+      $32 = ((($$02327)) + 56|0);
+      $$023 = HEAP32[$32>>2]|0;
+      $33 = ($$023|0)==(0|0);
+      if ($33) {
+       $$024$lcssa = $$1;
+       break L9;
+      } else {
+       $$02327 = $$023;$$02426 = $$1;
+      }
+     }
+     HEAP32[$AsyncCtx>>2] = 117;
+     $26 = ((($AsyncCtx)) + 4|0);
+     HEAP32[$26>>2] = $$02426;
+     $27 = ((($AsyncCtx)) + 8|0);
+     HEAP32[$27>>2] = $28;
+     $29 = ((($AsyncCtx)) + 12|0);
+     HEAP32[$29>>2] = $$02327;
+     sp = STACKTOP;
+     return 0;
+    }
+   } while(0);
+   ___ofl_unlock();
+   $$0 = $$024$lcssa;
+  } else {
+   $2 = ((($0)) + 76|0);
+   $3 = HEAP32[$2>>2]|0;
+   $4 = ($3|0)>(-1);
+   if (!($4)) {
+    $AsyncCtx6 = _emscripten_alloc_async_context(4,sp)|0;
+    $5 = (___fflush_unlocked($0)|0);
+    $IsAsync7 = ___async;
+    if ($IsAsync7) {
+     HEAP32[$AsyncCtx6>>2] = 114;
+     sp = STACKTOP;
+     return 0;
+    } else {
+     _emscripten_free_async_context(($AsyncCtx6|0));
+     $$0 = $5;
+     break;
+    }
+   }
+   $6 = (___lockfile($0)|0);
+   $phitmp = ($6|0)==(0);
+   $AsyncCtx3 = _emscripten_alloc_async_context(12,sp)|0;
+   $7 = (___fflush_unlocked($0)|0);
+   $IsAsync4 = ___async;
+   if ($IsAsync4) {
+    HEAP32[$AsyncCtx3>>2] = 115;
+    $8 = ((($AsyncCtx3)) + 4|0);
+    $phitmp$expand_i1_val = $phitmp&1;
+    HEAP8[$8>>0] = $phitmp$expand_i1_val;
+    $9 = ((($AsyncCtx3)) + 8|0);
+    HEAP32[$9>>2] = $0;
+    sp = STACKTOP;
+    return 0;
+   }
+   _emscripten_free_async_context(($AsyncCtx3|0));
+   if ($phitmp) {
+    $$0 = $7;
+   } else {
+    ___unlockfile($0);
+    $$0 = $7;
+   }
+  }
+ } while(0);
+ return ($$0|0);
+}
+function ___fflush_unlocked($0) {
+ $0 = $0|0;
+ var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0;
+ var $27 = 0, $28 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $AsyncCtx3 = 0, $IsAsync = 0, $IsAsync4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 20|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 28|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ($2>>>0)>($4>>>0);
+ do {
+  if ($5) {
+   $6 = ((($0)) + 36|0);
+   $7 = HEAP32[$6>>2]|0;
+   $AsyncCtx = _emscripten_alloc_async_context(16,sp)|0;
+   (FUNCTION_TABLE_iiii[$7 & 31]($0,0,0)|0);
+   $IsAsync = ___async;
+   if ($IsAsync) {
+    HEAP32[$AsyncCtx>>2] = 118;
+    $8 = ((($AsyncCtx)) + 4|0);
+    HEAP32[$8>>2] = $1;
+    $9 = ((($AsyncCtx)) + 8|0);
+    HEAP32[$9>>2] = $0;
+    $10 = ((($AsyncCtx)) + 12|0);
+    HEAP32[$10>>2] = $3;
+    sp = STACKTOP;
+    return 0;
+   } else {
+    _emscripten_free_async_context(($AsyncCtx|0));
+    $11 = HEAP32[$1>>2]|0;
+    $12 = ($11|0)==(0|0);
+    if ($12) {
+     $$0 = -1;
+     break;
+    } else {
+     label = 5;
+     break;
+    }
+   }
+  } else {
+   label = 5;
+  }
+ } while(0);
+ if ((label|0) == 5) {
+  $13 = ((($0)) + 4|0);
+  $14 = HEAP32[$13>>2]|0;
+  $15 = ((($0)) + 8|0);
+  $16 = HEAP32[$15>>2]|0;
+  $17 = ($14>>>0)<($16>>>0);
+  do {
+   if ($17) {
+    $18 = $14;
+    $19 = $16;
+    $20 = (($18) - ($19))|0;
+    $21 = ((($0)) + 40|0);
+    $22 = HEAP32[$21>>2]|0;
+    $AsyncCtx3 = _emscripten_alloc_async_context(24,sp)|0;
+    (FUNCTION_TABLE_iiii[$22 & 31]($0,$20,1)|0);
+    $IsAsync4 = ___async;
+    if ($IsAsync4) {
+     HEAP32[$AsyncCtx3>>2] = 119;
+     $23 = ((($AsyncCtx3)) + 4|0);
+     HEAP32[$23>>2] = $0;
+     $24 = ((($AsyncCtx3)) + 8|0);
+     HEAP32[$24>>2] = $3;
+     $25 = ((($AsyncCtx3)) + 12|0);
+     HEAP32[$25>>2] = $1;
+     $26 = ((($AsyncCtx3)) + 16|0);
+     HEAP32[$26>>2] = $15;
+     $27 = ((($AsyncCtx3)) + 20|0);
+     HEAP32[$27>>2] = $13;
+     sp = STACKTOP;
+     return 0;
+    } else {
+     _emscripten_free_async_context(($AsyncCtx3|0));
+     break;
+    }
+   }
+  } while(0);
+  $28 = ((($0)) + 16|0);
+  HEAP32[$28>>2] = 0;
+  HEAP32[$3>>2] = 0;
+  HEAP32[$1>>2] = 0;
+  HEAP32[$15>>2] = 0;
+  HEAP32[$13>>2] = 0;
+  $$0 = 0;
+ }
+ return ($$0|0);
+}
 function _vfprintf($0,$1,$2) {
  $0 = $0|0;
  $1 = $1|0;
@@ -8909,7 +9408,7 @@ function _vfprintf($0,$1,$2) {
      (FUNCTION_TABLE_iiii[$32 & 31]($0,0,0)|0);
      $IsAsync = ___async;
      if ($IsAsync) {
-      HEAP32[$AsyncCtx>>2] = 117;
+      HEAP32[$AsyncCtx>>2] = 120;
       $33 = ((($AsyncCtx)) + 4|0);
       HEAP32[$33>>2] = $26;
       $34 = ((($AsyncCtx)) + 8|0);
@@ -9096,7 +9595,7 @@ function _printf_core($0,$1,$2,$3,$4) {
   $35 = $21;
   $36 = (($34) - ($35))|0;
   if ($10) {
-   _out($0,$21,$36);
+   _out_669($0,$21,$36);
   }
   $37 = ($36|0)==(0);
   if (!($37)) {
@@ -9222,7 +9721,7 @@ function _printf_core($0,$1,$2,$3,$4) {
    $$$0259 = $88 ? $90 : $$0259;
    $$1260 = $$$0259;$$1263 = $$$0262;$$3272 = $$2271;$94 = $storemerge278;
   } else {
-   $91 = (_getint($5)|0);
+   $91 = (_getint_670($5)|0);
    $92 = ($91|0)<(0);
    if ($92) {
     $$0 = -1;
@@ -9241,7 +9740,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     if (!($98)) {
      $125 = ((($94)) + 1|0);
      HEAP32[$5>>2] = $125;
-     $126 = (_getint($5)|0);
+     $126 = (_getint_670($5)|0);
      $$pre347$pre = HEAP32[$5>>2]|0;
      $$0254 = $126;$$pre347 = $$pre347$pre;
      break;
@@ -9320,7 +9819,7 @@ function _printf_core($0,$1,$2,$3,$4) {
    $133 = HEAP8[$128>>0]|0;
    $134 = $133 << 24 >> 24;
    $135 = (($134) + -65)|0;
-   $136 = ((1921 + (($$0252*58)|0)|0) + ($135)|0);
+   $136 = ((1874 + (($$0252*58)|0)|0) + ($135)|0);
    $137 = HEAP8[$136>>0]|0;
    $138 = $137&255;
    $139 = (($138) + -1)|0;
@@ -9370,7 +9869,7 @@ function _printf_core($0,$1,$2,$3,$4) {
      $$0 = 0;
      break L1;
     }
-    _pop_arg($6,$138,$2);
+    _pop_arg_672($6,$138,$2);
    }
   } while(0);
   if ((label|0) == 49) {
@@ -9498,7 +9997,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     $222 = (($220) + 1)|0;
     $223 = $218 | $221;
     $$0254$$0254$ = $223 ? $$0254 : $222;
-    $$0228 = $216;$$1233 = 0;$$1238 = 2385;$$2256 = $$0254$$0254$;$$4266 = $$1263$;$248 = $212;$250 = $215;
+    $$0228 = $216;$$1233 = 0;$$1238 = 2338;$$2256 = $$0254$$0254$;$$4266 = $$1263$;$248 = $212;$250 = $215;
     label = 67;
     break;
    }
@@ -9519,7 +10018,7 @@ function _printf_core($0,$1,$2,$3,$4) {
      $235 = (($233) + 4)|0;
      $236 = $235;
      HEAP32[$236>>2] = $232;
-     $$0232 = 1;$$0237 = 2385;$242 = $231;$243 = $232;
+     $$0232 = 1;$$0237 = 2338;$242 = $231;$243 = $232;
      label = 66;
      break L71;
     } else {
@@ -9527,8 +10026,8 @@ function _printf_core($0,$1,$2,$3,$4) {
      $238 = ($237|0)==(0);
      $239 = $$1263$ & 1;
      $240 = ($239|0)==(0);
-     $$ = $240 ? 2385 : (2387);
-     $$$ = $238 ? $$ : (2386);
+     $$ = $240 ? 2338 : (2340);
+     $$$ = $238 ? $$ : (2339);
      $241 = $$1263$ & 2049;
      $narrow = ($241|0)!=(0);
      $$284$ = $narrow&1;
@@ -9545,7 +10044,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     $168 = (($165) + 4)|0;
     $169 = $168;
     $170 = HEAP32[$169>>2]|0;
-    $$0232 = 0;$$0237 = 2385;$242 = $167;$243 = $170;
+    $$0232 = 0;$$0237 = 2338;$242 = $167;$243 = $170;
     label = 66;
     break;
    }
@@ -9558,7 +10057,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     $264 = HEAP32[$263>>2]|0;
     $265 = $261&255;
     HEAP8[$13>>0] = $265;
-    $$2 = $13;$$2234 = 0;$$2239 = 2385;$$2251 = $11;$$5 = 1;$$6268 = $164;
+    $$2 = $13;$$2234 = 0;$$2239 = 2338;$$2251 = $11;$$5 = 1;$$6268 = $164;
     break;
    }
    case 109:  {
@@ -9572,7 +10071,7 @@ function _printf_core($0,$1,$2,$3,$4) {
    case 115:  {
     $269 = HEAP32[$6>>2]|0;
     $270 = ($269|0)!=(0|0);
-    $271 = $270 ? $269 : 2395;
+    $271 = $270 ? $269 : 2348;
     $$1 = $271;
     label = 71;
     break;
@@ -9595,7 +10094,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     $$pre349 = HEAP32[$6>>2]|0;
     $284 = ($$0254|0)==(0);
     if ($284) {
-     _pad_684($0,32,$$1260,0,$$1263$);
+     _pad_675($0,32,$$1260,0,$$1263$);
      $$0240$lcssa357 = 0;
      label = 84;
     } else {
@@ -9612,7 +10111,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     break;
    }
    default: {
-    $$2 = $21;$$2234 = 0;$$2239 = 2385;$$2251 = $11;$$5 = $$0254;$$6268 = $$1263$;
+    $$2 = $21;$$2234 = 0;$$2239 = 2338;$$2251 = $11;$$5 = $$0254;$$6268 = $$1263$;
    }
    }
   } while(0);
@@ -9634,8 +10133,8 @@ function _printf_core($0,$1,$2,$3,$4) {
     $207 = ($206|0)==(0);
     $or$cond283 = $207 | $205;
     $208 = $$1236 >> 4;
-    $209 = (2385 + ($208)|0);
-    $$289 = $or$cond283 ? 2385 : $209;
+    $209 = (2338 + ($208)|0);
+    $$289 = $or$cond283 ? 2338 : $209;
     $$290 = $or$cond283 ? 0 : 2;
     $$0228 = $202;$$1233 = $$290;$$1238 = $$289;$$2256 = $$1255;$$4266 = $$3265;$248 = $197;$250 = $200;
     label = 67;
@@ -9656,7 +10155,7 @@ function _printf_core($0,$1,$2,$3,$4) {
     $277 = (($$1) + ($$0254)|0);
     $$3257 = $273 ? $$0254 : $276;
     $$1250 = $273 ? $277 : $272;
-    $$2 = $$1;$$2234 = 0;$$2239 = 2385;$$2251 = $$1250;$$5 = $$3257;$$6268 = $164;
+    $$2 = $$1;$$2234 = 0;$$2239 = 2338;$$2251 = $$1250;$$5 = $$3257;$$6268 = $164;
    }
    else if ((label|0) == 75) {
     label = 0;
@@ -9692,7 +10191,7 @@ function _printf_core($0,$1,$2,$3,$4) {
      $$0 = -1;
      break L1;
     }
-    _pad_684($0,32,$$1260,$$0240$lcssa,$$1263$);
+    _pad_675($0,32,$$1260,$$0240$lcssa,$$1263$);
     $295 = ($$0240$lcssa|0)==(0);
     if ($295) {
      $$0240$lcssa357 = 0;
@@ -9716,7 +10215,7 @@ function _printf_core($0,$1,$2,$3,$4) {
        break L95;
       }
       $301 = ((($$1230333)) + 4|0);
-      _out($0,$9,$298);
+      _out_669($0,$9,$298);
       $302 = ($299>>>0)<($$0240$lcssa>>>0);
       if ($302) {
        $$1230333 = $301;$$1241332 = $299;
@@ -9753,7 +10252,7 @@ function _printf_core($0,$1,$2,$3,$4) {
   else if ((label|0) == 84) {
    label = 0;
    $303 = $$1263$ ^ 8192;
-   _pad_684($0,32,$$1260,$$0240$lcssa357,$303);
+   _pad_675($0,32,$$1260,$$0240$lcssa357,$303);
    $304 = ($$1260|0)>($$0240$lcssa357|0);
    $305 = $304 ? $$1260 : $$0240$lcssa357;
    $$0243 = $305;$$0247 = $$1248;$$0269 = $$3272;$21 = $132;
@@ -9767,14 +10266,14 @@ function _printf_core($0,$1,$2,$3,$4) {
   $312 = (($$$5) + ($$2234))|0;
   $313 = ($$1260|0)<($312|0);
   $$2261 = $313 ? $312 : $$1260;
-  _pad_684($0,32,$$2261,$312,$$6268);
-  _out($0,$$2239,$$2234);
+  _pad_675($0,32,$$2261,$312,$$6268);
+  _out_669($0,$$2239,$$2234);
   $314 = $$6268 ^ 65536;
-  _pad_684($0,48,$$2261,$312,$314);
-  _pad_684($0,48,$$$5,$310,0);
-  _out($0,$$2,$310);
+  _pad_675($0,48,$$2261,$312,$314);
+  _pad_675($0,48,$$$5,$310,0);
+  _out_669($0,$$2,$310);
   $315 = $$6268 ^ 8192;
-  _pad_684($0,32,$$2261,$312,$315);
+  _pad_675($0,32,$$2261,$312,$315);
   $$0243 = $$2261;$$0247 = $$1248;$$0269 = $$3272;$21 = $132;
  }
  L114: do {
@@ -9795,7 +10294,7 @@ function _printf_core($0,$1,$2,$3,$4) {
        break;
       }
       $321 = (($3) + ($$2242305<<3)|0);
-      _pop_arg($321,$319,$2);
+      _pop_arg_672($321,$319,$2);
       $322 = (($$2242305) + 1)|0;
       $323 = ($322|0)<(10);
       if ($323) {
@@ -9830,19 +10329,7 @@ function _printf_core($0,$1,$2,$3,$4) {
  } while(0);
  STACKTOP = sp;return ($$0|0);
 }
-function ___lockfile($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return 0;
-}
-function ___unlockfile($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _out($0,$1,$2) {
+function _out_669($0,$1,$2) {
  $0 = $0|0;
  $1 = $1|0;
  $2 = $2|0;
@@ -9856,7 +10343,7 @@ function _out($0,$1,$2) {
  }
  return;
 }
-function _getint($0) {
+function _getint_670($0) {
  $0 = $0|0;
  var $$0$lcssa = 0, $$06 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $isdigit = 0, $isdigit5 = 0, $isdigittmp = 0, $isdigittmp4 = 0, $isdigittmp7 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -9888,7 +10375,7 @@ function _getint($0) {
  }
  return ($$0$lcssa|0);
 }
-function _pop_arg($0,$1,$2) {
+function _pop_arg_672($0,$1,$2) {
  $0 = $0|0;
  $1 = $1|0;
  $2 = $2|0;
@@ -10186,7 +10673,7 @@ function _fmt_x($0,$1,$2,$3) {
   $$056 = $2;$15 = $1;$8 = $0;
   while(1) {
    $7 = $8 & 15;
-   $9 = (2437 + ($7)|0);
+   $9 = (2390 + ($7)|0);
    $10 = HEAP8[$9>>0]|0;
    $11 = $10&255;
    $12 = $11 | $3;
@@ -10307,141 +10794,13 @@ function _strerror($0) {
  $0 = $0|0;
  var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- $1 = (___pthread_self_104()|0);
+ $1 = (___pthread_self_86()|0);
  $2 = ((($1)) + 188|0);
  $3 = HEAP32[$2>>2]|0;
  $4 = (___strerror_l($0,$3)|0);
  return ($4|0);
 }
-function _memchr($0,$1,$2) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = $2|0;
- var $$0$lcssa = 0, $$035$lcssa = 0, $$035$lcssa65 = 0, $$03555 = 0, $$036$lcssa = 0, $$036$lcssa64 = 0, $$03654 = 0, $$046 = 0, $$137$lcssa = 0, $$13745 = 0, $$140 = 0, $$2 = 0, $$23839 = 0, $$3 = 0, $$lcssa = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0;
- var $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0;
- var $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond53 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $3 = $1 & 255;
- $4 = $0;
- $5 = $4 & 3;
- $6 = ($5|0)!=(0);
- $7 = ($2|0)!=(0);
- $or$cond53 = $7 & $6;
- L1: do {
-  if ($or$cond53) {
-   $8 = $1&255;
-   $$03555 = $0;$$03654 = $2;
-   while(1) {
-    $9 = HEAP8[$$03555>>0]|0;
-    $10 = ($9<<24>>24)==($8<<24>>24);
-    if ($10) {
-     $$035$lcssa65 = $$03555;$$036$lcssa64 = $$03654;
-     label = 6;
-     break L1;
-    }
-    $11 = ((($$03555)) + 1|0);
-    $12 = (($$03654) + -1)|0;
-    $13 = $11;
-    $14 = $13 & 3;
-    $15 = ($14|0)!=(0);
-    $16 = ($12|0)!=(0);
-    $or$cond = $16 & $15;
-    if ($or$cond) {
-     $$03555 = $11;$$03654 = $12;
-    } else {
-     $$035$lcssa = $11;$$036$lcssa = $12;$$lcssa = $16;
-     label = 5;
-     break;
-    }
-   }
-  } else {
-   $$035$lcssa = $0;$$036$lcssa = $2;$$lcssa = $7;
-   label = 5;
-  }
- } while(0);
- if ((label|0) == 5) {
-  if ($$lcssa) {
-   $$035$lcssa65 = $$035$lcssa;$$036$lcssa64 = $$036$lcssa;
-   label = 6;
-  } else {
-   $$2 = $$035$lcssa;$$3 = 0;
-  }
- }
- L8: do {
-  if ((label|0) == 6) {
-   $17 = HEAP8[$$035$lcssa65>>0]|0;
-   $18 = $1&255;
-   $19 = ($17<<24>>24)==($18<<24>>24);
-   if ($19) {
-    $$2 = $$035$lcssa65;$$3 = $$036$lcssa64;
-   } else {
-    $20 = Math_imul($3, 16843009)|0;
-    $21 = ($$036$lcssa64>>>0)>(3);
-    L11: do {
-     if ($21) {
-      $$046 = $$035$lcssa65;$$13745 = $$036$lcssa64;
-      while(1) {
-       $22 = HEAP32[$$046>>2]|0;
-       $23 = $22 ^ $20;
-       $24 = (($23) + -16843009)|0;
-       $25 = $23 & -2139062144;
-       $26 = $25 ^ -2139062144;
-       $27 = $26 & $24;
-       $28 = ($27|0)==(0);
-       if (!($28)) {
-        break;
-       }
-       $29 = ((($$046)) + 4|0);
-       $30 = (($$13745) + -4)|0;
-       $31 = ($30>>>0)>(3);
-       if ($31) {
-        $$046 = $29;$$13745 = $30;
-       } else {
-        $$0$lcssa = $29;$$137$lcssa = $30;
-        label = 11;
-        break L11;
-       }
-      }
-      $$140 = $$046;$$23839 = $$13745;
-     } else {
-      $$0$lcssa = $$035$lcssa65;$$137$lcssa = $$036$lcssa64;
-      label = 11;
-     }
-    } while(0);
-    if ((label|0) == 11) {
-     $32 = ($$137$lcssa|0)==(0);
-     if ($32) {
-      $$2 = $$0$lcssa;$$3 = 0;
-      break;
-     } else {
-      $$140 = $$0$lcssa;$$23839 = $$137$lcssa;
-     }
-    }
-    while(1) {
-     $33 = HEAP8[$$140>>0]|0;
-     $34 = ($33<<24>>24)==($18<<24>>24);
-     if ($34) {
-      $$2 = $$140;$$3 = $$23839;
-      break L8;
-     }
-     $35 = ((($$140)) + 1|0);
-     $36 = (($$23839) + -1)|0;
-     $37 = ($36|0)==(0);
-     if ($37) {
-      $$2 = $35;$$3 = 0;
-      break;
-     } else {
-      $$140 = $35;$$23839 = $36;
-     }
-    }
-   }
-  }
- } while(0);
- $38 = ($$3|0)!=(0);
- $39 = $38 ? $$2 : 0;
- return ($39|0);
-}
-function _pad_684($0,$1,$2,$3,$4) {
+function _pad_675($0,$1,$2,$3,$4) {
  $0 = $0|0;
  $1 = $1|0;
  $2 = $2|0;
@@ -10465,7 +10824,7 @@ function _pad_684($0,$1,$2,$3,$4) {
    $13 = (($2) - ($3))|0;
    $$011 = $9;
    while(1) {
-    _out($0,$5,256);
+    _out_669($0,$5,256);
     $14 = (($$011) + -256)|0;
     $15 = ($14>>>0)>(255);
     if ($15) {
@@ -10479,7 +10838,7 @@ function _pad_684($0,$1,$2,$3,$4) {
   } else {
    $$0$lcssa = $9;
   }
-  _out($0,$5,$$0$lcssa);
+  _out_669($0,$5,$$0$lcssa);
  }
  STACKTOP = sp;return;
 }
@@ -10539,25 +10898,25 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
  $10 = sp + 512|0;
  HEAP32[$7>>2] = 0;
  $11 = ((($10)) + 12|0);
- (___DOUBLE_BITS_685($1)|0);
+ (___DOUBLE_BITS_676($1)|0);
  $12 = tempRet0;
  $13 = ($12|0)<(0);
  if ($13) {
   $14 = -$1;
-  $$0471 = $14;$$0520 = 1;$$0521 = 2402;
+  $$0471 = $14;$$0520 = 1;$$0521 = 2355;
  } else {
   $15 = $4 & 2048;
   $16 = ($15|0)==(0);
   $17 = $4 & 1;
   $18 = ($17|0)==(0);
-  $$ = $18 ? (2403) : (2408);
-  $$$ = $16 ? $$ : (2405);
+  $$ = $18 ? (2356) : (2361);
+  $$$ = $16 ? $$ : (2358);
   $19 = $4 & 2049;
   $narrow = ($19|0)!=(0);
   $$534$ = $narrow&1;
   $$0471 = $1;$$0520 = $$534$;$$0521 = $$$;
  }
- (___DOUBLE_BITS_685($$0471)|0);
+ (___DOUBLE_BITS_676($$0471)|0);
  $20 = tempRet0;
  $21 = $20 & 2146435072;
  $22 = ($21>>>0)<(2146435072);
@@ -10650,7 +11009,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
     $$0523 = $8;$$2473 = $$1472;
     while(1) {
      $80 = (~~(($$2473)));
-     $81 = (2437 + ($80)|0);
+     $81 = (2390 + ($80)|0);
      $82 = HEAP8[$81>>0]|0;
      $83 = $82&255;
      $84 = $83 | $42;
@@ -10697,16 +11056,16 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
     $$pn = $or$cond537 ? $103 : $99;
     $$0525 = (($100) + ($45))|0;
     $104 = (($$0525) + ($$pn))|0;
-    _pad_684($0,32,$2,$104,$4);
-    _out($0,$$0521$,$45);
+    _pad_675($0,32,$2,$104,$4);
+    _out_669($0,$$0521$,$45);
     $105 = $4 ^ 65536;
-    _pad_684($0,48,$2,$104,$105);
-    _out($0,$8,$99);
+    _pad_675($0,48,$2,$104,$105);
+    _out_669($0,$8,$99);
     $106 = (($$pn) - ($99))|0;
-    _pad_684($0,48,$106,0,0);
-    _out($0,$77,$100);
+    _pad_675($0,48,$106,0,0);
+    _out_669($0,$77,$100);
     $107 = $4 ^ 8192;
-    _pad_684($0,32,$2,$104,$107);
+    _pad_675($0,32,$2,$104,$107);
     $$sink562 = $104;
     break;
    }
@@ -11204,10 +11563,10 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
    $319 = (($318) + ($$3477))|0;
    $$1526 = (($319) + ($291))|0;
    $320 = (($$1526) + ($$pn566))|0;
-   _pad_684($0,32,$2,$320,$4);
-   _out($0,$$0521,$$0520);
+   _pad_675($0,32,$2,$320,$4);
+   _out_669($0,$$0521,$$0520);
    $321 = $4 ^ 65536;
-   _pad_684($0,48,$2,$320,$321);
+   _pad_675($0,48,$2,$320,$321);
    if ($293) {
     $322 = ($$9$ph>>>0)>($$556>>>0);
     $$0496$$9 = $322 ? $$556 : $$9$ph;
@@ -11250,7 +11609,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
      }
      $335 = $$1465;
      $336 = (($324) - ($335))|0;
-     _out($0,$$1465,$336);
+     _out_669($0,$$1465,$336);
      $337 = ((($$5493597)) + 4|0);
      $338 = ($337>>>0)>($$556>>>0);
      if ($338) {
@@ -11261,7 +11620,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
     }
     $339 = ($289|0)==(0);
     if (!($339)) {
-     _out($0,2453,1);
+     _out_669($0,2406,1);
     }
     $340 = ($337>>>0)<($$7505>>>0);
     $341 = ($$3477|0)>(0);
@@ -11292,7 +11651,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
       }
       $350 = ($$4478590|0)<(9);
       $351 = $350 ? $$4478590 : 9;
-      _out($0,$$0463$lcssa,$351);
+      _out_669($0,$$0463$lcssa,$351);
       $352 = ((($$6494589)) + 4|0);
       $353 = (($$4478590) + -9)|0;
       $354 = ($352>>>0)<($$7505>>>0);
@@ -11309,7 +11668,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
      $$4478$lcssa = $$3477;
     }
     $357 = (($$4478$lcssa) + 9)|0;
-    _pad_684($0,48,$357,9,0);
+    _pad_675($0,48,$357,9,0);
    } else {
     $358 = ((($$9$ph)) + 4|0);
     $$7505$ = $$lcssa673 ? $$7505 : $358;
@@ -11335,14 +11694,14 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
       do {
        if ($368) {
         $372 = ((($$0)) + 1|0);
-        _out($0,$$0,1);
+        _out_669($0,$$0,1);
         $373 = ($$5602|0)<(1);
         $or$cond554 = $361 & $373;
         if ($or$cond554) {
          $$2 = $372;
          break;
         }
-        _out($0,2453,1);
+        _out_669($0,2406,1);
         $$2 = $372;
        } else {
         $369 = ($$0>>>0)>($8>>>0);
@@ -11370,7 +11729,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
       $375 = (($362) - ($374))|0;
       $376 = ($$5602|0)>($375|0);
       $377 = $376 ? $375 : $$5602;
-      _out($0,$$2,$377);
+      _out_669($0,$$2,$377);
       $378 = (($$5602) - ($375))|0;
       $379 = ((($$7495601)) + 4|0);
       $380 = ($379>>>0)<($$7505$>>>0);
@@ -11387,29 +11746,29 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
      $$5$lcssa = $$3477;
     }
     $383 = (($$5$lcssa) + 18)|0;
-    _pad_684($0,48,$383,18,0);
+    _pad_675($0,48,$383,18,0);
     $384 = $11;
     $385 = $$2513;
     $386 = (($384) - ($385))|0;
-    _out($0,$$2513,$386);
+    _out_669($0,$$2513,$386);
    }
    $387 = $4 ^ 8192;
-   _pad_684($0,32,$2,$320,$387);
+   _pad_675($0,32,$2,$320,$387);
    $$sink562 = $320;
   } else {
    $27 = $5 & 32;
    $28 = ($27|0)!=(0);
-   $29 = $28 ? 2421 : 2425;
+   $29 = $28 ? 2374 : 2378;
    $30 = ($$0471 != $$0471) | (0.0 != 0.0);
-   $31 = $28 ? 2429 : 2433;
+   $31 = $28 ? 2382 : 2386;
    $$0510 = $30 ? $31 : $29;
    $32 = (($$0520) + 3)|0;
    $33 = $4 & -65537;
-   _pad_684($0,32,$2,$32,$33);
-   _out($0,$$0521,$$0520);
-   _out($0,$$0510,3);
+   _pad_675($0,32,$2,$32,$33);
+   _out_669($0,$$0521,$$0520);
+   _out_669($0,$$0510,3);
    $34 = $4 ^ 8192;
-   _pad_684($0,32,$2,$32,$34);
+   _pad_675($0,32,$2,$32,$34);
    $$sink562 = $32;
   }
  } while(0);
@@ -11417,7 +11776,7 @@ function _fmt_fp($0,$1,$2,$3,$4,$5) {
  $$555 = $388 ? $2 : $$sink562;
  STACKTOP = sp;return ($$555|0);
 }
-function ___DOUBLE_BITS_685($0) {
+function ___DOUBLE_BITS_676($0) {
  $0 = +$0;
  var $1 = 0, $2 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -11498,7 +11857,7 @@ function _wcrtomb($0,$1,$2) {
     $$0 = 1;
     break;
    }
-   $6 = (___pthread_self_431()|0);
+   $6 = (___pthread_self_907()|0);
    $7 = ((($6)) + 188|0);
    $8 = HEAP32[$7>>2]|0;
    $9 = HEAP32[$8>>2]|0;
@@ -11591,13 +11950,13 @@ function _wcrtomb($0,$1,$2) {
  } while(0);
  return ($$0|0);
 }
-function ___pthread_self_431() {
+function ___pthread_self_907() {
  var $0 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $0 = (_pthread_self()|0);
  return ($0|0);
 }
-function ___pthread_self_104() {
+function ___pthread_self_86() {
  var $0 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $0 = (_pthread_self()|0);
@@ -11611,7 +11970,7 @@ function ___strerror_l($0,$1) {
  sp = STACKTOP;
  $$016 = 0;
  while(1) {
-  $3 = (2455 + ($$016)|0);
+  $3 = (2408 + ($$016)|0);
   $4 = HEAP8[$3>>0]|0;
   $5 = $4&255;
   $6 = ($5|0)==($0|0);
@@ -11622,7 +11981,7 @@ function ___strerror_l($0,$1) {
   $7 = (($$016) + 1)|0;
   $8 = ($7|0)==(87);
   if ($8) {
-   $$01214 = 2543;$$115 = 87;
+   $$01214 = 2496;$$115 = 87;
    label = 5;
    break;
   } else {
@@ -11632,9 +11991,9 @@ function ___strerror_l($0,$1) {
  if ((label|0) == 2) {
   $2 = ($$016|0)==(0);
   if ($2) {
-   $$012$lcssa = 2543;
+   $$012$lcssa = 2496;
   } else {
-   $$01214 = 2543;$$115 = $$016;
+   $$01214 = 2496;$$115 = $$016;
    label = 5;
   }
  }
@@ -11676,350 +12035,29 @@ function ___lctrans($0,$1) {
  $2 = (___lctrans_impl($0,$1)|0);
  return ($2|0);
 }
-function ___lctrans_impl($0,$1) {
+function _printf($0,$varargs) {
  $0 = $0|0;
- $1 = $1|0;
- var $$0 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $2 = ($1|0)==(0|0);
- if ($2) {
-  $$0 = 0;
- } else {
-  $3 = HEAP32[$1>>2]|0;
-  $4 = ((($1)) + 4|0);
-  $5 = HEAP32[$4>>2]|0;
-  $6 = (___mo_lookup($3,$5,$0)|0);
-  $$0 = $6;
- }
- $7 = ($$0|0)!=(0|0);
- $8 = $7 ? $$0 : $0;
- return ($8|0);
-}
-function ___mo_lookup($0,$1,$2) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = $2|0;
- var $$ = 0, $$090 = 0, $$094 = 0, $$191 = 0, $$195 = 0, $$4 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
- var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
- var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
- var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond102 = 0, $or$cond104 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $3 = HEAP32[$0>>2]|0;
- $4 = (($3) + 1794895138)|0;
- $5 = ((($0)) + 8|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = (_swapc($6,$4)|0);
- $8 = ((($0)) + 12|0);
- $9 = HEAP32[$8>>2]|0;
- $10 = (_swapc($9,$4)|0);
- $11 = ((($0)) + 16|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = (_swapc($12,$4)|0);
- $14 = $1 >>> 2;
- $15 = ($7>>>0)<($14>>>0);
- L1: do {
-  if ($15) {
-   $16 = $7 << 2;
-   $17 = (($1) - ($16))|0;
-   $18 = ($10>>>0)<($17>>>0);
-   $19 = ($13>>>0)<($17>>>0);
-   $or$cond = $18 & $19;
-   if ($or$cond) {
-    $20 = $13 | $10;
-    $21 = $20 & 3;
-    $22 = ($21|0)==(0);
-    if ($22) {
-     $23 = $10 >>> 2;
-     $24 = $13 >>> 2;
-     $$090 = 0;$$094 = $7;
-     while(1) {
-      $25 = $$094 >>> 1;
-      $26 = (($$090) + ($25))|0;
-      $27 = $26 << 1;
-      $28 = (($27) + ($23))|0;
-      $29 = (($0) + ($28<<2)|0);
-      $30 = HEAP32[$29>>2]|0;
-      $31 = (_swapc($30,$4)|0);
-      $32 = (($28) + 1)|0;
-      $33 = (($0) + ($32<<2)|0);
-      $34 = HEAP32[$33>>2]|0;
-      $35 = (_swapc($34,$4)|0);
-      $36 = ($35>>>0)<($1>>>0);
-      $37 = (($1) - ($35))|0;
-      $38 = ($31>>>0)<($37>>>0);
-      $or$cond102 = $36 & $38;
-      if (!($or$cond102)) {
-       $$4 = 0;
-       break L1;
-      }
-      $39 = (($35) + ($31))|0;
-      $40 = (($0) + ($39)|0);
-      $41 = HEAP8[$40>>0]|0;
-      $42 = ($41<<24>>24)==(0);
-      if (!($42)) {
-       $$4 = 0;
-       break L1;
-      }
-      $43 = (($0) + ($35)|0);
-      $44 = (_strcmp($2,$43)|0);
-      $45 = ($44|0)==(0);
-      if ($45) {
-       break;
-      }
-      $62 = ($$094|0)==(1);
-      $63 = ($44|0)<(0);
-      $64 = (($$094) - ($25))|0;
-      $$195 = $63 ? $25 : $64;
-      $$191 = $63 ? $$090 : $26;
-      if ($62) {
-       $$4 = 0;
-       break L1;
-      } else {
-       $$090 = $$191;$$094 = $$195;
-      }
-     }
-     $46 = (($27) + ($24))|0;
-     $47 = (($0) + ($46<<2)|0);
-     $48 = HEAP32[$47>>2]|0;
-     $49 = (_swapc($48,$4)|0);
-     $50 = (($46) + 1)|0;
-     $51 = (($0) + ($50<<2)|0);
-     $52 = HEAP32[$51>>2]|0;
-     $53 = (_swapc($52,$4)|0);
-     $54 = ($53>>>0)<($1>>>0);
-     $55 = (($1) - ($53))|0;
-     $56 = ($49>>>0)<($55>>>0);
-     $or$cond104 = $54 & $56;
-     if ($or$cond104) {
-      $57 = (($0) + ($53)|0);
-      $58 = (($53) + ($49))|0;
-      $59 = (($0) + ($58)|0);
-      $60 = HEAP8[$59>>0]|0;
-      $61 = ($60<<24>>24)==(0);
-      $$ = $61 ? $57 : 0;
-      $$4 = $$;
-     } else {
-      $$4 = 0;
-     }
-    } else {
-     $$4 = 0;
-    }
-   } else {
-    $$4 = 0;
-   }
-  } else {
-   $$4 = 0;
-  }
- } while(0);
- return ($$4|0);
-}
-function _swapc($0,$1) {
- $0 = $0|0;
- $1 = $1|0;
- var $$ = 0, $2 = 0, $3 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $2 = ($1|0)==(0);
- $3 = (_llvm_bswap_i32(($0|0))|0);
- $$ = $2 ? $0 : $3;
- return ($$|0);
-}
-function ___fwritex($0,$1,$2) {
- $0 = $0|0;
- $1 = $1|0;
- $2 = $2|0;
- var $$038 = 0, $$042 = 0, $$1 = 0, $$139 = 0, $$141 = 0, $$143 = 0, $$pre = 0, $$pre47 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $20 = 0, $21 = 0;
- var $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $3 = ((($2)) + 16|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ($4|0)==(0|0);
- if ($5) {
-  $7 = (___towrite($2)|0);
-  $8 = ($7|0)==(0);
-  if ($8) {
-   $$pre = HEAP32[$3>>2]|0;
-   $12 = $$pre;
-   label = 5;
-  } else {
-   $$1 = 0;
-  }
- } else {
-  $6 = $4;
-  $12 = $6;
-  label = 5;
- }
- L5: do {
-  if ((label|0) == 5) {
-   $9 = ((($2)) + 20|0);
-   $10 = HEAP32[$9>>2]|0;
-   $11 = (($12) - ($10))|0;
-   $13 = ($11>>>0)<($1>>>0);
-   $14 = $10;
-   if ($13) {
-    $15 = ((($2)) + 36|0);
-    $16 = HEAP32[$15>>2]|0;
-    $17 = (FUNCTION_TABLE_iiii[$16 & 31]($2,$0,$1)|0);
-    $$1 = $17;
-    break;
-   }
-   $18 = ((($2)) + 75|0);
-   $19 = HEAP8[$18>>0]|0;
-   $20 = ($19<<24>>24)>(-1);
-   L10: do {
-    if ($20) {
-     $$038 = $1;
-     while(1) {
-      $21 = ($$038|0)==(0);
-      if ($21) {
-       $$139 = 0;$$141 = $0;$$143 = $1;$31 = $14;
-       break L10;
-      }
-      $22 = (($$038) + -1)|0;
-      $23 = (($0) + ($22)|0);
-      $24 = HEAP8[$23>>0]|0;
-      $25 = ($24<<24>>24)==(10);
-      if ($25) {
-       break;
-      } else {
-       $$038 = $22;
-      }
-     }
-     $26 = ((($2)) + 36|0);
-     $27 = HEAP32[$26>>2]|0;
-     $28 = (FUNCTION_TABLE_iiii[$27 & 31]($2,$0,$$038)|0);
-     $29 = ($28>>>0)<($$038>>>0);
-     if ($29) {
-      $$1 = $28;
-      break L5;
-     }
-     $30 = (($0) + ($$038)|0);
-     $$042 = (($1) - ($$038))|0;
-     $$pre47 = HEAP32[$9>>2]|0;
-     $$139 = $$038;$$141 = $30;$$143 = $$042;$31 = $$pre47;
-    } else {
-     $$139 = 0;$$141 = $0;$$143 = $1;$31 = $14;
-    }
-   } while(0);
-   _memcpy(($31|0),($$141|0),($$143|0))|0;
-   $32 = HEAP32[$9>>2]|0;
-   $33 = (($32) + ($$143)|0);
-   HEAP32[$9>>2] = $33;
-   $34 = (($$139) + ($$143))|0;
-   $$1 = $34;
-  }
- } while(0);
- return ($$1|0);
-}
-function ___towrite($0) {
- $0 = $0|0;
- var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 74|0);
- $2 = HEAP8[$1>>0]|0;
- $3 = $2 << 24 >> 24;
- $4 = (($3) + 255)|0;
- $5 = $4 | $3;
- $6 = $5&255;
- HEAP8[$1>>0] = $6;
- $7 = HEAP32[$0>>2]|0;
- $8 = $7 & 8;
- $9 = ($8|0)==(0);
- if ($9) {
-  $11 = ((($0)) + 8|0);
-  HEAP32[$11>>2] = 0;
-  $12 = ((($0)) + 4|0);
-  HEAP32[$12>>2] = 0;
-  $13 = ((($0)) + 44|0);
-  $14 = HEAP32[$13>>2]|0;
-  $15 = ((($0)) + 28|0);
-  HEAP32[$15>>2] = $14;
-  $16 = ((($0)) + 20|0);
-  HEAP32[$16>>2] = $14;
-  $17 = ((($0)) + 48|0);
-  $18 = HEAP32[$17>>2]|0;
-  $19 = (($14) + ($18)|0);
-  $20 = ((($0)) + 16|0);
-  HEAP32[$20>>2] = $19;
-  $$0 = 0;
- } else {
-  $10 = $7 | 32;
-  HEAP32[$0>>2] = $10;
-  $$0 = -1;
- }
- return ($$0|0);
-}
-function ___overflow($0,$1) {
- $0 = $0|0;
- $1 = $1|0;
- var $$0 = 0, $$pre = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $3 = 0;
- var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
+ $varargs = $varargs|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $2 = sp;
- $3 = $1&255;
- HEAP8[$2>>0] = $3;
- $4 = ((($0)) + 16|0);
- $5 = HEAP32[$4>>2]|0;
- $6 = ($5|0)==(0|0);
- if ($6) {
-  $7 = (___towrite($0)|0);
-  $8 = ($7|0)==(0);
-  if ($8) {
-   $$pre = HEAP32[$4>>2]|0;
-   $12 = $$pre;
-   label = 4;
-  } else {
-   $$0 = -1;
-  }
+ $1 = sp;
+ HEAP32[$1>>2] = $varargs;
+ $2 = HEAP32[172]|0;
+ $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
+ $3 = (_vfprintf($2,$0,$1)|0);
+ $IsAsync = ___async;
+ if ($IsAsync) {
+  HEAP32[$AsyncCtx>>2] = 121;
+  $4 = ((($AsyncCtx)) + 4|0);
+  HEAP32[$4>>2] = $1;
+  sp = STACKTOP;
+  STACKTOP = sp;return 0;
  } else {
-  $12 = $5;
-  label = 4;
+  _emscripten_free_async_context(($AsyncCtx|0));
+  STACKTOP = sp;return ($3|0);
  }
- do {
-  if ((label|0) == 4) {
-   $9 = ((($0)) + 20|0);
-   $10 = HEAP32[$9>>2]|0;
-   $11 = ($10>>>0)<($12>>>0);
-   if ($11) {
-    $13 = $1 & 255;
-    $14 = ((($0)) + 75|0);
-    $15 = HEAP8[$14>>0]|0;
-    $16 = $15 << 24 >> 24;
-    $17 = ($13|0)==($16|0);
-    if (!($17)) {
-     $18 = ((($10)) + 1|0);
-     HEAP32[$9>>2] = $18;
-     HEAP8[$10>>0] = $3;
-     $$0 = $13;
-     break;
-    }
-   }
-   $19 = ((($0)) + 36|0);
-   $20 = HEAP32[$19>>2]|0;
-   $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
-   $21 = (FUNCTION_TABLE_iiii[$20 & 31]($0,$2,1)|0);
-   $IsAsync = ___async;
-   if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 118;
-    $22 = ((($AsyncCtx)) + 4|0);
-    HEAP32[$22>>2] = $2;
-    sp = STACKTOP;
-    STACKTOP = sp;return 0;
-   }
-   _emscripten_free_async_context(($AsyncCtx|0));
-   $23 = ($21|0)==(1);
-   if ($23) {
-    $24 = HEAP8[$2>>0]|0;
-    $25 = $24&255;
-    $$0 = $25;
-   } else {
-    $$0 = -1;
-   }
-  }
- } while(0);
- STACKTOP = sp;return ($$0|0);
+ return (0)|0;
 }
 function _fputc($0,$1) {
  $0 = $0|0;
@@ -12067,7 +12105,7 @@ function _fputc($0,$1) {
      $30 = (___overflow($1,$0)|0);
      $IsAsync = ___async;
      if ($IsAsync) {
-      HEAP32[$AsyncCtx>>2] = 120;
+      HEAP32[$AsyncCtx>>2] = 123;
       $31 = ((($AsyncCtx)) + 4|0);
       HEAP32[$31>>2] = $1;
       sp = STACKTOP;
@@ -12107,7 +12145,7 @@ function _fputc($0,$1) {
    $19 = (___overflow($1,$0)|0);
    $IsAsync4 = ___async;
    if ($IsAsync4) {
-    HEAP32[$AsyncCtx3>>2] = 119;
+    HEAP32[$AsyncCtx3>>2] = 122;
     sp = STACKTOP;
     return 0;
    } else {
@@ -12118,30 +12156,6 @@ function _fputc($0,$1) {
   }
  } while(0);
  return ($$0|0);
-}
-function _printf($0,$varargs) {
- $0 = $0|0;
- $varargs = $varargs|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncCtx = 0, $IsAsync = 0, label = 0, sp = 0;
- sp = STACKTOP;
- STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
- $1 = sp;
- HEAP32[$1>>2] = $varargs;
- $2 = HEAP32[172]|0;
- $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
- $3 = (_vfprintf($2,$0,$1)|0);
- $IsAsync = ___async;
- if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 121;
-  $4 = ((($AsyncCtx)) + 4|0);
-  HEAP32[$4>>2] = $1;
-  sp = STACKTOP;
-  STACKTOP = sp;return 0;
- } else {
-  _emscripten_free_async_context(($AsyncCtx|0));
-  STACKTOP = sp;return ($3|0);
- }
- return (0)|0;
 }
 function __ZdlPv($0) {
  $0 = $0|0;
@@ -12180,8 +12194,8 @@ function __ZL25default_terminate_handlerv() {
    $15 = ($12|0)==(1129074247);
    $16 = $14 & $15;
    if (!($16)) {
-    HEAP32[$vararg_buffer7>>2] = 4483;
-    _abort_message(4433,$vararg_buffer7);
+    HEAP32[$vararg_buffer7>>2] = 4436;
+    _abort_message(4386,$vararg_buffer7);
     // unreachable;
    }
    $17 = ($9|0)==(1126902529);
@@ -12205,7 +12219,7 @@ function __ZL25default_terminate_handlerv() {
    $29 = (FUNCTION_TABLE_iiii[$28 & 31](104,$23,$0)|0);
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 122;
+    HEAP32[$AsyncCtx>>2] = 124;
     $30 = ((($AsyncCtx)) + 4|0);
     HEAP32[$30>>2] = $0;
     $31 = ((($AsyncCtx)) + 8|0);
@@ -12223,10 +12237,10 @@ function __ZL25default_terminate_handlerv() {
    }
    _emscripten_free_async_context(($AsyncCtx|0));
    if (!($29)) {
-    HEAP32[$vararg_buffer3>>2] = 4483;
+    HEAP32[$vararg_buffer3>>2] = 4436;
     $vararg_ptr6 = ((($vararg_buffer3)) + 4|0);
     HEAP32[$vararg_ptr6>>2] = $25;
-    _abort_message(4392,$vararg_buffer3);
+    _abort_message(4345,$vararg_buffer3);
     // unreachable;
    }
    $36 = HEAP32[$0>>2]|0;
@@ -12237,7 +12251,7 @@ function __ZL25default_terminate_handlerv() {
    $40 = (FUNCTION_TABLE_ii[$39 & 255]($36)|0);
    $IsAsync15 = ___async;
    if ($IsAsync15) {
-    HEAP32[$AsyncCtx14>>2] = 123;
+    HEAP32[$AsyncCtx14>>2] = 125;
     $41 = ((($AsyncCtx14)) + 4|0);
     HEAP32[$41>>2] = $vararg_buffer;
     $42 = ((($AsyncCtx14)) + 8|0);
@@ -12248,17 +12262,17 @@ function __ZL25default_terminate_handlerv() {
     STACKTOP = sp;return;
    } else {
     _emscripten_free_async_context(($AsyncCtx14|0));
-    HEAP32[$vararg_buffer>>2] = 4483;
+    HEAP32[$vararg_buffer>>2] = 4436;
     $vararg_ptr1 = ((($vararg_buffer)) + 4|0);
     HEAP32[$vararg_ptr1>>2] = $25;
     $vararg_ptr2 = ((($vararg_buffer)) + 8|0);
     HEAP32[$vararg_ptr2>>2] = $40;
-    _abort_message(4347,$vararg_buffer);
+    _abort_message(4300,$vararg_buffer);
     // unreachable;
    }
   }
  }
- _abort_message(4471,$vararg_buffer10);
+ _abort_message(4424,$vararg_buffer10);
  // unreachable;
 }
 function ___cxa_get_globals_fast() {
@@ -12266,14 +12280,14 @@ function ___cxa_get_globals_fast() {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp;
- $0 = (_pthread_once((5860|0),(124|0))|0);
+ $0 = (_pthread_once((5872|0),(126|0))|0);
  $1 = ($0|0)==(0);
  if ($1) {
-  $2 = HEAP32[1466]|0;
+  $2 = HEAP32[1469]|0;
   $3 = (_pthread_getspecific(($2|0))|0);
   STACKTOP = sp;return ($3|0);
  } else {
-  _abort_message(4622,$vararg_buffer);
+  _abort_message(4575,$vararg_buffer);
   // unreachable;
  }
  return (0)|0;
@@ -12281,32 +12295,32 @@ function ___cxa_get_globals_fast() {
 function _abort_message($0,$varargs) {
  $0 = $0|0;
  $varargs = $varargs|0;
- var $1 = 0, $2 = 0, $3 = 0, $AsyncCtx = 0, $AsyncCtx3 = 0, $IsAsync = 0, $IsAsync4 = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $AsyncCtx = 0, $AsyncCtx2 = 0, $IsAsync = 0, $IsAsync3 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $1 = sp;
  HEAP32[$1>>2] = $varargs;
  $2 = HEAP32[79]|0;
- $AsyncCtx3 = _emscripten_alloc_async_context(8,sp)|0;
+ $AsyncCtx = _emscripten_alloc_async_context(8,sp)|0;
  (_vfprintf($2,$0,$1)|0);
- $IsAsync4 = ___async;
- if ($IsAsync4) {
-  HEAP32[$AsyncCtx3>>2] = 125;
-  $3 = ((($AsyncCtx3)) + 4|0);
+ $IsAsync = ___async;
+ if ($IsAsync) {
+  HEAP32[$AsyncCtx>>2] = 127;
+  $3 = ((($AsyncCtx)) + 4|0);
   HEAP32[$3>>2] = $2;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
- _emscripten_free_async_context(($AsyncCtx3|0));
- $AsyncCtx = _emscripten_alloc_async_context(4,sp)|0;
+ _emscripten_free_async_context(($AsyncCtx|0));
+ $AsyncCtx2 = _emscripten_alloc_async_context(4,sp)|0;
  (_fputc(10,$2)|0);
- $IsAsync = ___async;
- if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 126;
+ $IsAsync3 = ___async;
+ if ($IsAsync3) {
+  HEAP32[$AsyncCtx2>>2] = 128;
   sp = STACKTOP;
   STACKTOP = sp;return;
  } else {
-  _emscripten_free_async_context(($AsyncCtx|0));
+  _emscripten_free_async_context(($AsyncCtx2|0));
   _abort();
   // unreachable;
  }
@@ -12358,7 +12372,7 @@ function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoE
    $6 = (___dynamic_cast($1,128,112,0)|0);
    $IsAsync4 = ___async;
    if ($IsAsync4) {
-    HEAP32[$AsyncCtx3>>2] = 127;
+    HEAP32[$AsyncCtx3>>2] = 129;
     $7 = ((($AsyncCtx3)) + 4|0);
     HEAP32[$7>>2] = $3;
     $8 = ((($AsyncCtx3)) + 8|0);
@@ -12390,7 +12404,7 @@ function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoE
     FUNCTION_TABLE_viiii[$17 & 127]($6,$3,$18,1);
     $IsAsync = ___async;
     if ($IsAsync) {
-     HEAP32[$AsyncCtx>>2] = 128;
+     HEAP32[$AsyncCtx>>2] = 130;
      $19 = ((($AsyncCtx)) + 4|0);
      HEAP32[$19>>2] = $3;
      $20 = ((($AsyncCtx)) + 8|0);
@@ -12686,7 +12700,7 @@ function ___dynamic_cast($0,$1,$2,$3) {
    FUNCTION_TABLE_viiiiii[$24 & 63]($10,$4,$8,$8,1,0);
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 129;
+    HEAP32[$AsyncCtx>>2] = 131;
     $25 = ((($AsyncCtx)) + 4|0);
     HEAP32[$25>>2] = $16;
     $26 = ((($AsyncCtx)) + 8|0);
@@ -12712,7 +12726,7 @@ function ___dynamic_cast($0,$1,$2,$3) {
    FUNCTION_TABLE_viiiii[$33 & 63]($10,$4,$8,1,0);
    $IsAsync4 = ___async;
    if ($IsAsync4) {
-    HEAP32[$AsyncCtx3>>2] = 130;
+    HEAP32[$AsyncCtx3>>2] = 132;
     $34 = ((($AsyncCtx3)) + 4|0);
     HEAP32[$34>>2] = $30;
     $35 = ((($AsyncCtx3)) + 8|0);
@@ -12813,7 +12827,7 @@ function __ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynam
    FUNCTION_TABLE_viiiiii[$13 & 63]($10,$1,$2,$3,$4,$5);
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 131;
+    HEAP32[$AsyncCtx>>2] = 133;
     sp = STACKTOP;
     return;
    } else {
@@ -12853,7 +12867,7 @@ function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynam
     FUNCTION_TABLE_viiiii[$50 & 63]($47,$1,$2,$3,$4);
     $IsAsync4 = ___async;
     if ($IsAsync4) {
-     HEAP32[$AsyncCtx3>>2] = 133;
+     HEAP32[$AsyncCtx3>>2] = 135;
      sp = STACKTOP;
      return;
     } else {
@@ -12889,7 +12903,7 @@ function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynam
      FUNCTION_TABLE_viiiiii[$27 & 63]($24,$1,$2,$2,1,$4);
      $IsAsync = ___async;
      if ($IsAsync) {
-      HEAP32[$AsyncCtx>>2] = 132;
+      HEAP32[$AsyncCtx>>2] = 134;
       $28 = ((($AsyncCtx)) + 4|0);
       HEAP32[$28>>2] = $23;
       $29 = ((($AsyncCtx)) + 8|0);
@@ -12980,7 +12994,7 @@ function __ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPN
    FUNCTION_TABLE_viiii[$11 & 127]($8,$1,$2,$3);
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 134;
+    HEAP32[$AsyncCtx>>2] = 136;
     sp = STACKTOP;
     return;
    } else {
@@ -13002,12 +13016,12 @@ function __ZN10__cxxabiv112_GLOBAL__N_110construct_Ev() {
  sp = STACKTOP;
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp;
- $0 = (_pthread_key_create((5864|0),(135|0))|0);
+ $0 = (_pthread_key_create((5876|0),(137|0))|0);
  $1 = ($0|0)==(0);
  if ($1) {
   STACKTOP = sp;return;
  } else {
-  _abort_message(4671,$vararg_buffer);
+  _abort_message(4624,$vararg_buffer);
   // unreachable;
  }
 }
@@ -13018,13 +13032,13 @@ function __ZN10__cxxabiv112_GLOBAL__N_19destruct_EPv($0) {
  STACKTOP = STACKTOP + 16|0; if ((STACKTOP|0) >= (STACK_MAX|0)) abortStackOverflow(16|0);
  $vararg_buffer = sp;
  _free($0);
- $1 = HEAP32[1466]|0;
+ $1 = HEAP32[1469]|0;
  $2 = (_pthread_setspecific(($1|0),(0|0))|0);
  $3 = ($2|0)==(0);
  if ($3) {
   STACKTOP = sp;return;
  } else {
-  _abort_message(4721,$vararg_buffer);
+  _abort_message(4674,$vararg_buffer);
   // unreachable;
  }
 }
@@ -13033,7 +13047,7 @@ function __ZSt9terminatev() {
  var $8 = 0, $9 = 0, $AsyncCtx = 0, $AsyncCtx3 = 0, $AsyncCtx7 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  __THREW__ = 0;
- $0 = (invoke_i(136)|0);
+ $0 = (invoke_i(138)|0);
  $1 = __THREW__; __THREW__ = 0;
  $2 = $1&1;
  if ($2) {
@@ -13086,7 +13100,7 @@ function __ZSt11__terminatePFvvE($0) {
  invoke_v($0|0);
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 137;
+  HEAP32[$AsyncCtx>>2] = 139;
   $1 = ((($AsyncCtx)) + 4|0);
   HEAP32[$1>>2] = $vararg_buffer1;
   $2 = ((($AsyncCtx)) + 8|0);
@@ -13103,19 +13117,19 @@ function __ZSt11__terminatePFvvE($0) {
  $6 = $5&1;
  if (!($6)) {
   __THREW__ = 0;
-  invoke_vii(138,(4774|0),($vararg_buffer|0));
+  invoke_vii(140,(4727|0),($vararg_buffer|0));
   $7 = __THREW__; __THREW__ = 0;
  }
  $8 = ___cxa_find_matching_catch_3(0|0)|0;
  $9 = tempRet0;
  (___cxa_begin_catch(($8|0))|0);
  __THREW__ = 0;
- invoke_vii(138,(4814|0),($vararg_buffer1|0));
+ invoke_vii(140,(4767|0),($vararg_buffer1|0));
  $10 = __THREW__; __THREW__ = 0;
  $11 = ___cxa_find_matching_catch_3(0|0)|0;
  $12 = tempRet0;
  __THREW__ = 0;
- invoke_v(139);
+ invoke_v(141);
  $13 = __THREW__; __THREW__ = 0;
  $14 = $13&1;
  if ($14) {
@@ -13133,7 +13147,7 @@ function __ZSt11__terminatePFvvE($0) {
 function __ZSt13get_terminatev() {
  var $0 = 0, $1 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- $0 = HEAP32[204]|0;HEAP32[204] = (($0+0)|0);
+ $0 = HEAP32[205]|0;HEAP32[205] = (($0+0)|0);
  $1 = $0;
  return ($1|0);
 }
@@ -13177,7 +13191,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
   __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib($13,$1,$2,$3,$4,$5);
   $IsAsync4 = ___async;
   if ($IsAsync4) {
-   HEAP32[$AsyncCtx3>>2] = 140;
+   HEAP32[$AsyncCtx3>>2] = 142;
    $17 = ((($AsyncCtx3)) + 4|0);
    HEAP32[$17>>2] = $15;
    $18 = ((($AsyncCtx3)) + 8|0);
@@ -13264,7 +13278,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
       break L7;
      }
     }
-    HEAP32[$AsyncCtx>>2] = 141;
+    HEAP32[$AsyncCtx>>2] = 143;
     $48 = ((($AsyncCtx)) + 4|0);
     HEAP32[$48>>2] = $$0;
     $49 = ((($AsyncCtx)) + 8|0);
@@ -13340,26 +13354,26 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
     __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($15,$1,$2,$3,$4);
     $IsAsync12 = ___async;
     if ($IsAsync12) {
-     HEAP32[$AsyncCtx11>>2] = 143;
+     HEAP32[$AsyncCtx11>>2] = 145;
      $72 = ((($AsyncCtx11)) + 4|0);
-     HEAP32[$72>>2] = $71;
+     HEAP32[$72>>2] = $1;
      $73 = ((($AsyncCtx11)) + 8|0);
-     HEAP32[$73>>2] = $14;
+     HEAP32[$73>>2] = $2;
      $74 = ((($AsyncCtx11)) + 12|0);
-     HEAP32[$74>>2] = $12;
+     HEAP32[$74>>2] = $3;
      $75 = ((($AsyncCtx11)) + 16|0);
-     HEAP32[$75>>2] = $13;
-     $76 = ((($AsyncCtx11)) + 20|0);
-     HEAP32[$76>>2] = $1;
-     $77 = ((($AsyncCtx11)) + 24|0);
-     HEAP32[$77>>2] = $2;
-     $78 = ((($AsyncCtx11)) + 28|0);
-     HEAP32[$78>>2] = $3;
-     $79 = ((($AsyncCtx11)) + 32|0);
      $$expand_i1_val24 = $4&1;
-     HEAP8[$79>>0] = $$expand_i1_val24;
+     HEAP8[$75>>0] = $$expand_i1_val24;
+     $76 = ((($AsyncCtx11)) + 20|0);
+     HEAP32[$76>>2] = $13;
+     $77 = ((($AsyncCtx11)) + 24|0);
+     HEAP32[$77>>2] = $12;
+     $78 = ((($AsyncCtx11)) + 28|0);
+     HEAP32[$78>>2] = $11;
+     $79 = ((($AsyncCtx11)) + 32|0);
+     HEAP32[$79>>2] = $14;
      $80 = ((($AsyncCtx11)) + 36|0);
-     HEAP32[$80>>2] = $11;
+     HEAP32[$80>>2] = $71;
      $81 = ((($AsyncCtx11)) + 40|0);
      HEAP32[$81>>2] = $0;
      $82 = ((($AsyncCtx11)) + 44|0);
@@ -13412,7 +13426,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
          break L1;
         }
        }
-       HEAP32[$AsyncCtx>>2] = 146;
+       HEAP32[$AsyncCtx>>2] = 148;
        $124 = ((($AsyncCtx)) + 4|0);
        HEAP32[$124>>2] = $$2;
        $125 = ((($AsyncCtx)) + 8|0);
@@ -13465,7 +13479,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
         break L1;
        }
       }
-      HEAP32[$AsyncCtx3>>2] = 145;
+      HEAP32[$AsyncCtx3>>2] = 147;
       $109 = ((($AsyncCtx3)) + 4|0);
       HEAP32[$109>>2] = $$1;
       $110 = ((($AsyncCtx3)) + 8|0);
@@ -13512,7 +13526,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
       break L1;
      }
     }
-    HEAP32[$AsyncCtx7>>2] = 144;
+    HEAP32[$AsyncCtx7>>2] = 146;
     $92 = ((($AsyncCtx7)) + 4|0);
     HEAP32[$92>>2] = $$0;
     $93 = ((($AsyncCtx7)) + 8|0);
@@ -13618,21 +13632,21 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
       $$081$off0 = $$182$off0;$$084 = $61;$$085$off0 = $$186$off0;
      }
      if ((label|0) == 12) {
-      HEAP32[$AsyncCtx15>>2] = 142;
+      HEAP32[$AsyncCtx15>>2] = 144;
       $32 = ((($AsyncCtx15)) + 4|0);
-      HEAP32[$32>>2] = $24;
+      HEAP32[$32>>2] = $13;
       $33 = ((($AsyncCtx15)) + 8|0);
-      HEAP32[$33>>2] = $13;
+      HEAP32[$33>>2] = $24;
       $34 = ((($AsyncCtx15)) + 12|0);
-      HEAP32[$34>>2] = $2;
+      HEAP32[$34>>2] = $11;
       $35 = ((($AsyncCtx15)) + 16|0);
-      HEAP32[$35>>2] = $20;
+      HEAP32[$35>>2] = $2;
       $36 = ((($AsyncCtx15)) + 20|0);
-      HEAP32[$36>>2] = $1;
+      HEAP32[$36>>2] = $20;
       $37 = ((($AsyncCtx15)) + 24|0);
-      HEAP32[$37>>2] = $12;
+      HEAP32[$37>>2] = $1;
       $38 = ((($AsyncCtx15)) + 28|0);
-      HEAP32[$38>>2] = $11;
+      HEAP32[$38>>2] = $12;
       $39 = ((($AsyncCtx15)) + 32|0);
       $$081$off0$expand_i1_val = $$081$off0&1;
       HEAP8[$39>>0] = $$081$off0$expand_i1_val;
@@ -13640,13 +13654,13 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
       $$085$off0$expand_i1_val = $$085$off0&1;
       HEAP8[$40>>0] = $$085$off0$expand_i1_val;
       $41 = ((($AsyncCtx15)) + 36|0);
-      HEAP32[$41>>2] = $14;
+      HEAP32[$41>>2] = $$084;
       $42 = ((($AsyncCtx15)) + 40|0);
-      HEAP32[$42>>2] = $$084;
+      HEAP32[$42>>2] = $14;
       $43 = ((($AsyncCtx15)) + 44|0);
-      HEAP32[$43>>2] = $30;
+      HEAP32[$43>>2] = $29;
       $44 = ((($AsyncCtx15)) + 48|0);
-      HEAP32[$44>>2] = $29;
+      HEAP32[$44>>2] = $30;
       $45 = ((($AsyncCtx15)) + 52|0);
       $$expand_i1_val = $4&1;
       HEAP8[$45>>0] = $$expand_i1_val;
@@ -13725,7 +13739,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEP
    __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi($7,$1,$2,$3);
    $IsAsync4 = ___async;
    if ($IsAsync4) {
-    HEAP32[$AsyncCtx3>>2] = 147;
+    HEAP32[$AsyncCtx3>>2] = 149;
     $11 = ((($AsyncCtx3)) + 4|0);
     HEAP32[$11>>2] = $9;
     $12 = ((($AsyncCtx3)) + 8|0);
@@ -13768,7 +13782,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEP
       break L1;
      }
     }
-    HEAP32[$AsyncCtx>>2] = 148;
+    HEAP32[$AsyncCtx>>2] = 150;
     $20 = ((($AsyncCtx)) + 4|0);
     HEAP32[$20>>2] = $19;
     $21 = ((($AsyncCtx)) + 8|0);
@@ -13821,7 +13835,7 @@ function __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseE
  FUNCTION_TABLE_viiii[$15 & 127]($12,$1,$16,$19);
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 149;
+  HEAP32[$AsyncCtx>>2] = 151;
   sp = STACKTOP;
   return;
  } else {
@@ -13864,7 +13878,7 @@ function __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dyn
  FUNCTION_TABLE_viiiiii[$17 & 63]($14,$1,$2,$18,$21,$5);
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 150;
+  HEAP32[$AsyncCtx>>2] = 152;
   sp = STACKTOP;
   return;
  } else {
@@ -13906,7 +13920,7 @@ function __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dyn
  FUNCTION_TABLE_viiiii[$16 & 63]($13,$1,$17,$20,$4);
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 151;
+  HEAP32[$AsyncCtx>>2] = 153;
   sp = STACKTOP;
   return;
  } else {
@@ -13931,7 +13945,7 @@ function ___cxa_can_catch($0,$1,$2) {
  $8 = (FUNCTION_TABLE_iiii[$7 & 31]($0,$1,$3)|0);
  $IsAsync = ___async;
  if ($IsAsync) {
-  HEAP32[$AsyncCtx>>2] = 152;
+  HEAP32[$AsyncCtx>>2] = 154;
   $9 = ((($AsyncCtx)) + 4|0);
   HEAP32[$9>>2] = $3;
   $10 = ((($AsyncCtx)) + 8|0);
@@ -13962,7 +13976,7 @@ function ___cxa_is_pointer_type($0) {
    $2 = (___dynamic_cast($0,128,184,0)|0);
    $IsAsync = ___async;
    if ($IsAsync) {
-    HEAP32[$AsyncCtx>>2] = 153;
+    HEAP32[$AsyncCtx>>2] = 155;
     sp = STACKTOP;
     return 0;
    } else {
@@ -13976,22 +13990,53 @@ function ___cxa_is_pointer_type($0) {
  $3 = $4&1;
  return ($3|0);
 }
-function __ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+function __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb($0) {
+function __ZN4mbed7TimeoutD0Ev__async_cb($0) {
  $0 = $0|0;
- var label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- // unreachable; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if ($4) {
+  $5 = ___cxa_find_matching_catch_2()|0;
+  $6 = tempRet0;
+  __ZdlPv($2);
+  ___resumeException($5|0);
+  // unreachable;
+ } else {
+  __ZdlPv($2);
+  return;
+ }
 }
-function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_1($0) {
+function ___dynamic_cast__async_cb($0) {
  $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0.0, $12 = 0.0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync7 = 0, $ReallocAsyncCtx3 = 0, label = 0;
- var sp = 0;
+ var $$ = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = HEAP32[$2>>2]|0;
+ $8 = ($7|0)==(1);
+ $$ = $8 ? $4 : 0;
+ $9 = ___async_retval;
+ HEAP32[$9>>2] = $$;
+ return;
+}
+function ___dynamic_cast__async_cb_1($0) {
+ $0 = $0|0;
+ var $$0 = 0, $$33 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond28 = 0, $or$cond30 = 0, $or$cond32 = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
@@ -14003,117 +14048,58 @@ function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_1($0) {
  $8 = HEAP32[$7>>2]|0;
  $9 = ((($0)) + 20|0);
  $10 = HEAP32[$9>>2]|0;
- $11 = +HEAPF32[$2>>2]; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $12 = $11 * 1.0E+6; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $13 = (~~$12)>>>0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $14 = +Math_abs($12) >= 1.0 ? $12 > 0.0 ? (~~+Math_min(+Math_floor($12 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($12 - +(~~$12 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- __THREW__ = 0;
- $ReallocAsyncCtx3 = (invoke_ii(154,16)|0);
- __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy($4,$6,$13,$14); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $IsAsync7 = ___async;
- if ($IsAsync7) {
-  HEAP32[$ReallocAsyncCtx3>>2] = 103;
-  $15 = ((($ReallocAsyncCtx3)) + 4|0);
-  HEAP32[$15>>2] = $8;
-  $16 = ((($ReallocAsyncCtx3)) + 8|0);
-  HEAP32[$16>>2] = $10;
-  $17 = ((($ReallocAsyncCtx3)) + 12|0);
-  HEAP32[$17>>2] = $6;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx3>>2] = 103;
- $15 = ((($ReallocAsyncCtx3)) + 4|0);
- HEAP32[$15>>2] = $8;
- $16 = ((($ReallocAsyncCtx3)) + 8|0);
- HEAP32[$16>>2] = $10;
- $17 = ((($ReallocAsyncCtx3)) + 12|0);
- HEAP32[$17>>2] = $6;
- sp = STACKTOP;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = HEAP32[$2>>2]|0;
+ L2: do {
+  switch ($17|0) {
+  case 0:  {
+   $18 = HEAP32[$6>>2]|0;
+   $19 = ($18|0)==(1);
+   $20 = HEAP32[$8>>2]|0;
+   $21 = ($20|0)==(1);
+   $or$cond = $19 & $21;
+   $22 = HEAP32[$10>>2]|0;
+   $23 = ($22|0)==(1);
+   $or$cond28 = $or$cond & $23;
+   $24 = HEAP32[$12>>2]|0;
+   $$33 = $or$cond28 ? $24 : 0;
+   $$0 = $$33;
+   break;
+  }
+  case 1:  {
+   $25 = HEAP32[$14>>2]|0;
+   $26 = ($25|0)==(1);
+   if (!($26)) {
+    $27 = HEAP32[$6>>2]|0;
+    $28 = ($27|0)==(0);
+    $29 = HEAP32[$8>>2]|0;
+    $30 = ($29|0)==(1);
+    $or$cond30 = $28 & $30;
+    $31 = HEAP32[$10>>2]|0;
+    $32 = ($31|0)==(1);
+    $or$cond32 = $or$cond30 & $32;
+    if (!($or$cond32)) {
+     $$0 = 0;
+     break L2;
+    }
+   }
+   $33 = HEAP32[$16>>2]|0;
+   $$0 = $33;
+   break;
+  }
+  default: {
+   $$0 = 0;
+  }
+  }
+ } while(0);
+ $34 = ___async_retval;
+ HEAP32[$34>>2] = $$0;
  return;
-}
-function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_2($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync11 = 0, $IsAsync15 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $9 = ___cxa_find_matching_catch_2()|0;
-  $10 = tempRet0;
-  HEAP32[$2>>2] = $9; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  HEAP32[$4>>2] = $10; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(154,12)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $IsAsync11 = ___async;
-  if ($IsAsync11) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 105;
-   $11 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$11>>2] = $2;
-   $12 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$12>>2] = $4;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 105;
-  $11 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$11>>2] = $2;
-  $12 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$12>>2] = $4;
-  sp = STACKTOP;
-  return;
- } else {
-  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(4)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $IsAsync15 = ___async;
-  if ($IsAsync15) {
-   HEAP32[$ReallocAsyncCtx5>>2] = 104;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx5>>2] = 104;
-  sp = STACKTOP;
-  return;
- }
-}
-function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_3($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9); //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  // unreachable;
- } else {
-  $7 = HEAP32[$2>>2]|0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  $8 = HEAP32[$4>>2]|0; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-  ___resumeException($7|0);
-  // unreachable;
- }
-}
-function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_4($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 87 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
 }
 function __ZN4mbed8CallbackIFvvEEC2ERKS2___async_cb($0) {
  $0 = $0|0;
@@ -14123,77 +14109,69 @@ function __ZN4mbed8CallbackIFvvEEC2ERKS2___async_cb($0) {
  $2 = HEAP32[$1>>2]|0;
  $3 = ((($0)) + 8|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = HEAP32[$2>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $6 = ((($5)) + 12|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $7 = HEAP32[$6>>2]|0; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- $8 = ((($4)) + 12|0); //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- HEAP32[$8>>2] = $7; //@line 93 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
- return; //@line 94 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $5 = HEAP32[$2>>2]|0; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $6 = ((($5)) + 12|0); //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $7 = HEAP32[$6>>2]|0; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $8 = ((($4)) + 12|0); //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ HEAP32[$8>>2] = $7; //@line 95 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ return; //@line 96 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+}
+function __ZN4mbed7TimeoutC2Ev__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+}
+function __ZN4mbed7TimeoutC2Ev__async_cb_2($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ __THREW__ = 0;
+ invoke_vi(82,($2|0)); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if (!($8)) {
+  HEAP32[$2>>2] = (260); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  return; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ }
+ $9 = ___cxa_find_matching_catch_2()|0;
+ $10 = tempRet0;
+ HEAP32[$4>>2] = $9; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ HEAP32[$6>>2] = $10; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ __THREW__ = 0;
+ invoke_vi(3,($2|0)); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+ $11 = __THREW__; __THREW__ = 0;
+ $12 = $11&1;
+ if ($12) {
+  $15 = ___cxa_find_matching_catch_3(0|0)|0;
+  $16 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($15); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  // unreachable;
+ } else {
+  $13 = HEAP32[$4>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  $14 = HEAP32[$6>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Timeout.h"
+  ___resumeException($13|0);
+  // unreachable;
+ }
+}
+function __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
 }
 function __ZN4mbed7Timeout7handlerEv__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return;
-}
-function __ZN4mbed7TimeoutC2Ev__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-}
-function ___cxa_is_pointer_type__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $AsyncRetVal = 0, $phitmp = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $phitmp = ($AsyncRetVal|0)!=(0|0);
- $2 = $phitmp&1;
- $3 = ___async_retval;
- HEAP32[$3>>2] = $2;
- return;
-}
-function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_5($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function ___cxx_global_var_init_5__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 9 "demos/interrupts/main.cpp"
-}
-function _handle_interrupt_in__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = $2; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $6 = $5; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $7 = HEAP32[$6>>2]|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $8 = (($5) + 4)|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $9 = $8; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $10 = HEAP32[$9>>2]|0; //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- __ZN4mbed7Timeout5setupEy($4,$7,$10); //@line 113 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- return; //@line 114 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
 }
 function __ZN4mbed11InterruptInC2E7PinName__async_cb($0) {
  $0 = $0|0;
@@ -14227,7 +14205,7 @@ function __ZN4mbed11InterruptInC2E7PinName__async_cb($0) {
  $14 = ((($12)) + 8|0);
  $15 = HEAP32[$14>>2]|0;
  __THREW__ = 0;
- $ReallocAsyncCtx2 = (invoke_ii(154,12)|0);
+ $ReallocAsyncCtx2 = (invoke_ii(156,12)|0);
  FUNCTION_TABLE_vi[$15 & 255]($8);
  $IsAsync4 = ___async;
  if (!($IsAsync4)) {
@@ -14241,7 +14219,7 @@ function __ZN4mbed11InterruptInC2E7PinName__async_cb($0) {
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptInC2E7PinName__async_cb_6($0) {
+function __ZN4mbed11InterruptInC2E7PinName__async_cb_3($0) {
  $0 = $0|0;
  var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -14262,491 +14240,23 @@ function __ZN4mbed11InterruptInC2E7PinName__async_cb_6($0) {
   // unreachable;
  }
 }
-function __ZN4mbed11InterruptInC2E7PinName__async_cb_7($0) {
+function __ZN4mbed11InterruptInC2E7PinName__async_cb_4($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  // unreachable;
 }
-function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb($0) {
- $0 = $0|0;
- var $$0 = 0, $$0$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($2)) + 24|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ($8|0)==(1);
- if ($9) {
-  $10 = ((($2)) + 16|0);
-  $11 = HEAP32[$10>>2]|0;
-  HEAP32[$4>>2] = $11;
-  $$0 = 1;
- } else {
-  $$0 = 0;
- }
- $12 = ___async_retval;
- $$0$expand_i1_val = $$0&1;
- HEAP8[$12>>0] = $$0$expand_i1_val;
- return;
-}
-function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_8($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, dest = 0, label = 0, sp = 0, stop = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ___async_retval;
- $AsyncRetVal = HEAP32[$7>>2]|0;
- $8 = ($AsyncRetVal|0)==(0|0);
- if ($8) {
-  $20 = ___async_retval;
-  $$expand_i1_val = 0;
-  HEAP8[$20>>0] = $$expand_i1_val;
-  return;
- }
- $9 = ((($2)) + 4|0);
- dest=$9; stop=dest+52|0; do { HEAP32[dest>>2]=0|0; dest=dest+4|0; } while ((dest|0) < (stop|0));
- HEAP32[$2>>2] = $AsyncRetVal;
- $10 = ((($2)) + 8|0);
- HEAP32[$10>>2] = $4;
- $11 = ((($2)) + 12|0);
- HEAP32[$11>>2] = -1;
- $12 = ((($2)) + 48|0);
- HEAP32[$12>>2] = 1;
- $13 = HEAP32[$AsyncRetVal>>2]|0;
- $14 = ((($13)) + 28|0);
- $15 = HEAP32[$14>>2]|0;
- $16 = HEAP32[$6>>2]|0;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
- FUNCTION_TABLE_viiii[$15 & 127]($AsyncRetVal,$2,$16,1);
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 128;
- $17 = ((($ReallocAsyncCtx)) + 4|0);
- HEAP32[$17>>2] = $2;
- $18 = ((($ReallocAsyncCtx)) + 8|0);
- HEAP32[$18>>2] = $6;
- $19 = ((($ReallocAsyncCtx)) + 12|0);
- HEAP32[$19>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_9($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0.0, $12 = 0.0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync7 = 0, $ReallocAsyncCtx3 = 0, label = 0;
- var sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = +HEAPF32[$2>>2]; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $12 = $11 * 1.0E+6; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $13 = (~~$12)>>>0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $14 = +Math_abs($12) >= 1.0 ? $12 > 0.0 ? (~~+Math_min(+Math_floor($12 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($12 - +(~~$12 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- __THREW__ = 0;
- $ReallocAsyncCtx3 = (invoke_ii(154,16)|0);
- __ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy($4,$6,$13,$14); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
- $IsAsync7 = ___async;
- if ($IsAsync7) {
-  HEAP32[$ReallocAsyncCtx3>>2] = 109;
-  $15 = ((($ReallocAsyncCtx3)) + 4|0);
-  HEAP32[$15>>2] = $8;
-  $16 = ((($ReallocAsyncCtx3)) + 8|0);
-  HEAP32[$16>>2] = $10;
-  $17 = ((($ReallocAsyncCtx3)) + 12|0);
-  HEAP32[$17>>2] = $6;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx3>>2] = 109;
- $15 = ((($ReallocAsyncCtx3)) + 4|0);
- HEAP32[$15>>2] = $8;
- $16 = ((($ReallocAsyncCtx3)) + 8|0);
- HEAP32[$16>>2] = $10;
- $17 = ((($ReallocAsyncCtx3)) + 12|0);
- HEAP32[$17>>2] = $6;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_10($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync11 = 0, $IsAsync15 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $9 = ___cxa_find_matching_catch_2()|0;
-  $10 = tempRet0;
-  HEAP32[$2>>2] = $9; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  HEAP32[$4>>2] = $10; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(154,12)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $IsAsync11 = ___async;
-  if ($IsAsync11) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 111;
-   $11 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$11>>2] = $2;
-   $12 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$12>>2] = $4;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 111;
-  $11 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$11>>2] = $2;
-  $12 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$12>>2] = $4;
-  sp = STACKTOP;
-  return;
- } else {
-  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(4)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $IsAsync15 = ___async;
-  if ($IsAsync15) {
-   HEAP32[$ReallocAsyncCtx5>>2] = 110;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx5>>2] = 110;
-  sp = STACKTOP;
-  return;
- }
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_11($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9); //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  // unreachable;
- } else {
-  $7 = HEAP32[$2>>2]|0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  $8 = HEAP32[$4>>2]|0; //@line 77 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-  ___resumeException($7|0);
-  // unreachable;
- }
-}
-function __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_12($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 78 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Timeout.h"
-}
-function __ZN4mbed7TimeoutD0Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if ($4) {
-  $5 = ___cxa_find_matching_catch_2()|0;
-  $6 = tempRet0;
-  __ZdlPv($2);
-  ___resumeException($5|0);
-  // unreachable;
- } else {
-  __ZdlPv($2);
-  return;
- }
-}
-function __ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv__async_cb($0) {
+function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return;
 }
-function __ZSt11__terminatePFvvE__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = __THREW__; __THREW__ = 0;
- $10 = $9&1;
- if (!($10)) {
-  __THREW__ = 0;
-  invoke_vii(138,(4774|0),($6|0));
-  $11 = __THREW__; __THREW__ = 0;
- }
- $12 = ___cxa_find_matching_catch_3(0|0)|0;
- $13 = tempRet0;
- (___cxa_begin_catch(($12|0))|0);
- __THREW__ = 0;
- invoke_vii(138,(4814|0),($2|0));
- $14 = __THREW__; __THREW__ = 0;
- $15 = ___cxa_find_matching_catch_3(0|0)|0;
- $16 = tempRet0;
- __THREW__ = 0;
- invoke_v(139);
- $17 = __THREW__; __THREW__ = 0;
- $18 = $17&1;
- if ($18) {
-  $19 = ___cxa_find_matching_catch_3(0|0)|0;
-  $20 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($19);
-  // unreachable;
- } else {
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($15);
-  // unreachable;
- }
-}
-function __ZSt11__terminatePFvvE__async_cb_13($0) {
+function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_5($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt11__terminatePFvvE__async_cb_14($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN4mbed7TimeoutD2Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = __THREW__; __THREW__ = 0;
- $2 = $1&1;
- if ($2) {
-  $3 = ___cxa_find_matching_catch_2()|0;
-  $4 = tempRet0;
-  ___resumeException($3|0);
-  // unreachable;
- } else {
-  return;
- }
-}
-function _abort_message__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- _abort();
- // unreachable;
-}
-function _abort_message__async_cb_15($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(4)|0);
- (_fputc(10,$2)|0);
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 126;
  sp = STACKTOP;
  return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if (!($4)) {
-  $5 = ((($2)) + 52|0);
-  $6 = HEAP32[$5>>2]|0;
-  $7 = ($6|0)==(0|0);
-  if ($7) {
-   return;
-  }
-  $8 = ((($2)) + 40|0);
-  $9 = ((($6)) + 8|0);
-  $10 = HEAP32[$9>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx2 = (invoke_ii(154,4)|0);
-  FUNCTION_TABLE_vi[$10 & 255]($8);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 41;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 41;
-  sp = STACKTOP;
-  return;
- }
- $11 = ___cxa_find_matching_catch_2()|0;
- $12 = tempRet0;
- $13 = ((($2)) + 52|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ($14|0)==(0|0);
- if ($15) {
-  ___resumeException($11|0);
-  // unreachable;
- }
- $16 = ((($2)) + 40|0);
- $17 = ((($14)) + 8|0);
- $18 = HEAP32[$17>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(154,12)|0);
- FUNCTION_TABLE_vi[$18 & 255]($16);
- $IsAsync12 = ___async;
- if ($IsAsync12) {
-  HEAP32[$ReallocAsyncCtx4>>2] = 43;
-  $19 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$19>>2] = $11;
-  $20 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$20>>2] = $12;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx4>>2] = 43;
- $19 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$19>>2] = $11;
- $20 = ((($ReallocAsyncCtx4)) + 8|0);
- HEAP32[$20>>2] = $12;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_16($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = __THREW__; __THREW__ = 0;
- $2 = $1&1;
- if (!($2)) {
-  return;
- }
- $3 = ___cxa_find_matching_catch_2()|0;
- $4 = tempRet0;
- ___resumeException($3|0);
- // unreachable;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_17($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $17 = ___cxa_find_matching_catch_3(0|0)|0;
-  $18 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($17);
-  // unreachable;
- }
- $9 = ((($6)) + 52|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ($10|0)==(0|0);
- if ($11) {
-  ___resumeException($2|0);
-  // unreachable;
- }
- $12 = ((($6)) + 40|0);
- $13 = ((($10)) + 8|0);
- $14 = HEAP32[$13>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(154,12)|0);
- FUNCTION_TABLE_vi[$14 & 255]($12);
- $IsAsync12 = ___async;
- if (!($IsAsync12)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx4>>2] = 43;
- $15 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$15>>2] = $2;
- $16 = ((($ReallocAsyncCtx4)) + 8|0);
- HEAP32[$16>>2] = $4;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_18($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $7 = ___cxa_find_matching_catch_3(0|0)|0;
-  $8 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($7);
-  // unreachable;
- } else {
-  ___resumeException($2|0);
-  // unreachable;
- }
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_19($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
 }
 function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
  $0 = $0|0;
@@ -14772,7 +14282,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
   $18 = ((($15)) + 8|0);
   $19 = HEAP32[$18>>2]|0;
   __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(154,16)|0);
+  $ReallocAsyncCtx4 = (invoke_ii(156,16)|0);
   FUNCTION_TABLE_vi[$19 & 255]($17);
   $IsAsync12 = ___async;
   if (!($IsAsync12)) {
@@ -14799,7 +14309,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
   $9 = ((($6)) + 8|0);
   $10 = HEAP32[$9>>2]|0;
   __THREW__ = 0;
-  $ReallocAsyncCtx2 = (invoke_ii(154,8)|0);
+  $ReallocAsyncCtx2 = (invoke_ii(156,8)|0);
   FUNCTION_TABLE_vi[$10 & 255]($8);
   $IsAsync4 = ___async;
   if ($IsAsync4) {
@@ -14817,7 +14327,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
   return;
  }
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_20($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_6($0) {
  $0 = $0|0;
  var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -14835,7 +14345,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_20($0) {
  ___resumeException($5|0);
  // unreachable;
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_21($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_7($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0;
  var $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
@@ -14867,7 +14377,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_21($0) {
  $13 = ((($10)) + 8|0);
  $14 = HEAP32[$13>>2]|0;
  __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(154,16)|0);
+ $ReallocAsyncCtx4 = (invoke_ii(156,16)|0);
  FUNCTION_TABLE_vi[$14 & 255]($12);
  $IsAsync12 = ___async;
  if (!($IsAsync12)) {
@@ -14883,7 +14393,7 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_21($0) {
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_22($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_8($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -14907,7 +14417,141 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_22($0) {
   // unreachable;
  }
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_23($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_9($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZN4mbed7TimeoutD2Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = __THREW__; __THREW__ = 0;
+ $2 = $1&1;
+ if ($2) {
+  $3 = ___cxa_find_matching_catch_2()|0;
+  $4 = tempRet0;
+  ___resumeException($3|0);
+  // unreachable;
+ } else {
+  return;
+ }
+}
+function __ZSt11__terminatePFvvE__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = __THREW__; __THREW__ = 0;
+ $10 = $9&1;
+ if (!($10)) {
+  __THREW__ = 0;
+  invoke_vii(140,(4727|0),($6|0));
+  $11 = __THREW__; __THREW__ = 0;
+ }
+ $12 = ___cxa_find_matching_catch_3(0|0)|0;
+ $13 = tempRet0;
+ (___cxa_begin_catch(($12|0))|0);
+ __THREW__ = 0;
+ invoke_vii(140,(4767|0),($2|0));
+ $14 = __THREW__; __THREW__ = 0;
+ $15 = ___cxa_find_matching_catch_3(0|0)|0;
+ $16 = tempRet0;
+ __THREW__ = 0;
+ invoke_v(141);
+ $17 = __THREW__; __THREW__ = 0;
+ $18 = $17&1;
+ if ($18) {
+  $19 = ___cxa_find_matching_catch_3(0|0)|0;
+  $20 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($19);
+  // unreachable;
+ } else {
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($15);
+  // unreachable;
+ }
+}
+function __ZSt11__terminatePFvvE__async_cb_10($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt11__terminatePFvvE__async_cb_11($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function ___cxa_can_catch__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal$pre_trunc = HEAP8[$7>>0]|0;
+ $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
+ $8 = $AsyncRetVal&1;
+ if ($AsyncRetVal) {
+  $9 = HEAP32[$2>>2]|0;
+  HEAP32[$4>>2] = $9;
+ }
+ $10 = ___async_retval;
+ HEAP32[$10>>2] = $8;
+ return;
+}
+function _abort_message__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $IsAsync3 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
+ (_fputc(10,$2)|0);
+ $IsAsync3 = ___async;
+ if (!($IsAsync3)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 128;
+ sp = STACKTOP;
+ return;
+}
+function _abort_message__async_cb_12($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ _abort();
+ // unreachable;
+}
+function __ZSt9terminatev__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt9terminatev__async_cb_13($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt9terminatev__async_cb_14($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
@@ -14921,9 +14565,9 @@ function __ZN4mbed8CallbackIFvvEEaSERKS2___async_cb($0) {
  $2 = HEAP32[$1>>2]|0;
  $3 = ___async_retval;
  HEAP32[$3>>2] = $2;
- return; //@line 520 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ return; //@line 522 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
-function __ZN4mbed8CallbackIFvvEEaSERKS2___async_cb_24($0) {
+function __ZN4mbed8CallbackIFvvEEaSERKS2___async_cb_15($0) {
  $0 = $0|0;
  var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -14931,18 +14575,470 @@ function __ZN4mbed8CallbackIFvvEEaSERKS2___async_cb_24($0) {
  $2 = HEAP32[$1>>2]|0;
  $3 = ((($0)) + 8|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = HEAP32[$4>>2]|0; //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ $5 = HEAP32[$4>>2]|0; //@line 519 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $ReallocAsyncCtx = (_emscripten_realloc_async_context(8)|0);
- __ZN4mbed8CallbackIFvvEEC2ERKS2_($2,$5); //@line 517 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
+ __ZN4mbed8CallbackIFvvEEC2ERKS2_($2,$5); //@line 519 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
  $IsAsync = ___async;
  if (!($IsAsync)) {
   ___async_unwind = 0;
  }
- HEAP32[$ReallocAsyncCtx>>2] = 115;
+ HEAP32[$ReallocAsyncCtx>>2] = 112;
  $6 = ((($ReallocAsyncCtx)) + 4|0);
  HEAP32[$6>>2] = $2;
  sp = STACKTOP;
  return;
+}
+function __ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed8CallbackIFvvEED2Ev__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 264 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+}
+function __ZN4mbed6TickerC2Ev__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+}
+function __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = $2; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $6 = $5; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $7 = HEAP32[$6>>2]|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $8 = (($5) + 4)|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $9 = $8; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $10 = HEAP32[$9>>2]|0; //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ __ZN4mbed6Ticker5setupEy($4,$7,$10); //@line 124 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ return; //@line 126 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+}
+function _fflush__async_cb($0) {
+ $0 = $0|0;
+ var $$023 = 0, $$02327$reg2mem$0 = 0, $$1 = 0, $$1$phi = 0, $$reg2mem$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0;
+ var $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal = HEAP32[$7>>2]|0;
+ $23 = $AsyncRetVal | $2;
+ $$02327$reg2mem$0 = $6;$$1 = $23;$$reg2mem$0 = $4;
+ while(1) {
+  $24 = ($$reg2mem$0|0)==(0);
+  if (!($24)) {
+   ___unlockfile($$02327$reg2mem$0);
+  }
+  $25 = ((($$02327$reg2mem$0)) + 56|0);
+  $$023 = HEAP32[$25>>2]|0;
+  $26 = ($$023|0)==(0|0);
+  if ($26) {
+   label = 12;
+   break;
+  }
+  $8 = ((($$023)) + 76|0);
+  $9 = HEAP32[$8>>2]|0;
+  $10 = ($9|0)>(-1);
+  if ($10) {
+   $11 = (___lockfile($$023)|0);
+   $20 = $11;
+  } else {
+   $20 = 0;
+  }
+  $12 = ((($$023)) + 20|0);
+  $13 = HEAP32[$12>>2]|0;
+  $14 = ((($$023)) + 28|0);
+  $15 = HEAP32[$14>>2]|0;
+  $16 = ($13>>>0)>($15>>>0);
+  if ($16) {
+   break;
+  } else {
+   $$1$phi = $$1;$$02327$reg2mem$0 = $$023;$$reg2mem$0 = $20;$$1 = $$1$phi;
+  }
+ }
+ if ((label|0) == 12) {
+  ___ofl_unlock();
+  $27 = ___async_retval;
+  HEAP32[$27>>2] = $$1;
+  return;
+ }
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+ $17 = (___fflush_unlocked($$023)|0);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  $22 = ___async_retval;
+  HEAP32[$22>>2] = $17;
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 117;
+ $18 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$18>>2] = $$1;
+ $19 = ((($ReallocAsyncCtx)) + 8|0);
+ HEAP32[$19>>2] = $20;
+ $21 = ((($ReallocAsyncCtx)) + 12|0);
+ HEAP32[$21>>2] = $$023;
+ sp = STACKTOP;
+ return;
+}
+function _fflush__async_cb_16($0) {
+ $0 = $0|0;
+ var $$pre_trunc = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $$pre_trunc = HEAP8[$1>>0]|0;
+ $2 = $$pre_trunc&1;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $AsyncRetVal = HEAP32[$5>>2]|0;
+ if (!($2)) {
+  ___unlockfile($4);
+ }
+ $6 = ___async_retval;
+ HEAP32[$6>>2] = $AsyncRetVal;
+ return;
+}
+function _fflush__async_cb_17($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = ___async_retval;
+ HEAP32[$2>>2] = $AsyncRetVal;
+ return;
+}
+function _fflush__async_cb_18($0) {
+ $0 = $0|0;
+ var $$023 = 0, $$02325 = 0, $$02327 = 0, $$024$lcssa = 0, $$02426 = 0, $$02426$phi = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0;
+ var $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = (___ofl_lock()|0);
+ $$02325 = HEAP32[$2>>2]|0;
+ $3 = ($$02325|0)==(0|0);
+ L3: do {
+  if ($3) {
+   $$024$lcssa = $AsyncRetVal;
+  } else {
+   $$02327 = $$02325;$$02426 = $AsyncRetVal;
+   while(1) {
+    $4 = ((($$02327)) + 76|0);
+    $5 = HEAP32[$4>>2]|0;
+    $6 = ($5|0)>(-1);
+    if ($6) {
+     $7 = (___lockfile($$02327)|0);
+     $16 = $7;
+    } else {
+     $16 = 0;
+    }
+    $8 = ((($$02327)) + 20|0);
+    $9 = HEAP32[$8>>2]|0;
+    $10 = ((($$02327)) + 28|0);
+    $11 = HEAP32[$10>>2]|0;
+    $12 = ($9>>>0)>($11>>>0);
+    if ($12) {
+     break;
+    }
+    $19 = ($16|0)==(0);
+    if (!($19)) {
+     ___unlockfile($$02327);
+    }
+    $20 = ((($$02327)) + 56|0);
+    $$023 = HEAP32[$20>>2]|0;
+    $21 = ($$023|0)==(0|0);
+    if ($21) {
+     $$024$lcssa = $$02426;
+     break L3;
+    } else {
+     $$02426$phi = $$02426;$$02327 = $$023;$$02426 = $$02426$phi;
+    }
+   }
+   $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+   $13 = (___fflush_unlocked($$02327)|0);
+   $IsAsync = ___async;
+   if (!($IsAsync)) {
+    $18 = ___async_retval;
+    HEAP32[$18>>2] = $13;
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx>>2] = 117;
+   $14 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$14>>2] = $$02426;
+   $15 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$15>>2] = $16;
+   $17 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$17>>2] = $$02327;
+   sp = STACKTOP;
+   return;
+  }
+ } while(0);
+ ___ofl_unlock();
+ $22 = ___async_retval;
+ HEAP32[$22>>2] = $$024$lcssa;
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0;
+ var $8 = 0, $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $20 = HEAP8[$2>>0]|0;
+ $21 = ($20<<24>>24)==(0);
+ if ($21) {
+  $13 = ((($4)) + 8|0);
+  $22 = ($13>>>0)<($6>>>0);
+  if ($22) {
+   $ReallocAsyncCtx = (_emscripten_realloc_async_context(28)|0);
+   __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi($13,$8,$10,$12);
+   $IsAsync = ___async;
+   if (!($IsAsync)) {
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx>>2] = 150;
+   $14 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$14>>2] = $2;
+   $15 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$15>>2] = $13;
+   $16 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$16>>2] = $6;
+   $17 = ((($ReallocAsyncCtx)) + 16|0);
+   HEAP32[$17>>2] = $8;
+   $18 = ((($ReallocAsyncCtx)) + 20|0);
+   HEAP32[$18>>2] = $10;
+   $19 = ((($ReallocAsyncCtx)) + 24|0);
+   HEAP32[$19>>2] = $12;
+   sp = STACKTOP;
+   return;
+  }
+ }
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_19($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
+ var $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ($2|0)>(1);
+ if (!($13)) {
+  return;
+ }
+ $14 = ((($4)) + 24|0);
+ $15 = ((($6)) + 54|0);
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(28)|0);
+ __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi($14,$6,$8,$10);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 150;
+ $16 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$16>>2] = $15;
+ $17 = ((($ReallocAsyncCtx)) + 8|0);
+ HEAP32[$17>>2] = $14;
+ $18 = ((($ReallocAsyncCtx)) + 12|0);
+ HEAP32[$18>>2] = $12;
+ $19 = ((($ReallocAsyncCtx)) + 16|0);
+ HEAP32[$19>>2] = $6;
+ $20 = ((($ReallocAsyncCtx)) + 20|0);
+ HEAP32[$20>>2] = $8;
+ $21 = ((($ReallocAsyncCtx)) + 24|0);
+ HEAP32[$21>>2] = $10;
+ sp = STACKTOP;
+ return;
+}
+function __GLOBAL__sub_I_arm_hal_timer_cpp__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ HEAP32[1240] = (260);
+ ;HEAP32[(4976)>>2]=0|0;HEAP32[(4976)+4>>2]=0|0;HEAP32[(4976)+8>>2]=0|0;HEAP32[(4976)+12>>2]=0|0;
+ HEAP8[(4992)>>0] = 1;
+ return;
+}
+function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+}
+function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_20($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0.0, $12 = 0.0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync7 = 0, $ReallocAsyncCtx3 = 0, label = 0;
+ var sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = +HEAPF32[$2>>2]; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $12 = $11 * 1.0E+6; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $13 = (~~$12)>>>0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $14 = +Math_abs($12) >= 1.0 ? $12 > 0.0 ? (~~+Math_min(+Math_floor($12 / 4294967296.0), 4294967295.0)) >>> 0 : ~~+Math_ceil(($12 - +(~~$12 >>> 0)) / 4294967296.0) >>> 0 : 0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ __THREW__ = 0;
+ $ReallocAsyncCtx3 = (invoke_ii(156,16)|0);
+ __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy($4,$6,$13,$14); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+ $IsAsync7 = ___async;
+ if ($IsAsync7) {
+  HEAP32[$ReallocAsyncCtx3>>2] = 105;
+  $15 = ((($ReallocAsyncCtx3)) + 4|0);
+  HEAP32[$15>>2] = $8;
+  $16 = ((($ReallocAsyncCtx3)) + 8|0);
+  HEAP32[$16>>2] = $10;
+  $17 = ((($ReallocAsyncCtx3)) + 12|0);
+  HEAP32[$17>>2] = $6;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx3>>2] = 105;
+ $15 = ((($ReallocAsyncCtx3)) + 4|0);
+ HEAP32[$15>>2] = $8;
+ $16 = ((($ReallocAsyncCtx3)) + 8|0);
+ HEAP32[$16>>2] = $10;
+ $17 = ((($ReallocAsyncCtx3)) + 12|0);
+ HEAP32[$17>>2] = $6;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_21($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync11 = 0, $IsAsync15 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $9 = ___cxa_find_matching_catch_2()|0;
+  $10 = tempRet0;
+  HEAP32[$2>>2] = $9; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  HEAP32[$4>>2] = $10; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  __THREW__ = 0;
+  $ReallocAsyncCtx4 = (invoke_ii(156,12)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $IsAsync11 = ___async;
+  if ($IsAsync11) {
+   HEAP32[$ReallocAsyncCtx4>>2] = 107;
+   $11 = ((($ReallocAsyncCtx4)) + 4|0);
+   HEAP32[$11>>2] = $2;
+   $12 = ((($ReallocAsyncCtx4)) + 8|0);
+   HEAP32[$12>>2] = $4;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx4>>2] = 107;
+  $11 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$11>>2] = $2;
+  $12 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$12>>2] = $4;
+  sp = STACKTOP;
+  return;
+ } else {
+  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(4)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $IsAsync15 = ___async;
+  if ($IsAsync15) {
+   HEAP32[$ReallocAsyncCtx5>>2] = 106;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx5>>2] = 106;
+  sp = STACKTOP;
+  return;
+ }
+}
+function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_22($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $9 = ___cxa_find_matching_catch_3(0|0)|0;
+  $10 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($9); //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  // unreachable;
+ } else {
+  $7 = HEAP32[$2>>2]|0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  $8 = HEAP32[$4>>2]|0; //@line 85 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+  ___resumeException($7|0);
+  // unreachable;
+ }
+}
+function __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_23($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 86 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/drivers/Ticker.h"
+}
+function __ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function ___clang_call_terminate__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
 }
 function ___overflow__async_cb($0) {
  $0 = $0|0;
@@ -14962,6 +15058,825 @@ function ___overflow__async_cb($0) {
  }
  $7 = ___async_retval;
  HEAP32[$7>>2] = $$0;
+ return;
+}
+function _wait_ms__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if (!($4)) {
+  $5 = ((($2)) + 52|0);
+  $6 = HEAP32[$5>>2]|0;
+  $7 = ($6|0)==(0|0);
+  if ($7) {
+   return;
+  }
+  $8 = ((($2)) + 40|0);
+  $9 = ((($6)) + 8|0);
+  $10 = HEAP32[$9>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx2 = (invoke_ii(156,4)|0);
+  FUNCTION_TABLE_vi[$10 & 255]($8);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 41;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 41;
+  sp = STACKTOP;
+  return;
+ }
+ $11 = ___cxa_find_matching_catch_2()|0;
+ $12 = tempRet0;
+ $13 = ((($2)) + 52|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ($14|0)==(0|0);
+ if ($15) {
+  ___resumeException($11|0);
+  // unreachable;
+ }
+ $16 = ((($2)) + 40|0);
+ $17 = ((($14)) + 8|0);
+ $18 = HEAP32[$17>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx4 = (invoke_ii(156,12)|0);
+ FUNCTION_TABLE_vi[$18 & 255]($16);
+ $IsAsync12 = ___async;
+ if ($IsAsync12) {
+  HEAP32[$ReallocAsyncCtx4>>2] = 43;
+  $19 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$19>>2] = $11;
+  $20 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$20>>2] = $12;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx4>>2] = 43;
+ $19 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$19>>2] = $11;
+ $20 = ((($ReallocAsyncCtx4)) + 8|0);
+ HEAP32[$20>>2] = $12;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_24($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = __THREW__; __THREW__ = 0;
+ $2 = $1&1;
+ if (!($2)) {
+  return;
+ }
+ $3 = ___cxa_find_matching_catch_2()|0;
+ $4 = tempRet0;
+ ___resumeException($3|0);
+ // unreachable;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_25($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $17 = ___cxa_find_matching_catch_3(0|0)|0;
+  $18 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($17);
+  // unreachable;
+ }
+ $9 = ((($6)) + 52|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ($10|0)==(0|0);
+ if ($11) {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+ $12 = ((($6)) + 40|0);
+ $13 = ((($10)) + 8|0);
+ $14 = HEAP32[$13>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx4 = (invoke_ii(156,12)|0);
+ FUNCTION_TABLE_vi[$14 & 255]($12);
+ $IsAsync12 = ___async;
+ if (!($IsAsync12)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx4>>2] = 43;
+ $15 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$15>>2] = $2;
+ $16 = ((($ReallocAsyncCtx4)) + 8|0);
+ HEAP32[$16>>2] = $4;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_26($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $7 = ___cxa_find_matching_catch_3(0|0)|0;
+  $8 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($7);
+  // unreachable;
+ } else {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_27($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _invoke_ticker__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed6TickerD0Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if ($4) {
+  $5 = ___cxa_find_matching_catch_2()|0;
+  $6 = tempRet0;
+  __ZdlPv($2);
+  ___resumeException($5|0);
+  // unreachable;
+ } else {
+  __ZdlPv($2);
+  return;
+ }
+}
+function __ZL25default_terminate_handlerv__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, $IsAsync15 = 0, $ReallocAsyncCtx2 = 0, $vararg_ptr6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 20|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 24|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ___async_retval;
+ $AsyncRetVal$pre_trunc = HEAP8[$11>>0]|0;
+ $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
+ if (!($AsyncRetVal)) {
+  HEAP32[$4>>2] = 4436;
+  $vararg_ptr6 = ((($4)) + 4|0);
+  HEAP32[$vararg_ptr6>>2] = $6;
+  _abort_message(4345,$4);
+  // unreachable;
+ }
+ $12 = HEAP32[$2>>2]|0;
+ $13 = HEAP32[$12>>2]|0;
+ $14 = ((($13)) + 8|0);
+ $15 = HEAP32[$14>>2]|0;
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
+ $16 = (FUNCTION_TABLE_ii[$15 & 255]($12)|0);
+ $IsAsync15 = ___async;
+ if (!($IsAsync15)) {
+  $20 = ___async_retval;
+  HEAP32[$20>>2] = $16;
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 125;
+ $17 = ((($ReallocAsyncCtx2)) + 4|0);
+ HEAP32[$17>>2] = $8;
+ $18 = ((($ReallocAsyncCtx2)) + 8|0);
+ HEAP32[$18>>2] = $6;
+ $19 = ((($ReallocAsyncCtx2)) + 12|0);
+ HEAP32[$19>>2] = $10;
+ sp = STACKTOP;
+ return;
+}
+function __ZL25default_terminate_handlerv__async_cb_28($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $vararg_ptr1 = 0, $vararg_ptr2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $AsyncRetVal = HEAP32[$5>>2]|0;
+ HEAP32[$2>>2] = 4436;
+ $vararg_ptr1 = ((($2)) + 4|0);
+ HEAP32[$vararg_ptr1>>2] = $4;
+ $vararg_ptr2 = ((($2)) + 8|0);
+ HEAP32[$vararg_ptr2>>2] = $AsyncRetVal;
+ _abort_message(4300,$2);
+ // unreachable;
+}
+function __GLOBAL__sub_I_main_cpp__async_cb($0) {
+ $0 = $0|0;
+ var $IsAsync7 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(4)|0);
+ ___cxx_global_var_init_5();
+ $IsAsync7 = ___async;
+ if (!($IsAsync7)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx3>>2] = 77;
+ sp = STACKTOP;
+ return;
+}
+function __GLOBAL__sub_I_main_cpp__async_cb_29($0) {
+ $0 = $0|0;
+ var $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(4)|0);
+ ___cxx_global_var_init_4();
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 76;
+ sp = STACKTOP;
+ return;
+}
+function __GLOBAL__sub_I_main_cpp__async_cb_30($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $$pre_trunc = HEAP8[$15>>0]|0;
+ $16 = $$pre_trunc&1;
+ $21 = ((($2)) + 8|0);
+ $30 = ($21>>>0)<($4>>>0);
+ if ($30) {
+  $17 = HEAP8[$6>>0]|0;
+  $18 = ($17<<24>>24)==(0);
+  if ($18) {
+   $19 = HEAP32[$8>>2]|0;
+   $20 = ($19|0)==(1);
+   if (!($20)) {
+    $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
+    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($21,$10,$12,$14,$16);
+    $IsAsync = ___async;
+    if (!($IsAsync)) {
+     ___async_unwind = 0;
+    }
+    HEAP32[$ReallocAsyncCtx>>2] = 148;
+    $22 = ((($ReallocAsyncCtx)) + 4|0);
+    HEAP32[$22>>2] = $21;
+    $23 = ((($ReallocAsyncCtx)) + 8|0);
+    HEAP32[$23>>2] = $4;
+    $24 = ((($ReallocAsyncCtx)) + 12|0);
+    HEAP32[$24>>2] = $6;
+    $25 = ((($ReallocAsyncCtx)) + 16|0);
+    HEAP32[$25>>2] = $8;
+    $26 = ((($ReallocAsyncCtx)) + 20|0);
+    HEAP32[$26>>2] = $10;
+    $27 = ((($ReallocAsyncCtx)) + 24|0);
+    HEAP32[$27>>2] = $12;
+    $28 = ((($ReallocAsyncCtx)) + 28|0);
+    HEAP32[$28>>2] = $14;
+    $29 = ((($ReallocAsyncCtx)) + 32|0);
+    $$expand_i1_val = $16&1;
+    HEAP8[$29>>0] = $$expand_i1_val;
+    sp = STACKTOP;
+    return;
+   }
+  }
+ }
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_31($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0;
+ var sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $$pre_trunc = HEAP8[$17>>0]|0;
+ $18 = $$pre_trunc&1;
+ $25 = ((($2)) + 8|0);
+ $35 = ($25>>>0)<($4>>>0);
+ do {
+  if ($35) {
+   $19 = HEAP8[$6>>0]|0;
+   $20 = ($19<<24>>24)==(0);
+   if ($20) {
+    $21 = HEAP32[$8>>2]|0;
+    $22 = ($21|0)==(1);
+    if ($22) {
+     $23 = HEAP32[$10>>2]|0;
+     $24 = ($23|0)==(1);
+     if ($24) {
+      break;
+     }
+    }
+    $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
+    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($25,$12,$14,$16,$18);
+    $IsAsync4 = ___async;
+    if (!($IsAsync4)) {
+     ___async_unwind = 0;
+    }
+    HEAP32[$ReallocAsyncCtx2>>2] = 147;
+    $26 = ((($ReallocAsyncCtx2)) + 4|0);
+    HEAP32[$26>>2] = $25;
+    $27 = ((($ReallocAsyncCtx2)) + 8|0);
+    HEAP32[$27>>2] = $4;
+    $28 = ((($ReallocAsyncCtx2)) + 12|0);
+    HEAP32[$28>>2] = $6;
+    $29 = ((($ReallocAsyncCtx2)) + 16|0);
+    HEAP32[$29>>2] = $8;
+    $30 = ((($ReallocAsyncCtx2)) + 20|0);
+    HEAP32[$30>>2] = $10;
+    $31 = ((($ReallocAsyncCtx2)) + 24|0);
+    HEAP32[$31>>2] = $12;
+    $32 = ((($ReallocAsyncCtx2)) + 28|0);
+    HEAP32[$32>>2] = $14;
+    $33 = ((($ReallocAsyncCtx2)) + 32|0);
+    HEAP32[$33>>2] = $16;
+    $34 = ((($ReallocAsyncCtx2)) + 36|0);
+    $$expand_i1_val = $18&1;
+    HEAP8[$34>>0] = $$expand_i1_val;
+    sp = STACKTOP;
+    return;
+   }
+  }
+ } while(0);
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_32($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync8 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $$pre_trunc = HEAP8[$13>>0]|0;
+ $14 = $$pre_trunc&1;
+ $17 = ((($2)) + 8|0);
+ $25 = ($17>>>0)<($4>>>0);
+ if ($25) {
+  $15 = HEAP8[$6>>0]|0;
+  $16 = ($15<<24>>24)==(0);
+  if ($16) {
+   $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
+   __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($17,$8,$10,$12,$14);
+   $IsAsync8 = ___async;
+   if (!($IsAsync8)) {
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx3>>2] = 146;
+   $18 = ((($ReallocAsyncCtx3)) + 4|0);
+   HEAP32[$18>>2] = $17;
+   $19 = ((($ReallocAsyncCtx3)) + 8|0);
+   HEAP32[$19>>2] = $4;
+   $20 = ((($ReallocAsyncCtx3)) + 12|0);
+   HEAP32[$20>>2] = $6;
+   $21 = ((($ReallocAsyncCtx3)) + 16|0);
+   HEAP32[$21>>2] = $8;
+   $22 = ((($ReallocAsyncCtx3)) + 20|0);
+   HEAP32[$22>>2] = $10;
+   $23 = ((($ReallocAsyncCtx3)) + 24|0);
+   HEAP32[$23>>2] = $12;
+   $24 = ((($ReallocAsyncCtx3)) + 28|0);
+   $$expand_i1_val = $14&1;
+   HEAP8[$24>>0] = $$expand_i1_val;
+   sp = STACKTOP;
+   return;
+  }
+ }
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $$expand_i1_val10 = 0, $$expand_i1_val8 = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
+ var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
+ var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
+ var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $$pre_trunc = HEAP8[$7>>0]|0;
+ $8 = $$pre_trunc&1;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $18 = HEAP32[$17>>2]|0;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($20)) + 24|0);
+ $24 = ($22|0)>(1);
+ do {
+  if ($24) {
+   $25 = HEAP32[$16>>2]|0;
+   $26 = $25 & 2;
+   $27 = ($26|0)==(0);
+   if ($27) {
+    $28 = HEAP32[$12>>2]|0;
+    $29 = ($28|0)==(1);
+    if (!($29)) {
+     $39 = $25 & 1;
+     $40 = ($39|0)==(0);
+     if ($40) {
+      $56 = HEAP8[$10>>0]|0;
+      $57 = ($56<<24>>24)==(0);
+      if (!($57)) {
+       break;
+      }
+      $58 = HEAP32[$12>>2]|0;
+      $59 = ($58|0)==(1);
+      if ($59) {
+       break;
+      }
+      $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
+      __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
+      $IsAsync = ___async;
+      if (!($IsAsync)) {
+       ___async_unwind = 0;
+      }
+      HEAP32[$ReallocAsyncCtx>>2] = 148;
+      $60 = ((($ReallocAsyncCtx)) + 4|0);
+      HEAP32[$60>>2] = $23;
+      $61 = ((($ReallocAsyncCtx)) + 8|0);
+      HEAP32[$61>>2] = $18;
+      $62 = ((($ReallocAsyncCtx)) + 12|0);
+      HEAP32[$62>>2] = $10;
+      $63 = ((($ReallocAsyncCtx)) + 16|0);
+      HEAP32[$63>>2] = $12;
+      $64 = ((($ReallocAsyncCtx)) + 20|0);
+      HEAP32[$64>>2] = $2;
+      $65 = ((($ReallocAsyncCtx)) + 24|0);
+      HEAP32[$65>>2] = $4;
+      $66 = ((($ReallocAsyncCtx)) + 28|0);
+      HEAP32[$66>>2] = $6;
+      $67 = ((($ReallocAsyncCtx)) + 32|0);
+      $$expand_i1_val10 = $8&1;
+      HEAP8[$67>>0] = $$expand_i1_val10;
+      sp = STACKTOP;
+      return;
+     }
+     $41 = HEAP8[$10>>0]|0;
+     $42 = ($41<<24>>24)==(0);
+     if (!($42)) {
+      break;
+     }
+     $43 = HEAP32[$12>>2]|0;
+     $44 = ($43|0)==(1);
+     if ($44) {
+      $45 = HEAP32[$14>>2]|0;
+      $46 = ($45|0)==(1);
+      if ($46) {
+       break;
+      }
+     }
+     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
+     __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
+     $IsAsync4 = ___async;
+     if (!($IsAsync4)) {
+      ___async_unwind = 0;
+     }
+     HEAP32[$ReallocAsyncCtx2>>2] = 147;
+     $47 = ((($ReallocAsyncCtx2)) + 4|0);
+     HEAP32[$47>>2] = $23;
+     $48 = ((($ReallocAsyncCtx2)) + 8|0);
+     HEAP32[$48>>2] = $18;
+     $49 = ((($ReallocAsyncCtx2)) + 12|0);
+     HEAP32[$49>>2] = $10;
+     $50 = ((($ReallocAsyncCtx2)) + 16|0);
+     HEAP32[$50>>2] = $12;
+     $51 = ((($ReallocAsyncCtx2)) + 20|0);
+     HEAP32[$51>>2] = $14;
+     $52 = ((($ReallocAsyncCtx2)) + 24|0);
+     HEAP32[$52>>2] = $2;
+     $53 = ((($ReallocAsyncCtx2)) + 28|0);
+     HEAP32[$53>>2] = $4;
+     $54 = ((($ReallocAsyncCtx2)) + 32|0);
+     HEAP32[$54>>2] = $6;
+     $55 = ((($ReallocAsyncCtx2)) + 36|0);
+     $$expand_i1_val8 = $8&1;
+     HEAP8[$55>>0] = $$expand_i1_val8;
+     sp = STACKTOP;
+     return;
+    }
+   }
+   $30 = HEAP8[$10>>0]|0;
+   $31 = ($30<<24>>24)==(0);
+   if ($31) {
+    $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
+    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
+    $IsAsync8 = ___async;
+    if (!($IsAsync8)) {
+     ___async_unwind = 0;
+    }
+    HEAP32[$ReallocAsyncCtx3>>2] = 146;
+    $32 = ((($ReallocAsyncCtx3)) + 4|0);
+    HEAP32[$32>>2] = $23;
+    $33 = ((($ReallocAsyncCtx3)) + 8|0);
+    HEAP32[$33>>2] = $18;
+    $34 = ((($ReallocAsyncCtx3)) + 12|0);
+    HEAP32[$34>>2] = $10;
+    $35 = ((($ReallocAsyncCtx3)) + 16|0);
+    HEAP32[$35>>2] = $2;
+    $36 = ((($ReallocAsyncCtx3)) + 20|0);
+    HEAP32[$36>>2] = $4;
+    $37 = ((($ReallocAsyncCtx3)) + 24|0);
+    HEAP32[$37>>2] = $6;
+    $38 = ((($ReallocAsyncCtx3)) + 28|0);
+    $$expand_i1_val = $8&1;
+    HEAP8[$38>>0] = $$expand_i1_val;
+    sp = STACKTOP;
+    return;
+   }
+  }
+ } while(0);
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_34($0) {
+ $0 = $0|0;
+ var $$085$off0$reg2mem$0 = 0, $$182$off0 = 0, $$182$off0$expand_i1_val = 0, $$186$off0 = 0, $$186$off0$expand_i1_val = 0, $$283$off0 = 0, $$expand_i1_val = 0, $$pre_trunc = 0, $$pre_trunc16 = 0, $$pre_trunc18 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0;
+ var $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0;
+ var $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0;
+ var $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0;
+ var $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $$pre_trunc = HEAP8[$15>>0]|0;
+ $16 = $$pre_trunc&1;
+ $17 = ((($0)) + 33|0);
+ $$pre_trunc16 = HEAP8[$17>>0]|0;
+ $18 = $$pre_trunc16&1;
+ $19 = ((($0)) + 36|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 40|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 44|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 48|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 52|0);
+ $$pre_trunc18 = HEAP8[$27>>0]|0;
+ $28 = $$pre_trunc18&1;
+ $29 = ((($0)) + 56|0);
+ $30 = HEAP32[$29>>2]|0;
+ $48 = HEAP8[$2>>0]|0;
+ $49 = ($48<<24>>24)==(0);
+ L2: do {
+  if ($49) {
+   $50 = HEAP8[$26>>0]|0;
+   $51 = ($50<<24>>24)==(0);
+   do {
+    if ($51) {
+     $$182$off0 = $16;$$186$off0 = $18;
+    } else {
+     $52 = HEAP8[$24>>0]|0;
+     $53 = ($52<<24>>24)==(0);
+     if ($53) {
+      $59 = HEAP32[$22>>2]|0;
+      $60 = $59 & 1;
+      $61 = ($60|0)==(0);
+      if ($61) {
+       $$085$off0$reg2mem$0 = $18;$$283$off0 = 1;
+       label = 13;
+       break L2;
+      } else {
+       $$182$off0 = 1;$$186$off0 = $18;
+       break;
+      }
+     }
+     $54 = HEAP32[$6>>2]|0;
+     $55 = ($54|0)==(1);
+     if ($55) {
+      label = 18;
+      break L2;
+     }
+     $56 = HEAP32[$22>>2]|0;
+     $57 = $56 & 2;
+     $58 = ($57|0)==(0);
+     if ($58) {
+      label = 18;
+      break L2;
+     } else {
+      $$182$off0 = 1;$$186$off0 = 1;
+     }
+    }
+   } while(0);
+   $32 = ((($20)) + 8|0);
+   $31 = ($32>>>0)<($30>>>0);
+   if ($31) {
+    HEAP8[$24>>0] = 0;
+    HEAP8[$26>>0] = 0;
+    $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(60)|0);
+    __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib($32,$12,$8,$8,1,$28);
+    $IsAsync16 = ___async;
+    if (!($IsAsync16)) {
+     ___async_unwind = 0;
+    }
+    HEAP32[$ReallocAsyncCtx5>>2] = 144;
+    $33 = ((($ReallocAsyncCtx5)) + 4|0);
+    HEAP32[$33>>2] = $2;
+    $34 = ((($ReallocAsyncCtx5)) + 8|0);
+    HEAP32[$34>>2] = $4;
+    $35 = ((($ReallocAsyncCtx5)) + 12|0);
+    HEAP32[$35>>2] = $6;
+    $36 = ((($ReallocAsyncCtx5)) + 16|0);
+    HEAP32[$36>>2] = $8;
+    $37 = ((($ReallocAsyncCtx5)) + 20|0);
+    HEAP32[$37>>2] = $10;
+    $38 = ((($ReallocAsyncCtx5)) + 24|0);
+    HEAP32[$38>>2] = $12;
+    $39 = ((($ReallocAsyncCtx5)) + 28|0);
+    HEAP32[$39>>2] = $14;
+    $40 = ((($ReallocAsyncCtx5)) + 32|0);
+    $$182$off0$expand_i1_val = $$182$off0&1;
+    HEAP8[$40>>0] = $$182$off0$expand_i1_val;
+    $41 = ((($ReallocAsyncCtx5)) + 33|0);
+    $$186$off0$expand_i1_val = $$186$off0&1;
+    HEAP8[$41>>0] = $$186$off0$expand_i1_val;
+    $42 = ((($ReallocAsyncCtx5)) + 36|0);
+    HEAP32[$42>>2] = $32;
+    $43 = ((($ReallocAsyncCtx5)) + 40|0);
+    HEAP32[$43>>2] = $22;
+    $44 = ((($ReallocAsyncCtx5)) + 44|0);
+    HEAP32[$44>>2] = $24;
+    $45 = ((($ReallocAsyncCtx5)) + 48|0);
+    HEAP32[$45>>2] = $26;
+    $46 = ((($ReallocAsyncCtx5)) + 52|0);
+    $$expand_i1_val = $28&1;
+    HEAP8[$46>>0] = $$expand_i1_val;
+    $47 = ((($ReallocAsyncCtx5)) + 56|0);
+    HEAP32[$47>>2] = $30;
+    sp = STACKTOP;
+    return;
+   } else {
+    $$085$off0$reg2mem$0 = $$186$off0;$$283$off0 = $$182$off0;
+    label = 13;
+   }
+  } else {
+   $$085$off0$reg2mem$0 = $18;$$283$off0 = $16;
+   label = 13;
+  }
+ } while(0);
+ do {
+  if ((label|0) == 13) {
+   if (!($$085$off0$reg2mem$0)) {
+    HEAP32[$10>>2] = $8;
+    $62 = ((($12)) + 40|0);
+    $63 = HEAP32[$62>>2]|0;
+    $64 = (($63) + 1)|0;
+    HEAP32[$62>>2] = $64;
+    $65 = HEAP32[$14>>2]|0;
+    $66 = ($65|0)==(1);
+    if ($66) {
+     $67 = HEAP32[$6>>2]|0;
+     $68 = ($67|0)==(2);
+     if ($68) {
+      HEAP8[$2>>0] = 1;
+      if ($$283$off0) {
+       label = 18;
+       break;
+      } else {
+       $69 = 4;
+       break;
+      }
+     }
+    }
+   }
+   if ($$283$off0) {
+    label = 18;
+   } else {
+    $69 = 4;
+   }
+  }
+ } while(0);
+ if ((label|0) == 18) {
+  $69 = 3;
+ }
+ HEAP32[$4>>2] = $69;
+ return;
+}
+function __ZN4mbed6Ticker7handlerEv__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
  return;
 }
 function _vfprintf__async_cb($0) {
@@ -15022,76 +15937,128 @@ function _vfprintf__async_cb($0) {
  HEAP32[$38>>2] = $$1$;
  return;
 }
-function __GLOBAL__sub_I_arm_hal_timer_cpp__async_cb($0) {
+function _ticker_read_us__async_cb($0) {
  $0 = $0|0;
- var label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $3 = 0;
+ var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
  sp = STACKTOP;
- HEAP32[1252] = (260);
- ;HEAP32[(5024)>>2]=0|0;HEAP32[(5024)+4>>2]=0|0;HEAP32[(5024)+8>>2]=0|0;HEAP32[(5024)+12>>2]=0|0;
- HEAP8[(5040)>>0] = 1;
+ $1 = ((($0)) + 8|0);
+ $2 = $1;
+ $3 = $2;
+ $4 = HEAP32[$3>>2]|0;
+ $5 = (($2) + 4)|0;
+ $6 = $5;
+ $7 = HEAP32[$6>>2]|0;
+ $8 = ((($0)) + 16|0);
+ $9 = HEAP32[$8>>2]|0;
+ $10 = ___async_retval;
+ $AsyncRetVal = HEAP32[$10>>2]|0;
+ $11 = ($4>>>0)>($AsyncRetVal>>>0);
+ $12 = (_i64Add(($AsyncRetVal|0),($7|0),0,1)|0);
+ $13 = tempRet0;
+ $14 = $11 ? $12 : $AsyncRetVal;
+ $15 = $11 ? $13 : $7;
+ $16 = HEAP32[$9>>2]|0;
+ $17 = ((($16)) + 8|0);
+ $18 = $17;
+ $19 = $18;
+ HEAP32[$19>>2] = $14;
+ $20 = (($18) + 4)|0;
+ $21 = $20;
+ HEAP32[$21>>2] = $15;
+ $22 = ___async_retval;
+ $23 = $22;
+ $24 = $23;
+ HEAP32[$24>>2] = $14;
+ $25 = (($23) + 4)|0;
+ $26 = $25;
+ HEAP32[$26>>2] = $15;
  return;
 }
-function _invoke_ticker__async_cb($0) {
+function ___fflush_unlocked__async_cb($0) {
  $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __GLOBAL__sub_I_main_cpp__async_cb($0) {
- $0 = $0|0;
- var $IsAsync7 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(4)|0);
- ___cxx_global_var_init_5();
- $IsAsync7 = ___async;
- if (!($IsAsync7)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx3>>2] = 77;
- sp = STACKTOP;
- return;
-}
-function __GLOBAL__sub_I_main_cpp__async_cb_25($0) {
- $0 = $0|0;
- var $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(4)|0);
- ___cxx_global_var_init_4();
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 76;
- sp = STACKTOP;
- return;
-}
-function __GLOBAL__sub_I_main_cpp__async_cb_26($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _fputc__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $3 = 0;
+ var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- ___unlockfile($2);
- $4 = ___async_retval;
- HEAP32[$4>>2] = $AsyncRetVal;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = HEAP32[$2>>2]|0;
+ $8 = ($7|0)==(0|0);
+ do {
+  if ($8) {
+   $$0 = -1;
+  } else {
+   $9 = ((($4)) + 4|0);
+   $10 = HEAP32[$9>>2]|0;
+   $11 = ((($4)) + 8|0);
+   $12 = HEAP32[$11>>2]|0;
+   $13 = ($10>>>0)<($12>>>0);
+   if (!($13)) {
+    $24 = ((($4)) + 16|0);
+    HEAP32[$24>>2] = 0;
+    HEAP32[$6>>2] = 0;
+    HEAP32[$2>>2] = 0;
+    HEAP32[$11>>2] = 0;
+    HEAP32[$9>>2] = 0;
+    $$0 = 0;
+    break;
+   }
+   $14 = $10;
+   $15 = $12;
+   $16 = (($14) - ($15))|0;
+   $17 = ((($4)) + 40|0);
+   $18 = HEAP32[$17>>2]|0;
+   $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(24)|0);
+   (FUNCTION_TABLE_iiii[$18 & 31]($4,$16,1)|0);
+   $IsAsync4 = ___async;
+   if (!($IsAsync4)) {
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx2>>2] = 119;
+   $19 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$19>>2] = $4;
+   $20 = ((($ReallocAsyncCtx2)) + 8|0);
+   HEAP32[$20>>2] = $6;
+   $21 = ((($ReallocAsyncCtx2)) + 12|0);
+   HEAP32[$21>>2] = $2;
+   $22 = ((($ReallocAsyncCtx2)) + 16|0);
+   HEAP32[$22>>2] = $11;
+   $23 = ((($ReallocAsyncCtx2)) + 20|0);
+   HEAP32[$23>>2] = $9;
+   sp = STACKTOP;
+   return;
+  }
+ } while(0);
+ $25 = ___async_retval;
+ HEAP32[$25>>2] = $$0;
  return;
 }
-function _fputc__async_cb_27($0) {
+function ___fflush_unlocked__async_cb_35($0) {
  $0 = $0|0;
- var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $2 = ___async_retval;
- HEAP32[$2>>2] = $AsyncRetVal;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($2)) + 16|0);
+ HEAP32[$11>>2] = 0;
+ HEAP32[$4>>2] = 0;
+ HEAP32[$6>>2] = 0;
+ HEAP32[$8>>2] = 0;
+ HEAP32[$10>>2] = 0;
+ $12 = ___async_retval;
+ HEAP32[$12>>2] = 0;
  return;
 }
 function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
@@ -15171,7 +16138,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
     if (!($IsAsync)) {
      ___async_unwind = 0;
     }
-    HEAP32[$ReallocAsyncCtx>>2] = 141;
+    HEAP32[$ReallocAsyncCtx>>2] = 143;
     $44 = ((($ReallocAsyncCtx)) + 4|0);
     HEAP32[$44>>2] = $43;
     $45 = ((($ReallocAsyncCtx)) + 8|0);
@@ -15210,7 +16177,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
  HEAP8[$14>>0] = $12;
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_28($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_36($0) {
  $0 = $0|0;
  var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0;
@@ -15286,7 +16253,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
     if (!($IsAsync)) {
      ___async_unwind = 0;
     }
-    HEAP32[$ReallocAsyncCtx>>2] = 141;
+    HEAP32[$ReallocAsyncCtx>>2] = 143;
     $44 = ((($ReallocAsyncCtx)) + 4|0);
     HEAP32[$44>>2] = $26;
     $45 = ((($ReallocAsyncCtx)) + 8|0);
@@ -15323,1335 +16290,6 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
  } while(0);
  HEAP8[$10>>0] = $8;
  HEAP8[$14>>0] = $12;
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0;
- var $8 = 0, $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $20 = HEAP8[$2>>0]|0;
- $21 = ($20<<24>>24)==(0);
- if ($21) {
-  $13 = ((($4)) + 8|0);
-  $22 = ($13>>>0)<($6>>>0);
-  if ($22) {
-   $ReallocAsyncCtx = (_emscripten_realloc_async_context(28)|0);
-   __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi($13,$8,$10,$12);
-   $IsAsync = ___async;
-   if (!($IsAsync)) {
-    ___async_unwind = 0;
-   }
-   HEAP32[$ReallocAsyncCtx>>2] = 148;
-   $14 = ((($ReallocAsyncCtx)) + 4|0);
-   HEAP32[$14>>2] = $2;
-   $15 = ((($ReallocAsyncCtx)) + 8|0);
-   HEAP32[$15>>2] = $13;
-   $16 = ((($ReallocAsyncCtx)) + 12|0);
-   HEAP32[$16>>2] = $6;
-   $17 = ((($ReallocAsyncCtx)) + 16|0);
-   HEAP32[$17>>2] = $8;
-   $18 = ((($ReallocAsyncCtx)) + 20|0);
-   HEAP32[$18>>2] = $10;
-   $19 = ((($ReallocAsyncCtx)) + 24|0);
-   HEAP32[$19>>2] = $12;
-   sp = STACKTOP;
-   return;
-  }
- }
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_29($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ($2|0)>(1);
- if (!($13)) {
-  return;
- }
- $14 = ((($4)) + 24|0);
- $15 = ((($6)) + 54|0);
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(28)|0);
- __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi($14,$6,$8,$10);
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 148;
- $16 = ((($ReallocAsyncCtx)) + 4|0);
- HEAP32[$16>>2] = $15;
- $17 = ((($ReallocAsyncCtx)) + 8|0);
- HEAP32[$17>>2] = $14;
- $18 = ((($ReallocAsyncCtx)) + 12|0);
- HEAP32[$18>>2] = $12;
- $19 = ((($ReallocAsyncCtx)) + 16|0);
- HEAP32[$19>>2] = $6;
- $20 = ((($ReallocAsyncCtx)) + 20|0);
- HEAP32[$20>>2] = $8;
- $21 = ((($ReallocAsyncCtx)) + 24|0);
- HEAP32[$21>>2] = $10;
- sp = STACKTOP;
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $$pre_trunc = HEAP8[$15>>0]|0;
- $16 = $$pre_trunc&1;
- $21 = ((($2)) + 8|0);
- $30 = ($21>>>0)<($4>>>0);
- if ($30) {
-  $17 = HEAP8[$6>>0]|0;
-  $18 = ($17<<24>>24)==(0);
-  if ($18) {
-   $19 = HEAP32[$8>>2]|0;
-   $20 = ($19|0)==(1);
-   if (!($20)) {
-    $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($21,$10,$12,$14,$16);
-    $IsAsync = ___async;
-    if (!($IsAsync)) {
-     ___async_unwind = 0;
-    }
-    HEAP32[$ReallocAsyncCtx>>2] = 146;
-    $22 = ((($ReallocAsyncCtx)) + 4|0);
-    HEAP32[$22>>2] = $21;
-    $23 = ((($ReallocAsyncCtx)) + 8|0);
-    HEAP32[$23>>2] = $4;
-    $24 = ((($ReallocAsyncCtx)) + 12|0);
-    HEAP32[$24>>2] = $6;
-    $25 = ((($ReallocAsyncCtx)) + 16|0);
-    HEAP32[$25>>2] = $8;
-    $26 = ((($ReallocAsyncCtx)) + 20|0);
-    HEAP32[$26>>2] = $10;
-    $27 = ((($ReallocAsyncCtx)) + 24|0);
-    HEAP32[$27>>2] = $12;
-    $28 = ((($ReallocAsyncCtx)) + 28|0);
-    HEAP32[$28>>2] = $14;
-    $29 = ((($ReallocAsyncCtx)) + 32|0);
-    $$expand_i1_val = $16&1;
-    HEAP8[$29>>0] = $$expand_i1_val;
-    sp = STACKTOP;
-    return;
-   }
-  }
- }
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_30($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0;
- var sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $$pre_trunc = HEAP8[$17>>0]|0;
- $18 = $$pre_trunc&1;
- $25 = ((($2)) + 8|0);
- $35 = ($25>>>0)<($4>>>0);
- do {
-  if ($35) {
-   $19 = HEAP8[$6>>0]|0;
-   $20 = ($19<<24>>24)==(0);
-   if ($20) {
-    $21 = HEAP32[$8>>2]|0;
-    $22 = ($21|0)==(1);
-    if ($22) {
-     $23 = HEAP32[$10>>2]|0;
-     $24 = ($23|0)==(1);
-     if ($24) {
-      break;
-     }
-    }
-    $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($25,$12,$14,$16,$18);
-    $IsAsync4 = ___async;
-    if (!($IsAsync4)) {
-     ___async_unwind = 0;
-    }
-    HEAP32[$ReallocAsyncCtx2>>2] = 145;
-    $26 = ((($ReallocAsyncCtx2)) + 4|0);
-    HEAP32[$26>>2] = $25;
-    $27 = ((($ReallocAsyncCtx2)) + 8|0);
-    HEAP32[$27>>2] = $4;
-    $28 = ((($ReallocAsyncCtx2)) + 12|0);
-    HEAP32[$28>>2] = $6;
-    $29 = ((($ReallocAsyncCtx2)) + 16|0);
-    HEAP32[$29>>2] = $8;
-    $30 = ((($ReallocAsyncCtx2)) + 20|0);
-    HEAP32[$30>>2] = $10;
-    $31 = ((($ReallocAsyncCtx2)) + 24|0);
-    HEAP32[$31>>2] = $12;
-    $32 = ((($ReallocAsyncCtx2)) + 28|0);
-    HEAP32[$32>>2] = $14;
-    $33 = ((($ReallocAsyncCtx2)) + 32|0);
-    HEAP32[$33>>2] = $16;
-    $34 = ((($ReallocAsyncCtx2)) + 36|0);
-    $$expand_i1_val = $18&1;
-    HEAP8[$34>>0] = $$expand_i1_val;
-    sp = STACKTOP;
-    return;
-   }
-  }
- } while(0);
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_31($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync8 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $$pre_trunc = HEAP8[$13>>0]|0;
- $14 = $$pre_trunc&1;
- $17 = ((($2)) + 8|0);
- $25 = ($17>>>0)<($4>>>0);
- if ($25) {
-  $15 = HEAP8[$6>>0]|0;
-  $16 = ($15<<24>>24)==(0);
-  if ($16) {
-   $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
-   __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($17,$8,$10,$12,$14);
-   $IsAsync8 = ___async;
-   if (!($IsAsync8)) {
-    ___async_unwind = 0;
-   }
-   HEAP32[$ReallocAsyncCtx3>>2] = 144;
-   $18 = ((($ReallocAsyncCtx3)) + 4|0);
-   HEAP32[$18>>2] = $17;
-   $19 = ((($ReallocAsyncCtx3)) + 8|0);
-   HEAP32[$19>>2] = $4;
-   $20 = ((($ReallocAsyncCtx3)) + 12|0);
-   HEAP32[$20>>2] = $6;
-   $21 = ((($ReallocAsyncCtx3)) + 16|0);
-   HEAP32[$21>>2] = $8;
-   $22 = ((($ReallocAsyncCtx3)) + 20|0);
-   HEAP32[$22>>2] = $10;
-   $23 = ((($ReallocAsyncCtx3)) + 24|0);
-   HEAP32[$23>>2] = $12;
-   $24 = ((($ReallocAsyncCtx3)) + 28|0);
-   $$expand_i1_val = $14&1;
-   HEAP8[$24>>0] = $$expand_i1_val;
-   sp = STACKTOP;
-   return;
-  }
- }
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_32($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $$expand_i1_val10 = 0, $$expand_i1_val8 = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
- var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
- var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
- var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $$pre_trunc = HEAP8[$15>>0]|0;
- $16 = $$pre_trunc&1;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($20)) + 24|0);
- $24 = ($22|0)>(1);
- do {
-  if ($24) {
-   $25 = HEAP32[$4>>2]|0;
-   $26 = $25 & 2;
-   $27 = ($26|0)==(0);
-   if ($27) {
-    $28 = HEAP32[$6>>2]|0;
-    $29 = ($28|0)==(1);
-    if (!($29)) {
-     $39 = $25 & 1;
-     $40 = ($39|0)==(0);
-     if ($40) {
-      $56 = HEAP8[$8>>0]|0;
-      $57 = ($56<<24>>24)==(0);
-      if (!($57)) {
-       break;
-      }
-      $58 = HEAP32[$6>>2]|0;
-      $59 = ($58|0)==(1);
-      if ($59) {
-       break;
-      }
-      $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
-      __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
-      $IsAsync = ___async;
-      if (!($IsAsync)) {
-       ___async_unwind = 0;
-      }
-      HEAP32[$ReallocAsyncCtx>>2] = 146;
-      $60 = ((($ReallocAsyncCtx)) + 4|0);
-      HEAP32[$60>>2] = $23;
-      $61 = ((($ReallocAsyncCtx)) + 8|0);
-      HEAP32[$61>>2] = $2;
-      $62 = ((($ReallocAsyncCtx)) + 12|0);
-      HEAP32[$62>>2] = $8;
-      $63 = ((($ReallocAsyncCtx)) + 16|0);
-      HEAP32[$63>>2] = $6;
-      $64 = ((($ReallocAsyncCtx)) + 20|0);
-      HEAP32[$64>>2] = $10;
-      $65 = ((($ReallocAsyncCtx)) + 24|0);
-      HEAP32[$65>>2] = $12;
-      $66 = ((($ReallocAsyncCtx)) + 28|0);
-      HEAP32[$66>>2] = $14;
-      $67 = ((($ReallocAsyncCtx)) + 32|0);
-      $$expand_i1_val10 = $16&1;
-      HEAP8[$67>>0] = $$expand_i1_val10;
-      sp = STACKTOP;
-      return;
-     }
-     $41 = HEAP8[$8>>0]|0;
-     $42 = ($41<<24>>24)==(0);
-     if (!($42)) {
-      break;
-     }
-     $43 = HEAP32[$6>>2]|0;
-     $44 = ($43|0)==(1);
-     if ($44) {
-      $45 = HEAP32[$18>>2]|0;
-      $46 = ($45|0)==(1);
-      if ($46) {
-       break;
-      }
-     }
-     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
-     __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
-     $IsAsync4 = ___async;
-     if (!($IsAsync4)) {
-      ___async_unwind = 0;
-     }
-     HEAP32[$ReallocAsyncCtx2>>2] = 145;
-     $47 = ((($ReallocAsyncCtx2)) + 4|0);
-     HEAP32[$47>>2] = $23;
-     $48 = ((($ReallocAsyncCtx2)) + 8|0);
-     HEAP32[$48>>2] = $2;
-     $49 = ((($ReallocAsyncCtx2)) + 12|0);
-     HEAP32[$49>>2] = $8;
-     $50 = ((($ReallocAsyncCtx2)) + 16|0);
-     HEAP32[$50>>2] = $6;
-     $51 = ((($ReallocAsyncCtx2)) + 20|0);
-     HEAP32[$51>>2] = $18;
-     $52 = ((($ReallocAsyncCtx2)) + 24|0);
-     HEAP32[$52>>2] = $10;
-     $53 = ((($ReallocAsyncCtx2)) + 28|0);
-     HEAP32[$53>>2] = $12;
-     $54 = ((($ReallocAsyncCtx2)) + 32|0);
-     HEAP32[$54>>2] = $14;
-     $55 = ((($ReallocAsyncCtx2)) + 36|0);
-     $$expand_i1_val8 = $16&1;
-     HEAP8[$55>>0] = $$expand_i1_val8;
-     sp = STACKTOP;
-     return;
-    }
-   }
-   $30 = HEAP8[$8>>0]|0;
-   $31 = ($30<<24>>24)==(0);
-   if ($31) {
-    $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
-    $IsAsync8 = ___async;
-    if (!($IsAsync8)) {
-     ___async_unwind = 0;
-    }
-    HEAP32[$ReallocAsyncCtx3>>2] = 144;
-    $32 = ((($ReallocAsyncCtx3)) + 4|0);
-    HEAP32[$32>>2] = $23;
-    $33 = ((($ReallocAsyncCtx3)) + 8|0);
-    HEAP32[$33>>2] = $2;
-    $34 = ((($ReallocAsyncCtx3)) + 12|0);
-    HEAP32[$34>>2] = $8;
-    $35 = ((($ReallocAsyncCtx3)) + 16|0);
-    HEAP32[$35>>2] = $10;
-    $36 = ((($ReallocAsyncCtx3)) + 20|0);
-    HEAP32[$36>>2] = $12;
-    $37 = ((($ReallocAsyncCtx3)) + 24|0);
-    HEAP32[$37>>2] = $14;
-    $38 = ((($ReallocAsyncCtx3)) + 28|0);
-    $$expand_i1_val = $16&1;
-    HEAP8[$38>>0] = $$expand_i1_val;
-    sp = STACKTOP;
-    return;
-   }
-  }
- } while(0);
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33($0) {
- $0 = $0|0;
- var $$085$off0$reg2mem$0 = 0, $$182$off0 = 0, $$182$off0$expand_i1_val = 0, $$186$off0 = 0, $$186$off0$expand_i1_val = 0, $$283$off0 = 0, $$expand_i1_val = 0, $$pre_trunc = 0, $$pre_trunc16 = 0, $$pre_trunc18 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0;
- var $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0;
- var $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0;
- var $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0;
- var $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $$pre_trunc = HEAP8[$15>>0]|0;
- $16 = $$pre_trunc&1;
- $17 = ((($0)) + 33|0);
- $$pre_trunc16 = HEAP8[$17>>0]|0;
- $18 = $$pre_trunc16&1;
- $19 = ((($0)) + 36|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 40|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 44|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 48|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 52|0);
- $$pre_trunc18 = HEAP8[$27>>0]|0;
- $28 = $$pre_trunc18&1;
- $29 = ((($0)) + 56|0);
- $30 = HEAP32[$29>>2]|0;
- $48 = HEAP8[$4>>0]|0;
- $49 = ($48<<24>>24)==(0);
- L2: do {
-  if ($49) {
-   $50 = HEAP8[$24>>0]|0;
-   $51 = ($50<<24>>24)==(0);
-   do {
-    if ($51) {
-     $$182$off0 = $16;$$186$off0 = $18;
-    } else {
-     $52 = HEAP8[$26>>0]|0;
-     $53 = ($52<<24>>24)==(0);
-     if ($53) {
-      $59 = HEAP32[$20>>2]|0;
-      $60 = $59 & 1;
-      $61 = ($60|0)==(0);
-      if ($61) {
-       $$085$off0$reg2mem$0 = $18;$$283$off0 = 1;
-       label = 13;
-       break L2;
-      } else {
-       $$182$off0 = 1;$$186$off0 = $18;
-       break;
-      }
-     }
-     $54 = HEAP32[$14>>2]|0;
-     $55 = ($54|0)==(1);
-     if ($55) {
-      label = 18;
-      break L2;
-     }
-     $56 = HEAP32[$20>>2]|0;
-     $57 = $56 & 2;
-     $58 = ($57|0)==(0);
-     if ($58) {
-      label = 18;
-      break L2;
-     } else {
-      $$182$off0 = 1;$$186$off0 = 1;
-     }
-    }
-   } while(0);
-   $32 = ((($22)) + 8|0);
-   $31 = ($32>>>0)<($30>>>0);
-   if ($31) {
-    HEAP8[$26>>0] = 0;
-    HEAP8[$24>>0] = 0;
-    $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(60)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib($32,$10,$6,$6,1,$28);
-    $IsAsync16 = ___async;
-    if (!($IsAsync16)) {
-     ___async_unwind = 0;
-    }
-    HEAP32[$ReallocAsyncCtx5>>2] = 142;
-    $33 = ((($ReallocAsyncCtx5)) + 4|0);
-    HEAP32[$33>>2] = $2;
-    $34 = ((($ReallocAsyncCtx5)) + 8|0);
-    HEAP32[$34>>2] = $4;
-    $35 = ((($ReallocAsyncCtx5)) + 12|0);
-    HEAP32[$35>>2] = $6;
-    $36 = ((($ReallocAsyncCtx5)) + 16|0);
-    HEAP32[$36>>2] = $8;
-    $37 = ((($ReallocAsyncCtx5)) + 20|0);
-    HEAP32[$37>>2] = $10;
-    $38 = ((($ReallocAsyncCtx5)) + 24|0);
-    HEAP32[$38>>2] = $12;
-    $39 = ((($ReallocAsyncCtx5)) + 28|0);
-    HEAP32[$39>>2] = $14;
-    $40 = ((($ReallocAsyncCtx5)) + 32|0);
-    $$182$off0$expand_i1_val = $$182$off0&1;
-    HEAP8[$40>>0] = $$182$off0$expand_i1_val;
-    $41 = ((($ReallocAsyncCtx5)) + 33|0);
-    $$186$off0$expand_i1_val = $$186$off0&1;
-    HEAP8[$41>>0] = $$186$off0$expand_i1_val;
-    $42 = ((($ReallocAsyncCtx5)) + 36|0);
-    HEAP32[$42>>2] = $20;
-    $43 = ((($ReallocAsyncCtx5)) + 40|0);
-    HEAP32[$43>>2] = $32;
-    $44 = ((($ReallocAsyncCtx5)) + 44|0);
-    HEAP32[$44>>2] = $24;
-    $45 = ((($ReallocAsyncCtx5)) + 48|0);
-    HEAP32[$45>>2] = $26;
-    $46 = ((($ReallocAsyncCtx5)) + 52|0);
-    $$expand_i1_val = $28&1;
-    HEAP8[$46>>0] = $$expand_i1_val;
-    $47 = ((($ReallocAsyncCtx5)) + 56|0);
-    HEAP32[$47>>2] = $30;
-    sp = STACKTOP;
-    return;
-   } else {
-    $$085$off0$reg2mem$0 = $$186$off0;$$283$off0 = $$182$off0;
-    label = 13;
-   }
-  } else {
-   $$085$off0$reg2mem$0 = $18;$$283$off0 = $16;
-   label = 13;
-  }
- } while(0);
- do {
-  if ((label|0) == 13) {
-   if (!($$085$off0$reg2mem$0)) {
-    HEAP32[$8>>2] = $6;
-    $62 = ((($10)) + 40|0);
-    $63 = HEAP32[$62>>2]|0;
-    $64 = (($63) + 1)|0;
-    HEAP32[$62>>2] = $64;
-    $65 = HEAP32[$12>>2]|0;
-    $66 = ($65|0)==(1);
-    if ($66) {
-     $67 = HEAP32[$14>>2]|0;
-     $68 = ($67|0)==(2);
-     if ($68) {
-      HEAP8[$4>>0] = 1;
-      if ($$283$off0) {
-       label = 18;
-       break;
-      } else {
-       $69 = 4;
-       break;
-      }
-     }
-    }
-   }
-   if ($$283$off0) {
-    label = 18;
-   } else {
-    $69 = 4;
-   }
-  }
- } while(0);
- if ((label|0) == 18) {
-  $69 = 3;
- }
- HEAP32[$2>>2] = $69;
- return;
-}
-function _main__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable; //@line 31 "demos/interrupts/main.cpp"
-}
-function _main__async_cb_34($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var $IsAsync24 = 0, $IsAsync36 = 0, $ReallocAsyncCtx6 = 0, $ReallocAsyncCtx9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = __THREW__; __THREW__ = 0;
- $12 = $11&1;
- if (!($12)) {
-  $ReallocAsyncCtx9 = (_emscripten_realloc_async_context(20)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($8); //@line 31 "demos/interrupts/main.cpp"
-  $IsAsync36 = ___async;
-  if (!($IsAsync36)) {
-   ___async_unwind = 0;
-  }
-  HEAP32[$ReallocAsyncCtx9>>2] = 87;
-  $13 = ((($ReallocAsyncCtx9)) + 4|0);
-  HEAP32[$13>>2] = $2;
-  $14 = ((($ReallocAsyncCtx9)) + 8|0);
-  HEAP32[$14>>2] = $4;
-  $15 = ((($ReallocAsyncCtx9)) + 12|0);
-  HEAP32[$15>>2] = $6;
-  $16 = ((($ReallocAsyncCtx9)) + 16|0);
-  HEAP32[$16>>2] = $10;
-  sp = STACKTOP;
-  return;
- }
- $17 = ___cxa_find_matching_catch_2()|0;
- $18 = tempRet0;
- HEAP32[$2>>2] = $17; //@line 36 "demos/interrupts/main.cpp"
- HEAP32[$4>>2] = $18; //@line 36 "demos/interrupts/main.cpp"
- __THREW__ = 0;
- $ReallocAsyncCtx6 = (invoke_ii(154,12)|0);
- __ZN4mbed8CallbackIFvvEED2Ev($8); //@line 31 "demos/interrupts/main.cpp"
- $IsAsync24 = ___async;
- if ($IsAsync24) {
-  HEAP32[$ReallocAsyncCtx6>>2] = 98;
-  $19 = ((($ReallocAsyncCtx6)) + 4|0);
-  HEAP32[$19>>2] = $2;
-  $20 = ((($ReallocAsyncCtx6)) + 8|0);
-  HEAP32[$20>>2] = $4;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx6>>2] = 98;
- $19 = ((($ReallocAsyncCtx6)) + 4|0);
- HEAP32[$19>>2] = $2;
- $20 = ((($ReallocAsyncCtx6)) + 8|0);
- HEAP32[$20>>2] = $4;
- sp = STACKTOP;
- return;
-}
-function _main__async_cb_35($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync20 = 0, $IsAsync32 = 0, $ReallocAsyncCtx5 = 0;
- var $ReallocAsyncCtx8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = __THREW__; __THREW__ = 0;
- $10 = $9&1;
- if (!($10)) {
-  $ReallocAsyncCtx8 = (_emscripten_realloc_async_context(16)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($8); //@line 32 "demos/interrupts/main.cpp"
-  $IsAsync32 = ___async;
-  if (!($IsAsync32)) {
-   ___async_unwind = 0;
-  }
-  HEAP32[$ReallocAsyncCtx8>>2] = 91;
-  $11 = ((($ReallocAsyncCtx8)) + 4|0);
-  HEAP32[$11>>2] = $6;
-  $12 = ((($ReallocAsyncCtx8)) + 8|0);
-  HEAP32[$12>>2] = $2;
-  $13 = ((($ReallocAsyncCtx8)) + 12|0);
-  HEAP32[$13>>2] = $4;
-  sp = STACKTOP;
-  return;
- }
- $14 = ___cxa_find_matching_catch_2()|0;
- $15 = tempRet0;
- HEAP32[$2>>2] = $14; //@line 36 "demos/interrupts/main.cpp"
- HEAP32[$4>>2] = $15; //@line 36 "demos/interrupts/main.cpp"
- __THREW__ = 0;
- $ReallocAsyncCtx5 = (invoke_ii(154,12)|0);
- __ZN4mbed8CallbackIFvvEED2Ev($8); //@line 32 "demos/interrupts/main.cpp"
- $IsAsync20 = ___async;
- if ($IsAsync20) {
-  HEAP32[$ReallocAsyncCtx5>>2] = 99;
-  $16 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$16>>2] = $2;
-  $17 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$17>>2] = $4;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx5>>2] = 99;
- $16 = ((($ReallocAsyncCtx5)) + 4|0);
- HEAP32[$16>>2] = $2;
- $17 = ((($ReallocAsyncCtx5)) + 8|0);
- HEAP32[$17>>2] = $4;
- sp = STACKTOP;
- return;
-}
-function _main__async_cb_36($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
-  // unreachable;
- } else {
-  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  ___resumeException($7|0);
-  // unreachable;
- }
-}
-function _main__async_cb_37($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
-  // unreachable;
- } else {
-  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  ___resumeException($7|0);
-  // unreachable;
- }
-}
-function _main__async_cb_38($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
-  // unreachable;
- } else {
-  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
-  ___resumeException($7|0);
-  // unreachable;
- }
-}
-function _main__async_cb_39($0) {
- $0 = $0|0;
- var $IsAsync42 = 0, $ReallocAsyncCtx11 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $ReallocAsyncCtx11 = (_emscripten_realloc_async_context(4)|0);
- _wait_ms(-1); //@line 35 "demos/interrupts/main.cpp"
- $IsAsync42 = ___async;
- if (!($IsAsync42)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx11>>2] = 96;
- sp = STACKTOP;
- return;
-}
-function _main__async_cb_40($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync39 = 0, $ReallocAsyncCtx10 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($2,92); //@line 33 "demos/interrupts/main.cpp"
- __THREW__ = 0;
- $ReallocAsyncCtx10 = (invoke_ii(154,16)|0);
- __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE(5228,$2); //@line 33 "demos/interrupts/main.cpp"
- $IsAsync39 = ___async;
- if (!($IsAsync39)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx10>>2] = 94;
- $7 = ((($ReallocAsyncCtx10)) + 4|0);
- HEAP32[$7>>2] = $4;
- $8 = ((($ReallocAsyncCtx10)) + 8|0);
- HEAP32[$8>>2] = $6;
- $9 = ((($ReallocAsyncCtx10)) + 12|0);
- HEAP32[$9>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _main__async_cb_41($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($8,88); //@line 32 "demos/interrupts/main.cpp"
- __THREW__ = 0;
- $ReallocAsyncCtx3 = (invoke_ii(154,20)|0);
- __ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf(5112,$8,2.5); //@line 32 "demos/interrupts/main.cpp"
- $IsAsync12 = ___async;
- if (!($IsAsync12)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx3>>2] = 90;
- $9 = ((($ReallocAsyncCtx3)) + 4|0);
- HEAP32[$9>>2] = $2;
- $10 = ((($ReallocAsyncCtx3)) + 8|0);
- HEAP32[$10>>2] = $4;
- $11 = ((($ReallocAsyncCtx3)) + 12|0);
- HEAP32[$11>>2] = $6;
- $12 = ((($ReallocAsyncCtx3)) + 16|0);
- HEAP32[$12>>2] = $8;
- sp = STACKTOP;
- return;
-}
-function _main__async_cb_42($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0, $IsAsync28 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx7 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $9 = ___cxa_find_matching_catch_2()|0;
-  $10 = tempRet0;
-  HEAP32[$2>>2] = $9; //@line 36 "demos/interrupts/main.cpp"
-  HEAP32[$4>>2] = $10; //@line 36 "demos/interrupts/main.cpp"
-  __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(154,12)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 33 "demos/interrupts/main.cpp"
-  $IsAsync16 = ___async;
-  if ($IsAsync16) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 100;
-   $11 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$11>>2] = $2;
-   $12 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$12>>2] = $4;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 100;
-  $11 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$11>>2] = $2;
-  $12 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$12>>2] = $4;
-  sp = STACKTOP;
-  return;
- } else {
-  $ReallocAsyncCtx7 = (_emscripten_realloc_async_context(4)|0);
-  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 33 "demos/interrupts/main.cpp"
-  $IsAsync28 = ___async;
-  if ($IsAsync28) {
-   HEAP32[$ReallocAsyncCtx7>>2] = 95;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx7>>2] = 95;
-  sp = STACKTOP;
-  return;
- }
-}
-function _main__async_cb_43($0) {
- $0 = $0|0;
- var $1 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ___async_retval;
- HEAP32[$1>>2] = 0;
- return; //@line 36 "demos/interrupts/main.cpp"
-}
-function __ZN4mbed6Ticker7handlerEv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _ticker_read_us__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $3 = 0;
- var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 8|0);
- $2 = $1;
- $3 = $2;
- $4 = HEAP32[$3>>2]|0;
- $5 = (($2) + 4)|0;
- $6 = $5;
- $7 = HEAP32[$6>>2]|0;
- $8 = ((($0)) + 16|0);
- $9 = HEAP32[$8>>2]|0;
- $10 = ___async_retval;
- $AsyncRetVal = HEAP32[$10>>2]|0;
- $11 = ($4>>>0)>($AsyncRetVal>>>0);
- $12 = (_i64Add(($AsyncRetVal|0),($7|0),0,1)|0);
- $13 = tempRet0;
- $14 = $11 ? $12 : $AsyncRetVal;
- $15 = $11 ? $13 : $7;
- $16 = HEAP32[$9>>2]|0;
- $17 = ((($16)) + 8|0);
- $18 = $17;
- $19 = $18;
- HEAP32[$19>>2] = $14;
- $20 = (($18) + 4)|0;
- $21 = $20;
- HEAP32[$21>>2] = $15;
- $22 = ___async_retval;
- $23 = $22;
- $24 = $23;
- HEAP32[$24>>2] = $14;
- $25 = (($23) + 4)|0;
- $26 = $25;
- HEAP32[$26>>2] = $15;
- return;
-}
-function __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = $2; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $6 = $5; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $7 = HEAP32[$6>>2]|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $8 = (($5) + 4)|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $9 = $8; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- $10 = HEAP32[$9>>2]|0; //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- __ZN4mbed6Ticker5setupEy($4,$7,$10); //@line 122 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
- return; //@line 123 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-}
-function ___dynamic_cast__async_cb($0) {
- $0 = $0|0;
- var $$ = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = HEAP32[$2>>2]|0;
- $8 = ($7|0)==(1);
- $$ = $8 ? $4 : 0;
- $9 = ___async_retval;
- HEAP32[$9>>2] = $$;
- return;
-}
-function ___dynamic_cast__async_cb_44($0) {
- $0 = $0|0;
- var $$0 = 0, $$33 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond28 = 0, $or$cond30 = 0, $or$cond32 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = HEAP32[$2>>2]|0;
- L2: do {
-  switch ($17|0) {
-  case 0:  {
-   $18 = HEAP32[$6>>2]|0;
-   $19 = ($18|0)==(1);
-   $20 = HEAP32[$8>>2]|0;
-   $21 = ($20|0)==(1);
-   $or$cond = $19 & $21;
-   $22 = HEAP32[$10>>2]|0;
-   $23 = ($22|0)==(1);
-   $or$cond28 = $or$cond & $23;
-   $24 = HEAP32[$12>>2]|0;
-   $$33 = $or$cond28 ? $24 : 0;
-   $$0 = $$33;
-   break;
-  }
-  case 1:  {
-   $25 = HEAP32[$14>>2]|0;
-   $26 = ($25|0)==(1);
-   if (!($26)) {
-    $27 = HEAP32[$6>>2]|0;
-    $28 = ($27|0)==(0);
-    $29 = HEAP32[$8>>2]|0;
-    $30 = ($29|0)==(1);
-    $or$cond30 = $28 & $30;
-    $31 = HEAP32[$10>>2]|0;
-    $32 = ($31|0)==(1);
-    $or$cond32 = $or$cond30 & $32;
-    if (!($or$cond32)) {
-     $$0 = 0;
-     break L2;
-    }
-   }
-   $33 = HEAP32[$16>>2]|0;
-   $$0 = $33;
-   break;
-  }
-  default: {
-   $$0 = 0;
-  }
-  }
- } while(0);
- $34 = ___async_retval;
- HEAP32[$34>>2] = $$0;
- return;
-}
-function __ZN4mbed6TickerD0Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if ($4) {
-  $5 = ___cxa_find_matching_catch_2()|0;
-  $6 = tempRet0;
-  __ZdlPv($2);
-  ___resumeException($5|0);
-  // unreachable;
- } else {
-  __ZdlPv($2);
-  return;
- }
-}
-function __ZN4mbed6TickerC2Ev__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable; //@line 70 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/drivers/Ticker.h"
-}
-function _printf__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- $4 = ___async_retval;
- HEAP32[$4>>2] = $AsyncRetVal;
- return;
-}
-function __ZL25default_terminate_handlerv__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, $IsAsync15 = 0, $ReallocAsyncCtx2 = 0, $vararg_ptr6 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 20|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 24|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ___async_retval;
- $AsyncRetVal$pre_trunc = HEAP8[$11>>0]|0;
- $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
- if (!($AsyncRetVal)) {
-  HEAP32[$4>>2] = 4483;
-  $vararg_ptr6 = ((($4)) + 4|0);
-  HEAP32[$vararg_ptr6>>2] = $6;
-  _abort_message(4392,$4);
-  // unreachable;
- }
- $12 = HEAP32[$2>>2]|0;
- $13 = HEAP32[$12>>2]|0;
- $14 = ((($13)) + 8|0);
- $15 = HEAP32[$14>>2]|0;
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
- $16 = (FUNCTION_TABLE_ii[$15 & 255]($12)|0);
- $IsAsync15 = ___async;
- if (!($IsAsync15)) {
-  $20 = ___async_retval;
-  HEAP32[$20>>2] = $16;
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx2>>2] = 123;
- $17 = ((($ReallocAsyncCtx2)) + 4|0);
- HEAP32[$17>>2] = $8;
- $18 = ((($ReallocAsyncCtx2)) + 8|0);
- HEAP32[$18>>2] = $6;
- $19 = ((($ReallocAsyncCtx2)) + 12|0);
- HEAP32[$19>>2] = $10;
- sp = STACKTOP;
- return;
-}
-function __ZL25default_terminate_handlerv__async_cb_45($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $vararg_ptr1 = 0, $vararg_ptr2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ___async_retval;
- $AsyncRetVal = HEAP32[$5>>2]|0;
- HEAP32[$2>>2] = 4483;
- $vararg_ptr1 = ((($2)) + 4|0);
- HEAP32[$vararg_ptr1>>2] = $4;
- $vararg_ptr2 = ((($2)) + 8|0);
- HEAP32[$vararg_ptr2>>2] = $AsyncRetVal;
- _abort_message(4347,$2);
- // unreachable;
-}
-function __ZSt9terminatev__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt9terminatev__async_cb_46($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt9terminatev__async_cb_47($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function ___cxx_global_var_init_3__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 7 "demos/interrupts/main.cpp"
-}
-function __ZN4mbed5TimerC2Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0;
- var sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ___async_retval;
- $6 = $5;
- $7 = $6;
- $8 = HEAP32[$7>>2]|0;
- $9 = (($6) + 4)|0;
- $10 = $9;
- $11 = HEAP32[$10>>2]|0;
- $12 = $2;
- $13 = $12;
- HEAP32[$13>>2] = $8;
- $14 = (($12) + 4)|0;
- $15 = $14;
- HEAP32[$15>>2] = $11;
- $16 = $4;
- $17 = $16;
- HEAP32[$17>>2] = 0;
- $18 = (($16) + 4)|0;
- $19 = $18;
- HEAP32[$19>>2] = 0;
- return;
-}
-function _wait_ms__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed8CallbackIFvvEED2Ev__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 262 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/platform/Callback.h"
-}
-function ___clang_call_terminate__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN4mbed6TickerD2Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = __THREW__; __THREW__ = 0;
- $2 = $1&1;
- if ($2) {
-  $3 = ___cxa_find_matching_catch_2()|0;
-  $4 = tempRet0;
-  ___resumeException($3|0);
-  // unreachable;
- } else {
-  return;
- }
-}
-function __ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function ___cxa_can_catch__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ___async_retval;
- $AsyncRetVal$pre_trunc = HEAP8[$7>>0]|0;
- $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
- $8 = $AsyncRetVal&1;
- if ($AsyncRetVal) {
-  $9 = HEAP32[$2>>2]|0;
-  HEAP32[$4>>2] = $9;
- }
- $10 = ___async_retval;
- HEAP32[$10>>2] = $8;
- return;
-}
-function __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
  return;
 }
 function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb($0) {
@@ -16696,7 +16334,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb($0) {
   return;
  }
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_48($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_37($0) {
  $0 = $0|0;
  var $$pre$i$i = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -16712,7 +16350,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_48($0) {
  _gpio_irq_set($7,2,1);
  return;
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_38($0) {
  $0 = $0|0;
  var $$phi$trans$insert = 0, $$pre10 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync10 = 0, $IsAsync18 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
@@ -16732,7 +16370,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49($0) {
  if ($12) {
   $22 = ___cxa_find_matching_catch_2()|0;
   $23 = tempRet0;
-  $24 = ((($4)) + 12|0);
+  $24 = ((($2)) + 12|0);
   $25 = HEAP32[$24>>2]|0;
   $26 = ($25|0)==(0|0);
   if ($26) {
@@ -16742,13 +16380,13 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49($0) {
   $27 = ((($25)) + 8|0);
   $28 = HEAP32[$27>>2]|0;
   __THREW__ = 0;
-  $ReallocAsyncCtx6 = (invoke_ii(154,16)|0);
-  FUNCTION_TABLE_vi[$28 & 255]($2);
+  $ReallocAsyncCtx6 = (invoke_ii(156,16)|0);
+  FUNCTION_TABLE_vi[$28 & 255]($4);
   $IsAsync18 = ___async;
   if ($IsAsync18) {
    HEAP32[$ReallocAsyncCtx6>>2] = 60;
    $29 = ((($ReallocAsyncCtx6)) + 4|0);
-   HEAP32[$29>>2] = $2;
+   HEAP32[$29>>2] = $4;
    $30 = ((($ReallocAsyncCtx6)) + 8|0);
    HEAP32[$30>>2] = $22;
    $31 = ((($ReallocAsyncCtx6)) + 12|0);
@@ -16759,7 +16397,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49($0) {
   ___async_unwind = 0;
   HEAP32[$ReallocAsyncCtx6>>2] = 60;
   $29 = ((($ReallocAsyncCtx6)) + 4|0);
-  HEAP32[$29>>2] = $2;
+  HEAP32[$29>>2] = $4;
   $30 = ((($ReallocAsyncCtx6)) + 8|0);
   HEAP32[$30>>2] = $22;
   $31 = ((($ReallocAsyncCtx6)) + 12|0);
@@ -16767,40 +16405,40 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49($0) {
   sp = STACKTOP;
   return;
  }
- $$phi$trans$insert = ((($4)) + 12|0);
+ $$phi$trans$insert = ((($2)) + 12|0);
  $$pre10 = HEAP32[$$phi$trans$insert>>2]|0;
  $13 = ($$pre10|0)==(0|0);
  if ($13) {
-  HEAP32[$8>>2] = 0;
-  $21 = ((($6)) + 28|0);
+  HEAP32[$6>>2] = 0;
+  $21 = ((($8)) + 28|0);
   _gpio_irq_set($21,2,0);
   return;
  } else {
   $14 = ((($$pre10)) + 4|0);
   $15 = HEAP32[$14>>2]|0;
   __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(154,24)|0);
-  FUNCTION_TABLE_vii[$15 & 255]($10,$2);
+  $ReallocAsyncCtx4 = (invoke_ii(156,24)|0);
+  FUNCTION_TABLE_vii[$15 & 255]($10,$4);
   $IsAsync10 = ___async;
   if (!($IsAsync10)) {
    ___async_unwind = 0;
   }
   HEAP32[$ReallocAsyncCtx4>>2] = 58;
   $16 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$16>>2] = $4;
+  HEAP32[$16>>2] = $2;
   $17 = ((($ReallocAsyncCtx4)) + 8|0);
   HEAP32[$17>>2] = $$phi$trans$insert;
   $18 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$18>>2] = $8;
+  HEAP32[$18>>2] = $6;
   $19 = ((($ReallocAsyncCtx4)) + 16|0);
-  HEAP32[$19>>2] = $2;
+  HEAP32[$19>>2] = $4;
   $20 = ((($ReallocAsyncCtx4)) + 20|0);
-  HEAP32[$20>>2] = $6;
+  HEAP32[$20>>2] = $8;
   sp = STACKTOP;
   return;
  }
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_50($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_39($0) {
  $0 = $0|0;
  var $$pre$i$i4 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0;
  var $27 = 0, $28 = 0, $29 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync14 = 0, $IsAsync18 = 0, $ReallocAsyncCtx5 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
@@ -16830,7 +16468,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_50($0) {
   $25 = ((($23)) + 8|0);
   $26 = HEAP32[$25>>2]|0;
   __THREW__ = 0;
-  $ReallocAsyncCtx6 = (invoke_ii(154,16)|0);
+  $ReallocAsyncCtx6 = (invoke_ii(156,16)|0);
   FUNCTION_TABLE_vi[$26 & 255]($8);
   $IsAsync18 = ___async;
   if ($IsAsync18) {
@@ -16887,7 +16525,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_50($0) {
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_51($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_40($0) {
  $0 = $0|0;
  var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -16899,7 +16537,7 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_51($0) {
  _gpio_irq_set($5,2,0);
  return;
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_52($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_41($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -16922,17 +16560,163 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_52($0) {
   // unreachable;
  }
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_53($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_42($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  // unreachable;
 }
-function _invoke_timeout__async_cb($0) {
+function ___cxx_global_var_init_3__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
+ return; //@line 7 "demos/interrupts/main.cpp"
+}
+function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb($0) {
+ $0 = $0|0;
+ var $$0 = 0, $$0$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($2)) + 24|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ($8|0)==(1);
+ if ($9) {
+  $10 = ((($2)) + 16|0);
+  $11 = HEAP32[$10>>2]|0;
+  HEAP32[$4>>2] = $11;
+  $$0 = 1;
+ } else {
+  $$0 = 0;
+ }
+ $12 = ___async_retval;
+ $$0$expand_i1_val = $$0&1;
+ HEAP8[$12>>0] = $$0$expand_i1_val;
  return;
+}
+function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_43($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
+ var $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, dest = 0, label = 0, sp = 0, stop = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal = HEAP32[$7>>2]|0;
+ $8 = ($AsyncRetVal|0)==(0|0);
+ if ($8) {
+  $20 = ___async_retval;
+  $$expand_i1_val = 0;
+  HEAP8[$20>>0] = $$expand_i1_val;
+  return;
+ }
+ $9 = ((($2)) + 4|0);
+ dest=$9; stop=dest+52|0; do { HEAP32[dest>>2]=0|0; dest=dest+4|0; } while ((dest|0) < (stop|0));
+ HEAP32[$2>>2] = $AsyncRetVal;
+ $10 = ((($2)) + 8|0);
+ HEAP32[$10>>2] = $4;
+ $11 = ((($2)) + 12|0);
+ HEAP32[$11>>2] = -1;
+ $12 = ((($2)) + 48|0);
+ HEAP32[$12>>2] = 1;
+ $13 = HEAP32[$AsyncRetVal>>2]|0;
+ $14 = ((($13)) + 28|0);
+ $15 = HEAP32[$14>>2]|0;
+ $16 = HEAP32[$6>>2]|0;
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+ FUNCTION_TABLE_viiii[$15 & 127]($AsyncRetVal,$2,$16,1);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 130;
+ $17 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$17>>2] = $2;
+ $18 = ((($ReallocAsyncCtx)) + 8|0);
+ HEAP32[$18>>2] = $6;
+ $19 = ((($ReallocAsyncCtx)) + 12|0);
+ HEAP32[$19>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _printf__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ $4 = ___async_retval;
+ HEAP32[$4>>2] = $AsyncRetVal;
+ return;
+}
+function __ZN4mbed5TimerC2Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0;
+ var sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $6 = $5;
+ $7 = $6;
+ $8 = HEAP32[$7>>2]|0;
+ $9 = (($6) + 4)|0;
+ $10 = $9;
+ $11 = HEAP32[$10>>2]|0;
+ $12 = $2;
+ $13 = $12;
+ HEAP32[$13>>2] = $8;
+ $14 = (($12) + 4)|0;
+ $15 = $14;
+ HEAP32[$15>>2] = $11;
+ $16 = $4;
+ $17 = $16;
+ HEAP32[$17>>2] = 0;
+ $18 = (($16) + 4)|0;
+ $19 = $18;
+ HEAP32[$19>>2] = 0;
+ return;
+}
+function _fputc__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ ___unlockfile($2);
+ $4 = ___async_retval;
+ HEAP32[$4>>2] = $AsyncRetVal;
+ return;
+}
+function _fputc__async_cb_44($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = ___async_retval;
+ HEAP32[$2>>2] = $AsyncRetVal;
+ return;
+}
+function ___cxx_global_var_init_4__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 8 "demos/interrupts/main.cpp"
 }
 function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
  $0 = $0|0;
@@ -16993,27 +16777,394 @@ function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynam
  HEAP32[$12>>2] = $$037$off039;
  return;
 }
-function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_54($0) {
+function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_45($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return;
 }
-function ___cxx_global_var_init_4__async_cb($0) {
+function __ZN4mbed6TickerD2Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = __THREW__; __THREW__ = 0;
+ $2 = $1&1;
+ if ($2) {
+  $3 = ___cxa_find_matching_catch_2()|0;
+  $4 = tempRet0;
+  ___resumeException($3|0);
+  // unreachable;
+ } else {
+  return;
+ }
+}
+function ___cxa_is_pointer_type__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $AsyncRetVal = 0, $phitmp = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $phitmp = ($AsyncRetVal|0)!=(0|0);
+ $2 = $phitmp&1;
+ $3 = ___async_retval;
+ HEAP32[$3>>2] = $2;
+ return;
+}
+function ___cxx_global_var_init_5__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
- return; //@line 8 "demos/interrupts/main.cpp"
+ return; //@line 9 "demos/interrupts/main.cpp"
+}
+function _invoke_timeout__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable; //@line 31 "demos/interrupts/main.cpp"
+}
+function _main__async_cb_46($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync20 = 0, $IsAsync32 = 0, $ReallocAsyncCtx5 = 0;
+ var $ReallocAsyncCtx8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = __THREW__; __THREW__ = 0;
+ $10 = $9&1;
+ if (!($10)) {
+  $ReallocAsyncCtx8 = (_emscripten_realloc_async_context(16)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($4); //@line 32 "demos/interrupts/main.cpp"
+  $IsAsync32 = ___async;
+  if (!($IsAsync32)) {
+   ___async_unwind = 0;
+  }
+  HEAP32[$ReallocAsyncCtx8>>2] = 93;
+  $11 = ((($ReallocAsyncCtx8)) + 4|0);
+  HEAP32[$11>>2] = $2;
+  $12 = ((($ReallocAsyncCtx8)) + 8|0);
+  HEAP32[$12>>2] = $6;
+  $13 = ((($ReallocAsyncCtx8)) + 12|0);
+  HEAP32[$13>>2] = $8;
+  sp = STACKTOP;
+  return;
+ }
+ $14 = ___cxa_find_matching_catch_2()|0;
+ $15 = tempRet0;
+ HEAP32[$6>>2] = $14; //@line 36 "demos/interrupts/main.cpp"
+ HEAP32[$8>>2] = $15; //@line 36 "demos/interrupts/main.cpp"
+ __THREW__ = 0;
+ $ReallocAsyncCtx5 = (invoke_ii(156,12)|0);
+ __ZN4mbed8CallbackIFvvEED2Ev($4); //@line 32 "demos/interrupts/main.cpp"
+ $IsAsync20 = ___async;
+ if ($IsAsync20) {
+  HEAP32[$ReallocAsyncCtx5>>2] = 101;
+  $16 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$16>>2] = $6;
+  $17 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$17>>2] = $8;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx5>>2] = 101;
+ $16 = ((($ReallocAsyncCtx5)) + 4|0);
+ HEAP32[$16>>2] = $6;
+ $17 = ((($ReallocAsyncCtx5)) + 8|0);
+ HEAP32[$17>>2] = $8;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb_47($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var $IsAsync24 = 0, $IsAsync36 = 0, $ReallocAsyncCtx6 = 0, $ReallocAsyncCtx9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = __THREW__; __THREW__ = 0;
+ $12 = $11&1;
+ if (!($12)) {
+  $ReallocAsyncCtx9 = (_emscripten_realloc_async_context(20)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($10); //@line 31 "demos/interrupts/main.cpp"
+  $IsAsync36 = ___async;
+  if (!($IsAsync36)) {
+   ___async_unwind = 0;
+  }
+  HEAP32[$ReallocAsyncCtx9>>2] = 90;
+  $13 = ((($ReallocAsyncCtx9)) + 4|0);
+  HEAP32[$13>>2] = $2;
+  $14 = ((($ReallocAsyncCtx9)) + 8|0);
+  HEAP32[$14>>2] = $4;
+  $15 = ((($ReallocAsyncCtx9)) + 12|0);
+  HEAP32[$15>>2] = $6;
+  $16 = ((($ReallocAsyncCtx9)) + 16|0);
+  HEAP32[$16>>2] = $8;
+  sp = STACKTOP;
+  return;
+ }
+ $17 = ___cxa_find_matching_catch_2()|0;
+ $18 = tempRet0;
+ HEAP32[$6>>2] = $17; //@line 36 "demos/interrupts/main.cpp"
+ HEAP32[$8>>2] = $18; //@line 36 "demos/interrupts/main.cpp"
+ __THREW__ = 0;
+ $ReallocAsyncCtx6 = (invoke_ii(156,12)|0);
+ __ZN4mbed8CallbackIFvvEED2Ev($10); //@line 31 "demos/interrupts/main.cpp"
+ $IsAsync24 = ___async;
+ if ($IsAsync24) {
+  HEAP32[$ReallocAsyncCtx6>>2] = 100;
+  $19 = ((($ReallocAsyncCtx6)) + 4|0);
+  HEAP32[$19>>2] = $6;
+  $20 = ((($ReallocAsyncCtx6)) + 8|0);
+  HEAP32[$20>>2] = $8;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx6>>2] = 100;
+ $19 = ((($ReallocAsyncCtx6)) + 4|0);
+ HEAP32[$19>>2] = $6;
+ $20 = ((($ReallocAsyncCtx6)) + 8|0);
+ HEAP32[$20>>2] = $8;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb_48($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $9 = ___cxa_find_matching_catch_3(0|0)|0;
+  $10 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
+  // unreachable;
+ } else {
+  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  ___resumeException($7|0);
+  // unreachable;
+ }
+}
+function _main__async_cb_49($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $9 = ___cxa_find_matching_catch_3(0|0)|0;
+  $10 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
+  // unreachable;
+ } else {
+  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  ___resumeException($7|0);
+  // unreachable;
+ }
+}
+function _main__async_cb_50($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $9 = ___cxa_find_matching_catch_3(0|0)|0;
+  $10 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($9); //@line 31 "demos/interrupts/main.cpp"
+  // unreachable;
+ } else {
+  $7 = HEAP32[$2>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  $8 = HEAP32[$4>>2]|0; //@line 31 "demos/interrupts/main.cpp"
+  ___resumeException($7|0);
+  // unreachable;
+ }
+}
+function _main__async_cb_51($0) {
+ $0 = $0|0;
+ var $IsAsync42 = 0, $ReallocAsyncCtx11 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $ReallocAsyncCtx11 = (_emscripten_realloc_async_context(4)|0);
+ _wait_ms(-1); //@line 35 "demos/interrupts/main.cpp"
+ $IsAsync42 = ___async;
+ if (!($IsAsync42)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx11>>2] = 98;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb_52($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync39 = 0, $ReallocAsyncCtx10 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($2,94); //@line 33 "demos/interrupts/main.cpp"
+ __THREW__ = 0;
+ $ReallocAsyncCtx10 = (invoke_ii(156,16)|0);
+ __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE(5228,$2); //@line 33 "demos/interrupts/main.cpp"
+ $IsAsync39 = ___async;
+ if (!($IsAsync39)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx10>>2] = 96;
+ $7 = ((($ReallocAsyncCtx10)) + 4|0);
+ HEAP32[$7>>2] = $4;
+ $8 = ((($ReallocAsyncCtx10)) + 8|0);
+ HEAP32[$8>>2] = $6;
+ $9 = ((($ReallocAsyncCtx10)) + 12|0);
+ HEAP32[$9>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb_53($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync8 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ __ZN4mbed8callbackIvEENS_8CallbackIFT_vEEEPS3_($4,91); //@line 32 "demos/interrupts/main.cpp"
+ __THREW__ = 0;
+ $ReallocAsyncCtx2 = (invoke_ii(156,20)|0);
+ __ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf(5088,$4,2.5); //@line 32 "demos/interrupts/main.cpp"
+ $IsAsync8 = ___async;
+ if (!($IsAsync8)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 92;
+ $9 = ((($ReallocAsyncCtx2)) + 4|0);
+ HEAP32[$9>>2] = $2;
+ $10 = ((($ReallocAsyncCtx2)) + 8|0);
+ HEAP32[$10>>2] = $4;
+ $11 = ((($ReallocAsyncCtx2)) + 12|0);
+ HEAP32[$11>>2] = $6;
+ $12 = ((($ReallocAsyncCtx2)) + 16|0);
+ HEAP32[$12>>2] = $8;
+ sp = STACKTOP;
+ return;
+}
+function _main__async_cb_54($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0, $IsAsync28 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx7 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $9 = ___cxa_find_matching_catch_2()|0;
+  $10 = tempRet0;
+  HEAP32[$2>>2] = $9; //@line 36 "demos/interrupts/main.cpp"
+  HEAP32[$4>>2] = $10; //@line 36 "demos/interrupts/main.cpp"
+  __THREW__ = 0;
+  $ReallocAsyncCtx4 = (invoke_ii(156,12)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 33 "demos/interrupts/main.cpp"
+  $IsAsync16 = ___async;
+  if ($IsAsync16) {
+   HEAP32[$ReallocAsyncCtx4>>2] = 102;
+   $11 = ((($ReallocAsyncCtx4)) + 4|0);
+   HEAP32[$11>>2] = $2;
+   $12 = ((($ReallocAsyncCtx4)) + 8|0);
+   HEAP32[$12>>2] = $4;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx4>>2] = 102;
+  $11 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$11>>2] = $2;
+  $12 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$12>>2] = $4;
+  sp = STACKTOP;
+  return;
+ } else {
+  $ReallocAsyncCtx7 = (_emscripten_realloc_async_context(4)|0);
+  __ZN4mbed8CallbackIFvvEED2Ev($6); //@line 33 "demos/interrupts/main.cpp"
+  $IsAsync28 = ___async;
+  if ($IsAsync28) {
+   HEAP32[$ReallocAsyncCtx7>>2] = 97;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx7>>2] = 97;
+  sp = STACKTOP;
+  return;
+ }
+}
+function _main__async_cb_55($0) {
+ $0 = $0|0;
+ var $1 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ HEAP32[$1>>2] = 0;
+ return; //@line 36 "demos/interrupts/main.cpp"
+}
+function _handle_interrupt_in__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
 }
 function runPostSets() {
-}
-function _i64Subtract(a, b, c, d) {
-    a = a|0; b = b|0; c = c|0; d = d|0;
-    var l = 0, h = 0;
-    l = (a - c)>>>0;
-    h = (b - d)>>>0;
-    h = (b - d - (((c>>>0) > (a>>>0))|0))>>>0; // Borrow one from high word to low word on underflow.
-    return ((tempRet0 = h,l|0)|0);
 }
 function _i64Add(a, b, c, d) {
     /*
@@ -17027,187 +17178,13 @@ function _i64Add(a, b, c, d) {
     h = (b + d + (((l>>>0) < (a>>>0))|0))>>>0; // Add carry from low word to high word on overflow.
     return ((tempRet0 = h,l|0)|0);
 }
-function _memset(ptr, value, num) {
-    ptr = ptr|0; value = value|0; num = num|0;
-    var end = 0, aligned_end = 0, block_aligned_end = 0, value4 = 0;
-    end = (ptr + num)|0;
-
-    value = value & 0xff;
-    if ((num|0) >= 67 /* 64 bytes for an unrolled loop + 3 bytes for unaligned head*/) {
-      while ((ptr&3) != 0) {
-        HEAP8[((ptr)>>0)]=value;
-        ptr = (ptr+1)|0;
-      }
-
-      aligned_end = (end & -4)|0;
-      block_aligned_end = (aligned_end - 64)|0;
-      value4 = value | (value << 8) | (value << 16) | (value << 24);
-
-      while((ptr|0) <= (block_aligned_end|0)) {
-        HEAP32[((ptr)>>2)]=value4;
-        HEAP32[(((ptr)+(4))>>2)]=value4;
-        HEAP32[(((ptr)+(8))>>2)]=value4;
-        HEAP32[(((ptr)+(12))>>2)]=value4;
-        HEAP32[(((ptr)+(16))>>2)]=value4;
-        HEAP32[(((ptr)+(20))>>2)]=value4;
-        HEAP32[(((ptr)+(24))>>2)]=value4;
-        HEAP32[(((ptr)+(28))>>2)]=value4;
-        HEAP32[(((ptr)+(32))>>2)]=value4;
-        HEAP32[(((ptr)+(36))>>2)]=value4;
-        HEAP32[(((ptr)+(40))>>2)]=value4;
-        HEAP32[(((ptr)+(44))>>2)]=value4;
-        HEAP32[(((ptr)+(48))>>2)]=value4;
-        HEAP32[(((ptr)+(52))>>2)]=value4;
-        HEAP32[(((ptr)+(56))>>2)]=value4;
-        HEAP32[(((ptr)+(60))>>2)]=value4;
-        ptr = (ptr + 64)|0;
-      }
-
-      while ((ptr|0) < (aligned_end|0) ) {
-        HEAP32[((ptr)>>2)]=value4;
-        ptr = (ptr+4)|0;
-      }
-    }
-    // The remaining bytes.
-    while ((ptr|0) < (end|0)) {
-      HEAP8[((ptr)>>0)]=value;
-      ptr = (ptr+1)|0;
-    }
-    return (end-num)|0;
-}
-function _bitshift64Shl(low, high, bits) {
-    low = low|0; high = high|0; bits = bits|0;
-    var ander = 0;
-    if ((bits|0) < 32) {
-      ander = ((1 << bits) - 1)|0;
-      tempRet0 = (high << bits) | ((low&(ander << (32 - bits))) >>> (32 - bits));
-      return low << bits;
-    }
-    tempRet0 = low << (bits - 32);
-    return 0;
-}
-function _emscripten_async_resume() {
-    var callback = 0;
-    ___async = 0;
-    ___async_unwind = 1;
-    while (1) {
-      if (!___async_cur_frame) return;
-      callback = ((HEAP32[(((___async_cur_frame)+(8))>>2)])|0);
-      // the signature of callback is always vi
-      // the only argument is ctx
-      dynCall_vi(callback | 0, (___async_cur_frame + 8)|0);
-      if (___async) return; // that was an async call
-      if (!___async_unwind) {
-        // keep the async stack
-        ___async_unwind = 1;
-        continue;
-      }
-      // unwind normal stack frame
-      stackRestore(((HEAP32[(((___async_cur_frame)+(4))>>2)])|0));
-      // pop the last async stack frame
-      ___async_cur_frame = ((HEAP32[((___async_cur_frame)>>2)])|0);
-    }
-}
-function _bitshift64Lshr(low, high, bits) {
-    low = low|0; high = high|0; bits = bits|0;
-    var ander = 0;
-    if ((bits|0) < 32) {
-      ander = ((1 << bits) - 1)|0;
-      tempRet0 = high >>> bits;
-      return (low >>> bits) | ((high&ander) << (32 - bits));
-    }
-    tempRet0 = 0;
-    return (high >>> (bits - 32))|0;
-}
-function _emscripten_alloc_async_context(len, sp) {
-    len = len|0;
-    sp = sp|0;
-    // len is the size of ctx
-    // we also need to store prev_frame, stack pointer before ctx
-    var new_frame = 0; new_frame = stackAlloc((len + 8)|0)|0;
-    // save sp
-    HEAP32[(((new_frame)+(4))>>2)]=sp;
-    // link the frame with previous one
-    HEAP32[((new_frame)>>2)]=___async_cur_frame;
-    ___async_cur_frame = new_frame;
-    return (___async_cur_frame + 8)|0;
-}
-function _emscripten_realloc_async_context(len) {
-    len = len|0;
-    // assuming that we have on the stacktop
-    stackRestore(___async_cur_frame | 0);
-    return ((stackAlloc((len + 8)|0)|0) + 8)|0;
-}
-function _memcpy(dest, src, num) {
-    dest = dest|0; src = src|0; num = num|0;
-    var ret = 0;
-    var aligned_dest_end = 0;
-    var block_aligned_dest_end = 0;
-    var dest_end = 0;
-    // Test against a benchmarked cutoff limit for when HEAPU8.set() becomes faster to use.
-    if ((num|0) >=
-      8192
-    ) {
-      return _emscripten_memcpy_big(dest|0, src|0, num|0)|0;
-    }
-
-    ret = dest|0;
-    dest_end = (dest + num)|0;
-    if ((dest&3) == (src&3)) {
-      // The initial unaligned < 4-byte front.
-      while (dest & 3) {
-        if ((num|0) == 0) return ret|0;
-        HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-        dest = (dest+1)|0;
-        src = (src+1)|0;
-        num = (num-1)|0;
-      }
-      aligned_dest_end = (dest_end & -4)|0;
-      block_aligned_dest_end = (aligned_dest_end - 64)|0;
-      while ((dest|0) <= (block_aligned_dest_end|0) ) {
-        HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
-        HEAP32[(((dest)+(4))>>2)]=((HEAP32[(((src)+(4))>>2)])|0);
-        HEAP32[(((dest)+(8))>>2)]=((HEAP32[(((src)+(8))>>2)])|0);
-        HEAP32[(((dest)+(12))>>2)]=((HEAP32[(((src)+(12))>>2)])|0);
-        HEAP32[(((dest)+(16))>>2)]=((HEAP32[(((src)+(16))>>2)])|0);
-        HEAP32[(((dest)+(20))>>2)]=((HEAP32[(((src)+(20))>>2)])|0);
-        HEAP32[(((dest)+(24))>>2)]=((HEAP32[(((src)+(24))>>2)])|0);
-        HEAP32[(((dest)+(28))>>2)]=((HEAP32[(((src)+(28))>>2)])|0);
-        HEAP32[(((dest)+(32))>>2)]=((HEAP32[(((src)+(32))>>2)])|0);
-        HEAP32[(((dest)+(36))>>2)]=((HEAP32[(((src)+(36))>>2)])|0);
-        HEAP32[(((dest)+(40))>>2)]=((HEAP32[(((src)+(40))>>2)])|0);
-        HEAP32[(((dest)+(44))>>2)]=((HEAP32[(((src)+(44))>>2)])|0);
-        HEAP32[(((dest)+(48))>>2)]=((HEAP32[(((src)+(48))>>2)])|0);
-        HEAP32[(((dest)+(52))>>2)]=((HEAP32[(((src)+(52))>>2)])|0);
-        HEAP32[(((dest)+(56))>>2)]=((HEAP32[(((src)+(56))>>2)])|0);
-        HEAP32[(((dest)+(60))>>2)]=((HEAP32[(((src)+(60))>>2)])|0);
-        dest = (dest+64)|0;
-        src = (src+64)|0;
-      }
-      while ((dest|0) < (aligned_dest_end|0) ) {
-        HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
-        dest = (dest+4)|0;
-        src = (src+4)|0;
-      }
-    } else {
-      // In the unaligned copy case, unroll a bit as well.
-      aligned_dest_end = (dest_end - 4)|0;
-      while ((dest|0) < (aligned_dest_end|0) ) {
-        HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-        HEAP8[(((dest)+(1))>>0)]=((HEAP8[(((src)+(1))>>0)])|0);
-        HEAP8[(((dest)+(2))>>0)]=((HEAP8[(((src)+(2))>>0)])|0);
-        HEAP8[(((dest)+(3))>>0)]=((HEAP8[(((src)+(3))>>0)])|0);
-        dest = (dest+4)|0;
-        src = (src+4)|0;
-      }
-    }
-    // The remaining unaligned < 4 byte tail.
-    while ((dest|0) < (dest_end|0)) {
-      HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
-      dest = (dest+1)|0;
-      src = (src+1)|0;
-    }
-    return ret|0;
+function _i64Subtract(a, b, c, d) {
+    a = a|0; b = b|0; c = c|0; d = d|0;
+    var l = 0, h = 0;
+    l = (a - c)>>>0;
+    h = (b - d)>>>0;
+    h = (b - d - (((c>>>0) > (a>>>0))|0))>>>0; // Borrow one from high word to low word on underflow.
+    return ((tempRet0 = h,l|0)|0);
 }
 function _llvm_cttz_i32(x) {
     x = x|0;
@@ -17436,6 +17413,213 @@ function ___udivdi3($a$0, $a$1, $b$0, $b$1) {
     $1$0 = ___udivmoddi4($a$0, $a$1, $b$0, $b$1, 0) | 0;
     return $1$0 | 0;
 }
+function ___uremdi3($a$0, $a$1, $b$0, $b$1) {
+    $a$0 = $a$0 | 0;
+    $a$1 = $a$1 | 0;
+    $b$0 = $b$0 | 0;
+    $b$1 = $b$1 | 0;
+    var $rem = 0, __stackBase__ = 0;
+    __stackBase__ = STACKTOP;
+    STACKTOP = STACKTOP + 16 | 0;
+    $rem = __stackBase__ | 0;
+    ___udivmoddi4($a$0, $a$1, $b$0, $b$1, $rem) | 0;
+    STACKTOP = __stackBase__;
+    return (tempRet0 = HEAP32[$rem + 4 >> 2] | 0, HEAP32[$rem >> 2] | 0) | 0;
+}
+function _bitshift64Lshr(low, high, bits) {
+    low = low|0; high = high|0; bits = bits|0;
+    var ander = 0;
+    if ((bits|0) < 32) {
+      ander = ((1 << bits) - 1)|0;
+      tempRet0 = high >>> bits;
+      return (low >>> bits) | ((high&ander) << (32 - bits));
+    }
+    tempRet0 = 0;
+    return (high >>> (bits - 32))|0;
+}
+function _bitshift64Shl(low, high, bits) {
+    low = low|0; high = high|0; bits = bits|0;
+    var ander = 0;
+    if ((bits|0) < 32) {
+      ander = ((1 << bits) - 1)|0;
+      tempRet0 = (high << bits) | ((low&(ander << (32 - bits))) >>> (32 - bits));
+      return low << bits;
+    }
+    tempRet0 = low << (bits - 32);
+    return 0;
+}
+function _emscripten_alloc_async_context(len, sp) {
+    len = len|0;
+    sp = sp|0;
+    // len is the size of ctx
+    // we also need to store prev_frame, stack pointer before ctx
+    var new_frame = 0; new_frame = stackAlloc((len + 8)|0)|0;
+    // save sp
+    HEAP32[(((new_frame)+(4))>>2)]=sp;
+    // link the frame with previous one
+    HEAP32[((new_frame)>>2)]=___async_cur_frame;
+    ___async_cur_frame = new_frame;
+    return (___async_cur_frame + 8)|0;
+}
+function _emscripten_free_async_context(ctx) {
+    //  this function is called when a possibly async function turned out to be sync
+    //  just undo a recent emscripten_alloc_async_context
+    ctx = ctx|0;
+    assert((((___async_cur_frame + 8)|0) == (ctx|0))|0);
+    stackRestore(___async_cur_frame | 0);
+    ___async_cur_frame = ((HEAP32[((___async_cur_frame)>>2)])|0);
+}
+function _emscripten_realloc_async_context(len) {
+    len = len|0;
+    // assuming that we have on the stacktop
+    stackRestore(___async_cur_frame | 0);
+    return ((stackAlloc((len + 8)|0)|0) + 8)|0;
+}
+function _emscripten_async_resume() {
+    var callback = 0;
+    ___async = 0;
+    ___async_unwind = 1;
+    while (1) {
+      if (!___async_cur_frame) return;
+      callback = ((HEAP32[(((___async_cur_frame)+(8))>>2)])|0);
+      // the signature of callback is always vi
+      // the only argument is ctx
+      dynCall_vi(callback | 0, (___async_cur_frame + 8)|0);
+      if (___async) return; // that was an async call
+      if (!___async_unwind) {
+        // keep the async stack
+        ___async_unwind = 1;
+        continue;
+      }
+      // unwind normal stack frame
+      stackRestore(((HEAP32[(((___async_cur_frame)+(4))>>2)])|0));
+      // pop the last async stack frame
+      ___async_cur_frame = ((HEAP32[((___async_cur_frame)>>2)])|0);
+    }
+}
+function _llvm_bswap_i32(x) {
+    x = x|0;
+    return (((x&0xff)<<24) | (((x>>8)&0xff)<<16) | (((x>>16)&0xff)<<8) | (x>>>24))|0;
+}
+function _memcpy(dest, src, num) {
+    dest = dest|0; src = src|0; num = num|0;
+    var ret = 0;
+    var aligned_dest_end = 0;
+    var block_aligned_dest_end = 0;
+    var dest_end = 0;
+    // Test against a benchmarked cutoff limit for when HEAPU8.set() becomes faster to use.
+    if ((num|0) >=
+      8192
+    ) {
+      return _emscripten_memcpy_big(dest|0, src|0, num|0)|0;
+    }
+
+    ret = dest|0;
+    dest_end = (dest + num)|0;
+    if ((dest&3) == (src&3)) {
+      // The initial unaligned < 4-byte front.
+      while (dest & 3) {
+        if ((num|0) == 0) return ret|0;
+        HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
+        dest = (dest+1)|0;
+        src = (src+1)|0;
+        num = (num-1)|0;
+      }
+      aligned_dest_end = (dest_end & -4)|0;
+      block_aligned_dest_end = (aligned_dest_end - 64)|0;
+      while ((dest|0) <= (block_aligned_dest_end|0) ) {
+        HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
+        HEAP32[(((dest)+(4))>>2)]=((HEAP32[(((src)+(4))>>2)])|0);
+        HEAP32[(((dest)+(8))>>2)]=((HEAP32[(((src)+(8))>>2)])|0);
+        HEAP32[(((dest)+(12))>>2)]=((HEAP32[(((src)+(12))>>2)])|0);
+        HEAP32[(((dest)+(16))>>2)]=((HEAP32[(((src)+(16))>>2)])|0);
+        HEAP32[(((dest)+(20))>>2)]=((HEAP32[(((src)+(20))>>2)])|0);
+        HEAP32[(((dest)+(24))>>2)]=((HEAP32[(((src)+(24))>>2)])|0);
+        HEAP32[(((dest)+(28))>>2)]=((HEAP32[(((src)+(28))>>2)])|0);
+        HEAP32[(((dest)+(32))>>2)]=((HEAP32[(((src)+(32))>>2)])|0);
+        HEAP32[(((dest)+(36))>>2)]=((HEAP32[(((src)+(36))>>2)])|0);
+        HEAP32[(((dest)+(40))>>2)]=((HEAP32[(((src)+(40))>>2)])|0);
+        HEAP32[(((dest)+(44))>>2)]=((HEAP32[(((src)+(44))>>2)])|0);
+        HEAP32[(((dest)+(48))>>2)]=((HEAP32[(((src)+(48))>>2)])|0);
+        HEAP32[(((dest)+(52))>>2)]=((HEAP32[(((src)+(52))>>2)])|0);
+        HEAP32[(((dest)+(56))>>2)]=((HEAP32[(((src)+(56))>>2)])|0);
+        HEAP32[(((dest)+(60))>>2)]=((HEAP32[(((src)+(60))>>2)])|0);
+        dest = (dest+64)|0;
+        src = (src+64)|0;
+      }
+      while ((dest|0) < (aligned_dest_end|0) ) {
+        HEAP32[((dest)>>2)]=((HEAP32[((src)>>2)])|0);
+        dest = (dest+4)|0;
+        src = (src+4)|0;
+      }
+    } else {
+      // In the unaligned copy case, unroll a bit as well.
+      aligned_dest_end = (dest_end - 4)|0;
+      while ((dest|0) < (aligned_dest_end|0) ) {
+        HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
+        HEAP8[(((dest)+(1))>>0)]=((HEAP8[(((src)+(1))>>0)])|0);
+        HEAP8[(((dest)+(2))>>0)]=((HEAP8[(((src)+(2))>>0)])|0);
+        HEAP8[(((dest)+(3))>>0)]=((HEAP8[(((src)+(3))>>0)])|0);
+        dest = (dest+4)|0;
+        src = (src+4)|0;
+      }
+    }
+    // The remaining unaligned < 4 byte tail.
+    while ((dest|0) < (dest_end|0)) {
+      HEAP8[((dest)>>0)]=((HEAP8[((src)>>0)])|0);
+      dest = (dest+1)|0;
+      src = (src+1)|0;
+    }
+    return ret|0;
+}
+function _memset(ptr, value, num) {
+    ptr = ptr|0; value = value|0; num = num|0;
+    var end = 0, aligned_end = 0, block_aligned_end = 0, value4 = 0;
+    end = (ptr + num)|0;
+
+    value = value & 0xff;
+    if ((num|0) >= 67 /* 64 bytes for an unrolled loop + 3 bytes for unaligned head*/) {
+      while ((ptr&3) != 0) {
+        HEAP8[((ptr)>>0)]=value;
+        ptr = (ptr+1)|0;
+      }
+
+      aligned_end = (end & -4)|0;
+      block_aligned_end = (aligned_end - 64)|0;
+      value4 = value | (value << 8) | (value << 16) | (value << 24);
+
+      while((ptr|0) <= (block_aligned_end|0)) {
+        HEAP32[((ptr)>>2)]=value4;
+        HEAP32[(((ptr)+(4))>>2)]=value4;
+        HEAP32[(((ptr)+(8))>>2)]=value4;
+        HEAP32[(((ptr)+(12))>>2)]=value4;
+        HEAP32[(((ptr)+(16))>>2)]=value4;
+        HEAP32[(((ptr)+(20))>>2)]=value4;
+        HEAP32[(((ptr)+(24))>>2)]=value4;
+        HEAP32[(((ptr)+(28))>>2)]=value4;
+        HEAP32[(((ptr)+(32))>>2)]=value4;
+        HEAP32[(((ptr)+(36))>>2)]=value4;
+        HEAP32[(((ptr)+(40))>>2)]=value4;
+        HEAP32[(((ptr)+(44))>>2)]=value4;
+        HEAP32[(((ptr)+(48))>>2)]=value4;
+        HEAP32[(((ptr)+(52))>>2)]=value4;
+        HEAP32[(((ptr)+(56))>>2)]=value4;
+        HEAP32[(((ptr)+(60))>>2)]=value4;
+        ptr = (ptr + 64)|0;
+      }
+
+      while ((ptr|0) < (aligned_end|0) ) {
+        HEAP32[((ptr)>>2)]=value4;
+        ptr = (ptr+4)|0;
+      }
+    }
+    // The remaining bytes.
+    while ((ptr|0) < (end|0)) {
+      HEAP8[((ptr)>>0)]=value;
+      ptr = (ptr+1)|0;
+    }
+    return (end-num)|0;
+}
 function _sbrk(increment) {
     increment = increment|0;
     var oldDynamicTop = 0;
@@ -17464,33 +17648,22 @@ function _sbrk(increment) {
     }
     return oldDynamicTop|0;
 }
-function ___uremdi3($a$0, $a$1, $b$0, $b$1) {
-    $a$0 = $a$0 | 0;
-    $a$1 = $a$1 | 0;
-    $b$0 = $b$0 | 0;
-    $b$1 = $b$1 | 0;
-    var $rem = 0, __stackBase__ = 0;
-    __stackBase__ = STACKTOP;
-    STACKTOP = STACKTOP + 16 | 0;
-    $rem = __stackBase__ | 0;
-    ___udivmoddi4($a$0, $a$1, $b$0, $b$1, $rem) | 0;
-    STACKTOP = __stackBase__;
-    return (tempRet0 = HEAP32[$rem + 4 >> 2] | 0, HEAP32[$rem >> 2] | 0) | 0;
-}
-function _llvm_bswap_i32(x) {
-    x = x|0;
-    return (((x&0xff)<<24) | (((x>>8)&0xff)<<16) | (((x>>16)&0xff)<<8) | (x>>>24))|0;
-}
-function _emscripten_free_async_context(ctx) {
-    //  this function is called when a possibly async function turned out to be sync
-    //  just undo a recent emscripten_alloc_async_context
-    ctx = ctx|0;
-    assert((((___async_cur_frame + 8)|0) == (ctx|0))|0);
-    stackRestore(___async_cur_frame | 0);
-    ___async_cur_frame = ((HEAP32[((___async_cur_frame)>>2)])|0);
-}
 
   
+function dynCall_i(index) {
+  index = index|0;
+  
+  return FUNCTION_TABLE_i[index&255]()|0;
+}
+
+
+function dynCall_ii(index,a1) {
+  index = index|0;
+  a1=a1|0;
+  return FUNCTION_TABLE_ii[index&255](a1|0)|0;
+}
+
+
 function dynCall_iiii(index,a1,a2,a3) {
   index = index|0;
   a1=a1|0; a2=a2|0; a3=a3|0;
@@ -17498,17 +17671,17 @@ function dynCall_iiii(index,a1,a2,a3) {
 }
 
 
-function dynCall_viiiii(index,a1,a2,a3,a4,a5) {
+function dynCall_iiiii(index,a1,a2,a3,a4) {
   index = index|0;
-  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0; a5=a5|0;
-  FUNCTION_TABLE_viiiii[index&63](a1|0,a2|0,a3|0,a4|0,a5|0);
+  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0;
+  return FUNCTION_TABLE_iiiii[index&63](a1|0,a2|0,a3|0,a4|0)|0;
 }
 
 
-function dynCall_i(index) {
+function dynCall_v(index) {
   index = index|0;
   
-  return FUNCTION_TABLE_i[index&255]()|0;
+  FUNCTION_TABLE_v[index&255]();
 }
 
 
@@ -17526,38 +17699,10 @@ function dynCall_vii(index,a1,a2) {
 }
 
 
-function dynCall_ii(index,a1) {
-  index = index|0;
-  a1=a1|0;
-  return FUNCTION_TABLE_ii[index&255](a1|0)|0;
-}
-
-
-function dynCall_v(index) {
-  index = index|0;
-  
-  FUNCTION_TABLE_v[index&255]();
-}
-
-
 function dynCall_viid(index,a1,a2,a3) {
   index = index|0;
   a1=a1|0; a2=a2|0; a3=+a3;
   FUNCTION_TABLE_viid[index&127](a1|0,a2|0,+a3);
-}
-
-
-function dynCall_iiiii(index,a1,a2,a3,a4) {
-  index = index|0;
-  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0;
-  return FUNCTION_TABLE_iiiii[index&63](a1|0,a2|0,a3|0,a4|0)|0;
-}
-
-
-function dynCall_viiiiii(index,a1,a2,a3,a4,a5,a6) {
-  index = index|0;
-  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0; a5=a5|0; a6=a6|0;
-  FUNCTION_TABLE_viiiiii[index&63](a1|0,a2|0,a3|0,a4|0,a5|0,a6|0);
 }
 
 
@@ -17567,129 +17712,140 @@ function dynCall_viiii(index,a1,a2,a3,a4) {
   FUNCTION_TABLE_viiii[index&127](a1|0,a2|0,a3|0,a4|0);
 }
 
-function b0(p0,p1,p2) {
- p0 = p0|0;p1 = p1|0;p2 = p2|0; nullFunc_iiii(0);return 0;
+
+function dynCall_viiiii(index,a1,a2,a3,a4,a5) {
+  index = index|0;
+  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0; a5=a5|0;
+  FUNCTION_TABLE_viiiii[index&63](a1|0,a2|0,a3|0,a4|0,a5|0);
 }
-function b1(p0,p1,p2,p3,p4) {
- p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0; nullFunc_viiiii(1);
+
+
+function dynCall_viiiiii(index,a1,a2,a3,a4,a5,a6) {
+  index = index|0;
+  a1=a1|0; a2=a2|0; a3=a3|0; a4=a4|0; a5=a5|0; a6=a6|0;
+  FUNCTION_TABLE_viiiiii[index&63](a1|0,a2|0,a3|0,a4|0,a5|0,a6|0);
 }
-function b2() {
- ; nullFunc_i(2);return 0;
+
+function b0() {
+ ; nullFunc_i(0);return 0;
 }
-function b3(p0) {
- p0 = p0|0; nullFunc_vi(3);
-}
-function b4(p0,p1) {
- p0 = p0|0;p1 = p1|0; nullFunc_vii(4);
-}
-function b5(p0) {
- p0 = p0|0; nullFunc_ii(5);return 0;
+function b1(p0) {
+ p0 = p0|0; nullFunc_ii(1);return 0;
 }
 function _emscripten_realloc_async_context__wrapper(p0) {
  p0 = p0|0; return _emscripten_realloc_async_context(p0|0)|0;
 }
-function b6() {
- ; nullFunc_v(6);
+function b2(p0,p1,p2) {
+ p0 = p0|0;p1 = p1|0;p2 = p2|0; nullFunc_iiii(2);return 0;
+}
+function b3(p0,p1,p2,p3) {
+ p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0; nullFunc_iiiii(3);return 0;
+}
+function b4() {
+ ; nullFunc_v(4);
 }
 function ___cxa_end_catch__wrapper() {
  ; ___cxa_end_catch();
+}
+function b5(p0) {
+ p0 = p0|0; nullFunc_vi(5);
+}
+function __ZN4mbed10TimerEventD2Ev__wrapper(p0) {
+ p0 = p0|0; __ZN4mbed10TimerEventD2Ev(p0|0);
+}
+function b6(p0,p1) {
+ p0 = p0|0;p1 = p1|0; nullFunc_vii(6);
 }
 function b7(p0,p1,p2) {
  p0 = p0|0;p1 = p1|0;p2 = +p2; nullFunc_viid(7);
 }
 function b8(p0,p1,p2,p3) {
- p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0; nullFunc_iiiii(8);return 0;
+ p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0; nullFunc_viiii(8);
 }
-function b9(p0,p1,p2,p3,p4,p5) {
- p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0;p5 = p5|0; nullFunc_viiiiii(9);
+function b9(p0,p1,p2,p3,p4) {
+ p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0; nullFunc_viiiii(9);
 }
-function b10(p0,p1,p2,p3) {
- p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0; nullFunc_viiii(10);
+function b10(p0,p1,p2,p3,p4,p5) {
+ p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0;p5 = p5|0; nullFunc_viiiiii(10);
 }
 
 // EMSCRIPTEN_END_FUNCS
-var FUNCTION_TABLE_iiii = [b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,___stdio_write,___stdio_seek,___stdout_write,b0,b0,b0,b0,b0,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv,b0
-,b0,b0,b0];
-var FUNCTION_TABLE_viiiii = [b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
-,__ZNK10__cxxabiv117__class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b1,b1,b1,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b1,b1,b1,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
-,b1,b1,b1,b1,b1];
-var FUNCTION_TABLE_i = [b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,_us_ticker_read,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,___cxa_get_globals_fast,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
-,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2];
-var FUNCTION_TABLE_vi = [b3,__ZN4mbed11InterruptInD2Ev,__ZN4mbed11InterruptInD0Ev,__ZN4mbed6TickerD2Ev,__ZN4mbed6TickerD0Ev,__ZN4mbed6Ticker7handlerEv,__ZN4mbed7TimeoutD2Ev,__ZN4mbed7TimeoutD0Ev,__ZN4mbed7Timeout7handlerEv,__ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv,b3,__ZN4mbed8CallbackIFvvEE13function_dtorIPS1_EEvPv,b3,b3,b3,b3,_us_ticker_set_interrupt,b3,b3,b3,b3,b3,b3,__ZN10__cxxabiv116__shim_type_infoD2Ev,__ZN10__cxxabiv117__class_type_infoD0Ev,__ZNK10__cxxabiv116__shim_type_info5noop1Ev,__ZNK10__cxxabiv116__shim_type_info5noop2Ev,b3,b3
-,b3,b3,__ZN10__cxxabiv120__si_class_type_infoD0Ev,b3,b3,b3,__ZN10__cxxabiv121__vmi_class_type_infoD0Ev,b3,b3,b3,_gpio_irq_free,__ZN4mbed11InterruptInD2Ev__async_cb,__ZN4mbed11InterruptInD2Ev__async_cb_16,__ZN4mbed11InterruptInD2Ev__async_cb_17,__ZN4mbed11InterruptInD2Ev__async_cb_18,__ZN4mbed11InterruptInD0Ev__async_cb,__ZN4mbed11InterruptInD0Ev__async_cb_20,__ZN4mbed11InterruptInD0Ev__async_cb_21,__ZN4mbed11InterruptInD0Ev__async_cb_22,b3,b3,b3,__ZN4mbed11InterruptInC2E7PinName__async_cb,__ZN4mbed11InterruptInC2E7PinName__async_cb_6,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_5,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_48,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_49,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_50
-,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_51,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_52,__ZN4mbed6TickerD2Ev__async_cb,__ZN4mbed6TickerD0Ev__async_cb,__ZN4mbed6Ticker7handlerEv__async_cb,_invoke_ticker__async_cb,__ZN4mbed7TimeoutD2Ev__async_cb,__ZN4mbed7TimeoutD0Ev__async_cb,__ZN4mbed7Timeout7handlerEv__async_cb,_invoke_timeout__async_cb,__ZN4mbed5TimerC2Ev__async_cb,__GLOBAL__sub_I_arm_hal_timer_cpp__async_cb,__ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv__async_cb,_ticker_read_us__async_cb,_wait_ms__async_cb,_handle_interrupt_in__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_25,__GLOBAL__sub_I_main_cpp__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_26,___cxx_global_var_init_3__async_cb,___cxx_global_var_init_4__async_cb,___cxx_global_var_init_5__async_cb,b3,__ZN4mbed11NonCopyableINS_7TimeoutEED2Ev,__ZN4mbed11NonCopyableINS_6TickerEED2Ev,b3,b3,_main__async_cb_34,_main__async_cb_41,b3
-,b3,_main__async_cb_35,_main__async_cb_40,b3,b3,_main__async_cb_42,_main__async_cb_39,_main__async_cb_43,__ZN4mbed8CallbackIFvvEED2Ev,_main__async_cb_38,_main__async_cb_37,_main__async_cb_36,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_1,b3,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_2,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_4,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_3,__ZN4mbed8CallbackIFvvEED2Ev__async_cb,__ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_9,b3,__ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_10,__ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_12,__ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf__async_cb_11,__ZN4mbed8CallbackIFvvEEC2ERKS2___async_cb,__ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy__async_cb,__ZN4mbed8CallbackIFvvEEaSERKS2___async_cb_24,__ZN4mbed8CallbackIFvvEEaSERKS2___async_cb,__ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy__async_cb,_vfprintf__async_cb,___overflow__async_cb
-,_fputc__async_cb_27,_fputc__async_cb,_printf__async_cb,__ZL25default_terminate_handlerv__async_cb,__ZL25default_terminate_handlerv__async_cb_45,b3,_abort_message__async_cb_15,_abort_message__async_cb,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_8,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb,___dynamic_cast__async_cb,___dynamic_cast__async_cb_44,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_54,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZN10__cxxabiv112_GLOBAL__N_19destruct_EPv,b3,__ZSt11__terminatePFvvE__async_cb,b3,b3,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_28,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_32,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_31,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_30,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_29,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb
-,__ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,___cxa_can_catch__async_cb,___cxa_is_pointer_type__async_cb,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
-,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
-,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
-,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3];
-var FUNCTION_TABLE_vii = [b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,__ZN4mbed8CallbackIFvvEE13function_moveIPS1_EEvPvPKv,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
-,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event,_gpio_init_in,b4,b4,b4,b4,b4,b4,b4,b4
-,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,__ZN4mbed8CallbackIFvvEEC2EPS1_,b4,b4,b4,b4,b4,b4,b4
-,b4,b4,b4,b4,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
-,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,_abort_message,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
+var FUNCTION_TABLE_i = [b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,_us_ticker_read,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,___cxa_get_globals_fast,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
+,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0];
+var FUNCTION_TABLE_ii = [b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,___stdio_close,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,_emscripten_realloc_async_context__wrapper,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
+,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1];
+var FUNCTION_TABLE_iiii = [b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,___stdio_write,___stdio_seek,___stdout_write,b2,b2,b2,b2,b2,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv,b2
+,b2,b2,b2];
+var FUNCTION_TABLE_iiiii = [b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
+,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,_gpio_irq_init,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
+,b3,b3,b3,b3,b3];
+var FUNCTION_TABLE_v = [b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,_us_ticker_init,b4,_us_ticker_disable_interrupt,_us_ticker_clear_interrupt,b4,_us_ticker_fire_interrupt,b4,b4,b4,b4,__ZL25default_terminate_handlerv,b4,b4,b4,b4,b4,b4
+,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
+,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,__Z10blink_led1v,b4
+,b4,b4,__Z12turn_led3_onv,b4,b4,__Z11toggle_led2v,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
+,b4,b4,b4,b4,b4,b4,b4,__ZN10__cxxabiv112_GLOBAL__N_110construct_Ev,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,___cxa_end_catch__wrapper,b4,b4,b4,b4,b4,b4,b4
 ,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
 ,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
 ,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4
 ,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4,b4];
-var FUNCTION_TABLE_ii = [b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,___stdio_close,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
-,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
-,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
-,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
-,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
-,b5,b5,b5,b5,b5,_emscripten_realloc_async_context__wrapper,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
+var FUNCTION_TABLE_vi = [b5,__ZN4mbed11InterruptInD2Ev,__ZN4mbed11InterruptInD0Ev,__ZN4mbed6TickerD2Ev,__ZN4mbed6TickerD0Ev,__ZN4mbed6Ticker7handlerEv,__ZN4mbed7TimeoutD2Ev,__ZN4mbed7TimeoutD0Ev,__ZN4mbed7Timeout7handlerEv,__ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv,b5,__ZN4mbed8CallbackIFvvEE13function_dtorIPS1_EEvPv,b5,b5,b5,b5,_us_ticker_set_interrupt,b5,b5,b5,b5,b5,b5,__ZN10__cxxabiv116__shim_type_infoD2Ev,__ZN10__cxxabiv117__class_type_infoD0Ev,__ZNK10__cxxabiv116__shim_type_info5noop1Ev,__ZNK10__cxxabiv116__shim_type_info5noop2Ev,b5,b5
+,b5,b5,__ZN10__cxxabiv120__si_class_type_infoD0Ev,b5,b5,b5,__ZN10__cxxabiv121__vmi_class_type_infoD0Ev,b5,b5,b5,_gpio_irq_free,__ZN4mbed11InterruptInD2Ev__async_cb,__ZN4mbed11InterruptInD2Ev__async_cb_24,__ZN4mbed11InterruptInD2Ev__async_cb_25,__ZN4mbed11InterruptInD2Ev__async_cb_26,__ZN4mbed11InterruptInD0Ev__async_cb,__ZN4mbed11InterruptInD0Ev__async_cb_6,__ZN4mbed11InterruptInD0Ev__async_cb_7,__ZN4mbed11InterruptInD0Ev__async_cb_8,b5,b5,b5,__ZN4mbed11InterruptInC2E7PinName__async_cb,__ZN4mbed11InterruptInC2E7PinName__async_cb_3,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_5,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_37,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_38,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_39
+,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_40,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_41,__ZN4mbed6TickerD2Ev__async_cb,__ZN4mbed6TickerD0Ev__async_cb,__ZN4mbed6Ticker7handlerEv__async_cb,_invoke_ticker__async_cb,__ZN4mbed7TimeoutD2Ev__async_cb,__ZN4mbed7TimeoutD0Ev__async_cb,__ZN4mbed7Timeout7handlerEv__async_cb,_invoke_timeout__async_cb,__ZN4mbed5TimerC2Ev__async_cb,__GLOBAL__sub_I_arm_hal_timer_cpp__async_cb,__ZN4mbed8CallbackIFvvEE13function_callIPS1_EEvPKv__async_cb,_ticker_read_us__async_cb,_wait_ms__async_cb,_handle_interrupt_in__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_29,__GLOBAL__sub_I_main_cpp__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_30,___cxx_global_var_init_3__async_cb,___cxx_global_var_init_4__async_cb,___cxx_global_var_init_5__async_cb,__ZN4mbed7TimeoutC2Ev__async_cb_2,__ZN4mbed11NonCopyableINS_7TimeoutEEC2Ev,__ZN4mbed11NonCopyableINS_6TickerEEC2Ev,b5,__ZN4mbed11NonCopyableINS_6TickerEED2Ev,__ZN4mbed10TimerEventD2Ev__wrapper,b5,b5
+,_main__async_cb_47,_main__async_cb_53,b5,_main__async_cb_46,_main__async_cb_52,b5,b5,_main__async_cb_54,_main__async_cb_51,_main__async_cb_55,__ZN4mbed8CallbackIFvvEED2Ev,_main__async_cb_50,_main__async_cb_49,_main__async_cb_48,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_20,b5,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_21,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_23,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf__async_cb_22,__ZN4mbed8CallbackIFvvEED2Ev__async_cb,__ZN4mbed8CallbackIFvvEEC2ERKS2___async_cb,__ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy__async_cb,__ZN4mbed8CallbackIFvvEEaSERKS2___async_cb_15,__ZN4mbed8CallbackIFvvEEaSERKS2___async_cb,___overflow__async_cb,_fflush__async_cb_17,_fflush__async_cb_16,_fflush__async_cb_18,_fflush__async_cb,___fflush_unlocked__async_cb
+,___fflush_unlocked__async_cb_35,_vfprintf__async_cb,_printf__async_cb,_fputc__async_cb_44,_fputc__async_cb,__ZL25default_terminate_handlerv__async_cb,__ZL25default_terminate_handlerv__async_cb_28,b5,_abort_message__async_cb,_abort_message__async_cb_12,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_43,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb,___dynamic_cast__async_cb,___dynamic_cast__async_cb_1,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_45,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZN10__cxxabiv112_GLOBAL__N_19destruct_EPv,b5,__ZSt11__terminatePFvvE__async_cb,b5,b5,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_36,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_34,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_32,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_31,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb
+,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_19,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,___cxa_can_catch__async_cb,___cxa_is_pointer_type__async_cb,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
 ,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
 ,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
 ,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5];
-var FUNCTION_TABLE_v = [b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,_us_ticker_init,b6,_us_ticker_disable_interrupt,_us_ticker_clear_interrupt,b6,_us_ticker_fire_interrupt,b6,b6,b6,b6,__ZL25default_terminate_handlerv,b6,b6,b6,b6,b6,b6
-,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
-,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,__Z10blink_led1v,b6,b6,b6,__Z12turn_led3_onv
-,b6,b6,b6,__Z11toggle_led2v,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
-,b6,b6,b6,b6,b6,__ZN10__cxxabiv112_GLOBAL__N_110construct_Ev,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,___cxa_end_catch__wrapper,b6,b6,b6,b6,b6,b6,b6,b6,b6
+var FUNCTION_TABLE_vii = [b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,__ZN4mbed8CallbackIFvvEE13function_moveIPS1_EEvPvPKv,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
+,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event,_gpio_init_in,b6,b6,b6,b6,b6,b6,b6,b6
+,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,__ZN4mbed8CallbackIFvvEEC2EPS1_,b6,b6,b6,b6
+,b6,b6,b6,b6,b6,b6,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
+,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,_abort_message,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6];
 var FUNCTION_TABLE_viid = [b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7
 ,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7
-,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf,b7,b7,b7
-,__ZN4mbed7Timeout6attachENS_8CallbackIFvvEEEf,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7
+,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,__ZN4mbed6Ticker6attachENS_8CallbackIFvvEEEf
+,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7
 ,b7,b7,b7,b7,b7,b7,b7,b7,b7];
-var FUNCTION_TABLE_iiiii = [b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
-,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,_gpio_irq_init,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
-,b8,b8,b8,b8,b8];
-var FUNCTION_TABLE_viiiiii = [b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,__ZNK10__cxxabiv117__class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib
-,b9,b9,b9,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b9,b9,b9,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9
+var FUNCTION_TABLE_viiii = [b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
+,b8,__ZNK10__cxxabiv117__class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b8,b8,b8,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b8,b8,b8,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
+,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
+,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,__ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
+,b8,b8,b8,b8,b8,b8,b8,b8,b8];
+var FUNCTION_TABLE_viiiii = [b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9
+,__ZNK10__cxxabiv117__class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b9,b9,b9,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b9,b9,b9,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9
 ,b9,b9,b9,b9,b9];
-var FUNCTION_TABLE_viiii = [b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
-,b10,__ZNK10__cxxabiv117__class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b10,b10,b10,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b10,b10,b10,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
-,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
-,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,__ZN4mbed6Ticker9attach_usENS_8CallbackIFvvEEEy,b10,b10,b10,b10,b10,__ZN4mbed7Timeout9attach_usENS_8CallbackIFvvEEEy,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
-,b10,b10,b10,b10,b10,b10,b10,b10,b10];
+var FUNCTION_TABLE_viiiiii = [b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,__ZNK10__cxxabiv117__class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib
+,b10,b10,b10,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b10,b10,b10,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
+,b10,b10,b10,b10,b10];
 
-  return { _llvm_bswap_i32: _llvm_bswap_i32, _main: _main, stackSave: stackSave, _i64Subtract: _i64Subtract, ___udivdi3: ___udivdi3, _emscripten_alloc_async_context: _emscripten_alloc_async_context, setThrew: setThrew, _bitshift64Lshr: _bitshift64Lshr, _emscripten_async_resume: _emscripten_async_resume, _bitshift64Shl: _bitshift64Shl, dynCall_iiiii: dynCall_iiiii, _invoke_ticker: _invoke_ticker, ___cxa_is_pointer_type: ___cxa_is_pointer_type, _memset: _memset, dynCall_ii: dynCall_ii, _sbrk: _sbrk, _memcpy: _memcpy, stackAlloc: stackAlloc, dynCall_vii: dynCall_vii, ___uremdi3: ___uremdi3, dynCall_vi: dynCall_vi, getTempRet0: getTempRet0, __GLOBAL__sub_I_arm_hal_timer_cpp: __GLOBAL__sub_I_arm_hal_timer_cpp, setTempRet0: setTempRet0, _i64Add: _i64Add, dynCall_iiii: dynCall_iiii, _emscripten_realloc_async_context: _emscripten_realloc_async_context, __GLOBAL__sub_I_main_cpp: __GLOBAL__sub_I_main_cpp, _emscripten_get_global_libc: _emscripten_get_global_libc, setAsync: setAsync, dynCall_i: dynCall_i, dynCall_viiii: dynCall_viiii, _invoke_timeout: _invoke_timeout, ___errno_location: ___errno_location, dynCall_viiiii: dynCall_viiiii, _emscripten_free_async_context: _emscripten_free_async_context, ___cxa_can_catch: ___cxa_can_catch, _free: _free, runPostSets: runPostSets, dynCall_viiiiii: dynCall_viiiiii, establishStackSpace: establishStackSpace, stackRestore: stackRestore, _malloc: _malloc, _handle_interrupt_in: _handle_interrupt_in, dynCall_viid: dynCall_viid, dynCall_v: dynCall_v };
+  return { __GLOBAL__sub_I_arm_hal_timer_cpp: __GLOBAL__sub_I_arm_hal_timer_cpp, __GLOBAL__sub_I_main_cpp: __GLOBAL__sub_I_main_cpp, ___cxa_can_catch: ___cxa_can_catch, ___cxa_is_pointer_type: ___cxa_is_pointer_type, ___errno_location: ___errno_location, ___udivdi3: ___udivdi3, ___uremdi3: ___uremdi3, _bitshift64Lshr: _bitshift64Lshr, _bitshift64Shl: _bitshift64Shl, _emscripten_alloc_async_context: _emscripten_alloc_async_context, _emscripten_async_resume: _emscripten_async_resume, _emscripten_free_async_context: _emscripten_free_async_context, _emscripten_get_global_libc: _emscripten_get_global_libc, _emscripten_realloc_async_context: _emscripten_realloc_async_context, _fflush: _fflush, _free: _free, _handle_interrupt_in: _handle_interrupt_in, _i64Add: _i64Add, _i64Subtract: _i64Subtract, _invoke_ticker: _invoke_ticker, _invoke_timeout: _invoke_timeout, _llvm_bswap_i32: _llvm_bswap_i32, _main: _main, _malloc: _malloc, _memcpy: _memcpy, _memset: _memset, _sbrk: _sbrk, dynCall_i: dynCall_i, dynCall_ii: dynCall_ii, dynCall_iiii: dynCall_iiii, dynCall_iiiii: dynCall_iiiii, dynCall_v: dynCall_v, dynCall_vi: dynCall_vi, dynCall_vii: dynCall_vii, dynCall_viid: dynCall_viid, dynCall_viiii: dynCall_viiii, dynCall_viiiii: dynCall_viiiii, dynCall_viiiiii: dynCall_viiiiii, establishStackSpace: establishStackSpace, getTempRet0: getTempRet0, runPostSets: runPostSets, setAsync: setAsync, setTempRet0: setTempRet0, setThrew: setThrew, stackAlloc: stackAlloc, stackRestore: stackRestore, stackSave: stackSave };
 })
 // EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
 
-var real__main = asm["_main"]; asm["_main"] = function() {
+var real___GLOBAL__sub_I_arm_hal_timer_cpp = asm["__GLOBAL__sub_I_arm_hal_timer_cpp"]; asm["__GLOBAL__sub_I_arm_hal_timer_cpp"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__main.apply(null, arguments);
-};
-
-var real_stackSave = asm["stackSave"]; asm["stackSave"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_stackSave.apply(null, arguments);
+  return real___GLOBAL__sub_I_arm_hal_timer_cpp.apply(null, arguments);
 };
 
 var real___GLOBAL__sub_I_main_cpp = asm["__GLOBAL__sub_I_main_cpp"]; asm["__GLOBAL__sub_I_main_cpp"] = function() {
@@ -17698,46 +17854,10 @@ var real___GLOBAL__sub_I_main_cpp = asm["__GLOBAL__sub_I_main_cpp"]; asm["__GLOB
   return real___GLOBAL__sub_I_main_cpp.apply(null, arguments);
 };
 
-var real____udivdi3 = asm["___udivdi3"]; asm["___udivdi3"] = function() {
+var real____cxa_can_catch = asm["___cxa_can_catch"]; asm["___cxa_can_catch"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real____udivdi3.apply(null, arguments);
-};
-
-var real__emscripten_alloc_async_context = asm["_emscripten_alloc_async_context"]; asm["_emscripten_alloc_async_context"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__emscripten_alloc_async_context.apply(null, arguments);
-};
-
-var real_getTempRet0 = asm["getTempRet0"]; asm["getTempRet0"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_getTempRet0.apply(null, arguments);
-};
-
-var real__bitshift64Lshr = asm["_bitshift64Lshr"]; asm["_bitshift64Lshr"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__bitshift64Lshr.apply(null, arguments);
-};
-
-var real__emscripten_async_resume = asm["_emscripten_async_resume"]; asm["_emscripten_async_resume"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__emscripten_async_resume.apply(null, arguments);
-};
-
-var real__bitshift64Shl = asm["_bitshift64Shl"]; asm["_bitshift64Shl"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__bitshift64Shl.apply(null, arguments);
-};
-
-var real__invoke_ticker = asm["_invoke_ticker"]; asm["_invoke_ticker"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__invoke_ticker.apply(null, arguments);
+  return real____cxa_can_catch.apply(null, arguments);
 };
 
 var real____cxa_is_pointer_type = asm["___cxa_is_pointer_type"]; asm["___cxa_is_pointer_type"] = function() {
@@ -17746,16 +17866,16 @@ var real____cxa_is_pointer_type = asm["___cxa_is_pointer_type"]; asm["___cxa_is_
   return real____cxa_is_pointer_type.apply(null, arguments);
 };
 
-var real__sbrk = asm["_sbrk"]; asm["_sbrk"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__sbrk.apply(null, arguments);
-};
-
 var real____errno_location = asm["___errno_location"]; asm["___errno_location"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real____errno_location.apply(null, arguments);
+};
+
+var real____udivdi3 = asm["___udivdi3"]; asm["___udivdi3"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real____udivdi3.apply(null, arguments);
 };
 
 var real____uremdi3 = asm["___uremdi3"]; asm["___uremdi3"] = function() {
@@ -17764,28 +17884,64 @@ var real____uremdi3 = asm["___uremdi3"]; asm["___uremdi3"] = function() {
   return real____uremdi3.apply(null, arguments);
 };
 
-var real_stackAlloc = asm["stackAlloc"]; asm["stackAlloc"] = function() {
+var real__bitshift64Lshr = asm["_bitshift64Lshr"]; asm["_bitshift64Lshr"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_stackAlloc.apply(null, arguments);
+  return real__bitshift64Lshr.apply(null, arguments);
 };
 
-var real__i64Subtract = asm["_i64Subtract"]; asm["_i64Subtract"] = function() {
+var real__bitshift64Shl = asm["_bitshift64Shl"]; asm["_bitshift64Shl"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__i64Subtract.apply(null, arguments);
+  return real__bitshift64Shl.apply(null, arguments);
 };
 
-var real___GLOBAL__sub_I_arm_hal_timer_cpp = asm["__GLOBAL__sub_I_arm_hal_timer_cpp"]; asm["__GLOBAL__sub_I_arm_hal_timer_cpp"] = function() {
+var real__emscripten_alloc_async_context = asm["_emscripten_alloc_async_context"]; asm["_emscripten_alloc_async_context"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real___GLOBAL__sub_I_arm_hal_timer_cpp.apply(null, arguments);
+  return real__emscripten_alloc_async_context.apply(null, arguments);
 };
 
-var real_setTempRet0 = asm["setTempRet0"]; asm["setTempRet0"] = function() {
+var real__emscripten_async_resume = asm["_emscripten_async_resume"]; asm["_emscripten_async_resume"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_setTempRet0.apply(null, arguments);
+  return real__emscripten_async_resume.apply(null, arguments);
+};
+
+var real__emscripten_free_async_context = asm["_emscripten_free_async_context"]; asm["_emscripten_free_async_context"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__emscripten_free_async_context.apply(null, arguments);
+};
+
+var real__emscripten_get_global_libc = asm["_emscripten_get_global_libc"]; asm["_emscripten_get_global_libc"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__emscripten_get_global_libc.apply(null, arguments);
+};
+
+var real__emscripten_realloc_async_context = asm["_emscripten_realloc_async_context"]; asm["_emscripten_realloc_async_context"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__emscripten_realloc_async_context.apply(null, arguments);
+};
+
+var real__fflush = asm["_fflush"]; asm["_fflush"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__fflush.apply(null, arguments);
+};
+
+var real__free = asm["_free"]; asm["_free"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__free.apply(null, arguments);
+};
+
+var real__handle_interrupt_in = asm["_handle_interrupt_in"]; asm["_handle_interrupt_in"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__handle_interrupt_in.apply(null, arguments);
 };
 
 var real__i64Add = asm["_i64Add"]; asm["_i64Add"] = function() {
@@ -17794,16 +17950,16 @@ var real__i64Add = asm["_i64Add"]; asm["_i64Add"] = function() {
   return real__i64Add.apply(null, arguments);
 };
 
-var real____cxa_can_catch = asm["___cxa_can_catch"]; asm["___cxa_can_catch"] = function() {
+var real__i64Subtract = asm["_i64Subtract"]; asm["_i64Subtract"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real____cxa_can_catch.apply(null, arguments);
+  return real__i64Subtract.apply(null, arguments);
 };
 
-var real__emscripten_get_global_libc = asm["_emscripten_get_global_libc"]; asm["_emscripten_get_global_libc"] = function() {
+var real__invoke_ticker = asm["_invoke_ticker"]; asm["_invoke_ticker"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__emscripten_get_global_libc.apply(null, arguments);
+  return real__invoke_ticker.apply(null, arguments);
 };
 
 var real__invoke_timeout = asm["_invoke_timeout"]; asm["_invoke_timeout"] = function() {
@@ -17818,40 +17974,10 @@ var real__llvm_bswap_i32 = asm["_llvm_bswap_i32"]; asm["_llvm_bswap_i32"] = func
   return real__llvm_bswap_i32.apply(null, arguments);
 };
 
-var real__emscripten_free_async_context = asm["_emscripten_free_async_context"]; asm["_emscripten_free_async_context"] = function() {
+var real__main = asm["_main"]; asm["_main"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__emscripten_free_async_context.apply(null, arguments);
-};
-
-var real__emscripten_realloc_async_context = asm["_emscripten_realloc_async_context"]; asm["_emscripten_realloc_async_context"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__emscripten_realloc_async_context.apply(null, arguments);
-};
-
-var real__free = asm["_free"]; asm["_free"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__free.apply(null, arguments);
-};
-
-var real_setThrew = asm["setThrew"]; asm["setThrew"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_setThrew.apply(null, arguments);
-};
-
-var real_establishStackSpace = asm["establishStackSpace"]; asm["establishStackSpace"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_establishStackSpace.apply(null, arguments);
-};
-
-var real_stackRestore = asm["stackRestore"]; asm["stackRestore"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_stackRestore.apply(null, arguments);
+  return real__main.apply(null, arguments);
 };
 
 var real__malloc = asm["_malloc"]; asm["_malloc"] = function() {
@@ -17860,78 +17986,180 @@ var real__malloc = asm["_malloc"]; asm["_malloc"] = function() {
   return real__malloc.apply(null, arguments);
 };
 
-var real__handle_interrupt_in = asm["_handle_interrupt_in"]; asm["_handle_interrupt_in"] = function() {
+var real__sbrk = asm["_sbrk"]; asm["_sbrk"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__handle_interrupt_in.apply(null, arguments);
+  return real__sbrk.apply(null, arguments);
 };
-var _main = Module["_main"] = asm["_main"];
-var stackSave = Module["stackSave"] = asm["stackSave"];
-var __GLOBAL__sub_I_main_cpp = Module["__GLOBAL__sub_I_main_cpp"] = asm["__GLOBAL__sub_I_main_cpp"];
-var ___udivdi3 = Module["___udivdi3"] = asm["___udivdi3"];
-var _emscripten_alloc_async_context = Module["_emscripten_alloc_async_context"] = asm["_emscripten_alloc_async_context"];
-var getTempRet0 = Module["getTempRet0"] = asm["getTempRet0"];
-var _bitshift64Lshr = Module["_bitshift64Lshr"] = asm["_bitshift64Lshr"];
-var _emscripten_async_resume = Module["_emscripten_async_resume"] = asm["_emscripten_async_resume"];
-var _bitshift64Shl = Module["_bitshift64Shl"] = asm["_bitshift64Shl"];
-var _invoke_ticker = Module["_invoke_ticker"] = asm["_invoke_ticker"];
-var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = asm["___cxa_is_pointer_type"];
-var _memset = Module["_memset"] = asm["_memset"];
-var _sbrk = Module["_sbrk"] = asm["_sbrk"];
-var _memcpy = Module["_memcpy"] = asm["_memcpy"];
-var ___errno_location = Module["___errno_location"] = asm["___errno_location"];
-var ___uremdi3 = Module["___uremdi3"] = asm["___uremdi3"];
-var stackAlloc = Module["stackAlloc"] = asm["stackAlloc"];
-var _i64Subtract = Module["_i64Subtract"] = asm["_i64Subtract"];
+
+var real_establishStackSpace = asm["establishStackSpace"]; asm["establishStackSpace"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_establishStackSpace.apply(null, arguments);
+};
+
+var real_getTempRet0 = asm["getTempRet0"]; asm["getTempRet0"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_getTempRet0.apply(null, arguments);
+};
+
+var real_setAsync = asm["setAsync"]; asm["setAsync"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_setAsync.apply(null, arguments);
+};
+
+var real_setTempRet0 = asm["setTempRet0"]; asm["setTempRet0"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_setTempRet0.apply(null, arguments);
+};
+
+var real_setThrew = asm["setThrew"]; asm["setThrew"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_setThrew.apply(null, arguments);
+};
+
+var real_stackAlloc = asm["stackAlloc"]; asm["stackAlloc"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_stackAlloc.apply(null, arguments);
+};
+
+var real_stackRestore = asm["stackRestore"]; asm["stackRestore"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_stackRestore.apply(null, arguments);
+};
+
+var real_stackSave = asm["stackSave"]; asm["stackSave"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real_stackSave.apply(null, arguments);
+};
 var __GLOBAL__sub_I_arm_hal_timer_cpp = Module["__GLOBAL__sub_I_arm_hal_timer_cpp"] = asm["__GLOBAL__sub_I_arm_hal_timer_cpp"];
-var setTempRet0 = Module["setTempRet0"] = asm["setTempRet0"];
-var _i64Add = Module["_i64Add"] = asm["_i64Add"];
+var __GLOBAL__sub_I_main_cpp = Module["__GLOBAL__sub_I_main_cpp"] = asm["__GLOBAL__sub_I_main_cpp"];
 var ___cxa_can_catch = Module["___cxa_can_catch"] = asm["___cxa_can_catch"];
+var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = asm["___cxa_is_pointer_type"];
+var ___errno_location = Module["___errno_location"] = asm["___errno_location"];
+var ___udivdi3 = Module["___udivdi3"] = asm["___udivdi3"];
+var ___uremdi3 = Module["___uremdi3"] = asm["___uremdi3"];
+var _bitshift64Lshr = Module["_bitshift64Lshr"] = asm["_bitshift64Lshr"];
+var _bitshift64Shl = Module["_bitshift64Shl"] = asm["_bitshift64Shl"];
+var _emscripten_alloc_async_context = Module["_emscripten_alloc_async_context"] = asm["_emscripten_alloc_async_context"];
+var _emscripten_async_resume = Module["_emscripten_async_resume"] = asm["_emscripten_async_resume"];
+var _emscripten_free_async_context = Module["_emscripten_free_async_context"] = asm["_emscripten_free_async_context"];
 var _emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = asm["_emscripten_get_global_libc"];
+var _emscripten_realloc_async_context = Module["_emscripten_realloc_async_context"] = asm["_emscripten_realloc_async_context"];
+var _fflush = Module["_fflush"] = asm["_fflush"];
+var _free = Module["_free"] = asm["_free"];
+var _handle_interrupt_in = Module["_handle_interrupt_in"] = asm["_handle_interrupt_in"];
+var _i64Add = Module["_i64Add"] = asm["_i64Add"];
+var _i64Subtract = Module["_i64Subtract"] = asm["_i64Subtract"];
+var _invoke_ticker = Module["_invoke_ticker"] = asm["_invoke_ticker"];
 var _invoke_timeout = Module["_invoke_timeout"] = asm["_invoke_timeout"];
 var _llvm_bswap_i32 = Module["_llvm_bswap_i32"] = asm["_llvm_bswap_i32"];
-var _emscripten_free_async_context = Module["_emscripten_free_async_context"] = asm["_emscripten_free_async_context"];
-var _emscripten_realloc_async_context = Module["_emscripten_realloc_async_context"] = asm["_emscripten_realloc_async_context"];
-var _free = Module["_free"] = asm["_free"];
-var runPostSets = Module["runPostSets"] = asm["runPostSets"];
-var setThrew = Module["setThrew"] = asm["setThrew"];
-var establishStackSpace = Module["establishStackSpace"] = asm["establishStackSpace"];
-var stackRestore = Module["stackRestore"] = asm["stackRestore"];
+var _main = Module["_main"] = asm["_main"];
 var _malloc = Module["_malloc"] = asm["_malloc"];
-var _handle_interrupt_in = Module["_handle_interrupt_in"] = asm["_handle_interrupt_in"];
-var dynCall_iiii = Module["dynCall_iiii"] = asm["dynCall_iiii"];
-var dynCall_viiiii = Module["dynCall_viiiii"] = asm["dynCall_viiiii"];
+var _memcpy = Module["_memcpy"] = asm["_memcpy"];
+var _memset = Module["_memset"] = asm["_memset"];
+var _sbrk = Module["_sbrk"] = asm["_sbrk"];
+var establishStackSpace = Module["establishStackSpace"] = asm["establishStackSpace"];
+var getTempRet0 = Module["getTempRet0"] = asm["getTempRet0"];
+var runPostSets = Module["runPostSets"] = asm["runPostSets"];
+var setAsync = Module["setAsync"] = asm["setAsync"];
+var setTempRet0 = Module["setTempRet0"] = asm["setTempRet0"];
+var setThrew = Module["setThrew"] = asm["setThrew"];
+var stackAlloc = Module["stackAlloc"] = asm["stackAlloc"];
+var stackRestore = Module["stackRestore"] = asm["stackRestore"];
+var stackSave = Module["stackSave"] = asm["stackSave"];
 var dynCall_i = Module["dynCall_i"] = asm["dynCall_i"];
+var dynCall_ii = Module["dynCall_ii"] = asm["dynCall_ii"];
+var dynCall_iiii = Module["dynCall_iiii"] = asm["dynCall_iiii"];
+var dynCall_iiiii = Module["dynCall_iiiii"] = asm["dynCall_iiiii"];
+var dynCall_v = Module["dynCall_v"] = asm["dynCall_v"];
 var dynCall_vi = Module["dynCall_vi"] = asm["dynCall_vi"];
 var dynCall_vii = Module["dynCall_vii"] = asm["dynCall_vii"];
-var dynCall_ii = Module["dynCall_ii"] = asm["dynCall_ii"];
-var dynCall_v = Module["dynCall_v"] = asm["dynCall_v"];
 var dynCall_viid = Module["dynCall_viid"] = asm["dynCall_viid"];
-var dynCall_iiiii = Module["dynCall_iiiii"] = asm["dynCall_iiiii"];
-var dynCall_viiiiii = Module["dynCall_viiiiii"] = asm["dynCall_viiiiii"];
 var dynCall_viiii = Module["dynCall_viiii"] = asm["dynCall_viiii"];
+var dynCall_viiiii = Module["dynCall_viiiii"] = asm["dynCall_viiiii"];
+var dynCall_viiiiii = Module["dynCall_viiiiii"] = asm["dynCall_viiiiii"];
 ;
-Runtime.stackAlloc = Module['stackAlloc'];
-Runtime.stackSave = Module['stackSave'];
-Runtime.stackRestore = Module['stackRestore'];
-Runtime.establishStackSpace = Module['establishStackSpace'];
-Runtime.setTempRet0 = Module['setTempRet0'];
-Runtime.getTempRet0 = Module['getTempRet0'];
+
 
 
 // === Auto-generated postamble setup entry stuff ===
 
 Module['asm'] = asm;
 
+if (!Module["FS"]) Module["FS"] = function() { abort("'FS' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
+if (!Module["GL"]) Module["GL"] = function() { abort("'GL' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)") };
 
-
-
+if (memoryInitializer) {
+  if (!isDataURI(memoryInitializer)) {
+    if (typeof Module['locateFile'] === 'function') {
+      memoryInitializer = Module['locateFile'](memoryInitializer);
+    } else if (Module['memoryInitializerPrefixURL']) {
+      memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
+    }
+  }
+  if (ENVIRONMENT_IS_NODE || ENVIRONMENT_IS_SHELL) {
+    var data = Module['readBinary'](memoryInitializer);
+    HEAPU8.set(data, GLOBAL_BASE);
+  } else {
+    addRunDependency('memory initializer');
+    var applyMemoryInitializer = function(data) {
+      if (data.byteLength) data = new Uint8Array(data);
+      for (var i = 0; i < data.length; i++) {
+        assert(HEAPU8[GLOBAL_BASE + i] === 0, "area for memory initializer should not have been touched before it's loaded");
+      }
+      HEAPU8.set(data, GLOBAL_BASE);
+      // Delete the typed array that contains the large blob of the memory initializer request response so that
+      // we won't keep unnecessary memory lying around. However, keep the XHR object itself alive so that e.g.
+      // its .status field can still be accessed later.
+      if (Module['memoryInitializerRequest']) delete Module['memoryInitializerRequest'].response;
+      removeRunDependency('memory initializer');
+    }
+    function doBrowserLoad() {
+      Module['readAsync'](memoryInitializer, applyMemoryInitializer, function() {
+        throw 'could not load memory initializer ' + memoryInitializer;
+      });
+    }
+    if (Module['memoryInitializerRequest']) {
+      // a network request has already been created, just use that
+      function useRequest() {
+        var request = Module['memoryInitializerRequest'];
+        var response = request.response;
+        if (request.status !== 200 && request.status !== 0) {
+            // If you see this warning, the issue may be that you are using locateFile or memoryInitializerPrefixURL, and defining them in JS. That
+            // means that the HTML file doesn't know about them, and when it tries to create the mem init request early, does it to the wrong place.
+            // Look in your browser's devtools network console to see what's going on.
+            console.warn('a problem seems to have happened with Module.memoryInitializerRequest, status: ' + request.status + ', retrying ' + memoryInitializer);
+            doBrowserLoad();
+            return;
+        }
+        applyMemoryInitializer(response);
+      }
+      if (Module['memoryInitializerRequest'].response) {
+        setTimeout(useRequest, 0); // it's already here; but, apply it asynchronously
+      } else {
+        Module['memoryInitializerRequest'].addEventListener('load', useRequest); // wait for it
+      }
+    } else {
+      // fetch it from the network ourselves
+      doBrowserLoad();
+    }
+  }
+}
 
 
 
 /**
  * @constructor
  * @extends {Error}
+ * @this {ExitStatus}
  */
 function ExitStatus(status) {
   this.name = "ExitStatus";
@@ -17951,7 +18179,7 @@ dependenciesFulfilled = function runCaller() {
   if (!Module['calledRun']) dependenciesFulfilled = runCaller; // try this again later, after new deps are fulfilled
 }
 
-Module['callMain'] = Module.callMain = function callMain(args) {
+Module['callMain'] = function callMain(args) {
   assert(runDependencies == 0, 'cannot call main when async dependencies remain! (listen on __ATMAIN__)');
   assert(__ATPRERUN__.length == 0, 'cannot call main when preRun functions remain to be called');
 
@@ -17981,7 +18209,7 @@ Module['callMain'] = Module.callMain = function callMain(args) {
 
 
     // if we're not running an evented main loop, it's time to exit
-    exit(ret, /* implicit = */ true);
+      exit(ret, /* implicit = */ true);
   }
   catch(e) {
     if (e instanceof ExitStatus) {
@@ -18059,16 +18287,51 @@ function run(args) {
   }
   checkStackCookie();
 }
-Module['run'] = Module.run = run;
+Module['run'] = run;
 
 function exit(status, implicit) {
-  if (implicit && Module['noExitRuntime']) {
-    Module.printErr('exit(' + status + ') implicitly called by end of main(), but noExitRuntime, so not exiting the runtime (you can use emscripten_force_exit, if you want to force a true shutdown)');
+  // Compiler settings do not allow exiting the runtime, so flushing
+  // the streams is not possible. but in ASSERTIONS mode we check
+  // if there was something to flush, and if so tell the user they
+  // should request that the runtime be exitable.
+  // Normally we would not even include flush() at all, but in ASSERTIONS
+  // builds we do so just for this check, and here we see if there is any
+  // content to flush, that is, we check if there would have been
+  // something a non-ASSERTIONS build would have not seen.
+  // How we flush the streams depends on whether we are in NO_FILESYSTEM
+  // mode (which has its own special function for this; otherwise, all
+  // the code is inside libc)
+  var flush = flush_NO_FILESYSTEM;
+  if (flush) {
+    var print = Module['print'];
+    var printErr = Module['printErr'];
+    var has = false;
+    Module['print'] = Module['printErr'] = function(x) {
+      has = true;
+    }
+    try { // it doesn't matter if it fails
+      flush(0);
+    } catch(e) {}
+    Module['print'] = print;
+    Module['printErr'] = printErr;
+    if (has) {
+      warnOnce('stdio streams had content in them that was not flushed. you should set NO_EXIT_RUNTIME to 0 (see the FAQ), or make sure to emit a newline when you printf etc.');
+    }
+  }
+
+  // if this is just main exit-ing implicitly, and the status is 0, then we
+  // don't need to do anything here and can just leave. if the status is
+  // non-zero, though, then we need to report it.
+  // (we may have warned about this earlier, if a situation justifies doing so)
+  if (implicit && Module['noExitRuntime'] && status === 0) {
     return;
   }
 
   if (Module['noExitRuntime']) {
-    Module.printErr('exit(' + status + ') called, but noExitRuntime, so halting execution but not exiting the runtime or preventing further async execution (you can use emscripten_force_exit, if you want to force a true shutdown)');
+    // if exit() was called, we may warn the user if the runtime isn't actually being shut down
+    if (!implicit) {
+      Module.printErr('exit(' + status + ') called, but NO_EXIT_RUNTIME is set, so halting execution but not exiting the runtime or preventing further async execution (build with NO_EXIT_RUNTIME=0, if you want a true shutdown)');
+    }
   } else {
 
     ABORT = true;
@@ -18085,7 +18348,7 @@ function exit(status, implicit) {
   }
   Module['quit'](status, new ExitStatus(status));
 }
-Module['exit'] = Module.exit = exit;
+Module['exit'] = exit;
 
 var abortDecorators = [];
 
@@ -18115,7 +18378,7 @@ function abort(what) {
   }
   throw output;
 }
-Module['abort'] = Module.abort = abort;
+Module['abort'] = abort;
 
 // {{PRE_RUN_ADDITIONS}}
 

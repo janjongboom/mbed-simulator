@@ -17,6 +17,7 @@
 #define MBED_TEXTDISPLAY_H
 
 #include "mbed.h"
+#include "Stream.h"
 
 class TextDisplay : public Stream {
 public:
