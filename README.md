@@ -15,7 +15,7 @@ This is a very experimental project.
 
 ## Architecture
 
-The C++ HAL is in `mbed-simulator-hal`. This HAL reflects the Mbed C++ HAL, with most header- and source files exactly the same as their Mbed OS counterparts. The C++ HAL maps into the JS HAL (in `targets`), which implements the Mbed C API for compatibility.
+The C++ HAL is in `mbed-simulator-hal`. This HAL uses a fork of Mbed OS 5.8 (living here: [#mbed-os-5.8-simulator](https://github.com/janjongboom/mbed-os/tree/mbed-os-5.8-simulator)), where a new target was added (`TARGET_SIMULATOR`) similar to physical targets. The target handles calls coming in from the Mbed C++ HAL and passes them through to the JS HAL.
 
 The JS HAL lives in `viewer/js-hal`, and dispatches events around between JS UI components and C++ HAL. It implements an event bus to let the UI subscribe to events from C++. For instance, see `js-hal/gpio.js` for GPIO and IRQ handling.
 
@@ -95,6 +95,22 @@ Simulator applications can be debugged using your browser's debugger, because th
     * On a user-compiled app, go to the folder that starts with `/home/ubuntu`, go to the `out` folder, and select `user_XXX.cpp`.
 1. Click in the gutter to add a breakpoint.
 1. Click the *↻* icon in the simulator to restart the debug session.
+
+## CLI
+
+To get a CLI like experience for custom projects (which is currently *very* basic):
+
+```
+$ ln -s ~/repos/mbed-simulator/build-project.js /usr/local/bin/mbed-simulator
+```
+
+Then from a folder (e.g. mbed-os-example-blinky):
+
+```
+$ mbed-simulator .
+```
+
+A web browser window will open for you.
 
 ## Attribution
 
