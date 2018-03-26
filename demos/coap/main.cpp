@@ -3,6 +3,7 @@
 #include "EthernetInterface.h"
 #include "sn_coap_protocol.h"
 #include "sn_coap_header.h"
+#include "UDPSocket.h"
 
 UDPSocket coap_socket;           // Socket to talk CoAP over
 

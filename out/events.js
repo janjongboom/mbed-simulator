@@ -3619,13 +3619,13 @@ function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE($0,$1) {
       $34 = ((($AsyncCtx5)) + 4|0);
       HEAP32[$34>>2] = $2;
       $35 = ((($AsyncCtx5)) + 8|0);
-      HEAP32[$35>>2] = $29;
+      HEAP32[$35>>2] = $0;
       $36 = ((($AsyncCtx5)) + 12|0);
-      HEAP32[$36>>2] = $27;
+      HEAP32[$36>>2] = $2;
       $37 = ((($AsyncCtx5)) + 16|0);
-      HEAP32[$37>>2] = $2;
+      HEAP32[$37>>2] = $29;
       $38 = ((($AsyncCtx5)) + 20|0);
-      HEAP32[$38>>2] = $0;
+      HEAP32[$38>>2] = $27;
       sp = STACKTOP;
       STACKTOP = sp;return;
      }
@@ -4646,134 +4646,134 @@ function _equeue_dispatch($0,$1) {
  if ((label|0) == 18) {
   HEAP32[$AsyncCtx>>2] = 57;
   $48 = ((($AsyncCtx)) + 4|0);
-  HEAP32[$48>>2] = $$sroa$0$i;
+  HEAP32[$48>>2] = $0;
   $49 = ((($AsyncCtx)) + 8|0);
-  HEAP32[$49>>2] = $$sroa$0$i;
+  HEAP32[$49>>2] = $4;
   $50 = ((($AsyncCtx)) + 12|0);
   HEAP32[$50>>2] = $5;
   $51 = ((($AsyncCtx)) + 16|0);
-  HEAP32[$51>>2] = $0;
+  HEAP32[$51>>2] = $$sroa$0$i;
   $52 = ((($AsyncCtx)) + 20|0);
-  HEAP32[$52>>2] = $4;
+  HEAP32[$52>>2] = $$sroa$0$i;
   $53 = ((($AsyncCtx)) + 24|0);
   HEAP32[$53>>2] = $0;
   $54 = ((($AsyncCtx)) + 28|0);
-  HEAP32[$54>>2] = $10;
+  HEAP32[$54>>2] = $9;
   $55 = ((($AsyncCtx)) + 32|0);
-  HEAP32[$55>>2] = $$06690;
+  HEAP32[$55>>2] = $10;
   $56 = ((($AsyncCtx)) + 36|0);
-  HEAP32[$56>>2] = $43;
+  HEAP32[$56>>2] = $$06690;
   $57 = ((($AsyncCtx)) + 40|0);
-  HEAP32[$57>>2] = $9;
+  $$expand_i1_val = $8&1;
+  HEAP8[$57>>0] = $$expand_i1_val;
   $58 = ((($AsyncCtx)) + 44|0);
-  HEAP32[$58>>2] = $$idx;
+  HEAP32[$58>>2] = $43;
   $59 = ((($AsyncCtx)) + 48|0);
-  HEAP32[$59>>2] = $12;
+  HEAP32[$59>>2] = $3;
   $60 = ((($AsyncCtx)) + 52|0);
   HEAP32[$60>>2] = $7;
   $61 = ((($AsyncCtx)) + 56|0);
-  HEAP32[$61>>2] = $11;
+  HEAP32[$61>>2] = $6;
   $62 = ((($AsyncCtx)) + 60|0);
-  HEAP32[$62>>2] = $6;
+  HEAP32[$62>>2] = $12;
   $63 = ((($AsyncCtx)) + 64|0);
-  HEAP32[$63>>2] = $0;
+  HEAP32[$63>>2] = $42;
   $64 = ((($AsyncCtx)) + 68|0);
-  HEAP32[$64>>2] = $$sroa$0$i;
+  HEAP32[$64>>2] = $11;
   $65 = ((($AsyncCtx)) + 72|0);
-  HEAP32[$65>>2] = $42;
+  HEAP32[$65>>2] = $$idx;
   $66 = ((($AsyncCtx)) + 76|0);
-  HEAP32[$66>>2] = $3;
+  HEAP32[$66>>2] = $0;
   $67 = ((($AsyncCtx)) + 80|0);
-  $$expand_i1_val = $8&1;
-  HEAP8[$67>>0] = $$expand_i1_val;
+  HEAP32[$67>>2] = $$sroa$0$i;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
  else if ((label|0) == 22) {
   HEAP32[$AsyncCtx11>>2] = 58;
   $75 = ((($AsyncCtx11)) + 4|0);
-  HEAP32[$75>>2] = $$sroa$0$i;
+  HEAP32[$75>>2] = $0;
   $76 = ((($AsyncCtx11)) + 8|0);
-  HEAP32[$76>>2] = $$sroa$0$i;
+  HEAP32[$76>>2] = $4;
   $77 = ((($AsyncCtx11)) + 12|0);
   HEAP32[$77>>2] = $5;
   $78 = ((($AsyncCtx11)) + 16|0);
-  HEAP32[$78>>2] = $0;
+  HEAP32[$78>>2] = $$sroa$0$i;
   $79 = ((($AsyncCtx11)) + 20|0);
-  HEAP32[$79>>2] = $4;
+  HEAP32[$79>>2] = $$sroa$0$i;
   $80 = ((($AsyncCtx11)) + 24|0);
   HEAP32[$80>>2] = $0;
   $81 = ((($AsyncCtx11)) + 28|0);
-  HEAP32[$81>>2] = $10;
+  HEAP32[$81>>2] = $9;
   $82 = ((($AsyncCtx11)) + 32|0);
-  HEAP32[$82>>2] = $43;
+  HEAP32[$82>>2] = $10;
   $83 = ((($AsyncCtx11)) + 36|0);
-  HEAP32[$83>>2] = $9;
+  $$expand_i1_val22 = $8&1;
+  HEAP8[$83>>0] = $$expand_i1_val22;
   $84 = ((($AsyncCtx11)) + 40|0);
-  HEAP32[$84>>2] = $$idx;
+  HEAP32[$84>>2] = $43;
   $85 = ((($AsyncCtx11)) + 44|0);
-  HEAP32[$85>>2] = $12;
+  HEAP32[$85>>2] = $3;
   $86 = ((($AsyncCtx11)) + 48|0);
   HEAP32[$86>>2] = $7;
   $87 = ((($AsyncCtx11)) + 52|0);
-  HEAP32[$87>>2] = $11;
+  HEAP32[$87>>2] = $6;
   $88 = ((($AsyncCtx11)) + 56|0);
-  HEAP32[$88>>2] = $6;
+  HEAP32[$88>>2] = $12;
   $89 = ((($AsyncCtx11)) + 60|0);
-  HEAP32[$89>>2] = $0;
+  HEAP32[$89>>2] = $11;
   $90 = ((($AsyncCtx11)) + 64|0);
-  HEAP32[$90>>2] = $$sroa$0$i;
+  HEAP32[$90>>2] = $$idx;
   $91 = ((($AsyncCtx11)) + 68|0);
-  HEAP32[$91>>2] = $3;
+  HEAP32[$91>>2] = $0;
   $92 = ((($AsyncCtx11)) + 72|0);
-  $$expand_i1_val22 = $8&1;
-  HEAP8[$92>>0] = $$expand_i1_val22;
+  HEAP32[$92>>2] = $$sroa$0$i;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
  else if ((label|0) == 26) {
   HEAP32[$AsyncCtx3>>2] = 59;
   $105 = ((($AsyncCtx3)) + 4|0);
-  HEAP32[$105>>2] = $$sroa$0$i;
+  HEAP32[$105>>2] = $0;
   $106 = ((($AsyncCtx3)) + 8|0);
-  HEAP32[$106>>2] = $$sroa$0$i;
+  HEAP32[$106>>2] = $4;
   $107 = ((($AsyncCtx3)) + 12|0);
   HEAP32[$107>>2] = $5;
   $108 = ((($AsyncCtx3)) + 16|0);
-  HEAP32[$108>>2] = $0;
+  HEAP32[$108>>2] = $$sroa$0$i;
   $109 = ((($AsyncCtx3)) + 20|0);
-  HEAP32[$109>>2] = $4;
+  HEAP32[$109>>2] = $$sroa$0$i;
   $110 = ((($AsyncCtx3)) + 24|0);
   HEAP32[$110>>2] = $0;
   $111 = ((($AsyncCtx3)) + 28|0);
-  HEAP32[$111>>2] = $10;
+  HEAP32[$111>>2] = $9;
   $112 = ((($AsyncCtx3)) + 32|0);
-  HEAP32[$112>>2] = $43;
+  HEAP32[$112>>2] = $10;
   $113 = ((($AsyncCtx3)) + 36|0);
-  HEAP32[$113>>2] = $9;
+  $$expand_i1_val24 = $8&1;
+  HEAP8[$113>>0] = $$expand_i1_val24;
   $114 = ((($AsyncCtx3)) + 40|0);
-  HEAP32[$114>>2] = $$idx;
+  HEAP32[$114>>2] = $43;
   $115 = ((($AsyncCtx3)) + 44|0);
-  HEAP32[$115>>2] = $12;
+  HEAP32[$115>>2] = $3;
   $116 = ((($AsyncCtx3)) + 48|0);
   HEAP32[$116>>2] = $7;
   $117 = ((($AsyncCtx3)) + 52|0);
-  HEAP32[$117>>2] = $11;
+  HEAP32[$117>>2] = $6;
   $118 = ((($AsyncCtx3)) + 56|0);
-  HEAP32[$118>>2] = $6;
+  HEAP32[$118>>2] = $$06690;
   $119 = ((($AsyncCtx3)) + 60|0);
-  HEAP32[$119>>2] = $0;
+  HEAP32[$119>>2] = $12;
   $120 = ((($AsyncCtx3)) + 64|0);
-  HEAP32[$120>>2] = $$sroa$0$i;
+  HEAP32[$120>>2] = $42;
   $121 = ((($AsyncCtx3)) + 68|0);
-  HEAP32[$121>>2] = $3;
+  HEAP32[$121>>2] = $11;
   $122 = ((($AsyncCtx3)) + 72|0);
-  $$expand_i1_val24 = $8&1;
-  HEAP8[$122>>0] = $$expand_i1_val24;
+  HEAP32[$122>>2] = $$idx;
   $123 = ((($AsyncCtx3)) + 76|0);
-  HEAP32[$123>>2] = $$06690;
+  HEAP32[$123>>2] = $0;
   $124 = ((($AsyncCtx3)) + 80|0);
-  HEAP32[$124>>2] = $42;
+  HEAP32[$124>>2] = $$sroa$0$i;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
@@ -4831,42 +4831,42 @@ function _equeue_dispatch($0,$1) {
  else if ((label|0) == 53) {
   HEAP32[$AsyncCtx15>>2] = 61;
   $175 = ((($AsyncCtx15)) + 4|0);
-  HEAP32[$175>>2] = $$sroa$0$i;
+  HEAP32[$175>>2] = $0;
   $176 = ((($AsyncCtx15)) + 8|0);
-  HEAP32[$176>>2] = $$sroa$0$i;
+  HEAP32[$176>>2] = $4;
   $177 = ((($AsyncCtx15)) + 12|0);
   HEAP32[$177>>2] = $5;
   $178 = ((($AsyncCtx15)) + 16|0);
-  HEAP32[$178>>2] = $0;
+  HEAP32[$178>>2] = $$sroa$0$i;
   $179 = ((($AsyncCtx15)) + 20|0);
-  HEAP32[$179>>2] = $4;
+  HEAP32[$179>>2] = $$sroa$0$i;
   $180 = ((($AsyncCtx15)) + 24|0);
   HEAP32[$180>>2] = $0;
   $181 = ((($AsyncCtx15)) + 28|0);
-  HEAP32[$181>>2] = $10;
+  HEAP32[$181>>2] = $9;
   $182 = ((($AsyncCtx15)) + 32|0);
-  HEAP32[$182>>2] = $9;
+  HEAP32[$182>>2] = $10;
   $183 = ((($AsyncCtx15)) + 36|0);
-  HEAP32[$183>>2] = $$idx;
+  $$expand_i1_val26 = $8&1;
+  HEAP8[$183>>0] = $$expand_i1_val26;
   $184 = ((($AsyncCtx15)) + 40|0);
-  HEAP32[$184>>2] = $12;
+  HEAP32[$184>>2] = $3;
   $185 = ((($AsyncCtx15)) + 44|0);
   HEAP32[$185>>2] = $7;
   $186 = ((($AsyncCtx15)) + 48|0);
-  HEAP32[$186>>2] = $11;
+  HEAP32[$186>>2] = $174;
   $187 = ((($AsyncCtx15)) + 52|0);
   HEAP32[$187>>2] = $6;
   $188 = ((($AsyncCtx15)) + 56|0);
-  HEAP32[$188>>2] = $0;
+  HEAP32[$188>>2] = $12;
   $189 = ((($AsyncCtx15)) + 60|0);
-  HEAP32[$189>>2] = $$sroa$0$i;
+  HEAP32[$189>>2] = $11;
   $190 = ((($AsyncCtx15)) + 64|0);
-  HEAP32[$190>>2] = $3;
+  HEAP32[$190>>2] = $$idx;
   $191 = ((($AsyncCtx15)) + 68|0);
-  $$expand_i1_val26 = $8&1;
-  HEAP8[$191>>0] = $$expand_i1_val26;
+  HEAP32[$191>>2] = $0;
   $192 = ((($AsyncCtx15)) + 72|0);
-  HEAP32[$192>>2] = $174;
+  HEAP32[$192>>2] = $$sroa$0$i;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
@@ -5724,11 +5724,11 @@ function _main() {
  if ($IsAsync30) {
   HEAP32[$AsyncCtx29>>2] = 90;
   $10 = ((($AsyncCtx29)) + 4|0);
-  HEAP32[$10>>2] = $1;
+  HEAP32[$10>>2] = $3;
   $11 = ((($AsyncCtx29)) + 8|0);
-  HEAP32[$11>>2] = $3;
+  HEAP32[$11>>2] = $4;
   $12 = ((($AsyncCtx29)) + 12|0);
-  HEAP32[$12>>2] = $4;
+  HEAP32[$12>>2] = $1;
   $13 = ((($AsyncCtx29)) + 16|0);
   HEAP32[$13>>2] = $0;
   $14 = ((($AsyncCtx29)) + 20|0);
@@ -5753,11 +5753,11 @@ function _main() {
    if ($IsAsync27) {
     HEAP32[$AsyncCtx26>>2] = 93;
     $17 = ((($AsyncCtx26)) + 4|0);
-    HEAP32[$17>>2] = $1;
+    HEAP32[$17>>2] = $3;
     $18 = ((($AsyncCtx26)) + 8|0);
-    HEAP32[$18>>2] = $3;
+    HEAP32[$18>>2] = $4;
     $19 = ((($AsyncCtx26)) + 12|0);
-    HEAP32[$19>>2] = $4;
+    HEAP32[$19>>2] = $1;
     $20 = ((($AsyncCtx26)) + 16|0);
     HEAP32[$20>>2] = $0;
     sp = STACKTOP;
@@ -14615,28 +14615,28 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
     if ($IsAsync12) {
      HEAP32[$AsyncCtx11>>2] = 158;
      $72 = ((($AsyncCtx11)) + 4|0);
-     HEAP32[$72>>2] = $1;
+     HEAP32[$72>>2] = $71;
      $73 = ((($AsyncCtx11)) + 8|0);
-     HEAP32[$73>>2] = $2;
+     HEAP32[$73>>2] = $13;
      $74 = ((($AsyncCtx11)) + 12|0);
-     HEAP32[$74>>2] = $3;
+     HEAP32[$74>>2] = $12;
      $75 = ((($AsyncCtx11)) + 16|0);
-     $$expand_i1_val24 = $4&1;
-     HEAP8[$75>>0] = $$expand_i1_val24;
+     HEAP32[$75>>2] = $11;
      $76 = ((($AsyncCtx11)) + 20|0);
-     HEAP32[$76>>2] = $13;
+     HEAP32[$76>>2] = $1;
      $77 = ((($AsyncCtx11)) + 24|0);
-     HEAP32[$77>>2] = $12;
+     HEAP32[$77>>2] = $2;
      $78 = ((($AsyncCtx11)) + 28|0);
-     HEAP32[$78>>2] = $11;
+     HEAP32[$78>>2] = $3;
      $79 = ((($AsyncCtx11)) + 32|0);
-     HEAP32[$79>>2] = $71;
+     $$expand_i1_val24 = $4&1;
+     HEAP8[$79>>0] = $$expand_i1_val24;
      $80 = ((($AsyncCtx11)) + 36|0);
-     HEAP32[$80>>2] = $14;
+     HEAP32[$80>>2] = $0;
      $81 = ((($AsyncCtx11)) + 40|0);
-     HEAP32[$81>>2] = $0;
+     HEAP32[$81>>2] = $70;
      $82 = ((($AsyncCtx11)) + 44|0);
-     HEAP32[$82>>2] = $70;
+     HEAP32[$82>>2] = $14;
      sp = STACKTOP;
      return;
     }
@@ -14893,38 +14893,38 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
      if ((label|0) == 12) {
       HEAP32[$AsyncCtx15>>2] = 157;
       $32 = ((($AsyncCtx15)) + 4|0);
-      $$081$off0$expand_i1_val = $$081$off0&1;
-      HEAP8[$32>>0] = $$081$off0$expand_i1_val;
-      $33 = ((($AsyncCtx15)) + 5|0);
-      $$085$off0$expand_i1_val = $$085$off0&1;
-      HEAP8[$33>>0] = $$085$off0$expand_i1_val;
-      $34 = ((($AsyncCtx15)) + 8|0);
+      HEAP32[$32>>2] = $24;
+      $33 = ((($AsyncCtx15)) + 8|0);
+      HEAP32[$33>>2] = $11;
+      $34 = ((($AsyncCtx15)) + 12|0);
       HEAP32[$34>>2] = $2;
-      $35 = ((($AsyncCtx15)) + 12|0);
+      $35 = ((($AsyncCtx15)) + 16|0);
       HEAP32[$35>>2] = $20;
-      $36 = ((($AsyncCtx15)) + 16|0);
+      $36 = ((($AsyncCtx15)) + 20|0);
       HEAP32[$36>>2] = $1;
-      $37 = ((($AsyncCtx15)) + 20|0);
+      $37 = ((($AsyncCtx15)) + 24|0);
       HEAP32[$37>>2] = $12;
-      $38 = ((($AsyncCtx15)) + 24|0);
-      HEAP32[$38>>2] = $11;
-      $39 = ((($AsyncCtx15)) + 28|0);
-      HEAP32[$39>>2] = $$084;
-      $40 = ((($AsyncCtx15)) + 32|0);
-      HEAP32[$40>>2] = $13;
-      $41 = ((($AsyncCtx15)) + 36|0);
-      HEAP32[$41>>2] = $14;
-      $42 = ((($AsyncCtx15)) + 40|0);
-      HEAP32[$42>>2] = $29;
-      $43 = ((($AsyncCtx15)) + 44|0);
-      HEAP32[$43>>2] = $30;
-      $44 = ((($AsyncCtx15)) + 48|0);
-      HEAP32[$44>>2] = $24;
-      $45 = ((($AsyncCtx15)) + 52|0);
+      $38 = ((($AsyncCtx15)) + 28|0);
+      HEAP32[$38>>2] = $13;
+      $39 = ((($AsyncCtx15)) + 32|0);
+      HEAP32[$39>>2] = $28;
+      $40 = ((($AsyncCtx15)) + 36|0);
+      HEAP32[$40>>2] = $29;
+      $41 = ((($AsyncCtx15)) + 40|0);
+      HEAP32[$41>>2] = $30;
+      $42 = ((($AsyncCtx15)) + 44|0);
       $$expand_i1_val = $4&1;
-      HEAP8[$45>>0] = $$expand_i1_val;
+      HEAP8[$42>>0] = $$expand_i1_val;
+      $43 = ((($AsyncCtx15)) + 48|0);
+      HEAP32[$43>>2] = $14;
+      $44 = ((($AsyncCtx15)) + 52|0);
+      $$085$off0$expand_i1_val = $$085$off0&1;
+      HEAP8[$44>>0] = $$085$off0$expand_i1_val;
+      $45 = ((($AsyncCtx15)) + 53|0);
+      $$081$off0$expand_i1_val = $$081$off0&1;
+      HEAP8[$45>>0] = $$081$off0$expand_i1_val;
       $46 = ((($AsyncCtx15)) + 56|0);
-      HEAP32[$46>>2] = $28;
+      HEAP32[$46>>2] = $$084;
       sp = STACKTOP;
       return;
      }
@@ -15249,36 +15249,6 @@ function ___cxa_is_pointer_type($0) {
  $3 = $4&1;
  return ($3|0);
 }
-function __ZSt9terminatev__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt9terminatev__async_cb_1($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt9terminatev__async_cb_2($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN6events10EventQueue13function_callIPFvvEEEvPv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 2290 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
-}
-function _handle_interrupt_in__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
 function ___cxa_can_catch__async_cb($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, label = 0, sp = 0;
@@ -15301,252 +15271,133 @@ function ___cxa_can_catch__async_cb($0) {
  HEAP32[$10>>2] = $8;
  return;
 }
-function ___overflow__async_cb($0) {
+function _equeue_post__async_cb($0) {
  $0 = $0|0;
- var $$0 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
  $3 = ___async_retval;
  $AsyncRetVal = HEAP32[$3>>2]|0;
- $4 = ($AsyncRetVal|0)==(1);
- if ($4) {
-  $5 = HEAP8[$2>>0]|0;
-  $6 = $5&255;
-  $$0 = $6;
- } else {
-  $$0 = -1;
- }
- $7 = ___async_retval;
- HEAP32[$7>>2] = $$0;
- return;
-}
-function __ZNK6events5EventIFvvEEclEv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 156 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
-}
-function ___clang_call_terminate__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN6events10EventQueue8dispatchEi__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZNK6events5EventIFvvEE4callEv__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- HEAP32[$2>>2] = $AsyncRetVal; //@line 148 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $4 = HEAP32[$2>>2]|0; //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $5 = ($4|0)!=(0); //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- if ($5) {
-  return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- }
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
- _mbed_assert_internal(1303,1306,149); //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $IsAsync4 = ___async;
- if ($IsAsync4) {
-  HEAP32[$ReallocAsyncCtx2>>2] = 114;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx2>>2] = 114;
- sp = STACKTOP;
- return;
-}
-function __ZNK6events5EventIFvvEE4callEv__async_cb_3($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
-}
-function _fflush__async_cb($0) {
- $0 = $0|0;
- var $$023 = 0, $$02327$reg2mem$0 = 0, $$1 = 0, $$1$phi = 0, $$reg2mem$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0;
- var $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ___async_retval;
- $AsyncRetVal = HEAP32[$7>>2]|0;
- $23 = $AsyncRetVal | $2;
- $$02327$reg2mem$0 = $6;$$1 = $23;$$reg2mem$0 = $4;
- while(1) {
-  $24 = ($$reg2mem$0|0)==(0);
-  if (!($24)) {
-   ___unlockfile($$02327$reg2mem$0);
-  }
-  $25 = ((($$02327$reg2mem$0)) + 56|0);
-  $$023 = HEAP32[$25>>2]|0;
-  $26 = ($$023|0)==(0|0);
-  if ($26) {
-   label = 12;
-   break;
-  }
-  $8 = ((($$023)) + 76|0);
-  $9 = HEAP32[$8>>2]|0;
-  $10 = ($9|0)>(-1);
-  if ($10) {
-   $11 = (___lockfile($$023)|0);
-   $20 = $11;
-  } else {
-   $20 = 0;
-  }
-  $12 = ((($$023)) + 20|0);
-  $13 = HEAP32[$12>>2]|0;
-  $14 = ((($$023)) + 28|0);
-  $15 = HEAP32[$14>>2]|0;
-  $16 = ($13>>>0)>($15>>>0);
-  if ($16) {
-   break;
-  } else {
-   $$1$phi = $$1;$$02327$reg2mem$0 = $$023;$$reg2mem$0 = $20;$$1 = $$1$phi;
-  }
- }
- if ((label|0) == 12) {
-  ___ofl_unlock();
-  $27 = ___async_retval;
-  HEAP32[$27>>2] = $$1;
-  return;
- }
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
- $17 = (___fflush_unlocked($$023)|0);
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  $22 = ___async_retval;
-  HEAP32[$22>>2] = $17;
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 130;
- $18 = ((($ReallocAsyncCtx)) + 4|0);
- HEAP32[$18>>2] = $$1;
- $19 = ((($ReallocAsyncCtx)) + 8|0);
- HEAP32[$19>>2] = $20;
- $21 = ((($ReallocAsyncCtx)) + 12|0);
- HEAP32[$21>>2] = $$023;
- sp = STACKTOP;
- return;
-}
-function _fflush__async_cb_4($0) {
- $0 = $0|0;
- var $$pre_trunc = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $$pre_trunc = HEAP8[$1>>0]|0;
- $2 = $$pre_trunc&1;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
+ $4 = ((($2)) + 52|0);
+ _equeue_sema_signal($4);
  $5 = ___async_retval;
- $AsyncRetVal = HEAP32[$5>>2]|0;
- if (!($2)) {
-  ___unlockfile($4);
- }
- $6 = ___async_retval;
- HEAP32[$6>>2] = $AsyncRetVal;
+ HEAP32[$5>>2] = $AsyncRetVal;
  return;
 }
-function _fflush__async_cb_5($0) {
+function _equeue_alloc__async_cb($0) {
  $0 = $0|0;
- var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var $$0 = 0, $$037$sink$i = 0, $$03741$i = 0, $$1$i9 = 0, $$sink$i = 0, $$sink$in$in$i = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0;
+ var $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $2 = ___async_retval;
- HEAP32[$2>>2] = $AsyncRetVal;
- return;
-}
-function _fflush__async_cb_6($0) {
- $0 = $0|0;
- var $$023 = 0, $$02325 = 0, $$02327 = 0, $$024$lcssa = 0, $$02426 = 0, $$02426$phi = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0;
- var $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $2 = (___ofl_lock()|0);
- $$02325 = HEAP32[$2>>2]|0;
- $3 = ($$02325|0)==(0|0);
- L3: do {
-  if ($3) {
-   $$024$lcssa = $AsyncRetVal;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = (($2) + 39)|0;
+ $6 = $5 & -4;
+ $7 = ((($4)) + 160|0);
+ _equeue_mutex_lock($7);
+ $8 = ((($4)) + 28|0);
+ $9 = HEAP32[$8>>2]|0;
+ $10 = ($9|0)==(0|0);
+ L2: do {
+  if ($10) {
+   label = 8;
   } else {
-   $$02327 = $$02325;$$02426 = $AsyncRetVal;
+   $$03741$i = $8;$12 = $9;
    while(1) {
-    $4 = ((($$02327)) + 76|0);
-    $5 = HEAP32[$4>>2]|0;
-    $6 = ($5|0)>(-1);
-    if ($6) {
-     $7 = (___lockfile($$02327)|0);
-     $16 = $7;
-    } else {
-     $16 = 0;
-    }
-    $8 = ((($$02327)) + 20|0);
-    $9 = HEAP32[$8>>2]|0;
-    $10 = ((($$02327)) + 28|0);
-    $11 = HEAP32[$10>>2]|0;
-    $12 = ($9>>>0)>($11>>>0);
-    if ($12) {
+    $11 = HEAP32[$12>>2]|0;
+    $13 = ($11>>>0)<($6>>>0);
+    if (!($13)) {
      break;
     }
-    $19 = ($16|0)==(0);
-    if (!($19)) {
-     ___unlockfile($$02327);
-    }
-    $20 = ((($$02327)) + 56|0);
-    $$023 = HEAP32[$20>>2]|0;
-    $21 = ($$023|0)==(0|0);
-    if ($21) {
-     $$024$lcssa = $$02426;
-     break L3;
+    $18 = ((($12)) + 8|0);
+    $19 = HEAP32[$18>>2]|0;
+    $20 = ($19|0)==(0|0);
+    if ($20) {
+     label = 8;
+     break L2;
     } else {
-     $$02426$phi = $$02426;$$02327 = $$023;$$02426 = $$02426$phi;
+     $$03741$i = $18;$12 = $19;
     }
    }
-   $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
-   $13 = (___fflush_unlocked($$02327)|0);
-   $IsAsync = ___async;
-   if (!($IsAsync)) {
-    $18 = ___async_retval;
-    HEAP32[$18>>2] = $13;
-    ___async_unwind = 0;
+   $14 = ((($12)) + 12|0);
+   $15 = HEAP32[$14>>2]|0;
+   $16 = ($15|0)==(0|0);
+   if ($16) {
+    $$037$sink$i = $$03741$i;
+   } else {
+    HEAP32[$$03741$i>>2] = $15;
+    $17 = ((($15)) + 8|0);
+    $$037$sink$i = $17;
    }
-   HEAP32[$ReallocAsyncCtx>>2] = 130;
-   $14 = ((($ReallocAsyncCtx)) + 4|0);
-   HEAP32[$14>>2] = $$02426;
-   $15 = ((($ReallocAsyncCtx)) + 8|0);
-   HEAP32[$15>>2] = $16;
-   $17 = ((($ReallocAsyncCtx)) + 12|0);
-   HEAP32[$17>>2] = $$02327;
-   sp = STACKTOP;
-   return;
+   $$sink$in$in$i = ((($12)) + 8|0);
+   $$sink$i = HEAP32[$$sink$in$in$i>>2]|0;
+   HEAP32[$$037$sink$i>>2] = $$sink$i;
+   _equeue_mutex_unlock($7);
+   $$1$i9 = $12;
   }
  } while(0);
- ___ofl_unlock();
- $22 = ___async_retval;
- HEAP32[$22>>2] = $$024$lcssa;
+ do {
+  if ((label|0) == 8) {
+   $21 = ((($4)) + 32|0);
+   $22 = HEAP32[$21>>2]|0;
+   $23 = ($22>>>0)<($6>>>0);
+   if ($23) {
+    _equeue_mutex_unlock($7);
+    $$0 = 0;
+    $34 = ___async_retval;
+    HEAP32[$34>>2] = $$0;
+    return;
+   } else {
+    $24 = ((($4)) + 36|0);
+    $25 = HEAP32[$24>>2]|0;
+    $26 = (($25) + ($6)|0);
+    HEAP32[$24>>2] = $26;
+    $27 = (($22) - ($6))|0;
+    HEAP32[$21>>2] = $27;
+    HEAP32[$25>>2] = $6;
+    $28 = ((($25)) + 4|0);
+    HEAP8[$28>>0] = 1;
+    _equeue_mutex_unlock($7);
+    $29 = ($25|0)==(0|0);
+    if ($29) {
+     $$0 = 0;
+    } else {
+     $$1$i9 = $25;
+     break;
+    }
+    $34 = ___async_retval;
+    HEAP32[$34>>2] = $$0;
+    return;
+   }
+  }
+ } while(0);
+ $30 = ((($$1$i9)) + 20|0);
+ HEAP32[$30>>2] = 0;
+ $31 = ((($$1$i9)) + 24|0);
+ HEAP32[$31>>2] = -1;
+ $32 = ((($$1$i9)) + 28|0);
+ HEAP32[$32>>2] = 0;
+ $33 = ((($$1$i9)) + 36|0);
+ $$0 = $33;
+ $34 = ___async_retval;
+ HEAP32[$34>>2] = $$0;
  return;
+}
+function ___cxx_global_var_init_3__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 13 "demos/events/main.cpp"
+}
+function __ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 2290 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
 }
 function ___dynamic_cast__async_cb($0) {
  $0 = $0|0;
@@ -15565,7 +15416,7 @@ function ___dynamic_cast__async_cb($0) {
  HEAP32[$9>>2] = $$;
  return;
 }
-function ___dynamic_cast__async_cb_7($0) {
+function ___dynamic_cast__async_cb_1($0) {
  $0 = $0|0;
  var $$0 = 0, $$33 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $or$cond = 0, $or$cond28 = 0, $or$cond30 = 0, $or$cond32 = 0;
@@ -15634,2721 +15485,11 @@ function ___dynamic_cast__async_cb_7($0) {
  HEAP32[$34>>2] = $$0;
  return;
 }
-function _equeue_dispatch__async_cb($0) {
- $0 = $0|0;
- var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$06690$reg2mem$0 = 0, $$06690$reg2mem$0$phi = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val31 = 0, $$expand_i1_val33 = 0, $$expand_i1_val35 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$reg2mem24$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0;
- var $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0;
- var $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0;
- var $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0;
- var $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0;
- var $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0;
- var $190 = 0, $191 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0;
- var $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0;
- var $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0;
- var $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0, $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0;
- var $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0, $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 48|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 52|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 56|0);
- $28 = HEAP32[$27>>2]|0;
- $29 = ((($0)) + 60|0);
- $30 = HEAP32[$29>>2]|0;
- $31 = ((($0)) + 64|0);
- $32 = HEAP32[$31>>2]|0;
- $33 = ((($0)) + 68|0);
- $34 = HEAP32[$33>>2]|0;
- $35 = ((($0)) + 72|0);
- $36 = HEAP32[$35>>2]|0;
- $37 = ((($0)) + 76|0);
- $38 = HEAP32[$37>>2]|0;
- $39 = ((($0)) + 80|0);
- $$pre_trunc = HEAP8[$39>>0]|0;
- $40 = $$pre_trunc&1;
- $$06690$reg2mem$0 = $16;$$reg2mem$0 = $18;$$reg2mem24$0 = $36;
- while(1) {
-  $67 = ((($$06690$reg2mem$0)) + 24|0);
-  $68 = HEAP32[$67>>2]|0;
-  $69 = ($68|0)>(-1);
-  if ($69) {
-   label = 8;
-   break;
-  }
-  $$idx$val = HEAP32[$22>>2]|0;
-  $92 = ((($$06690$reg2mem$0)) + 4|0);
-  $93 = HEAP8[$92>>0]|0;
-  $94 = $93&255;
-  $95 = (($94) + 1)|0;
-  $96 = $95&255;
-  $97 = $95 & 255;
-  $98 = $97 << $$idx$val;
-  $99 = ($98|0)==(0);
-  $$$i = $99 ? 1 : $96;
-  HEAP8[$92>>0] = $$$i;
-  $100 = ((($$06690$reg2mem$0)) + 28|0);
-  $101 = HEAP32[$100>>2]|0;
-  $102 = ($101|0)==(0|0);
-  if (!($102)) {
-   label = 12;
-   break;
-  }
-  _equeue_mutex_lock($28);
-  $124 = HEAP32[$24>>2]|0;
-  $125 = ($124|0)==(0|0);
-  L6: do {
-   if ($125) {
-    $$027$i$i = $24;
-    label = 21;
-   } else {
-    $126 = HEAP32[$$06690$reg2mem$0>>2]|0;
-    $$029$i$i = $24;$128 = $124;
-    while(1) {
-     $127 = HEAP32[$128>>2]|0;
-     $129 = ($127>>>0)<($126>>>0);
-     if (!($129)) {
-      break;
-     }
-     $130 = ((($128)) + 8|0);
-     $131 = HEAP32[$130>>2]|0;
-     $132 = ($131|0)==(0|0);
-     if ($132) {
-      $$027$i$i = $130;
-      label = 21;
-      break L6;
-     } else {
-      $$029$i$i = $130;$128 = $131;
-     }
-    }
-    $133 = ($127|0)==($126|0);
-    if ($133) {
-     $134 = ((($$06690$reg2mem$0)) + 12|0);
-     HEAP32[$134>>2] = $128;
-     $135 = HEAP32[$$029$i$i>>2]|0;
-     $136 = ((($135)) + 8|0);
-     $$028$i$i = $$029$i$i;$$sink$in$i$i = $136;
-    } else {
-     $$027$i$i = $$029$i$i;
-     label = 21;
-    }
-   }
-  } while(0);
-  if ((label|0) == 21) {
-   label = 0;
-   $137 = ((($$06690$reg2mem$0)) + 12|0);
-   HEAP32[$137>>2] = 0;
-   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
-  }
-  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
-  HEAP32[$$reg2mem24$0>>2] = $$sink21$i$i;
-  HEAP32[$$028$i$i>>2] = $$06690$reg2mem$0;
-  _equeue_mutex_unlock($28);
-  $138 = ($$reg2mem$0|0)==(0|0);
-  if ($138) {
-   label = 24;
-   break;
-  }
-  $41 = ((($$reg2mem$0)) + 8|0);
-  $42 = HEAP32[$41>>2]|0;
-  $43 = ((($$reg2mem$0)) + 32|0);
-  $44 = HEAP32[$43>>2]|0;
-  $45 = ($44|0)==(0|0);
-  if ($45) {
-   $$06690$reg2mem$0$phi = $$reg2mem$0;$$reg2mem$0 = $42;$$reg2mem24$0 = $41;$$06690$reg2mem$0 = $$06690$reg2mem$0$phi;
-  } else {
-   label = 3;
-   break;
-  }
- }
- if ((label|0) == 3) {
-  $46 = ((($$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$44 & 255]($46);
-  $IsAsync = ___async;
-  if ($IsAsync) {
-   HEAP32[$ReallocAsyncCtx>>2] = 57;
-   $47 = ((($ReallocAsyncCtx)) + 4|0);
-   HEAP32[$47>>2] = $2;
-   $48 = ((($ReallocAsyncCtx)) + 8|0);
-   HEAP32[$48>>2] = $4;
-   $49 = ((($ReallocAsyncCtx)) + 12|0);
-   HEAP32[$49>>2] = $6;
-   $50 = ((($ReallocAsyncCtx)) + 16|0);
-   HEAP32[$50>>2] = $8;
-   $51 = ((($ReallocAsyncCtx)) + 20|0);
-   HEAP32[$51>>2] = $10;
-   $52 = ((($ReallocAsyncCtx)) + 24|0);
-   HEAP32[$52>>2] = $12;
-   $53 = ((($ReallocAsyncCtx)) + 28|0);
-   HEAP32[$53>>2] = $14;
-   $54 = ((($ReallocAsyncCtx)) + 32|0);
-   HEAP32[$54>>2] = $$reg2mem$0;
-   $55 = ((($ReallocAsyncCtx)) + 36|0);
-   HEAP32[$55>>2] = $42;
-   $56 = ((($ReallocAsyncCtx)) + 40|0);
-   HEAP32[$56>>2] = $20;
-   $57 = ((($ReallocAsyncCtx)) + 44|0);
-   HEAP32[$57>>2] = $22;
-   $58 = ((($ReallocAsyncCtx)) + 48|0);
-   HEAP32[$58>>2] = $24;
-   $59 = ((($ReallocAsyncCtx)) + 52|0);
-   HEAP32[$59>>2] = $26;
-   $60 = ((($ReallocAsyncCtx)) + 56|0);
-   HEAP32[$60>>2] = $28;
-   $61 = ((($ReallocAsyncCtx)) + 60|0);
-   HEAP32[$61>>2] = $30;
-   $62 = ((($ReallocAsyncCtx)) + 64|0);
-   HEAP32[$62>>2] = $32;
-   $63 = ((($ReallocAsyncCtx)) + 68|0);
-   HEAP32[$63>>2] = $34;
-   $64 = ((($ReallocAsyncCtx)) + 72|0);
-   HEAP32[$64>>2] = $41;
-   $65 = ((($ReallocAsyncCtx)) + 76|0);
-   HEAP32[$65>>2] = $38;
-   $66 = ((($ReallocAsyncCtx)) + 80|0);
-   $$expand_i1_val = $40&1;
-   HEAP8[$66>>0] = $$expand_i1_val;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx>>2] = 57;
-  $47 = ((($ReallocAsyncCtx)) + 4|0);
-  HEAP32[$47>>2] = $2;
-  $48 = ((($ReallocAsyncCtx)) + 8|0);
-  HEAP32[$48>>2] = $4;
-  $49 = ((($ReallocAsyncCtx)) + 12|0);
-  HEAP32[$49>>2] = $6;
-  $50 = ((($ReallocAsyncCtx)) + 16|0);
-  HEAP32[$50>>2] = $8;
-  $51 = ((($ReallocAsyncCtx)) + 20|0);
-  HEAP32[$51>>2] = $10;
-  $52 = ((($ReallocAsyncCtx)) + 24|0);
-  HEAP32[$52>>2] = $12;
-  $53 = ((($ReallocAsyncCtx)) + 28|0);
-  HEAP32[$53>>2] = $14;
-  $54 = ((($ReallocAsyncCtx)) + 32|0);
-  HEAP32[$54>>2] = $$reg2mem$0;
-  $55 = ((($ReallocAsyncCtx)) + 36|0);
-  HEAP32[$55>>2] = $42;
-  $56 = ((($ReallocAsyncCtx)) + 40|0);
-  HEAP32[$56>>2] = $20;
-  $57 = ((($ReallocAsyncCtx)) + 44|0);
-  HEAP32[$57>>2] = $22;
-  $58 = ((($ReallocAsyncCtx)) + 48|0);
-  HEAP32[$58>>2] = $24;
-  $59 = ((($ReallocAsyncCtx)) + 52|0);
-  HEAP32[$59>>2] = $26;
-  $60 = ((($ReallocAsyncCtx)) + 56|0);
-  HEAP32[$60>>2] = $28;
-  $61 = ((($ReallocAsyncCtx)) + 60|0);
-  HEAP32[$61>>2] = $30;
-  $62 = ((($ReallocAsyncCtx)) + 64|0);
-  HEAP32[$62>>2] = $32;
-  $63 = ((($ReallocAsyncCtx)) + 68|0);
-  HEAP32[$63>>2] = $34;
-  $64 = ((($ReallocAsyncCtx)) + 72|0);
-  HEAP32[$64>>2] = $41;
-  $65 = ((($ReallocAsyncCtx)) + 76|0);
-  HEAP32[$65>>2] = $38;
-  $66 = ((($ReallocAsyncCtx)) + 80|0);
-  $$expand_i1_val = $40&1;
-  HEAP8[$66>>0] = $$expand_i1_val;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 8) {
-  $70 = ((($$06690$reg2mem$0)) + 20|0);
-  $71 = HEAP32[$70>>2]|0;
-  $72 = (($71) + ($68))|0;
-  HEAP32[$70>>2] = $72;
-  $73 = (_equeue_tick()|0);
-  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
-  (_equeue_enqueue($12,$$06690$reg2mem$0,$73)|0);
-  $IsAsync12 = ___async;
-  if ($IsAsync12) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 58;
-   $74 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$74>>2] = $2;
-   $75 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$75>>2] = $4;
-   $76 = ((($ReallocAsyncCtx4)) + 12|0);
-   HEAP32[$76>>2] = $6;
-   $77 = ((($ReallocAsyncCtx4)) + 16|0);
-   HEAP32[$77>>2] = $8;
-   $78 = ((($ReallocAsyncCtx4)) + 20|0);
-   HEAP32[$78>>2] = $10;
-   $79 = ((($ReallocAsyncCtx4)) + 24|0);
-   HEAP32[$79>>2] = $12;
-   $80 = ((($ReallocAsyncCtx4)) + 28|0);
-   HEAP32[$80>>2] = $14;
-   $81 = ((($ReallocAsyncCtx4)) + 32|0);
-   HEAP32[$81>>2] = $$reg2mem$0;
-   $82 = ((($ReallocAsyncCtx4)) + 36|0);
-   HEAP32[$82>>2] = $20;
-   $83 = ((($ReallocAsyncCtx4)) + 40|0);
-   HEAP32[$83>>2] = $22;
-   $84 = ((($ReallocAsyncCtx4)) + 44|0);
-   HEAP32[$84>>2] = $24;
-   $85 = ((($ReallocAsyncCtx4)) + 48|0);
-   HEAP32[$85>>2] = $26;
-   $86 = ((($ReallocAsyncCtx4)) + 52|0);
-   HEAP32[$86>>2] = $28;
-   $87 = ((($ReallocAsyncCtx4)) + 56|0);
-   HEAP32[$87>>2] = $30;
-   $88 = ((($ReallocAsyncCtx4)) + 60|0);
-   HEAP32[$88>>2] = $32;
-   $89 = ((($ReallocAsyncCtx4)) + 64|0);
-   HEAP32[$89>>2] = $34;
-   $90 = ((($ReallocAsyncCtx4)) + 68|0);
-   HEAP32[$90>>2] = $38;
-   $91 = ((($ReallocAsyncCtx4)) + 72|0);
-   $$expand_i1_val31 = $40&1;
-   HEAP8[$91>>0] = $$expand_i1_val31;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 58;
-  $74 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$74>>2] = $2;
-  $75 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$75>>2] = $4;
-  $76 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$76>>2] = $6;
-  $77 = ((($ReallocAsyncCtx4)) + 16|0);
-  HEAP32[$77>>2] = $8;
-  $78 = ((($ReallocAsyncCtx4)) + 20|0);
-  HEAP32[$78>>2] = $10;
-  $79 = ((($ReallocAsyncCtx4)) + 24|0);
-  HEAP32[$79>>2] = $12;
-  $80 = ((($ReallocAsyncCtx4)) + 28|0);
-  HEAP32[$80>>2] = $14;
-  $81 = ((($ReallocAsyncCtx4)) + 32|0);
-  HEAP32[$81>>2] = $$reg2mem$0;
-  $82 = ((($ReallocAsyncCtx4)) + 36|0);
-  HEAP32[$82>>2] = $20;
-  $83 = ((($ReallocAsyncCtx4)) + 40|0);
-  HEAP32[$83>>2] = $22;
-  $84 = ((($ReallocAsyncCtx4)) + 44|0);
-  HEAP32[$84>>2] = $24;
-  $85 = ((($ReallocAsyncCtx4)) + 48|0);
-  HEAP32[$85>>2] = $26;
-  $86 = ((($ReallocAsyncCtx4)) + 52|0);
-  HEAP32[$86>>2] = $28;
-  $87 = ((($ReallocAsyncCtx4)) + 56|0);
-  HEAP32[$87>>2] = $30;
-  $88 = ((($ReallocAsyncCtx4)) + 60|0);
-  HEAP32[$88>>2] = $32;
-  $89 = ((($ReallocAsyncCtx4)) + 64|0);
-  HEAP32[$89>>2] = $34;
-  $90 = ((($ReallocAsyncCtx4)) + 68|0);
-  HEAP32[$90>>2] = $38;
-  $91 = ((($ReallocAsyncCtx4)) + 72|0);
-  $$expand_i1_val31 = $40&1;
-  HEAP8[$91>>0] = $$expand_i1_val31;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 12) {
-  $103 = ((($$06690$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$101 & 255]($103);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 59;
-   $104 = ((($ReallocAsyncCtx2)) + 4|0);
-   HEAP32[$104>>2] = $2;
-   $105 = ((($ReallocAsyncCtx2)) + 8|0);
-   HEAP32[$105>>2] = $4;
-   $106 = ((($ReallocAsyncCtx2)) + 12|0);
-   HEAP32[$106>>2] = $6;
-   $107 = ((($ReallocAsyncCtx2)) + 16|0);
-   HEAP32[$107>>2] = $8;
-   $108 = ((($ReallocAsyncCtx2)) + 20|0);
-   HEAP32[$108>>2] = $10;
-   $109 = ((($ReallocAsyncCtx2)) + 24|0);
-   HEAP32[$109>>2] = $12;
-   $110 = ((($ReallocAsyncCtx2)) + 28|0);
-   HEAP32[$110>>2] = $14;
-   $111 = ((($ReallocAsyncCtx2)) + 32|0);
-   HEAP32[$111>>2] = $$reg2mem$0;
-   $112 = ((($ReallocAsyncCtx2)) + 36|0);
-   HEAP32[$112>>2] = $20;
-   $113 = ((($ReallocAsyncCtx2)) + 40|0);
-   HEAP32[$113>>2] = $22;
-   $114 = ((($ReallocAsyncCtx2)) + 44|0);
-   HEAP32[$114>>2] = $24;
-   $115 = ((($ReallocAsyncCtx2)) + 48|0);
-   HEAP32[$115>>2] = $26;
-   $116 = ((($ReallocAsyncCtx2)) + 52|0);
-   HEAP32[$116>>2] = $28;
-   $117 = ((($ReallocAsyncCtx2)) + 56|0);
-   HEAP32[$117>>2] = $30;
-   $118 = ((($ReallocAsyncCtx2)) + 60|0);
-   HEAP32[$118>>2] = $32;
-   $119 = ((($ReallocAsyncCtx2)) + 64|0);
-   HEAP32[$119>>2] = $34;
-   $120 = ((($ReallocAsyncCtx2)) + 68|0);
-   HEAP32[$120>>2] = $38;
-   $121 = ((($ReallocAsyncCtx2)) + 72|0);
-   $$expand_i1_val33 = $40&1;
-   HEAP8[$121>>0] = $$expand_i1_val33;
-   $122 = ((($ReallocAsyncCtx2)) + 76|0);
-   HEAP32[$122>>2] = $$06690$reg2mem$0;
-   $123 = ((($ReallocAsyncCtx2)) + 80|0);
-   HEAP32[$123>>2] = $$reg2mem24$0;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 59;
-  $104 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$104>>2] = $2;
-  $105 = ((($ReallocAsyncCtx2)) + 8|0);
-  HEAP32[$105>>2] = $4;
-  $106 = ((($ReallocAsyncCtx2)) + 12|0);
-  HEAP32[$106>>2] = $6;
-  $107 = ((($ReallocAsyncCtx2)) + 16|0);
-  HEAP32[$107>>2] = $8;
-  $108 = ((($ReallocAsyncCtx2)) + 20|0);
-  HEAP32[$108>>2] = $10;
-  $109 = ((($ReallocAsyncCtx2)) + 24|0);
-  HEAP32[$109>>2] = $12;
-  $110 = ((($ReallocAsyncCtx2)) + 28|0);
-  HEAP32[$110>>2] = $14;
-  $111 = ((($ReallocAsyncCtx2)) + 32|0);
-  HEAP32[$111>>2] = $$reg2mem$0;
-  $112 = ((($ReallocAsyncCtx2)) + 36|0);
-  HEAP32[$112>>2] = $20;
-  $113 = ((($ReallocAsyncCtx2)) + 40|0);
-  HEAP32[$113>>2] = $22;
-  $114 = ((($ReallocAsyncCtx2)) + 44|0);
-  HEAP32[$114>>2] = $24;
-  $115 = ((($ReallocAsyncCtx2)) + 48|0);
-  HEAP32[$115>>2] = $26;
-  $116 = ((($ReallocAsyncCtx2)) + 52|0);
-  HEAP32[$116>>2] = $28;
-  $117 = ((($ReallocAsyncCtx2)) + 56|0);
-  HEAP32[$117>>2] = $30;
-  $118 = ((($ReallocAsyncCtx2)) + 60|0);
-  HEAP32[$118>>2] = $32;
-  $119 = ((($ReallocAsyncCtx2)) + 64|0);
-  HEAP32[$119>>2] = $34;
-  $120 = ((($ReallocAsyncCtx2)) + 68|0);
-  HEAP32[$120>>2] = $38;
-  $121 = ((($ReallocAsyncCtx2)) + 72|0);
-  $$expand_i1_val33 = $40&1;
-  HEAP8[$121>>0] = $$expand_i1_val33;
-  $122 = ((($ReallocAsyncCtx2)) + 76|0);
-  HEAP32[$122>>2] = $$06690$reg2mem$0;
-  $123 = ((($ReallocAsyncCtx2)) + 80|0);
-  HEAP32[$123>>2] = $$reg2mem24$0;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 24) {
-  $139 = (_equeue_tick()|0);
-  if ($40) {
-   $140 = (($38) - ($139))|0;
-   $141 = ($140|0)<(1);
-   if ($141) {
-    $142 = ((($12)) + 44|0);
-    $143 = HEAP32[$142>>2]|0;
-    $144 = ($143|0)==(0|0);
-    if ($144) {
-     return;
-    }
-    _equeue_mutex_lock($6);
-    $145 = HEAP32[$142>>2]|0;
-    $146 = ($145|0)==(0|0);
-    if (!($146)) {
-     $147 = HEAP32[$8>>2]|0;
-     $148 = ($147|0)==(0|0);
-     if (!($148)) {
-      $149 = ((($12)) + 48|0);
-      $150 = HEAP32[$149>>2]|0;
-      $151 = ((($147)) + 20|0);
-      $152 = HEAP32[$151>>2]|0;
-      $153 = (($152) - ($139))|0;
-      $154 = $153 >> 31;
-      $155 = $154 ^ -1;
-      $156 = $153 & $155;
-      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
-      FUNCTION_TABLE_vii[$145 & 255]($150,$156);
-      $IsAsync8 = ___async;
-      if ($IsAsync8) {
-       HEAP32[$ReallocAsyncCtx3>>2] = 60;
-       $157 = ((($ReallocAsyncCtx3)) + 4|0);
-       HEAP32[$157>>2] = $10;
-       $158 = ((($ReallocAsyncCtx3)) + 8|0);
-       HEAP32[$158>>2] = $6;
-       sp = STACKTOP;
-       return;
-      }
-      ___async_unwind = 0;
-      HEAP32[$ReallocAsyncCtx3>>2] = 60;
-      $157 = ((($ReallocAsyncCtx3)) + 4|0);
-      HEAP32[$157>>2] = $10;
-      $158 = ((($ReallocAsyncCtx3)) + 8|0);
-      HEAP32[$158>>2] = $6;
-      sp = STACKTOP;
-      return;
-     }
-    }
-    HEAP8[$10>>0] = 1;
-    _equeue_mutex_unlock($6);
-    return;
-   } else {
-    $$064 = $140;
-   }
-  } else {
-   $$064 = -1;
-  }
-  _equeue_mutex_lock($6);
-  $159 = HEAP32[$8>>2]|0;
-  $160 = ($159|0)==(0|0);
-  if ($160) {
-   $$2 = $$064;
-  } else {
-   $161 = ((($159)) + 20|0);
-   $162 = HEAP32[$161>>2]|0;
-   $163 = (($162) - ($139))|0;
-   $164 = $163 >> 31;
-   $165 = $164 ^ -1;
-   $166 = $163 & $165;
-   $167 = ($166>>>0)<($$064>>>0);
-   $$$064 = $167 ? $166 : $$064;
-   $$2 = $$$064;
-  }
-  _equeue_mutex_unlock($6);
-  (_equeue_sema_wait($20,$$2)|0);
-  $168 = HEAP32[$14>>2]|0;
-  $169 = ($168|0)==(0);
-  do {
-   if (!($169)) {
-    _equeue_mutex_lock($6);
-    $170 = HEAP32[$14>>2]|0;
-    $171 = ($170|0)==(0);
-    if ($171) {
-     _equeue_mutex_unlock($6);
-     break;
-    }
-    $172 = (($170) + -1)|0;
-    HEAP32[$14>>2] = $172;
-    _equeue_mutex_unlock($6);
-    return;
-   }
-  } while(0);
-  $173 = (_equeue_tick()|0);
-  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
-  _wait_ms(20);
-  $IsAsync16 = ___async;
-  if ($IsAsync16) {
-   HEAP32[$ReallocAsyncCtx5>>2] = 61;
-   $174 = ((($ReallocAsyncCtx5)) + 4|0);
-   HEAP32[$174>>2] = $2;
-   $175 = ((($ReallocAsyncCtx5)) + 8|0);
-   HEAP32[$175>>2] = $4;
-   $176 = ((($ReallocAsyncCtx5)) + 12|0);
-   HEAP32[$176>>2] = $6;
-   $177 = ((($ReallocAsyncCtx5)) + 16|0);
-   HEAP32[$177>>2] = $8;
-   $178 = ((($ReallocAsyncCtx5)) + 20|0);
-   HEAP32[$178>>2] = $10;
-   $179 = ((($ReallocAsyncCtx5)) + 24|0);
-   HEAP32[$179>>2] = $12;
-   $180 = ((($ReallocAsyncCtx5)) + 28|0);
-   HEAP32[$180>>2] = $14;
-   $181 = ((($ReallocAsyncCtx5)) + 32|0);
-   HEAP32[$181>>2] = $20;
-   $182 = ((($ReallocAsyncCtx5)) + 36|0);
-   HEAP32[$182>>2] = $22;
-   $183 = ((($ReallocAsyncCtx5)) + 40|0);
-   HEAP32[$183>>2] = $24;
-   $184 = ((($ReallocAsyncCtx5)) + 44|0);
-   HEAP32[$184>>2] = $26;
-   $185 = ((($ReallocAsyncCtx5)) + 48|0);
-   HEAP32[$185>>2] = $28;
-   $186 = ((($ReallocAsyncCtx5)) + 52|0);
-   HEAP32[$186>>2] = $30;
-   $187 = ((($ReallocAsyncCtx5)) + 56|0);
-   HEAP32[$187>>2] = $32;
-   $188 = ((($ReallocAsyncCtx5)) + 60|0);
-   HEAP32[$188>>2] = $34;
-   $189 = ((($ReallocAsyncCtx5)) + 64|0);
-   HEAP32[$189>>2] = $38;
-   $190 = ((($ReallocAsyncCtx5)) + 68|0);
-   $$expand_i1_val35 = $40&1;
-   HEAP8[$190>>0] = $$expand_i1_val35;
-   $191 = ((($ReallocAsyncCtx5)) + 72|0);
-   HEAP32[$191>>2] = $173;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx5>>2] = 61;
-  $174 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$174>>2] = $2;
-  $175 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$175>>2] = $4;
-  $176 = ((($ReallocAsyncCtx5)) + 12|0);
-  HEAP32[$176>>2] = $6;
-  $177 = ((($ReallocAsyncCtx5)) + 16|0);
-  HEAP32[$177>>2] = $8;
-  $178 = ((($ReallocAsyncCtx5)) + 20|0);
-  HEAP32[$178>>2] = $10;
-  $179 = ((($ReallocAsyncCtx5)) + 24|0);
-  HEAP32[$179>>2] = $12;
-  $180 = ((($ReallocAsyncCtx5)) + 28|0);
-  HEAP32[$180>>2] = $14;
-  $181 = ((($ReallocAsyncCtx5)) + 32|0);
-  HEAP32[$181>>2] = $20;
-  $182 = ((($ReallocAsyncCtx5)) + 36|0);
-  HEAP32[$182>>2] = $22;
-  $183 = ((($ReallocAsyncCtx5)) + 40|0);
-  HEAP32[$183>>2] = $24;
-  $184 = ((($ReallocAsyncCtx5)) + 44|0);
-  HEAP32[$184>>2] = $26;
-  $185 = ((($ReallocAsyncCtx5)) + 48|0);
-  HEAP32[$185>>2] = $28;
-  $186 = ((($ReallocAsyncCtx5)) + 52|0);
-  HEAP32[$186>>2] = $30;
-  $187 = ((($ReallocAsyncCtx5)) + 56|0);
-  HEAP32[$187>>2] = $32;
-  $188 = ((($ReallocAsyncCtx5)) + 60|0);
-  HEAP32[$188>>2] = $34;
-  $189 = ((($ReallocAsyncCtx5)) + 64|0);
-  HEAP32[$189>>2] = $38;
-  $190 = ((($ReallocAsyncCtx5)) + 68|0);
-  $$expand_i1_val35 = $40&1;
-  HEAP8[$190>>0] = $$expand_i1_val35;
-  $191 = ((($ReallocAsyncCtx5)) + 72|0);
-  HEAP32[$191>>2] = $173;
-  sp = STACKTOP;
-  return;
- }
-}
-function _equeue_dispatch__async_cb_8($0) {
- $0 = $0|0;
- var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$06690$reg2mem$0 = 0, $$06690$reg2mem$0$phi = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val31 = 0, $$expand_i1_val33 = 0, $$expand_i1_val35 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$reg2mem24$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0;
- var $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0;
- var $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0;
- var $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0;
- var $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0;
- var $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0;
- var $190 = 0, $191 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0;
- var $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0;
- var $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0;
- var $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0, $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0;
- var $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0, $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 48|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 52|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 56|0);
- $28 = HEAP32[$27>>2]|0;
- $29 = ((($0)) + 60|0);
- $30 = HEAP32[$29>>2]|0;
- $31 = ((($0)) + 64|0);
- $32 = HEAP32[$31>>2]|0;
- $33 = ((($0)) + 68|0);
- $34 = HEAP32[$33>>2]|0;
- $35 = ((($0)) + 72|0);
- $$pre_trunc = HEAP8[$35>>0]|0;
- $36 = $$pre_trunc&1;
- $37 = ((($0)) + 76|0);
- $38 = HEAP32[$37>>2]|0;
- $39 = ((($0)) + 80|0);
- $40 = HEAP32[$39>>2]|0;
- $$06690$reg2mem$0 = $38;$$reg2mem$0 = $16;$$reg2mem24$0 = $40;
- while(1) {
-  _equeue_mutex_lock($26);
-  $124 = HEAP32[$22>>2]|0;
-  $125 = ($124|0)==(0|0);
-  L4: do {
-   if ($125) {
-    $$027$i$i = $22;
-    label = 21;
-   } else {
-    $126 = HEAP32[$$06690$reg2mem$0>>2]|0;
-    $$029$i$i = $22;$128 = $124;
-    while(1) {
-     $127 = HEAP32[$128>>2]|0;
-     $129 = ($127>>>0)<($126>>>0);
-     if (!($129)) {
-      break;
-     }
-     $130 = ((($128)) + 8|0);
-     $131 = HEAP32[$130>>2]|0;
-     $132 = ($131|0)==(0|0);
-     if ($132) {
-      $$027$i$i = $130;
-      label = 21;
-      break L4;
-     } else {
-      $$029$i$i = $130;$128 = $131;
-     }
-    }
-    $133 = ($127|0)==($126|0);
-    if ($133) {
-     $134 = ((($$06690$reg2mem$0)) + 12|0);
-     HEAP32[$134>>2] = $128;
-     $135 = HEAP32[$$029$i$i>>2]|0;
-     $136 = ((($135)) + 8|0);
-     $$028$i$i = $$029$i$i;$$sink$in$i$i = $136;
-    } else {
-     $$027$i$i = $$029$i$i;
-     label = 21;
-    }
-   }
-  } while(0);
-  if ((label|0) == 21) {
-   label = 0;
-   $137 = ((($$06690$reg2mem$0)) + 12|0);
-   HEAP32[$137>>2] = 0;
-   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
-  }
-  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
-  HEAP32[$$reg2mem24$0>>2] = $$sink21$i$i;
-  HEAP32[$$028$i$i>>2] = $$06690$reg2mem$0;
-  _equeue_mutex_unlock($26);
-  $138 = ($$reg2mem$0|0)==(0|0);
-  if ($138) {
-   label = 24;
-   break;
-  }
-  $41 = ((($$reg2mem$0)) + 8|0);
-  $42 = HEAP32[$41>>2]|0;
-  $43 = ((($$reg2mem$0)) + 32|0);
-  $44 = HEAP32[$43>>2]|0;
-  $45 = ($44|0)==(0|0);
-  if (!($45)) {
-   label = 3;
-   break;
-  }
-  $67 = ((($$reg2mem$0)) + 24|0);
-  $68 = HEAP32[$67>>2]|0;
-  $69 = ($68|0)>(-1);
-  if ($69) {
-   label = 7;
-   break;
-  }
-  $$idx$val = HEAP32[$20>>2]|0;
-  $92 = ((($$reg2mem$0)) + 4|0);
-  $93 = HEAP8[$92>>0]|0;
-  $94 = $93&255;
-  $95 = (($94) + 1)|0;
-  $96 = $95&255;
-  $97 = $95 & 255;
-  $98 = $97 << $$idx$val;
-  $99 = ($98|0)==(0);
-  $$$i = $99 ? 1 : $96;
-  HEAP8[$92>>0] = $$$i;
-  $100 = ((($$reg2mem$0)) + 28|0);
-  $101 = HEAP32[$100>>2]|0;
-  $102 = ($101|0)==(0|0);
-  if ($102) {
-   $$06690$reg2mem$0$phi = $$reg2mem$0;$$reg2mem$0 = $42;$$reg2mem24$0 = $41;$$06690$reg2mem$0 = $$06690$reg2mem$0$phi;
-  } else {
-   label = 11;
-   break;
-  }
- }
- if ((label|0) == 3) {
-  $46 = ((($$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$44 & 255]($46);
-  $IsAsync = ___async;
-  if ($IsAsync) {
-   HEAP32[$ReallocAsyncCtx>>2] = 57;
-   $47 = ((($ReallocAsyncCtx)) + 4|0);
-   HEAP32[$47>>2] = $2;
-   $48 = ((($ReallocAsyncCtx)) + 8|0);
-   HEAP32[$48>>2] = $4;
-   $49 = ((($ReallocAsyncCtx)) + 12|0);
-   HEAP32[$49>>2] = $6;
-   $50 = ((($ReallocAsyncCtx)) + 16|0);
-   HEAP32[$50>>2] = $8;
-   $51 = ((($ReallocAsyncCtx)) + 20|0);
-   HEAP32[$51>>2] = $10;
-   $52 = ((($ReallocAsyncCtx)) + 24|0);
-   HEAP32[$52>>2] = $12;
-   $53 = ((($ReallocAsyncCtx)) + 28|0);
-   HEAP32[$53>>2] = $14;
-   $54 = ((($ReallocAsyncCtx)) + 32|0);
-   HEAP32[$54>>2] = $$reg2mem$0;
-   $55 = ((($ReallocAsyncCtx)) + 36|0);
-   HEAP32[$55>>2] = $42;
-   $56 = ((($ReallocAsyncCtx)) + 40|0);
-   HEAP32[$56>>2] = $18;
-   $57 = ((($ReallocAsyncCtx)) + 44|0);
-   HEAP32[$57>>2] = $20;
-   $58 = ((($ReallocAsyncCtx)) + 48|0);
-   HEAP32[$58>>2] = $22;
-   $59 = ((($ReallocAsyncCtx)) + 52|0);
-   HEAP32[$59>>2] = $24;
-   $60 = ((($ReallocAsyncCtx)) + 56|0);
-   HEAP32[$60>>2] = $26;
-   $61 = ((($ReallocAsyncCtx)) + 60|0);
-   HEAP32[$61>>2] = $28;
-   $62 = ((($ReallocAsyncCtx)) + 64|0);
-   HEAP32[$62>>2] = $30;
-   $63 = ((($ReallocAsyncCtx)) + 68|0);
-   HEAP32[$63>>2] = $32;
-   $64 = ((($ReallocAsyncCtx)) + 72|0);
-   HEAP32[$64>>2] = $41;
-   $65 = ((($ReallocAsyncCtx)) + 76|0);
-   HEAP32[$65>>2] = $34;
-   $66 = ((($ReallocAsyncCtx)) + 80|0);
-   $$expand_i1_val = $36&1;
-   HEAP8[$66>>0] = $$expand_i1_val;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx>>2] = 57;
-  $47 = ((($ReallocAsyncCtx)) + 4|0);
-  HEAP32[$47>>2] = $2;
-  $48 = ((($ReallocAsyncCtx)) + 8|0);
-  HEAP32[$48>>2] = $4;
-  $49 = ((($ReallocAsyncCtx)) + 12|0);
-  HEAP32[$49>>2] = $6;
-  $50 = ((($ReallocAsyncCtx)) + 16|0);
-  HEAP32[$50>>2] = $8;
-  $51 = ((($ReallocAsyncCtx)) + 20|0);
-  HEAP32[$51>>2] = $10;
-  $52 = ((($ReallocAsyncCtx)) + 24|0);
-  HEAP32[$52>>2] = $12;
-  $53 = ((($ReallocAsyncCtx)) + 28|0);
-  HEAP32[$53>>2] = $14;
-  $54 = ((($ReallocAsyncCtx)) + 32|0);
-  HEAP32[$54>>2] = $$reg2mem$0;
-  $55 = ((($ReallocAsyncCtx)) + 36|0);
-  HEAP32[$55>>2] = $42;
-  $56 = ((($ReallocAsyncCtx)) + 40|0);
-  HEAP32[$56>>2] = $18;
-  $57 = ((($ReallocAsyncCtx)) + 44|0);
-  HEAP32[$57>>2] = $20;
-  $58 = ((($ReallocAsyncCtx)) + 48|0);
-  HEAP32[$58>>2] = $22;
-  $59 = ((($ReallocAsyncCtx)) + 52|0);
-  HEAP32[$59>>2] = $24;
-  $60 = ((($ReallocAsyncCtx)) + 56|0);
-  HEAP32[$60>>2] = $26;
-  $61 = ((($ReallocAsyncCtx)) + 60|0);
-  HEAP32[$61>>2] = $28;
-  $62 = ((($ReallocAsyncCtx)) + 64|0);
-  HEAP32[$62>>2] = $30;
-  $63 = ((($ReallocAsyncCtx)) + 68|0);
-  HEAP32[$63>>2] = $32;
-  $64 = ((($ReallocAsyncCtx)) + 72|0);
-  HEAP32[$64>>2] = $41;
-  $65 = ((($ReallocAsyncCtx)) + 76|0);
-  HEAP32[$65>>2] = $34;
-  $66 = ((($ReallocAsyncCtx)) + 80|0);
-  $$expand_i1_val = $36&1;
-  HEAP8[$66>>0] = $$expand_i1_val;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 7) {
-  $70 = ((($$reg2mem$0)) + 20|0);
-  $71 = HEAP32[$70>>2]|0;
-  $72 = (($71) + ($68))|0;
-  HEAP32[$70>>2] = $72;
-  $73 = (_equeue_tick()|0);
-  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
-  (_equeue_enqueue($12,$$reg2mem$0,$73)|0);
-  $IsAsync12 = ___async;
-  if ($IsAsync12) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 58;
-   $74 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$74>>2] = $2;
-   $75 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$75>>2] = $4;
-   $76 = ((($ReallocAsyncCtx4)) + 12|0);
-   HEAP32[$76>>2] = $6;
-   $77 = ((($ReallocAsyncCtx4)) + 16|0);
-   HEAP32[$77>>2] = $8;
-   $78 = ((($ReallocAsyncCtx4)) + 20|0);
-   HEAP32[$78>>2] = $10;
-   $79 = ((($ReallocAsyncCtx4)) + 24|0);
-   HEAP32[$79>>2] = $12;
-   $80 = ((($ReallocAsyncCtx4)) + 28|0);
-   HEAP32[$80>>2] = $14;
-   $81 = ((($ReallocAsyncCtx4)) + 32|0);
-   HEAP32[$81>>2] = $42;
-   $82 = ((($ReallocAsyncCtx4)) + 36|0);
-   HEAP32[$82>>2] = $18;
-   $83 = ((($ReallocAsyncCtx4)) + 40|0);
-   HEAP32[$83>>2] = $20;
-   $84 = ((($ReallocAsyncCtx4)) + 44|0);
-   HEAP32[$84>>2] = $22;
-   $85 = ((($ReallocAsyncCtx4)) + 48|0);
-   HEAP32[$85>>2] = $24;
-   $86 = ((($ReallocAsyncCtx4)) + 52|0);
-   HEAP32[$86>>2] = $26;
-   $87 = ((($ReallocAsyncCtx4)) + 56|0);
-   HEAP32[$87>>2] = $28;
-   $88 = ((($ReallocAsyncCtx4)) + 60|0);
-   HEAP32[$88>>2] = $30;
-   $89 = ((($ReallocAsyncCtx4)) + 64|0);
-   HEAP32[$89>>2] = $32;
-   $90 = ((($ReallocAsyncCtx4)) + 68|0);
-   HEAP32[$90>>2] = $34;
-   $91 = ((($ReallocAsyncCtx4)) + 72|0);
-   $$expand_i1_val31 = $36&1;
-   HEAP8[$91>>0] = $$expand_i1_val31;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 58;
-  $74 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$74>>2] = $2;
-  $75 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$75>>2] = $4;
-  $76 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$76>>2] = $6;
-  $77 = ((($ReallocAsyncCtx4)) + 16|0);
-  HEAP32[$77>>2] = $8;
-  $78 = ((($ReallocAsyncCtx4)) + 20|0);
-  HEAP32[$78>>2] = $10;
-  $79 = ((($ReallocAsyncCtx4)) + 24|0);
-  HEAP32[$79>>2] = $12;
-  $80 = ((($ReallocAsyncCtx4)) + 28|0);
-  HEAP32[$80>>2] = $14;
-  $81 = ((($ReallocAsyncCtx4)) + 32|0);
-  HEAP32[$81>>2] = $42;
-  $82 = ((($ReallocAsyncCtx4)) + 36|0);
-  HEAP32[$82>>2] = $18;
-  $83 = ((($ReallocAsyncCtx4)) + 40|0);
-  HEAP32[$83>>2] = $20;
-  $84 = ((($ReallocAsyncCtx4)) + 44|0);
-  HEAP32[$84>>2] = $22;
-  $85 = ((($ReallocAsyncCtx4)) + 48|0);
-  HEAP32[$85>>2] = $24;
-  $86 = ((($ReallocAsyncCtx4)) + 52|0);
-  HEAP32[$86>>2] = $26;
-  $87 = ((($ReallocAsyncCtx4)) + 56|0);
-  HEAP32[$87>>2] = $28;
-  $88 = ((($ReallocAsyncCtx4)) + 60|0);
-  HEAP32[$88>>2] = $30;
-  $89 = ((($ReallocAsyncCtx4)) + 64|0);
-  HEAP32[$89>>2] = $32;
-  $90 = ((($ReallocAsyncCtx4)) + 68|0);
-  HEAP32[$90>>2] = $34;
-  $91 = ((($ReallocAsyncCtx4)) + 72|0);
-  $$expand_i1_val31 = $36&1;
-  HEAP8[$91>>0] = $$expand_i1_val31;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 11) {
-  $103 = ((($$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$101 & 255]($103);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 59;
-   $104 = ((($ReallocAsyncCtx2)) + 4|0);
-   HEAP32[$104>>2] = $2;
-   $105 = ((($ReallocAsyncCtx2)) + 8|0);
-   HEAP32[$105>>2] = $4;
-   $106 = ((($ReallocAsyncCtx2)) + 12|0);
-   HEAP32[$106>>2] = $6;
-   $107 = ((($ReallocAsyncCtx2)) + 16|0);
-   HEAP32[$107>>2] = $8;
-   $108 = ((($ReallocAsyncCtx2)) + 20|0);
-   HEAP32[$108>>2] = $10;
-   $109 = ((($ReallocAsyncCtx2)) + 24|0);
-   HEAP32[$109>>2] = $12;
-   $110 = ((($ReallocAsyncCtx2)) + 28|0);
-   HEAP32[$110>>2] = $14;
-   $111 = ((($ReallocAsyncCtx2)) + 32|0);
-   HEAP32[$111>>2] = $42;
-   $112 = ((($ReallocAsyncCtx2)) + 36|0);
-   HEAP32[$112>>2] = $18;
-   $113 = ((($ReallocAsyncCtx2)) + 40|0);
-   HEAP32[$113>>2] = $20;
-   $114 = ((($ReallocAsyncCtx2)) + 44|0);
-   HEAP32[$114>>2] = $22;
-   $115 = ((($ReallocAsyncCtx2)) + 48|0);
-   HEAP32[$115>>2] = $24;
-   $116 = ((($ReallocAsyncCtx2)) + 52|0);
-   HEAP32[$116>>2] = $26;
-   $117 = ((($ReallocAsyncCtx2)) + 56|0);
-   HEAP32[$117>>2] = $28;
-   $118 = ((($ReallocAsyncCtx2)) + 60|0);
-   HEAP32[$118>>2] = $30;
-   $119 = ((($ReallocAsyncCtx2)) + 64|0);
-   HEAP32[$119>>2] = $32;
-   $120 = ((($ReallocAsyncCtx2)) + 68|0);
-   HEAP32[$120>>2] = $34;
-   $121 = ((($ReallocAsyncCtx2)) + 72|0);
-   $$expand_i1_val33 = $36&1;
-   HEAP8[$121>>0] = $$expand_i1_val33;
-   $122 = ((($ReallocAsyncCtx2)) + 76|0);
-   HEAP32[$122>>2] = $$reg2mem$0;
-   $123 = ((($ReallocAsyncCtx2)) + 80|0);
-   HEAP32[$123>>2] = $41;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 59;
-  $104 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$104>>2] = $2;
-  $105 = ((($ReallocAsyncCtx2)) + 8|0);
-  HEAP32[$105>>2] = $4;
-  $106 = ((($ReallocAsyncCtx2)) + 12|0);
-  HEAP32[$106>>2] = $6;
-  $107 = ((($ReallocAsyncCtx2)) + 16|0);
-  HEAP32[$107>>2] = $8;
-  $108 = ((($ReallocAsyncCtx2)) + 20|0);
-  HEAP32[$108>>2] = $10;
-  $109 = ((($ReallocAsyncCtx2)) + 24|0);
-  HEAP32[$109>>2] = $12;
-  $110 = ((($ReallocAsyncCtx2)) + 28|0);
-  HEAP32[$110>>2] = $14;
-  $111 = ((($ReallocAsyncCtx2)) + 32|0);
-  HEAP32[$111>>2] = $42;
-  $112 = ((($ReallocAsyncCtx2)) + 36|0);
-  HEAP32[$112>>2] = $18;
-  $113 = ((($ReallocAsyncCtx2)) + 40|0);
-  HEAP32[$113>>2] = $20;
-  $114 = ((($ReallocAsyncCtx2)) + 44|0);
-  HEAP32[$114>>2] = $22;
-  $115 = ((($ReallocAsyncCtx2)) + 48|0);
-  HEAP32[$115>>2] = $24;
-  $116 = ((($ReallocAsyncCtx2)) + 52|0);
-  HEAP32[$116>>2] = $26;
-  $117 = ((($ReallocAsyncCtx2)) + 56|0);
-  HEAP32[$117>>2] = $28;
-  $118 = ((($ReallocAsyncCtx2)) + 60|0);
-  HEAP32[$118>>2] = $30;
-  $119 = ((($ReallocAsyncCtx2)) + 64|0);
-  HEAP32[$119>>2] = $32;
-  $120 = ((($ReallocAsyncCtx2)) + 68|0);
-  HEAP32[$120>>2] = $34;
-  $121 = ((($ReallocAsyncCtx2)) + 72|0);
-  $$expand_i1_val33 = $36&1;
-  HEAP8[$121>>0] = $$expand_i1_val33;
-  $122 = ((($ReallocAsyncCtx2)) + 76|0);
-  HEAP32[$122>>2] = $$reg2mem$0;
-  $123 = ((($ReallocAsyncCtx2)) + 80|0);
-  HEAP32[$123>>2] = $41;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 24) {
-  $139 = (_equeue_tick()|0);
-  if ($36) {
-   $140 = (($34) - ($139))|0;
-   $141 = ($140|0)<(1);
-   if ($141) {
-    $142 = ((($12)) + 44|0);
-    $143 = HEAP32[$142>>2]|0;
-    $144 = ($143|0)==(0|0);
-    if ($144) {
-     return;
-    }
-    _equeue_mutex_lock($6);
-    $145 = HEAP32[$142>>2]|0;
-    $146 = ($145|0)==(0|0);
-    if (!($146)) {
-     $147 = HEAP32[$8>>2]|0;
-     $148 = ($147|0)==(0|0);
-     if (!($148)) {
-      $149 = ((($12)) + 48|0);
-      $150 = HEAP32[$149>>2]|0;
-      $151 = ((($147)) + 20|0);
-      $152 = HEAP32[$151>>2]|0;
-      $153 = (($152) - ($139))|0;
-      $154 = $153 >> 31;
-      $155 = $154 ^ -1;
-      $156 = $153 & $155;
-      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
-      FUNCTION_TABLE_vii[$145 & 255]($150,$156);
-      $IsAsync8 = ___async;
-      if ($IsAsync8) {
-       HEAP32[$ReallocAsyncCtx3>>2] = 60;
-       $157 = ((($ReallocAsyncCtx3)) + 4|0);
-       HEAP32[$157>>2] = $10;
-       $158 = ((($ReallocAsyncCtx3)) + 8|0);
-       HEAP32[$158>>2] = $6;
-       sp = STACKTOP;
-       return;
-      }
-      ___async_unwind = 0;
-      HEAP32[$ReallocAsyncCtx3>>2] = 60;
-      $157 = ((($ReallocAsyncCtx3)) + 4|0);
-      HEAP32[$157>>2] = $10;
-      $158 = ((($ReallocAsyncCtx3)) + 8|0);
-      HEAP32[$158>>2] = $6;
-      sp = STACKTOP;
-      return;
-     }
-    }
-    HEAP8[$10>>0] = 1;
-    _equeue_mutex_unlock($6);
-    return;
-   } else {
-    $$064 = $140;
-   }
-  } else {
-   $$064 = -1;
-  }
-  _equeue_mutex_lock($6);
-  $159 = HEAP32[$8>>2]|0;
-  $160 = ($159|0)==(0|0);
-  if ($160) {
-   $$2 = $$064;
-  } else {
-   $161 = ((($159)) + 20|0);
-   $162 = HEAP32[$161>>2]|0;
-   $163 = (($162) - ($139))|0;
-   $164 = $163 >> 31;
-   $165 = $164 ^ -1;
-   $166 = $163 & $165;
-   $167 = ($166>>>0)<($$064>>>0);
-   $$$064 = $167 ? $166 : $$064;
-   $$2 = $$$064;
-  }
-  _equeue_mutex_unlock($6);
-  (_equeue_sema_wait($18,$$2)|0);
-  $168 = HEAP32[$14>>2]|0;
-  $169 = ($168|0)==(0);
-  do {
-   if (!($169)) {
-    _equeue_mutex_lock($6);
-    $170 = HEAP32[$14>>2]|0;
-    $171 = ($170|0)==(0);
-    if ($171) {
-     _equeue_mutex_unlock($6);
-     break;
-    }
-    $172 = (($170) + -1)|0;
-    HEAP32[$14>>2] = $172;
-    _equeue_mutex_unlock($6);
-    return;
-   }
-  } while(0);
-  $173 = (_equeue_tick()|0);
-  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
-  _wait_ms(20);
-  $IsAsync16 = ___async;
-  if ($IsAsync16) {
-   HEAP32[$ReallocAsyncCtx5>>2] = 61;
-   $174 = ((($ReallocAsyncCtx5)) + 4|0);
-   HEAP32[$174>>2] = $2;
-   $175 = ((($ReallocAsyncCtx5)) + 8|0);
-   HEAP32[$175>>2] = $4;
-   $176 = ((($ReallocAsyncCtx5)) + 12|0);
-   HEAP32[$176>>2] = $6;
-   $177 = ((($ReallocAsyncCtx5)) + 16|0);
-   HEAP32[$177>>2] = $8;
-   $178 = ((($ReallocAsyncCtx5)) + 20|0);
-   HEAP32[$178>>2] = $10;
-   $179 = ((($ReallocAsyncCtx5)) + 24|0);
-   HEAP32[$179>>2] = $12;
-   $180 = ((($ReallocAsyncCtx5)) + 28|0);
-   HEAP32[$180>>2] = $14;
-   $181 = ((($ReallocAsyncCtx5)) + 32|0);
-   HEAP32[$181>>2] = $18;
-   $182 = ((($ReallocAsyncCtx5)) + 36|0);
-   HEAP32[$182>>2] = $20;
-   $183 = ((($ReallocAsyncCtx5)) + 40|0);
-   HEAP32[$183>>2] = $22;
-   $184 = ((($ReallocAsyncCtx5)) + 44|0);
-   HEAP32[$184>>2] = $24;
-   $185 = ((($ReallocAsyncCtx5)) + 48|0);
-   HEAP32[$185>>2] = $26;
-   $186 = ((($ReallocAsyncCtx5)) + 52|0);
-   HEAP32[$186>>2] = $28;
-   $187 = ((($ReallocAsyncCtx5)) + 56|0);
-   HEAP32[$187>>2] = $30;
-   $188 = ((($ReallocAsyncCtx5)) + 60|0);
-   HEAP32[$188>>2] = $32;
-   $189 = ((($ReallocAsyncCtx5)) + 64|0);
-   HEAP32[$189>>2] = $34;
-   $190 = ((($ReallocAsyncCtx5)) + 68|0);
-   $$expand_i1_val35 = $36&1;
-   HEAP8[$190>>0] = $$expand_i1_val35;
-   $191 = ((($ReallocAsyncCtx5)) + 72|0);
-   HEAP32[$191>>2] = $173;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx5>>2] = 61;
-  $174 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$174>>2] = $2;
-  $175 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$175>>2] = $4;
-  $176 = ((($ReallocAsyncCtx5)) + 12|0);
-  HEAP32[$176>>2] = $6;
-  $177 = ((($ReallocAsyncCtx5)) + 16|0);
-  HEAP32[$177>>2] = $8;
-  $178 = ((($ReallocAsyncCtx5)) + 20|0);
-  HEAP32[$178>>2] = $10;
-  $179 = ((($ReallocAsyncCtx5)) + 24|0);
-  HEAP32[$179>>2] = $12;
-  $180 = ((($ReallocAsyncCtx5)) + 28|0);
-  HEAP32[$180>>2] = $14;
-  $181 = ((($ReallocAsyncCtx5)) + 32|0);
-  HEAP32[$181>>2] = $18;
-  $182 = ((($ReallocAsyncCtx5)) + 36|0);
-  HEAP32[$182>>2] = $20;
-  $183 = ((($ReallocAsyncCtx5)) + 40|0);
-  HEAP32[$183>>2] = $22;
-  $184 = ((($ReallocAsyncCtx5)) + 44|0);
-  HEAP32[$184>>2] = $24;
-  $185 = ((($ReallocAsyncCtx5)) + 48|0);
-  HEAP32[$185>>2] = $26;
-  $186 = ((($ReallocAsyncCtx5)) + 52|0);
-  HEAP32[$186>>2] = $28;
-  $187 = ((($ReallocAsyncCtx5)) + 56|0);
-  HEAP32[$187>>2] = $30;
-  $188 = ((($ReallocAsyncCtx5)) + 60|0);
-  HEAP32[$188>>2] = $32;
-  $189 = ((($ReallocAsyncCtx5)) + 64|0);
-  HEAP32[$189>>2] = $34;
-  $190 = ((($ReallocAsyncCtx5)) + 68|0);
-  $$expand_i1_val35 = $36&1;
-  HEAP8[$190>>0] = $$expand_i1_val35;
-  $191 = ((($ReallocAsyncCtx5)) + 72|0);
-  HEAP32[$191>>2] = $173;
-  sp = STACKTOP;
-  return;
- }
-}
-function _equeue_dispatch__async_cb_9($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- HEAP8[$2>>0] = 1;
- _equeue_mutex_unlock($4);
- return;
-}
-function _equeue_dispatch__async_cb_10($0) {
- $0 = $0|0;
- var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val12 = 0, $$expand_i1_val14 = 0, $$expand_i1_val16 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0, $10 = 0, $100 = 0, $101 = 0;
- var $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0, $118 = 0, $119 = 0, $12 = 0;
- var $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0, $136 = 0, $137 = 0, $138 = 0;
- var $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0, $154 = 0, $155 = 0, $156 = 0;
- var $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0, $172 = 0, $173 = 0, $174 = 0;
- var $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
- var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
- var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
- var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0, $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0;
- var $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0, $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0;
- var $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 48|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 52|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 56|0);
- $28 = HEAP32[$27>>2]|0;
- $29 = ((($0)) + 60|0);
- $30 = HEAP32[$29>>2]|0;
- $31 = ((($0)) + 64|0);
- $32 = HEAP32[$31>>2]|0;
- $33 = ((($0)) + 68|0);
- $34 = HEAP32[$33>>2]|0;
- $35 = ((($0)) + 72|0);
- $$pre_trunc = HEAP8[$35>>0]|0;
- $36 = $$pre_trunc&1;
- $$reg2mem$0 = $16;
- while(1) {
-  $134 = ($$reg2mem$0|0)==(0|0);
-  if ($134) {
-   label = 24;
-   break;
-  }
-  $37 = ((($$reg2mem$0)) + 8|0);
-  $38 = HEAP32[$37>>2]|0;
-  $39 = ((($$reg2mem$0)) + 32|0);
-  $40 = HEAP32[$39>>2]|0;
-  $41 = ($40|0)==(0|0);
-  if (!($41)) {
-   label = 3;
-   break;
-  }
-  $63 = ((($$reg2mem$0)) + 24|0);
-  $64 = HEAP32[$63>>2]|0;
-  $65 = ($64|0)>(-1);
-  if ($65) {
-   label = 7;
-   break;
-  }
-  $$idx$val = HEAP32[$20>>2]|0;
-  $88 = ((($$reg2mem$0)) + 4|0);
-  $89 = HEAP8[$88>>0]|0;
-  $90 = $89&255;
-  $91 = (($90) + 1)|0;
-  $92 = $91&255;
-  $93 = $91 & 255;
-  $94 = $93 << $$idx$val;
-  $95 = ($94|0)==(0);
-  $$$i = $95 ? 1 : $92;
-  HEAP8[$88>>0] = $$$i;
-  $96 = ((($$reg2mem$0)) + 28|0);
-  $97 = HEAP32[$96>>2]|0;
-  $98 = ($97|0)==(0|0);
-  if (!($98)) {
-   label = 12;
-   break;
-  }
-  _equeue_mutex_lock($26);
-  $120 = HEAP32[$22>>2]|0;
-  $121 = ($120|0)==(0|0);
-  L8: do {
-   if ($121) {
-    $$027$i$i = $22;
-    label = 21;
-   } else {
-    $122 = HEAP32[$$reg2mem$0>>2]|0;
-    $$029$i$i = $22;$124 = $120;
-    while(1) {
-     $123 = HEAP32[$124>>2]|0;
-     $125 = ($123>>>0)<($122>>>0);
-     if (!($125)) {
-      break;
-     }
-     $126 = ((($124)) + 8|0);
-     $127 = HEAP32[$126>>2]|0;
-     $128 = ($127|0)==(0|0);
-     if ($128) {
-      $$027$i$i = $126;
-      label = 21;
-      break L8;
-     } else {
-      $$029$i$i = $126;$124 = $127;
-     }
-    }
-    $129 = ($123|0)==($122|0);
-    if ($129) {
-     $130 = ((($$reg2mem$0)) + 12|0);
-     HEAP32[$130>>2] = $124;
-     $131 = HEAP32[$$029$i$i>>2]|0;
-     $132 = ((($131)) + 8|0);
-     $$028$i$i = $$029$i$i;$$sink$in$i$i = $132;
-    } else {
-     $$027$i$i = $$029$i$i;
-     label = 21;
-    }
-   }
-  } while(0);
-  if ((label|0) == 21) {
-   label = 0;
-   $133 = ((($$reg2mem$0)) + 12|0);
-   HEAP32[$133>>2] = 0;
-   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
-  }
-  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
-  HEAP32[$37>>2] = $$sink21$i$i;
-  HEAP32[$$028$i$i>>2] = $$reg2mem$0;
-  _equeue_mutex_unlock($26);
-  $$reg2mem$0 = $38;
- }
- if ((label|0) == 3) {
-  $42 = ((($$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$40 & 255]($42);
-  $IsAsync = ___async;
-  if ($IsAsync) {
-   HEAP32[$ReallocAsyncCtx>>2] = 57;
-   $43 = ((($ReallocAsyncCtx)) + 4|0);
-   HEAP32[$43>>2] = $2;
-   $44 = ((($ReallocAsyncCtx)) + 8|0);
-   HEAP32[$44>>2] = $4;
-   $45 = ((($ReallocAsyncCtx)) + 12|0);
-   HEAP32[$45>>2] = $6;
-   $46 = ((($ReallocAsyncCtx)) + 16|0);
-   HEAP32[$46>>2] = $8;
-   $47 = ((($ReallocAsyncCtx)) + 20|0);
-   HEAP32[$47>>2] = $10;
-   $48 = ((($ReallocAsyncCtx)) + 24|0);
-   HEAP32[$48>>2] = $12;
-   $49 = ((($ReallocAsyncCtx)) + 28|0);
-   HEAP32[$49>>2] = $14;
-   $50 = ((($ReallocAsyncCtx)) + 32|0);
-   HEAP32[$50>>2] = $$reg2mem$0;
-   $51 = ((($ReallocAsyncCtx)) + 36|0);
-   HEAP32[$51>>2] = $38;
-   $52 = ((($ReallocAsyncCtx)) + 40|0);
-   HEAP32[$52>>2] = $18;
-   $53 = ((($ReallocAsyncCtx)) + 44|0);
-   HEAP32[$53>>2] = $20;
-   $54 = ((($ReallocAsyncCtx)) + 48|0);
-   HEAP32[$54>>2] = $22;
-   $55 = ((($ReallocAsyncCtx)) + 52|0);
-   HEAP32[$55>>2] = $24;
-   $56 = ((($ReallocAsyncCtx)) + 56|0);
-   HEAP32[$56>>2] = $26;
-   $57 = ((($ReallocAsyncCtx)) + 60|0);
-   HEAP32[$57>>2] = $28;
-   $58 = ((($ReallocAsyncCtx)) + 64|0);
-   HEAP32[$58>>2] = $30;
-   $59 = ((($ReallocAsyncCtx)) + 68|0);
-   HEAP32[$59>>2] = $32;
-   $60 = ((($ReallocAsyncCtx)) + 72|0);
-   HEAP32[$60>>2] = $37;
-   $61 = ((($ReallocAsyncCtx)) + 76|0);
-   HEAP32[$61>>2] = $34;
-   $62 = ((($ReallocAsyncCtx)) + 80|0);
-   $$expand_i1_val = $36&1;
-   HEAP8[$62>>0] = $$expand_i1_val;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx>>2] = 57;
-  $43 = ((($ReallocAsyncCtx)) + 4|0);
-  HEAP32[$43>>2] = $2;
-  $44 = ((($ReallocAsyncCtx)) + 8|0);
-  HEAP32[$44>>2] = $4;
-  $45 = ((($ReallocAsyncCtx)) + 12|0);
-  HEAP32[$45>>2] = $6;
-  $46 = ((($ReallocAsyncCtx)) + 16|0);
-  HEAP32[$46>>2] = $8;
-  $47 = ((($ReallocAsyncCtx)) + 20|0);
-  HEAP32[$47>>2] = $10;
-  $48 = ((($ReallocAsyncCtx)) + 24|0);
-  HEAP32[$48>>2] = $12;
-  $49 = ((($ReallocAsyncCtx)) + 28|0);
-  HEAP32[$49>>2] = $14;
-  $50 = ((($ReallocAsyncCtx)) + 32|0);
-  HEAP32[$50>>2] = $$reg2mem$0;
-  $51 = ((($ReallocAsyncCtx)) + 36|0);
-  HEAP32[$51>>2] = $38;
-  $52 = ((($ReallocAsyncCtx)) + 40|0);
-  HEAP32[$52>>2] = $18;
-  $53 = ((($ReallocAsyncCtx)) + 44|0);
-  HEAP32[$53>>2] = $20;
-  $54 = ((($ReallocAsyncCtx)) + 48|0);
-  HEAP32[$54>>2] = $22;
-  $55 = ((($ReallocAsyncCtx)) + 52|0);
-  HEAP32[$55>>2] = $24;
-  $56 = ((($ReallocAsyncCtx)) + 56|0);
-  HEAP32[$56>>2] = $26;
-  $57 = ((($ReallocAsyncCtx)) + 60|0);
-  HEAP32[$57>>2] = $28;
-  $58 = ((($ReallocAsyncCtx)) + 64|0);
-  HEAP32[$58>>2] = $30;
-  $59 = ((($ReallocAsyncCtx)) + 68|0);
-  HEAP32[$59>>2] = $32;
-  $60 = ((($ReallocAsyncCtx)) + 72|0);
-  HEAP32[$60>>2] = $37;
-  $61 = ((($ReallocAsyncCtx)) + 76|0);
-  HEAP32[$61>>2] = $34;
-  $62 = ((($ReallocAsyncCtx)) + 80|0);
-  $$expand_i1_val = $36&1;
-  HEAP8[$62>>0] = $$expand_i1_val;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 7) {
-  $66 = ((($$reg2mem$0)) + 20|0);
-  $67 = HEAP32[$66>>2]|0;
-  $68 = (($67) + ($64))|0;
-  HEAP32[$66>>2] = $68;
-  $69 = (_equeue_tick()|0);
-  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
-  (_equeue_enqueue($12,$$reg2mem$0,$69)|0);
-  $IsAsync12 = ___async;
-  if ($IsAsync12) {
-   HEAP32[$ReallocAsyncCtx4>>2] = 58;
-   $70 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$70>>2] = $2;
-   $71 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$71>>2] = $4;
-   $72 = ((($ReallocAsyncCtx4)) + 12|0);
-   HEAP32[$72>>2] = $6;
-   $73 = ((($ReallocAsyncCtx4)) + 16|0);
-   HEAP32[$73>>2] = $8;
-   $74 = ((($ReallocAsyncCtx4)) + 20|0);
-   HEAP32[$74>>2] = $10;
-   $75 = ((($ReallocAsyncCtx4)) + 24|0);
-   HEAP32[$75>>2] = $12;
-   $76 = ((($ReallocAsyncCtx4)) + 28|0);
-   HEAP32[$76>>2] = $14;
-   $77 = ((($ReallocAsyncCtx4)) + 32|0);
-   HEAP32[$77>>2] = $38;
-   $78 = ((($ReallocAsyncCtx4)) + 36|0);
-   HEAP32[$78>>2] = $18;
-   $79 = ((($ReallocAsyncCtx4)) + 40|0);
-   HEAP32[$79>>2] = $20;
-   $80 = ((($ReallocAsyncCtx4)) + 44|0);
-   HEAP32[$80>>2] = $22;
-   $81 = ((($ReallocAsyncCtx4)) + 48|0);
-   HEAP32[$81>>2] = $24;
-   $82 = ((($ReallocAsyncCtx4)) + 52|0);
-   HEAP32[$82>>2] = $26;
-   $83 = ((($ReallocAsyncCtx4)) + 56|0);
-   HEAP32[$83>>2] = $28;
-   $84 = ((($ReallocAsyncCtx4)) + 60|0);
-   HEAP32[$84>>2] = $30;
-   $85 = ((($ReallocAsyncCtx4)) + 64|0);
-   HEAP32[$85>>2] = $32;
-   $86 = ((($ReallocAsyncCtx4)) + 68|0);
-   HEAP32[$86>>2] = $34;
-   $87 = ((($ReallocAsyncCtx4)) + 72|0);
-   $$expand_i1_val12 = $36&1;
-   HEAP8[$87>>0] = $$expand_i1_val12;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx4>>2] = 58;
-  $70 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$70>>2] = $2;
-  $71 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$71>>2] = $4;
-  $72 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$72>>2] = $6;
-  $73 = ((($ReallocAsyncCtx4)) + 16|0);
-  HEAP32[$73>>2] = $8;
-  $74 = ((($ReallocAsyncCtx4)) + 20|0);
-  HEAP32[$74>>2] = $10;
-  $75 = ((($ReallocAsyncCtx4)) + 24|0);
-  HEAP32[$75>>2] = $12;
-  $76 = ((($ReallocAsyncCtx4)) + 28|0);
-  HEAP32[$76>>2] = $14;
-  $77 = ((($ReallocAsyncCtx4)) + 32|0);
-  HEAP32[$77>>2] = $38;
-  $78 = ((($ReallocAsyncCtx4)) + 36|0);
-  HEAP32[$78>>2] = $18;
-  $79 = ((($ReallocAsyncCtx4)) + 40|0);
-  HEAP32[$79>>2] = $20;
-  $80 = ((($ReallocAsyncCtx4)) + 44|0);
-  HEAP32[$80>>2] = $22;
-  $81 = ((($ReallocAsyncCtx4)) + 48|0);
-  HEAP32[$81>>2] = $24;
-  $82 = ((($ReallocAsyncCtx4)) + 52|0);
-  HEAP32[$82>>2] = $26;
-  $83 = ((($ReallocAsyncCtx4)) + 56|0);
-  HEAP32[$83>>2] = $28;
-  $84 = ((($ReallocAsyncCtx4)) + 60|0);
-  HEAP32[$84>>2] = $30;
-  $85 = ((($ReallocAsyncCtx4)) + 64|0);
-  HEAP32[$85>>2] = $32;
-  $86 = ((($ReallocAsyncCtx4)) + 68|0);
-  HEAP32[$86>>2] = $34;
-  $87 = ((($ReallocAsyncCtx4)) + 72|0);
-  $$expand_i1_val12 = $36&1;
-  HEAP8[$87>>0] = $$expand_i1_val12;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 12) {
-  $99 = ((($$reg2mem$0)) + 36|0);
-  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
-  FUNCTION_TABLE_vi[$97 & 255]($99);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 59;
-   $100 = ((($ReallocAsyncCtx2)) + 4|0);
-   HEAP32[$100>>2] = $2;
-   $101 = ((($ReallocAsyncCtx2)) + 8|0);
-   HEAP32[$101>>2] = $4;
-   $102 = ((($ReallocAsyncCtx2)) + 12|0);
-   HEAP32[$102>>2] = $6;
-   $103 = ((($ReallocAsyncCtx2)) + 16|0);
-   HEAP32[$103>>2] = $8;
-   $104 = ((($ReallocAsyncCtx2)) + 20|0);
-   HEAP32[$104>>2] = $10;
-   $105 = ((($ReallocAsyncCtx2)) + 24|0);
-   HEAP32[$105>>2] = $12;
-   $106 = ((($ReallocAsyncCtx2)) + 28|0);
-   HEAP32[$106>>2] = $14;
-   $107 = ((($ReallocAsyncCtx2)) + 32|0);
-   HEAP32[$107>>2] = $38;
-   $108 = ((($ReallocAsyncCtx2)) + 36|0);
-   HEAP32[$108>>2] = $18;
-   $109 = ((($ReallocAsyncCtx2)) + 40|0);
-   HEAP32[$109>>2] = $20;
-   $110 = ((($ReallocAsyncCtx2)) + 44|0);
-   HEAP32[$110>>2] = $22;
-   $111 = ((($ReallocAsyncCtx2)) + 48|0);
-   HEAP32[$111>>2] = $24;
-   $112 = ((($ReallocAsyncCtx2)) + 52|0);
-   HEAP32[$112>>2] = $26;
-   $113 = ((($ReallocAsyncCtx2)) + 56|0);
-   HEAP32[$113>>2] = $28;
-   $114 = ((($ReallocAsyncCtx2)) + 60|0);
-   HEAP32[$114>>2] = $30;
-   $115 = ((($ReallocAsyncCtx2)) + 64|0);
-   HEAP32[$115>>2] = $32;
-   $116 = ((($ReallocAsyncCtx2)) + 68|0);
-   HEAP32[$116>>2] = $34;
-   $117 = ((($ReallocAsyncCtx2)) + 72|0);
-   $$expand_i1_val14 = $36&1;
-   HEAP8[$117>>0] = $$expand_i1_val14;
-   $118 = ((($ReallocAsyncCtx2)) + 76|0);
-   HEAP32[$118>>2] = $$reg2mem$0;
-   $119 = ((($ReallocAsyncCtx2)) + 80|0);
-   HEAP32[$119>>2] = $37;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 59;
-  $100 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$100>>2] = $2;
-  $101 = ((($ReallocAsyncCtx2)) + 8|0);
-  HEAP32[$101>>2] = $4;
-  $102 = ((($ReallocAsyncCtx2)) + 12|0);
-  HEAP32[$102>>2] = $6;
-  $103 = ((($ReallocAsyncCtx2)) + 16|0);
-  HEAP32[$103>>2] = $8;
-  $104 = ((($ReallocAsyncCtx2)) + 20|0);
-  HEAP32[$104>>2] = $10;
-  $105 = ((($ReallocAsyncCtx2)) + 24|0);
-  HEAP32[$105>>2] = $12;
-  $106 = ((($ReallocAsyncCtx2)) + 28|0);
-  HEAP32[$106>>2] = $14;
-  $107 = ((($ReallocAsyncCtx2)) + 32|0);
-  HEAP32[$107>>2] = $38;
-  $108 = ((($ReallocAsyncCtx2)) + 36|0);
-  HEAP32[$108>>2] = $18;
-  $109 = ((($ReallocAsyncCtx2)) + 40|0);
-  HEAP32[$109>>2] = $20;
-  $110 = ((($ReallocAsyncCtx2)) + 44|0);
-  HEAP32[$110>>2] = $22;
-  $111 = ((($ReallocAsyncCtx2)) + 48|0);
-  HEAP32[$111>>2] = $24;
-  $112 = ((($ReallocAsyncCtx2)) + 52|0);
-  HEAP32[$112>>2] = $26;
-  $113 = ((($ReallocAsyncCtx2)) + 56|0);
-  HEAP32[$113>>2] = $28;
-  $114 = ((($ReallocAsyncCtx2)) + 60|0);
-  HEAP32[$114>>2] = $30;
-  $115 = ((($ReallocAsyncCtx2)) + 64|0);
-  HEAP32[$115>>2] = $32;
-  $116 = ((($ReallocAsyncCtx2)) + 68|0);
-  HEAP32[$116>>2] = $34;
-  $117 = ((($ReallocAsyncCtx2)) + 72|0);
-  $$expand_i1_val14 = $36&1;
-  HEAP8[$117>>0] = $$expand_i1_val14;
-  $118 = ((($ReallocAsyncCtx2)) + 76|0);
-  HEAP32[$118>>2] = $$reg2mem$0;
-  $119 = ((($ReallocAsyncCtx2)) + 80|0);
-  HEAP32[$119>>2] = $37;
-  sp = STACKTOP;
-  return;
- }
- else if ((label|0) == 24) {
-  $135 = (_equeue_tick()|0);
-  if ($36) {
-   $136 = (($34) - ($135))|0;
-   $137 = ($136|0)<(1);
-   if ($137) {
-    $138 = ((($12)) + 44|0);
-    $139 = HEAP32[$138>>2]|0;
-    $140 = ($139|0)==(0|0);
-    if ($140) {
-     return;
-    }
-    _equeue_mutex_lock($6);
-    $141 = HEAP32[$138>>2]|0;
-    $142 = ($141|0)==(0|0);
-    if (!($142)) {
-     $143 = HEAP32[$8>>2]|0;
-     $144 = ($143|0)==(0|0);
-     if (!($144)) {
-      $145 = ((($12)) + 48|0);
-      $146 = HEAP32[$145>>2]|0;
-      $147 = ((($143)) + 20|0);
-      $148 = HEAP32[$147>>2]|0;
-      $149 = (($148) - ($135))|0;
-      $150 = $149 >> 31;
-      $151 = $150 ^ -1;
-      $152 = $149 & $151;
-      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
-      FUNCTION_TABLE_vii[$141 & 255]($146,$152);
-      $IsAsync8 = ___async;
-      if ($IsAsync8) {
-       HEAP32[$ReallocAsyncCtx3>>2] = 60;
-       $153 = ((($ReallocAsyncCtx3)) + 4|0);
-       HEAP32[$153>>2] = $10;
-       $154 = ((($ReallocAsyncCtx3)) + 8|0);
-       HEAP32[$154>>2] = $6;
-       sp = STACKTOP;
-       return;
-      }
-      ___async_unwind = 0;
-      HEAP32[$ReallocAsyncCtx3>>2] = 60;
-      $153 = ((($ReallocAsyncCtx3)) + 4|0);
-      HEAP32[$153>>2] = $10;
-      $154 = ((($ReallocAsyncCtx3)) + 8|0);
-      HEAP32[$154>>2] = $6;
-      sp = STACKTOP;
-      return;
-     }
-    }
-    HEAP8[$10>>0] = 1;
-    _equeue_mutex_unlock($6);
-    return;
-   } else {
-    $$064 = $136;
-   }
-  } else {
-   $$064 = -1;
-  }
-  _equeue_mutex_lock($6);
-  $155 = HEAP32[$8>>2]|0;
-  $156 = ($155|0)==(0|0);
-  if ($156) {
-   $$2 = $$064;
-  } else {
-   $157 = ((($155)) + 20|0);
-   $158 = HEAP32[$157>>2]|0;
-   $159 = (($158) - ($135))|0;
-   $160 = $159 >> 31;
-   $161 = $160 ^ -1;
-   $162 = $159 & $161;
-   $163 = ($162>>>0)<($$064>>>0);
-   $$$064 = $163 ? $162 : $$064;
-   $$2 = $$$064;
-  }
-  _equeue_mutex_unlock($6);
-  (_equeue_sema_wait($18,$$2)|0);
-  $164 = HEAP32[$14>>2]|0;
-  $165 = ($164|0)==(0);
-  do {
-   if (!($165)) {
-    _equeue_mutex_lock($6);
-    $166 = HEAP32[$14>>2]|0;
-    $167 = ($166|0)==(0);
-    if ($167) {
-     _equeue_mutex_unlock($6);
-     break;
-    }
-    $168 = (($166) + -1)|0;
-    HEAP32[$14>>2] = $168;
-    _equeue_mutex_unlock($6);
-    return;
-   }
-  } while(0);
-  $169 = (_equeue_tick()|0);
-  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
-  _wait_ms(20);
-  $IsAsync16 = ___async;
-  if ($IsAsync16) {
-   HEAP32[$ReallocAsyncCtx5>>2] = 61;
-   $170 = ((($ReallocAsyncCtx5)) + 4|0);
-   HEAP32[$170>>2] = $2;
-   $171 = ((($ReallocAsyncCtx5)) + 8|0);
-   HEAP32[$171>>2] = $4;
-   $172 = ((($ReallocAsyncCtx5)) + 12|0);
-   HEAP32[$172>>2] = $6;
-   $173 = ((($ReallocAsyncCtx5)) + 16|0);
-   HEAP32[$173>>2] = $8;
-   $174 = ((($ReallocAsyncCtx5)) + 20|0);
-   HEAP32[$174>>2] = $10;
-   $175 = ((($ReallocAsyncCtx5)) + 24|0);
-   HEAP32[$175>>2] = $12;
-   $176 = ((($ReallocAsyncCtx5)) + 28|0);
-   HEAP32[$176>>2] = $14;
-   $177 = ((($ReallocAsyncCtx5)) + 32|0);
-   HEAP32[$177>>2] = $18;
-   $178 = ((($ReallocAsyncCtx5)) + 36|0);
-   HEAP32[$178>>2] = $20;
-   $179 = ((($ReallocAsyncCtx5)) + 40|0);
-   HEAP32[$179>>2] = $22;
-   $180 = ((($ReallocAsyncCtx5)) + 44|0);
-   HEAP32[$180>>2] = $24;
-   $181 = ((($ReallocAsyncCtx5)) + 48|0);
-   HEAP32[$181>>2] = $26;
-   $182 = ((($ReallocAsyncCtx5)) + 52|0);
-   HEAP32[$182>>2] = $28;
-   $183 = ((($ReallocAsyncCtx5)) + 56|0);
-   HEAP32[$183>>2] = $30;
-   $184 = ((($ReallocAsyncCtx5)) + 60|0);
-   HEAP32[$184>>2] = $32;
-   $185 = ((($ReallocAsyncCtx5)) + 64|0);
-   HEAP32[$185>>2] = $34;
-   $186 = ((($ReallocAsyncCtx5)) + 68|0);
-   $$expand_i1_val16 = $36&1;
-   HEAP8[$186>>0] = $$expand_i1_val16;
-   $187 = ((($ReallocAsyncCtx5)) + 72|0);
-   HEAP32[$187>>2] = $169;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx5>>2] = 61;
-  $170 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$170>>2] = $2;
-  $171 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$171>>2] = $4;
-  $172 = ((($ReallocAsyncCtx5)) + 12|0);
-  HEAP32[$172>>2] = $6;
-  $173 = ((($ReallocAsyncCtx5)) + 16|0);
-  HEAP32[$173>>2] = $8;
-  $174 = ((($ReallocAsyncCtx5)) + 20|0);
-  HEAP32[$174>>2] = $10;
-  $175 = ((($ReallocAsyncCtx5)) + 24|0);
-  HEAP32[$175>>2] = $12;
-  $176 = ((($ReallocAsyncCtx5)) + 28|0);
-  HEAP32[$176>>2] = $14;
-  $177 = ((($ReallocAsyncCtx5)) + 32|0);
-  HEAP32[$177>>2] = $18;
-  $178 = ((($ReallocAsyncCtx5)) + 36|0);
-  HEAP32[$178>>2] = $20;
-  $179 = ((($ReallocAsyncCtx5)) + 40|0);
-  HEAP32[$179>>2] = $22;
-  $180 = ((($ReallocAsyncCtx5)) + 44|0);
-  HEAP32[$180>>2] = $24;
-  $181 = ((($ReallocAsyncCtx5)) + 48|0);
-  HEAP32[$181>>2] = $26;
-  $182 = ((($ReallocAsyncCtx5)) + 52|0);
-  HEAP32[$182>>2] = $28;
-  $183 = ((($ReallocAsyncCtx5)) + 56|0);
-  HEAP32[$183>>2] = $30;
-  $184 = ((($ReallocAsyncCtx5)) + 60|0);
-  HEAP32[$184>>2] = $32;
-  $185 = ((($ReallocAsyncCtx5)) + 64|0);
-  HEAP32[$185>>2] = $34;
-  $186 = ((($ReallocAsyncCtx5)) + 68|0);
-  $$expand_i1_val16 = $36&1;
-  HEAP8[$186>>0] = $$expand_i1_val16;
-  $187 = ((($ReallocAsyncCtx5)) + 72|0);
-  HEAP32[$187>>2] = $169;
-  sp = STACKTOP;
-  return;
- }
-}
-function _equeue_dispatch__async_cb_11($0) {
- $0 = $0|0;
- var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$03956$i = 0, $$03956$i$phi = 0, $$04055$i = 0, $$0405571$i = 0, $$04063$i = 0, $$04159$i = 0, $$04258$i = 0, $$057$i = 0, $$064 = 0, $$06690 = 0, $$2 = 0, $$cast$i = 0, $$expand_i1_val = 0, $$expand_i1_val11 = 0, $$expand_i1_val13 = 0;
- var $$expand_i1_val9 = 0, $$idx$val = 0, $$pre_trunc = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72 = 0, $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71 = 0, $1 = 0, $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0;
- var $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0, $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0;
- var $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0, $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0;
- var $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0, $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0;
- var $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0, $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0;
- var $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0, $190 = 0, $191 = 0, $192 = 0, $193 = 0, $194 = 0, $195 = 0, $196 = 0, $197 = 0, $198 = 0, $199 = 0, $2 = 0, $20 = 0;
- var $200 = 0, $201 = 0, $202 = 0, $203 = 0, $204 = 0, $205 = 0, $206 = 0, $207 = 0, $208 = 0, $209 = 0, $21 = 0, $210 = 0, $211 = 0, $212 = 0, $213 = 0, $214 = 0, $215 = 0, $216 = 0, $22 = 0, $23 = 0;
- var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
- var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
- var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0, $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0;
- var $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0, $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0;
- var $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 48|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 52|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 56|0);
- $28 = HEAP32[$27>>2]|0;
- $29 = ((($0)) + 60|0);
- $30 = HEAP32[$29>>2]|0;
- $31 = ((($0)) + 64|0);
- $32 = HEAP32[$31>>2]|0;
- $33 = ((($0)) + 68|0);
- $$pre_trunc = HEAP8[$33>>0]|0;
- $34 = $$pre_trunc&1;
- $35 = ((($0)) + 72|0);
- $36 = HEAP32[$35>>2]|0;
- _equeue_mutex_lock($6);
- $37 = HEAP8[$26>>0]|0;
- $38 = $37&255;
- $39 = (($38) + 1)|0;
- $40 = $39&255;
- HEAP8[$26>>0] = $40;
- $41 = HEAP32[$22>>2]|0;
- $42 = (($41) - ($36))|0;
- $43 = ($42|0)<(1);
- if ($43) {
-  HEAP32[$22>>2] = $36;
- }
- $44 = HEAP32[$28>>2]|0;
- HEAP32[$30>>2] = $44;
- $$cast$i = $44;
- $45 = ($44|0)==(0);
- L6: do {
-  if ($45) {
-   $$04055$i = $2;$54 = $$cast$i;
-   label = 8;
-  } else {
-   $$04063$i = $2;$47 = $$cast$i;
-   while(1) {
-    $46 = ((($47)) + 20|0);
-    $48 = HEAP32[$46>>2]|0;
-    $49 = (($48) - ($36))|0;
-    $50 = ($49|0)<(1);
-    if (!($50)) {
-     $$04055$i = $$04063$i;$54 = $47;
-     label = 8;
-     break L6;
-    }
-    $51 = ((($47)) + 8|0);
-    $52 = HEAP32[$51>>2]|0;
-    $53 = ($52|0)==(0|0);
-    if ($53) {
-     break;
-    } else {
-     $$04063$i = $51;$47 = $52;
-    }
-   }
-   HEAP32[$8>>2] = 0;
-   $$0405571$i = $51;
-  }
- } while(0);
- if ((label|0) == 8) {
-  HEAP32[$8>>2] = $54;
-  $55 = ($54|0)==(0|0);
-  if ($55) {
-   $$0405571$i = $$04055$i;
-  } else {
-   $56 = ((($54)) + 16|0);
-   HEAP32[$56>>2] = $8;
-   $$0405571$i = $$04055$i;
-  }
- }
- HEAP32[$$0405571$i>>2] = 0;
- _equeue_mutex_unlock($6);
- $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71 = HEAP32[$2>>2]|0;
- $57 = ($$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71|0)==(0|0);
- L15: do {
-  if ($57) {
-  } else {
-   $$04159$i = $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71;$$04258$i = $2;
-   while(1) {
-    $58 = ((($$04159$i)) + 8|0);
-    $59 = HEAP32[$58>>2]|0;
-    $$03956$i = 0;$$057$i = $$04159$i;
-    while(1) {
-     $61 = ((($$057$i)) + 8|0);
-     HEAP32[$61>>2] = $$03956$i;
-     $62 = ((($$057$i)) + 12|0);
-     $63 = HEAP32[$62>>2]|0;
-     $64 = ($63|0)==(0|0);
-     if ($64) {
-      break;
-     } else {
-      $$03956$i$phi = $$057$i;$$057$i = $63;$$03956$i = $$03956$i$phi;
-     }
-    }
-    HEAP32[$$04258$i>>2] = $$057$i;
-    $60 = ($59|0)==(0|0);
-    if ($60) {
-     break;
-    } else {
-     $$04159$i = $59;$$04258$i = $58;
-    }
-   }
-   $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72 = HEAP32[$2>>2]|0;
-   $65 = ($$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72|0)==(0|0);
-   if (!($65)) {
-    $$06690 = $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72;
-    while(1) {
-     $66 = ((($$06690)) + 8|0);
-     $67 = HEAP32[$66>>2]|0;
-     $68 = ((($$06690)) + 32|0);
-     $69 = HEAP32[$68>>2]|0;
-     $70 = ($69|0)==(0|0);
-     if (!($70)) {
-      label = 17;
-      break;
-     }
-     $92 = ((($$06690)) + 24|0);
-     $93 = HEAP32[$92>>2]|0;
-     $94 = ($93|0)>(-1);
-     if ($94) {
-      label = 21;
-      break;
-     }
-     $$idx$val = HEAP32[$18>>2]|0;
-     $117 = ((($$06690)) + 4|0);
-     $118 = HEAP8[$117>>0]|0;
-     $119 = $118&255;
-     $120 = (($119) + 1)|0;
-     $121 = $120&255;
-     $122 = $120 & 255;
-     $123 = $122 << $$idx$val;
-     $124 = ($123|0)==(0);
-     $$$i = $124 ? 1 : $121;
-     HEAP8[$117>>0] = $$$i;
-     $125 = ((($$06690)) + 28|0);
-     $126 = HEAP32[$125>>2]|0;
-     $127 = ($126|0)==(0|0);
-     if (!($127)) {
-      label = 25;
-      break;
-     }
-     _equeue_mutex_lock($24);
-     $149 = HEAP32[$20>>2]|0;
-     $150 = ($149|0)==(0|0);
-     L28: do {
-      if ($150) {
-       $$027$i$i = $20;
-       label = 34;
-      } else {
-       $151 = HEAP32[$$06690>>2]|0;
-       $$029$i$i = $20;$153 = $149;
-       while(1) {
-        $152 = HEAP32[$153>>2]|0;
-        $154 = ($152>>>0)<($151>>>0);
-        if (!($154)) {
-         break;
-        }
-        $155 = ((($153)) + 8|0);
-        $156 = HEAP32[$155>>2]|0;
-        $157 = ($156|0)==(0|0);
-        if ($157) {
-         $$027$i$i = $155;
-         label = 34;
-         break L28;
-        } else {
-         $$029$i$i = $155;$153 = $156;
-        }
-       }
-       $158 = ($152|0)==($151|0);
-       if ($158) {
-        $159 = ((($$06690)) + 12|0);
-        HEAP32[$159>>2] = $153;
-        $160 = HEAP32[$$029$i$i>>2]|0;
-        $161 = ((($160)) + 8|0);
-        $$028$i$i = $$029$i$i;$$sink$in$i$i = $161;
-       } else {
-        $$027$i$i = $$029$i$i;
-        label = 34;
-       }
-      }
-     } while(0);
-     if ((label|0) == 34) {
-      label = 0;
-      $162 = ((($$06690)) + 12|0);
-      HEAP32[$162>>2] = 0;
-      $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
-     }
-     $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
-     HEAP32[$66>>2] = $$sink21$i$i;
-     HEAP32[$$028$i$i>>2] = $$06690;
-     _equeue_mutex_unlock($24);
-     $163 = ($67|0)==(0|0);
-     if ($163) {
-      break L15;
-     } else {
-      $$06690 = $67;
-     }
-    }
-    if ((label|0) == 17) {
-     $71 = ((($$06690)) + 36|0);
-     $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
-     FUNCTION_TABLE_vi[$69 & 255]($71);
-     $IsAsync = ___async;
-     if ($IsAsync) {
-      HEAP32[$ReallocAsyncCtx>>2] = 57;
-      $72 = ((($ReallocAsyncCtx)) + 4|0);
-      HEAP32[$72>>2] = $2;
-      $73 = ((($ReallocAsyncCtx)) + 8|0);
-      HEAP32[$73>>2] = $4;
-      $74 = ((($ReallocAsyncCtx)) + 12|0);
-      HEAP32[$74>>2] = $6;
-      $75 = ((($ReallocAsyncCtx)) + 16|0);
-      HEAP32[$75>>2] = $8;
-      $76 = ((($ReallocAsyncCtx)) + 20|0);
-      HEAP32[$76>>2] = $10;
-      $77 = ((($ReallocAsyncCtx)) + 24|0);
-      HEAP32[$77>>2] = $12;
-      $78 = ((($ReallocAsyncCtx)) + 28|0);
-      HEAP32[$78>>2] = $14;
-      $79 = ((($ReallocAsyncCtx)) + 32|0);
-      HEAP32[$79>>2] = $$06690;
-      $80 = ((($ReallocAsyncCtx)) + 36|0);
-      HEAP32[$80>>2] = $67;
-      $81 = ((($ReallocAsyncCtx)) + 40|0);
-      HEAP32[$81>>2] = $16;
-      $82 = ((($ReallocAsyncCtx)) + 44|0);
-      HEAP32[$82>>2] = $18;
-      $83 = ((($ReallocAsyncCtx)) + 48|0);
-      HEAP32[$83>>2] = $20;
-      $84 = ((($ReallocAsyncCtx)) + 52|0);
-      HEAP32[$84>>2] = $22;
-      $85 = ((($ReallocAsyncCtx)) + 56|0);
-      HEAP32[$85>>2] = $24;
-      $86 = ((($ReallocAsyncCtx)) + 60|0);
-      HEAP32[$86>>2] = $26;
-      $87 = ((($ReallocAsyncCtx)) + 64|0);
-      HEAP32[$87>>2] = $28;
-      $88 = ((($ReallocAsyncCtx)) + 68|0);
-      HEAP32[$88>>2] = $30;
-      $89 = ((($ReallocAsyncCtx)) + 72|0);
-      HEAP32[$89>>2] = $66;
-      $90 = ((($ReallocAsyncCtx)) + 76|0);
-      HEAP32[$90>>2] = $32;
-      $91 = ((($ReallocAsyncCtx)) + 80|0);
-      $$expand_i1_val = $34&1;
-      HEAP8[$91>>0] = $$expand_i1_val;
-      sp = STACKTOP;
-      return;
-     }
-     ___async_unwind = 0;
-     HEAP32[$ReallocAsyncCtx>>2] = 57;
-     $72 = ((($ReallocAsyncCtx)) + 4|0);
-     HEAP32[$72>>2] = $2;
-     $73 = ((($ReallocAsyncCtx)) + 8|0);
-     HEAP32[$73>>2] = $4;
-     $74 = ((($ReallocAsyncCtx)) + 12|0);
-     HEAP32[$74>>2] = $6;
-     $75 = ((($ReallocAsyncCtx)) + 16|0);
-     HEAP32[$75>>2] = $8;
-     $76 = ((($ReallocAsyncCtx)) + 20|0);
-     HEAP32[$76>>2] = $10;
-     $77 = ((($ReallocAsyncCtx)) + 24|0);
-     HEAP32[$77>>2] = $12;
-     $78 = ((($ReallocAsyncCtx)) + 28|0);
-     HEAP32[$78>>2] = $14;
-     $79 = ((($ReallocAsyncCtx)) + 32|0);
-     HEAP32[$79>>2] = $$06690;
-     $80 = ((($ReallocAsyncCtx)) + 36|0);
-     HEAP32[$80>>2] = $67;
-     $81 = ((($ReallocAsyncCtx)) + 40|0);
-     HEAP32[$81>>2] = $16;
-     $82 = ((($ReallocAsyncCtx)) + 44|0);
-     HEAP32[$82>>2] = $18;
-     $83 = ((($ReallocAsyncCtx)) + 48|0);
-     HEAP32[$83>>2] = $20;
-     $84 = ((($ReallocAsyncCtx)) + 52|0);
-     HEAP32[$84>>2] = $22;
-     $85 = ((($ReallocAsyncCtx)) + 56|0);
-     HEAP32[$85>>2] = $24;
-     $86 = ((($ReallocAsyncCtx)) + 60|0);
-     HEAP32[$86>>2] = $26;
-     $87 = ((($ReallocAsyncCtx)) + 64|0);
-     HEAP32[$87>>2] = $28;
-     $88 = ((($ReallocAsyncCtx)) + 68|0);
-     HEAP32[$88>>2] = $30;
-     $89 = ((($ReallocAsyncCtx)) + 72|0);
-     HEAP32[$89>>2] = $66;
-     $90 = ((($ReallocAsyncCtx)) + 76|0);
-     HEAP32[$90>>2] = $32;
-     $91 = ((($ReallocAsyncCtx)) + 80|0);
-     $$expand_i1_val = $34&1;
-     HEAP8[$91>>0] = $$expand_i1_val;
-     sp = STACKTOP;
-     return;
-    }
-    else if ((label|0) == 21) {
-     $95 = ((($$06690)) + 20|0);
-     $96 = HEAP32[$95>>2]|0;
-     $97 = (($96) + ($93))|0;
-     HEAP32[$95>>2] = $97;
-     $98 = (_equeue_tick()|0);
-     $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
-     (_equeue_enqueue($12,$$06690,$98)|0);
-     $IsAsync12 = ___async;
-     if ($IsAsync12) {
-      HEAP32[$ReallocAsyncCtx4>>2] = 58;
-      $99 = ((($ReallocAsyncCtx4)) + 4|0);
-      HEAP32[$99>>2] = $2;
-      $100 = ((($ReallocAsyncCtx4)) + 8|0);
-      HEAP32[$100>>2] = $4;
-      $101 = ((($ReallocAsyncCtx4)) + 12|0);
-      HEAP32[$101>>2] = $6;
-      $102 = ((($ReallocAsyncCtx4)) + 16|0);
-      HEAP32[$102>>2] = $8;
-      $103 = ((($ReallocAsyncCtx4)) + 20|0);
-      HEAP32[$103>>2] = $10;
-      $104 = ((($ReallocAsyncCtx4)) + 24|0);
-      HEAP32[$104>>2] = $12;
-      $105 = ((($ReallocAsyncCtx4)) + 28|0);
-      HEAP32[$105>>2] = $14;
-      $106 = ((($ReallocAsyncCtx4)) + 32|0);
-      HEAP32[$106>>2] = $67;
-      $107 = ((($ReallocAsyncCtx4)) + 36|0);
-      HEAP32[$107>>2] = $16;
-      $108 = ((($ReallocAsyncCtx4)) + 40|0);
-      HEAP32[$108>>2] = $18;
-      $109 = ((($ReallocAsyncCtx4)) + 44|0);
-      HEAP32[$109>>2] = $20;
-      $110 = ((($ReallocAsyncCtx4)) + 48|0);
-      HEAP32[$110>>2] = $22;
-      $111 = ((($ReallocAsyncCtx4)) + 52|0);
-      HEAP32[$111>>2] = $24;
-      $112 = ((($ReallocAsyncCtx4)) + 56|0);
-      HEAP32[$112>>2] = $26;
-      $113 = ((($ReallocAsyncCtx4)) + 60|0);
-      HEAP32[$113>>2] = $28;
-      $114 = ((($ReallocAsyncCtx4)) + 64|0);
-      HEAP32[$114>>2] = $30;
-      $115 = ((($ReallocAsyncCtx4)) + 68|0);
-      HEAP32[$115>>2] = $32;
-      $116 = ((($ReallocAsyncCtx4)) + 72|0);
-      $$expand_i1_val9 = $34&1;
-      HEAP8[$116>>0] = $$expand_i1_val9;
-      sp = STACKTOP;
-      return;
-     }
-     ___async_unwind = 0;
-     HEAP32[$ReallocAsyncCtx4>>2] = 58;
-     $99 = ((($ReallocAsyncCtx4)) + 4|0);
-     HEAP32[$99>>2] = $2;
-     $100 = ((($ReallocAsyncCtx4)) + 8|0);
-     HEAP32[$100>>2] = $4;
-     $101 = ((($ReallocAsyncCtx4)) + 12|0);
-     HEAP32[$101>>2] = $6;
-     $102 = ((($ReallocAsyncCtx4)) + 16|0);
-     HEAP32[$102>>2] = $8;
-     $103 = ((($ReallocAsyncCtx4)) + 20|0);
-     HEAP32[$103>>2] = $10;
-     $104 = ((($ReallocAsyncCtx4)) + 24|0);
-     HEAP32[$104>>2] = $12;
-     $105 = ((($ReallocAsyncCtx4)) + 28|0);
-     HEAP32[$105>>2] = $14;
-     $106 = ((($ReallocAsyncCtx4)) + 32|0);
-     HEAP32[$106>>2] = $67;
-     $107 = ((($ReallocAsyncCtx4)) + 36|0);
-     HEAP32[$107>>2] = $16;
-     $108 = ((($ReallocAsyncCtx4)) + 40|0);
-     HEAP32[$108>>2] = $18;
-     $109 = ((($ReallocAsyncCtx4)) + 44|0);
-     HEAP32[$109>>2] = $20;
-     $110 = ((($ReallocAsyncCtx4)) + 48|0);
-     HEAP32[$110>>2] = $22;
-     $111 = ((($ReallocAsyncCtx4)) + 52|0);
-     HEAP32[$111>>2] = $24;
-     $112 = ((($ReallocAsyncCtx4)) + 56|0);
-     HEAP32[$112>>2] = $26;
-     $113 = ((($ReallocAsyncCtx4)) + 60|0);
-     HEAP32[$113>>2] = $28;
-     $114 = ((($ReallocAsyncCtx4)) + 64|0);
-     HEAP32[$114>>2] = $30;
-     $115 = ((($ReallocAsyncCtx4)) + 68|0);
-     HEAP32[$115>>2] = $32;
-     $116 = ((($ReallocAsyncCtx4)) + 72|0);
-     $$expand_i1_val9 = $34&1;
-     HEAP8[$116>>0] = $$expand_i1_val9;
-     sp = STACKTOP;
-     return;
-    }
-    else if ((label|0) == 25) {
-     $128 = ((($$06690)) + 36|0);
-     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
-     FUNCTION_TABLE_vi[$126 & 255]($128);
-     $IsAsync4 = ___async;
-     if ($IsAsync4) {
-      HEAP32[$ReallocAsyncCtx2>>2] = 59;
-      $129 = ((($ReallocAsyncCtx2)) + 4|0);
-      HEAP32[$129>>2] = $2;
-      $130 = ((($ReallocAsyncCtx2)) + 8|0);
-      HEAP32[$130>>2] = $4;
-      $131 = ((($ReallocAsyncCtx2)) + 12|0);
-      HEAP32[$131>>2] = $6;
-      $132 = ((($ReallocAsyncCtx2)) + 16|0);
-      HEAP32[$132>>2] = $8;
-      $133 = ((($ReallocAsyncCtx2)) + 20|0);
-      HEAP32[$133>>2] = $10;
-      $134 = ((($ReallocAsyncCtx2)) + 24|0);
-      HEAP32[$134>>2] = $12;
-      $135 = ((($ReallocAsyncCtx2)) + 28|0);
-      HEAP32[$135>>2] = $14;
-      $136 = ((($ReallocAsyncCtx2)) + 32|0);
-      HEAP32[$136>>2] = $67;
-      $137 = ((($ReallocAsyncCtx2)) + 36|0);
-      HEAP32[$137>>2] = $16;
-      $138 = ((($ReallocAsyncCtx2)) + 40|0);
-      HEAP32[$138>>2] = $18;
-      $139 = ((($ReallocAsyncCtx2)) + 44|0);
-      HEAP32[$139>>2] = $20;
-      $140 = ((($ReallocAsyncCtx2)) + 48|0);
-      HEAP32[$140>>2] = $22;
-      $141 = ((($ReallocAsyncCtx2)) + 52|0);
-      HEAP32[$141>>2] = $24;
-      $142 = ((($ReallocAsyncCtx2)) + 56|0);
-      HEAP32[$142>>2] = $26;
-      $143 = ((($ReallocAsyncCtx2)) + 60|0);
-      HEAP32[$143>>2] = $28;
-      $144 = ((($ReallocAsyncCtx2)) + 64|0);
-      HEAP32[$144>>2] = $30;
-      $145 = ((($ReallocAsyncCtx2)) + 68|0);
-      HEAP32[$145>>2] = $32;
-      $146 = ((($ReallocAsyncCtx2)) + 72|0);
-      $$expand_i1_val11 = $34&1;
-      HEAP8[$146>>0] = $$expand_i1_val11;
-      $147 = ((($ReallocAsyncCtx2)) + 76|0);
-      HEAP32[$147>>2] = $$06690;
-      $148 = ((($ReallocAsyncCtx2)) + 80|0);
-      HEAP32[$148>>2] = $66;
-      sp = STACKTOP;
-      return;
-     }
-     ___async_unwind = 0;
-     HEAP32[$ReallocAsyncCtx2>>2] = 59;
-     $129 = ((($ReallocAsyncCtx2)) + 4|0);
-     HEAP32[$129>>2] = $2;
-     $130 = ((($ReallocAsyncCtx2)) + 8|0);
-     HEAP32[$130>>2] = $4;
-     $131 = ((($ReallocAsyncCtx2)) + 12|0);
-     HEAP32[$131>>2] = $6;
-     $132 = ((($ReallocAsyncCtx2)) + 16|0);
-     HEAP32[$132>>2] = $8;
-     $133 = ((($ReallocAsyncCtx2)) + 20|0);
-     HEAP32[$133>>2] = $10;
-     $134 = ((($ReallocAsyncCtx2)) + 24|0);
-     HEAP32[$134>>2] = $12;
-     $135 = ((($ReallocAsyncCtx2)) + 28|0);
-     HEAP32[$135>>2] = $14;
-     $136 = ((($ReallocAsyncCtx2)) + 32|0);
-     HEAP32[$136>>2] = $67;
-     $137 = ((($ReallocAsyncCtx2)) + 36|0);
-     HEAP32[$137>>2] = $16;
-     $138 = ((($ReallocAsyncCtx2)) + 40|0);
-     HEAP32[$138>>2] = $18;
-     $139 = ((($ReallocAsyncCtx2)) + 44|0);
-     HEAP32[$139>>2] = $20;
-     $140 = ((($ReallocAsyncCtx2)) + 48|0);
-     HEAP32[$140>>2] = $22;
-     $141 = ((($ReallocAsyncCtx2)) + 52|0);
-     HEAP32[$141>>2] = $24;
-     $142 = ((($ReallocAsyncCtx2)) + 56|0);
-     HEAP32[$142>>2] = $26;
-     $143 = ((($ReallocAsyncCtx2)) + 60|0);
-     HEAP32[$143>>2] = $28;
-     $144 = ((($ReallocAsyncCtx2)) + 64|0);
-     HEAP32[$144>>2] = $30;
-     $145 = ((($ReallocAsyncCtx2)) + 68|0);
-     HEAP32[$145>>2] = $32;
-     $146 = ((($ReallocAsyncCtx2)) + 72|0);
-     $$expand_i1_val11 = $34&1;
-     HEAP8[$146>>0] = $$expand_i1_val11;
-     $147 = ((($ReallocAsyncCtx2)) + 76|0);
-     HEAP32[$147>>2] = $$06690;
-     $148 = ((($ReallocAsyncCtx2)) + 80|0);
-     HEAP32[$148>>2] = $66;
-     sp = STACKTOP;
-     return;
-    }
-   }
-  }
- } while(0);
- $164 = (_equeue_tick()|0);
- if ($34) {
-  $165 = (($32) - ($164))|0;
-  $166 = ($165|0)<(1);
-  if ($166) {
-   $167 = ((($12)) + 44|0);
-   $168 = HEAP32[$167>>2]|0;
-   $169 = ($168|0)==(0|0);
-   if ($169) {
-    return;
-   }
-   _equeue_mutex_lock($6);
-   $170 = HEAP32[$167>>2]|0;
-   $171 = ($170|0)==(0|0);
-   if (!($171)) {
-    $172 = HEAP32[$8>>2]|0;
-    $173 = ($172|0)==(0|0);
-    if (!($173)) {
-     $174 = ((($12)) + 48|0);
-     $175 = HEAP32[$174>>2]|0;
-     $176 = ((($172)) + 20|0);
-     $177 = HEAP32[$176>>2]|0;
-     $178 = (($177) - ($164))|0;
-     $179 = $178 >> 31;
-     $180 = $179 ^ -1;
-     $181 = $178 & $180;
-     $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
-     FUNCTION_TABLE_vii[$170 & 255]($175,$181);
-     $IsAsync8 = ___async;
-     if ($IsAsync8) {
-      HEAP32[$ReallocAsyncCtx3>>2] = 60;
-      $182 = ((($ReallocAsyncCtx3)) + 4|0);
-      HEAP32[$182>>2] = $10;
-      $183 = ((($ReallocAsyncCtx3)) + 8|0);
-      HEAP32[$183>>2] = $6;
-      sp = STACKTOP;
-      return;
-     }
-     ___async_unwind = 0;
-     HEAP32[$ReallocAsyncCtx3>>2] = 60;
-     $182 = ((($ReallocAsyncCtx3)) + 4|0);
-     HEAP32[$182>>2] = $10;
-     $183 = ((($ReallocAsyncCtx3)) + 8|0);
-     HEAP32[$183>>2] = $6;
-     sp = STACKTOP;
-     return;
-    }
-   }
-   HEAP8[$10>>0] = 1;
-   _equeue_mutex_unlock($6);
-   return;
-  } else {
-   $$064 = $165;
-  }
- } else {
-  $$064 = -1;
- }
- _equeue_mutex_lock($6);
- $184 = HEAP32[$8>>2]|0;
- $185 = ($184|0)==(0|0);
- if ($185) {
-  $$2 = $$064;
- } else {
-  $186 = ((($184)) + 20|0);
-  $187 = HEAP32[$186>>2]|0;
-  $188 = (($187) - ($164))|0;
-  $189 = $188 >> 31;
-  $190 = $189 ^ -1;
-  $191 = $188 & $190;
-  $192 = ($191>>>0)<($$064>>>0);
-  $$$064 = $192 ? $191 : $$064;
-  $$2 = $$$064;
- }
- _equeue_mutex_unlock($6);
- (_equeue_sema_wait($16,$$2)|0);
- $193 = HEAP32[$14>>2]|0;
- $194 = ($193|0)==(0);
- do {
-  if (!($194)) {
-   _equeue_mutex_lock($6);
-   $195 = HEAP32[$14>>2]|0;
-   $196 = ($195|0)==(0);
-   if ($196) {
-    _equeue_mutex_unlock($6);
-    break;
-   }
-   $197 = (($195) + -1)|0;
-   HEAP32[$14>>2] = $197;
-   _equeue_mutex_unlock($6);
-   return;
-  }
- } while(0);
- $198 = (_equeue_tick()|0);
- $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
- _wait_ms(20);
- $IsAsync16 = ___async;
- if ($IsAsync16) {
-  HEAP32[$ReallocAsyncCtx5>>2] = 61;
-  $199 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$199>>2] = $2;
-  $200 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$200>>2] = $4;
-  $201 = ((($ReallocAsyncCtx5)) + 12|0);
-  HEAP32[$201>>2] = $6;
-  $202 = ((($ReallocAsyncCtx5)) + 16|0);
-  HEAP32[$202>>2] = $8;
-  $203 = ((($ReallocAsyncCtx5)) + 20|0);
-  HEAP32[$203>>2] = $10;
-  $204 = ((($ReallocAsyncCtx5)) + 24|0);
-  HEAP32[$204>>2] = $12;
-  $205 = ((($ReallocAsyncCtx5)) + 28|0);
-  HEAP32[$205>>2] = $14;
-  $206 = ((($ReallocAsyncCtx5)) + 32|0);
-  HEAP32[$206>>2] = $16;
-  $207 = ((($ReallocAsyncCtx5)) + 36|0);
-  HEAP32[$207>>2] = $18;
-  $208 = ((($ReallocAsyncCtx5)) + 40|0);
-  HEAP32[$208>>2] = $20;
-  $209 = ((($ReallocAsyncCtx5)) + 44|0);
-  HEAP32[$209>>2] = $22;
-  $210 = ((($ReallocAsyncCtx5)) + 48|0);
-  HEAP32[$210>>2] = $24;
-  $211 = ((($ReallocAsyncCtx5)) + 52|0);
-  HEAP32[$211>>2] = $26;
-  $212 = ((($ReallocAsyncCtx5)) + 56|0);
-  HEAP32[$212>>2] = $28;
-  $213 = ((($ReallocAsyncCtx5)) + 60|0);
-  HEAP32[$213>>2] = $30;
-  $214 = ((($ReallocAsyncCtx5)) + 64|0);
-  HEAP32[$214>>2] = $32;
-  $215 = ((($ReallocAsyncCtx5)) + 68|0);
-  $$expand_i1_val13 = $34&1;
-  HEAP8[$215>>0] = $$expand_i1_val13;
-  $216 = ((($ReallocAsyncCtx5)) + 72|0);
-  HEAP32[$216>>2] = $198;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx5>>2] = 61;
- $199 = ((($ReallocAsyncCtx5)) + 4|0);
- HEAP32[$199>>2] = $2;
- $200 = ((($ReallocAsyncCtx5)) + 8|0);
- HEAP32[$200>>2] = $4;
- $201 = ((($ReallocAsyncCtx5)) + 12|0);
- HEAP32[$201>>2] = $6;
- $202 = ((($ReallocAsyncCtx5)) + 16|0);
- HEAP32[$202>>2] = $8;
- $203 = ((($ReallocAsyncCtx5)) + 20|0);
- HEAP32[$203>>2] = $10;
- $204 = ((($ReallocAsyncCtx5)) + 24|0);
- HEAP32[$204>>2] = $12;
- $205 = ((($ReallocAsyncCtx5)) + 28|0);
- HEAP32[$205>>2] = $14;
- $206 = ((($ReallocAsyncCtx5)) + 32|0);
- HEAP32[$206>>2] = $16;
- $207 = ((($ReallocAsyncCtx5)) + 36|0);
- HEAP32[$207>>2] = $18;
- $208 = ((($ReallocAsyncCtx5)) + 40|0);
- HEAP32[$208>>2] = $20;
- $209 = ((($ReallocAsyncCtx5)) + 44|0);
- HEAP32[$209>>2] = $22;
- $210 = ((($ReallocAsyncCtx5)) + 48|0);
- HEAP32[$210>>2] = $24;
- $211 = ((($ReallocAsyncCtx5)) + 52|0);
- HEAP32[$211>>2] = $26;
- $212 = ((($ReallocAsyncCtx5)) + 56|0);
- HEAP32[$212>>2] = $28;
- $213 = ((($ReallocAsyncCtx5)) + 60|0);
- HEAP32[$213>>2] = $30;
- $214 = ((($ReallocAsyncCtx5)) + 64|0);
- HEAP32[$214>>2] = $32;
- $215 = ((($ReallocAsyncCtx5)) + 68|0);
- $$expand_i1_val13 = $34&1;
- HEAP8[$215>>0] = $$expand_i1_val13;
- $216 = ((($ReallocAsyncCtx5)) + 72|0);
- HEAP32[$216>>2] = $198;
- sp = STACKTOP;
- return;
-}
-function __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
+function __ZN6events10EventQueue9context00IPFvvEEclEv__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
- return;
-}
-function ___fflush_unlocked__async_cb($0) {
- $0 = $0|0;
- var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $3 = 0;
- var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = HEAP32[$2>>2]|0;
- $8 = ($7|0)==(0|0);
- do {
-  if ($8) {
-   $$0 = -1;
-  } else {
-   $9 = ((($4)) + 4|0);
-   $10 = HEAP32[$9>>2]|0;
-   $11 = ((($4)) + 8|0);
-   $12 = HEAP32[$11>>2]|0;
-   $13 = ($10>>>0)<($12>>>0);
-   if (!($13)) {
-    $24 = ((($4)) + 16|0);
-    HEAP32[$24>>2] = 0;
-    HEAP32[$6>>2] = 0;
-    HEAP32[$2>>2] = 0;
-    HEAP32[$11>>2] = 0;
-    HEAP32[$9>>2] = 0;
-    $$0 = 0;
-    break;
-   }
-   $14 = $10;
-   $15 = $12;
-   $16 = (($14) - ($15))|0;
-   $17 = ((($4)) + 40|0);
-   $18 = HEAP32[$17>>2]|0;
-   $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(24)|0);
-   (FUNCTION_TABLE_iiii[$18 & 63]($4,$16,1)|0);
-   $IsAsync4 = ___async;
-   if (!($IsAsync4)) {
-    ___async_unwind = 0;
-   }
-   HEAP32[$ReallocAsyncCtx2>>2] = 132;
-   $19 = ((($ReallocAsyncCtx2)) + 4|0);
-   HEAP32[$19>>2] = $4;
-   $20 = ((($ReallocAsyncCtx2)) + 8|0);
-   HEAP32[$20>>2] = $6;
-   $21 = ((($ReallocAsyncCtx2)) + 12|0);
-   HEAP32[$21>>2] = $2;
-   $22 = ((($ReallocAsyncCtx2)) + 16|0);
-   HEAP32[$22>>2] = $11;
-   $23 = ((($ReallocAsyncCtx2)) + 20|0);
-   HEAP32[$23>>2] = $9;
-   sp = STACKTOP;
-   return;
-  }
- } while(0);
- $25 = ___async_retval;
- HEAP32[$25>>2] = $$0;
- return;
-}
-function ___fflush_unlocked__async_cb_12($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($2)) + 16|0);
- HEAP32[$11>>2] = 0;
- HEAP32[$4>>2] = 0;
- HEAP32[$6>>2] = 0;
- HEAP32[$8>>2] = 0;
- HEAP32[$10>>2] = 0;
- $12 = ___async_retval;
- HEAP32[$12>>2] = 0;
- return;
-}
-function _equeue_enqueue__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- _equeue_mutex_unlock($2);
- $5 = ___async_retval;
- HEAP32[$5>>2] = $4;
- return;
-}
-function __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function ___cxx_global_var_init_3__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 13 "demos/events/main.cpp"
-}
-function __ZN4mbed8CallbackIFvvEE13function_dtorIN6events5EventIS1_EEEEvPv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 614 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
-}
-function _abort_message__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $IsAsync3 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
- (_fputc(10,$2)|0);
- $IsAsync3 = ___async;
- if (!($IsAsync3)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx2>>2] = 141;
- sp = STACKTOP;
- return;
-}
-function _abort_message__async_cb_13($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- _abort();
- // unreachable;
+ return; //@line 2307 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
 }
 function __ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb($0) {
  $0 = $0|0;
@@ -18364,7 +15505,7 @@ function __ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb($0) {
  HEAP32[$5>>2] = $4;
  return; //@line 729 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
 }
-function __ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb_14($0) {
+function __ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb_2($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0;
  var $28 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
@@ -18425,364 +15566,82 @@ function __ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb_14($0) {
  sp = STACKTOP;
  return;
 }
-function _printf__async_cb($0) {
+function __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
  $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- $4 = ___async_retval;
- HEAP32[$4>>2] = $AsyncRetVal;
- return;
-}
-function __ZN6events5EventIFvvEEC2IPS1_EEPNS_10EventQueueET___async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $3 = 0;
- var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ___async_retval;
- $AsyncRetVal = HEAP32[$7>>2]|0;
- HEAP32[$2>>2] = $AsyncRetVal; //@line 52 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $8 = HEAP32[$2>>2]|0; //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $9 = ($8|0)!=(0|0); //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- if (!($9)) {
-  return; //@line 68 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- }
- $10 = HEAP32[$4>>2]|0; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $11 = HEAP32[$2>>2]|0; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $12 = ((($11)) + 4|0); //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$12>>2] = $10; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $13 = HEAP32[$2>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $14 = ((($13)) + 8|0); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$14>>2] = 0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $15 = HEAP32[$2>>2]|0; //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $16 = ((($15)) + 12|0); //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$16>>2] = 0; //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $17 = HEAP32[$2>>2]|0; //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $18 = ((($17)) + 16|0); //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$18>>2] = -1; //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $19 = HEAP32[$2>>2]|0; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $20 = ((($19)) + 20|0); //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$20>>2] = 117; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $21 = HEAP32[$2>>2]|0; //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $22 = ((($21)) + 24|0); //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$22>>2] = 118; //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $23 = HEAP32[$2>>2]|0; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $24 = ((($23)) + 28|0); //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $25 = HEAP32[$6>>2]|0; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$24>>2] = $25; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $26 = HEAP32[$2>>2]|0; //@line 66 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$26>>2] = 1; //@line 66 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- return; //@line 68 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
-}
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb($0) {
- $0 = $0|0;
- var $$pre = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync3 = 0, $ReallocAsyncCtx2 = 0;
  var label = 0, sp = 0;
  sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $$pre = HEAP32[$2>>2]|0;
- $11 = ($$pre|0)==(0|0);
- if ($11) {
-  HEAP32[$4>>2] = 0;
-  $17 = ((($10)) + 28|0);
-  _gpio_irq_set($17,2,1);
-  return;
- } else {
-  $12 = ((($$pre)) + 4|0);
-  $13 = HEAP32[$12>>2]|0;
-  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
-  FUNCTION_TABLE_vii[$13 & 255]($6,$8);
-  $IsAsync3 = ___async;
-  if (!($IsAsync3)) {
-   ___async_unwind = 0;
-  }
-  HEAP32[$ReallocAsyncCtx2>>2] = 44;
-  $14 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$14>>2] = $2;
-  $15 = ((($ReallocAsyncCtx2)) + 8|0);
-  HEAP32[$15>>2] = $4;
-  $16 = ((($ReallocAsyncCtx2)) + 12|0);
-  HEAP32[$16>>2] = $10;
-  sp = STACKTOP;
-  return;
- }
-}
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_15($0) {
- $0 = $0|0;
- var $$pre$i$i = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $$pre$i$i = HEAP32[$2>>2]|0;
- HEAP32[$4>>2] = $$pre$i$i;
- $7 = ((($6)) + 28|0);
- _gpio_irq_set($7,2,1);
  return;
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_16($0) {
+function __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
  $0 = $0|0;
- var $$phi$trans$insert = 0, $$pre10 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync10 = 0, $IsAsync18 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = __THREW__; __THREW__ = 0;
- $12 = $11&1;
- if ($12) {
-  $22 = ___cxa_find_matching_catch_2()|0;
-  $23 = tempRet0;
-  $24 = ((($8)) + 12|0);
-  $25 = HEAP32[$24>>2]|0;
-  $26 = ($25|0)==(0|0);
-  if ($26) {
-   ___resumeException($22|0);
-   // unreachable;
-  }
-  $27 = ((($25)) + 8|0);
-  $28 = HEAP32[$27>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx6 = (invoke_ii(169,16)|0);
-  FUNCTION_TABLE_vi[$28 & 255]($2);
-  $IsAsync18 = ___async;
-  if ($IsAsync18) {
-   HEAP32[$ReallocAsyncCtx6>>2] = 48;
-   $29 = ((($ReallocAsyncCtx6)) + 4|0);
-   HEAP32[$29>>2] = $2;
-   $30 = ((($ReallocAsyncCtx6)) + 8|0);
-   HEAP32[$30>>2] = $22;
-   $31 = ((($ReallocAsyncCtx6)) + 12|0);
-   HEAP32[$31>>2] = $23;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx6>>2] = 48;
-  $29 = ((($ReallocAsyncCtx6)) + 4|0);
-  HEAP32[$29>>2] = $2;
-  $30 = ((($ReallocAsyncCtx6)) + 8|0);
-  HEAP32[$30>>2] = $22;
-  $31 = ((($ReallocAsyncCtx6)) + 12|0);
-  HEAP32[$31>>2] = $23;
-  sp = STACKTOP;
-  return;
- }
- $$phi$trans$insert = ((($8)) + 12|0);
- $$pre10 = HEAP32[$$phi$trans$insert>>2]|0;
- $13 = ($$pre10|0)==(0|0);
- if ($13) {
-  HEAP32[$4>>2] = 0;
-  $21 = ((($10)) + 28|0);
-  _gpio_irq_set($21,2,0);
-  return;
- } else {
-  $14 = ((($$pre10)) + 4|0);
-  $15 = HEAP32[$14>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(169,24)|0);
-  FUNCTION_TABLE_vii[$15 & 255]($6,$2);
-  $IsAsync10 = ___async;
-  if (!($IsAsync10)) {
-   ___async_unwind = 0;
-  }
-  HEAP32[$ReallocAsyncCtx4>>2] = 46;
-  $16 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$16>>2] = $8;
-  $17 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$17>>2] = $$phi$trans$insert;
-  $18 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$18>>2] = $4;
-  $19 = ((($ReallocAsyncCtx4)) + 16|0);
-  HEAP32[$19>>2] = $2;
-  $20 = ((($ReallocAsyncCtx4)) + 20|0);
-  HEAP32[$20>>2] = $10;
-  sp = STACKTOP;
-  return;
- }
+ return;
 }
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_17($0) {
+function _abort_message__async_cb($0) {
  $0 = $0|0;
- var $$pre$i$i4 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0;
- var $27 = 0, $28 = 0, $29 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync14 = 0, $IsAsync18 = 0, $ReallocAsyncCtx5 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $IsAsync3 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
+ (_fputc(10,$2)|0);
+ $IsAsync3 = ___async;
+ if (!($IsAsync3)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 141;
+ sp = STACKTOP;
+ return;
+}
+function _abort_message__async_cb_3($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ _abort();
+ // unreachable;
+}
+function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_4($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _invoke_ticker__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _invoke_ticker__async_cb_5($0) {
+ $0 = $0|0;
+ var $$pre$i = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
  $3 = ((($0)) + 8|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = __THREW__; __THREW__ = 0;
- $12 = $11&1;
- if ($12) {
-  $20 = ___cxa_find_matching_catch_2()|0;
-  $21 = tempRet0;
-  $22 = ((($2)) + 12|0);
-  $23 = HEAP32[$22>>2]|0;
-  $24 = ($23|0)==(0|0);
-  if ($24) {
-   ___resumeException($20|0);
-   // unreachable;
-  }
-  $25 = ((($23)) + 8|0);
-  $26 = HEAP32[$25>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx6 = (invoke_ii(169,16)|0);
-  FUNCTION_TABLE_vi[$26 & 255]($8);
-  $IsAsync18 = ___async;
-  if ($IsAsync18) {
-   HEAP32[$ReallocAsyncCtx6>>2] = 48;
-   $27 = ((($ReallocAsyncCtx6)) + 4|0);
-   HEAP32[$27>>2] = $8;
-   $28 = ((($ReallocAsyncCtx6)) + 8|0);
-   HEAP32[$28>>2] = $20;
-   $29 = ((($ReallocAsyncCtx6)) + 12|0);
-   HEAP32[$29>>2] = $21;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx6>>2] = 48;
-  $27 = ((($ReallocAsyncCtx6)) + 4|0);
-  HEAP32[$27>>2] = $8;
-  $28 = ((($ReallocAsyncCtx6)) + 8|0);
-  HEAP32[$28>>2] = $20;
-  $29 = ((($ReallocAsyncCtx6)) + 12|0);
-  HEAP32[$29>>2] = $21;
-  sp = STACKTOP;
-  return;
- }
- $$pre$i$i4 = HEAP32[$4>>2]|0;
- HEAP32[$6>>2] = $$pre$i$i4;
- $13 = ($$pre$i$i4|0)==(0);
- if ($13) {
-  $19 = ((($10)) + 28|0);
-  _gpio_irq_set($19,2,0);
-  return;
- }
- $14 = $$pre$i$i4;
- $15 = ((($14)) + 8|0);
- $16 = HEAP32[$15>>2]|0;
- $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(12)|0);
- FUNCTION_TABLE_vi[$16 & 255]($8);
- $IsAsync14 = ___async;
- if ($IsAsync14) {
-  HEAP32[$ReallocAsyncCtx5>>2] = 47;
-  $17 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$17>>2] = $8;
-  $18 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$18>>2] = $10;
+ $$pre$i = HEAP32[$2>>2]|0;
+ $5 = HEAP32[$$pre$i>>2]|0;
+ $6 = $4;
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(4)|0);
+ FUNCTION_TABLE_vi[$5 & 255]($6);
+ $IsAsync = ___async;
+ if ($IsAsync) {
+  HEAP32[$ReallocAsyncCtx>>2] = 81;
   sp = STACKTOP;
   return;
  }
  ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx5>>2] = 47;
- $17 = ((($ReallocAsyncCtx5)) + 4|0);
- HEAP32[$17>>2] = $8;
- $18 = ((($ReallocAsyncCtx5)) + 8|0);
- HEAP32[$18>>2] = $10;
+ HEAP32[$ReallocAsyncCtx>>2] = 81;
  sp = STACKTOP;
  return;
-}
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_18($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($4)) + 28|0);
- _gpio_irq_set($5,2,0);
- return;
-}
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_19($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $9 = ___cxa_find_matching_catch_3(0|0)|0;
-  $10 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($9);
-  // unreachable;
- } else {
-  ___resumeException($4|0);
-  // unreachable;
- }
-}
-function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_20($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN6events10EventQueueC2EjPh__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $7 = ___cxa_find_matching_catch_3(0|0)|0;
-  $8 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($7);
-  // unreachable;
- } else {
-  ___resumeException($2|0);
-  // unreachable;
- }
-}
-function __ZN6events10EventQueueC2EjPh__async_cb_21($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
 }
 function _main__async_cb($0) {
  $0 = $0|0;
@@ -18790,7 +15649,7 @@ function _main__async_cb($0) {
  sp = STACKTOP;
  // unreachable; //@line 32 "demos/events/main.cpp"
 }
-function _main__async_cb_22($0) {
+function _main__async_cb_6($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18813,7 +15672,7 @@ function _main__async_cb_22($0) {
   // unreachable;
  }
 }
-function _main__async_cb_23($0) {
+function _main__async_cb_7($0) {
  $0 = $0|0;
  var $IsAsync19 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18827,7 +15686,7 @@ function _main__async_cb_23($0) {
  sp = STACKTOP;
  return;
 }
-function _main__async_cb_24($0) {
+function _main__async_cb_8($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18861,7 +15720,7 @@ function _main__async_cb_24($0) {
  sp = STACKTOP;
  return;
 }
-function _main__async_cb_25($0) {
+function _main__async_cb_9($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18913,7 +15772,7 @@ function _main__async_cb_25($0) {
  sp = STACKTOP;
  return;
 }
-function _main__async_cb_26($0) {
+function _main__async_cb_10($0) {
  $0 = $0|0;
  var $1 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18921,7 +15780,7 @@ function _main__async_cb_26($0) {
  HEAP32[$1>>2] = 0;
  return; //@line 38 "demos/events/main.cpp"
 }
-function _main__async_cb_27($0) {
+function _main__async_cb_11($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync30 = 0, $ReallocAsyncCtx9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -18943,11 +15802,11 @@ function _main__async_cb_27($0) {
  }
  HEAP32[$ReallocAsyncCtx9>>2] = 90;
  $11 = ((($ReallocAsyncCtx9)) + 4|0);
- HEAP32[$11>>2] = $2;
+ HEAP32[$11>>2] = $4;
  $12 = ((($ReallocAsyncCtx9)) + 8|0);
- HEAP32[$12>>2] = $4;
+ HEAP32[$12>>2] = $6;
  $13 = ((($ReallocAsyncCtx9)) + 12|0);
- HEAP32[$13>>2] = $6;
+ HEAP32[$13>>2] = $2;
  $14 = ((($ReallocAsyncCtx9)) + 16|0);
  HEAP32[$14>>2] = $8;
  $15 = ((($ReallocAsyncCtx9)) + 20|0);
@@ -18955,7 +15814,7 @@ function _main__async_cb_27($0) {
  sp = STACKTOP;
  return;
 }
-function _main__async_cb_28($0) {
+function _main__async_cb_12($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $IsAsync16 = 0;
  var $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
@@ -18973,8 +15832,8 @@ function _main__async_cb_28($0) {
  if ($10) {
   $14 = ___cxa_find_matching_catch_2()|0;
   $15 = tempRet0;
-  HEAP32[$4>>2] = $14; //@line 38 "demos/events/main.cpp"
-  HEAP32[$6>>2] = $15; //@line 38 "demos/events/main.cpp"
+  HEAP32[$2>>2] = $14; //@line 38 "demos/events/main.cpp"
+  HEAP32[$4>>2] = $15; //@line 38 "demos/events/main.cpp"
   __THREW__ = 0;
   $ReallocAsyncCtx4 = (invoke_ii(169,16)|0);
   __ZN4mbed8CallbackIFvvEED2Ev($8); //@line 32 "demos/events/main.cpp"
@@ -18982,22 +15841,22 @@ function _main__async_cb_28($0) {
   if ($IsAsync12) {
    HEAP32[$ReallocAsyncCtx4>>2] = 98;
    $16 = ((($ReallocAsyncCtx4)) + 4|0);
-   HEAP32[$16>>2] = $2;
+   HEAP32[$16>>2] = $6;
    $17 = ((($ReallocAsyncCtx4)) + 8|0);
-   HEAP32[$17>>2] = $4;
+   HEAP32[$17>>2] = $2;
    $18 = ((($ReallocAsyncCtx4)) + 12|0);
-   HEAP32[$18>>2] = $6;
+   HEAP32[$18>>2] = $4;
    sp = STACKTOP;
    return;
   }
   ___async_unwind = 0;
   HEAP32[$ReallocAsyncCtx4>>2] = 98;
   $16 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$16>>2] = $2;
+  HEAP32[$16>>2] = $6;
   $17 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$17>>2] = $4;
+  HEAP32[$17>>2] = $2;
   $18 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$18>>2] = $6;
+  HEAP32[$18>>2] = $4;
   sp = STACKTOP;
   return;
  } else {
@@ -19008,27 +15867,27 @@ function _main__async_cb_28($0) {
   if ($IsAsync16) {
    HEAP32[$ReallocAsyncCtx5>>2] = 95;
    $11 = ((($ReallocAsyncCtx5)) + 4|0);
-   HEAP32[$11>>2] = $4;
+   HEAP32[$11>>2] = $2;
    $12 = ((($ReallocAsyncCtx5)) + 8|0);
-   HEAP32[$12>>2] = $6;
+   HEAP32[$12>>2] = $4;
    $13 = ((($ReallocAsyncCtx5)) + 12|0);
-   HEAP32[$13>>2] = $2;
+   HEAP32[$13>>2] = $6;
    sp = STACKTOP;
    return;
   }
   ___async_unwind = 0;
   HEAP32[$ReallocAsyncCtx5>>2] = 95;
   $11 = ((($ReallocAsyncCtx5)) + 4|0);
-  HEAP32[$11>>2] = $4;
+  HEAP32[$11>>2] = $2;
   $12 = ((($ReallocAsyncCtx5)) + 8|0);
-  HEAP32[$12>>2] = $6;
+  HEAP32[$12>>2] = $4;
   $13 = ((($ReallocAsyncCtx5)) + 12|0);
-  HEAP32[$13>>2] = $2;
+  HEAP32[$13>>2] = $6;
   sp = STACKTOP;
   return;
  }
 }
-function _main__async_cb_29($0) {
+function _main__async_cb_13($0) {
  $0 = $0|0;
  var $$byval_copy = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
  var $9 = 0, $IsAsync27 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx8 = 0, label = 0, sp = 0;
@@ -19047,7 +15906,7 @@ function _main__async_cb_29($0) {
  $10 = HEAP32[$9>>2]|0;
  __THREW__ = 0;
  ;HEAP8[$$byval_copy>>0]=HEAP8[$10>>0]|0; //@line 32 "demos/events/main.cpp"
- invoke_viii(91,($8|0),($2|0),($$byval_copy|0)); //@line 32 "demos/events/main.cpp"
+ invoke_viii(91,($8|0),($6|0),($$byval_copy|0)); //@line 32 "demos/events/main.cpp"
  $11 = __THREW__; __THREW__ = 0;
  $12 = $11&1;
  if (!($12)) {
@@ -19072,54 +15931,121 @@ function _main__async_cb_29($0) {
  }
  $17 = ___cxa_find_matching_catch_2()|0;
  $18 = tempRet0;
- HEAP32[$4>>2] = $17; //@line 38 "demos/events/main.cpp"
- HEAP32[$6>>2] = $18; //@line 38 "demos/events/main.cpp"
+ HEAP32[$2>>2] = $17; //@line 38 "demos/events/main.cpp"
+ HEAP32[$4>>2] = $18; //@line 38 "demos/events/main.cpp"
  __THREW__ = 0;
  $ReallocAsyncCtx2 = (invoke_ii(169,12)|0);
- __ZN6events5EventIFvvEED2Ev($2); //@line 32 "demos/events/main.cpp"
+ __ZN6events5EventIFvvEED2Ev($6); //@line 32 "demos/events/main.cpp"
  $IsAsync4 = ___async;
  if ($IsAsync4) {
   HEAP32[$ReallocAsyncCtx2>>2] = 100;
   $19 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$19>>2] = $4;
+  HEAP32[$19>>2] = $2;
   $20 = ((($ReallocAsyncCtx2)) + 8|0);
-  HEAP32[$20>>2] = $6;
+  HEAP32[$20>>2] = $4;
   sp = STACKTOP;
   STACKTOP = sp;return;
  }
  ___async_unwind = 0;
  HEAP32[$ReallocAsyncCtx2>>2] = 100;
  $19 = ((($ReallocAsyncCtx2)) + 4|0);
- HEAP32[$19>>2] = $4;
+ HEAP32[$19>>2] = $2;
  $20 = ((($ReallocAsyncCtx2)) + 8|0);
- HEAP32[$20>>2] = $6;
+ HEAP32[$20>>2] = $4;
  sp = STACKTOP;
  STACKTOP = sp;return;
 }
-function __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+function __ZN4mbed8CallbackIFvvEE13function_callIN6events5EventIS1_EEEEvPKv__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
- return;
+ return; //@line 603 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
-function _equeue_post__async_cb($0) {
+function __ZN4mbed11InterruptInD2Ev__async_cb($0) {
  $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- $4 = ((($2)) + 52|0);
- _equeue_sema_signal($4);
- $5 = ___async_retval;
- HEAP32[$5>>2] = $AsyncRetVal;
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if (!($4)) {
+  $5 = ((($2)) + 52|0);
+  $6 = HEAP32[$5>>2]|0;
+  $7 = ($6|0)==(0|0);
+  if ($7) {
+   return;
+  }
+  $8 = ((($2)) + 40|0);
+  $9 = ((($6)) + 8|0);
+  $10 = HEAP32[$9>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx2 = (invoke_ii(169,4)|0);
+  FUNCTION_TABLE_vi[$10 & 255]($8);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 29;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 29;
+  sp = STACKTOP;
+  return;
+ }
+ $11 = ___cxa_find_matching_catch_2()|0;
+ $12 = tempRet0;
+ $13 = ((($2)) + 52|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ($14|0)==(0|0);
+ if ($15) {
+  ___resumeException($11|0);
+  // unreachable;
+ }
+ $16 = ((($2)) + 40|0);
+ $17 = ((($14)) + 8|0);
+ $18 = HEAP32[$17>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx4 = (invoke_ii(169,12)|0);
+ FUNCTION_TABLE_vi[$18 & 255]($16);
+ $IsAsync12 = ___async;
+ if ($IsAsync12) {
+  HEAP32[$ReallocAsyncCtx4>>2] = 31;
+  $19 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$19>>2] = $11;
+  $20 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$20>>2] = $12;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx4>>2] = 31;
+ $19 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$19>>2] = $11;
+ $20 = ((($ReallocAsyncCtx4)) + 8|0);
+ HEAP32[$20>>2] = $12;
+ sp = STACKTOP;
  return;
 }
-function _equeue_dealloc__async_cb($0) {
+function __ZN4mbed11InterruptInD2Ev__async_cb_14($0) {
  $0 = $0|0;
- var $$027$i = 0, $$028$i = 0, $$029$i = 0, $$sink$in$i = 0, $$sink21$i = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0;
- var $23 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = __THREW__; __THREW__ = 0;
+ $2 = $1&1;
+ if (!($2)) {
+  return;
+ }
+ $3 = ___cxa_find_matching_catch_2()|0;
+ $4 = tempRet0;
+ ___resumeException($3|0);
+ // unreachable;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_15($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
@@ -19127,59 +16053,169 @@ function _equeue_dealloc__async_cb($0) {
  $4 = HEAP32[$3>>2]|0;
  $5 = ((($0)) + 12|0);
  $6 = HEAP32[$5>>2]|0;
- $7 = ((($2)) + 160|0);
- _equeue_mutex_lock($7);
- $8 = ((($2)) + 28|0);
- $9 = HEAP32[$8>>2]|0;
- $10 = ($9|0)==(0|0);
- L3: do {
-  if ($10) {
-   $$027$i = $8;
-   label = 9;
-  } else {
-   $11 = HEAP32[$6>>2]|0;
-   $$029$i = $8;$13 = $9;
-   while(1) {
-    $12 = HEAP32[$13>>2]|0;
-    $14 = ($12>>>0)<($11>>>0);
-    if (!($14)) {
-     break;
-    }
-    $15 = ((($13)) + 8|0);
-    $16 = HEAP32[$15>>2]|0;
-    $17 = ($16|0)==(0|0);
-    if ($17) {
-     $$027$i = $15;
-     label = 9;
-     break L3;
-    } else {
-     $$029$i = $15;$13 = $16;
-    }
-   }
-   $18 = ($12|0)==($11|0);
-   if ($18) {
-    $19 = ((($4)) + -24|0);
-    HEAP32[$19>>2] = $13;
-    $20 = HEAP32[$$029$i>>2]|0;
-    $21 = ((($20)) + 8|0);
-    $$028$i = $$029$i;$$sink$in$i = $21;
-   } else {
-    $$027$i = $$029$i;
-    label = 9;
-   }
-  }
- } while(0);
- if ((label|0) == 9) {
-  $22 = ((($4)) + -24|0);
-  HEAP32[$22>>2] = 0;
-  $$028$i = $$027$i;$$sink$in$i = $$027$i;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $17 = ___cxa_find_matching_catch_3(0|0)|0;
+  $18 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($17);
+  // unreachable;
  }
- $$sink21$i = HEAP32[$$sink$in$i>>2]|0;
- $23 = ((($4)) + -28|0);
- HEAP32[$23>>2] = $$sink21$i;
- HEAP32[$$028$i>>2] = $6;
- _equeue_mutex_unlock($7);
+ $9 = ((($6)) + 52|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ($10|0)==(0|0);
+ if ($11) {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+ $12 = ((($6)) + 40|0);
+ $13 = ((($10)) + 8|0);
+ $14 = HEAP32[$13>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx4 = (invoke_ii(169,12)|0);
+ FUNCTION_TABLE_vi[$14 & 255]($12);
+ $IsAsync12 = ___async;
+ if (!($IsAsync12)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx4>>2] = 31;
+ $15 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$15>>2] = $2;
+ $16 = ((($ReallocAsyncCtx4)) + 8|0);
+ HEAP32[$16>>2] = $4;
+ sp = STACKTOP;
  return;
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_16($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $7 = ___cxa_find_matching_catch_3(0|0)|0;
+  $8 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($7);
+  // unreachable;
+ } else {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+}
+function __ZN4mbed11InterruptInD2Ev__async_cb_17($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZN6events10EventQueue13function_callIPFvvEEEvPv__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 2290 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
+}
+function ___overflow__async_cb($0) {
+ $0 = $0|0;
+ var $$0 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ $4 = ($AsyncRetVal|0)==(1);
+ if ($4) {
+  $5 = HEAP8[$2>>0]|0;
+  $6 = $5&255;
+  $$0 = $6;
+ } else {
+  $$0 = -1;
+ }
+ $7 = ___async_retval;
+ HEAP32[$7>>2] = $$0;
+ return;
+}
+function __ZNK6events5EventIFvvEEclEv__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 156 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+}
+function __ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZL25default_terminate_handlerv__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, $IsAsync15 = 0, $ReallocAsyncCtx2 = 0, $vararg_ptr6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 20|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 24|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ___async_retval;
+ $AsyncRetVal$pre_trunc = HEAP8[$11>>0]|0;
+ $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
+ if (!($AsyncRetVal)) {
+  HEAP32[$4>>2] = 3947;
+  $vararg_ptr6 = ((($4)) + 4|0);
+  HEAP32[$vararg_ptr6>>2] = $6;
+  _abort_message(3856,$4);
+  // unreachable;
+ }
+ $12 = HEAP32[$2>>2]|0;
+ $13 = HEAP32[$12>>2]|0;
+ $14 = ((($13)) + 8|0);
+ $15 = HEAP32[$14>>2]|0;
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
+ $16 = (FUNCTION_TABLE_ii[$15 & 255]($12)|0);
+ $IsAsync15 = ___async;
+ if (!($IsAsync15)) {
+  $20 = ___async_retval;
+  HEAP32[$20>>2] = $16;
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 138;
+ $17 = ((($ReallocAsyncCtx2)) + 4|0);
+ HEAP32[$17>>2] = $8;
+ $18 = ((($ReallocAsyncCtx2)) + 8|0);
+ HEAP32[$18>>2] = $6;
+ $19 = ((($ReallocAsyncCtx2)) + 12|0);
+ HEAP32[$19>>2] = $10;
+ sp = STACKTOP;
+ return;
+}
+function __ZL25default_terminate_handlerv__async_cb_18($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $vararg_ptr1 = 0, $vararg_ptr2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $AsyncRetVal = HEAP32[$5>>2]|0;
+ HEAP32[$2>>2] = 3947;
+ $vararg_ptr1 = ((($2)) + 4|0);
+ HEAP32[$vararg_ptr1>>2] = $4;
+ $vararg_ptr2 = ((($2)) + 8|0);
+ HEAP32[$vararg_ptr2>>2] = $AsyncRetVal;
+ _abort_message(3811,$2);
+ // unreachable;
 }
 function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
  $0 = $0|0;
@@ -19229,7 +16265,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEP
  }
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_30($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_19($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
  var $9 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
@@ -19274,69 +16310,111 @@ function __ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEP
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb($0) {
+function __ZNK6events5EventIFvvEE4callEv__async_cb($0) {
  $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_31($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _invoke_ticker__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _invoke_ticker__async_cb_32($0) {
- $0 = $0|0;
- var $$pre$i = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $$pre$i = HEAP32[$2>>2]|0;
- $5 = HEAP32[$$pre$i>>2]|0;
- $6 = $4;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(4)|0);
- FUNCTION_TABLE_vi[$5 & 255]($6);
- $IsAsync = ___async;
- if ($IsAsync) {
-  HEAP32[$ReallocAsyncCtx>>2] = 81;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ HEAP32[$2>>2] = $AsyncRetVal; //@line 148 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $4 = HEAP32[$2>>2]|0; //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $5 = ($4|0)!=(0); //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ if ($5) {
+  return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ }
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
+ _mbed_assert_internal(1303,1306,149); //@line 149 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $IsAsync4 = ___async;
+ if ($IsAsync4) {
+  HEAP32[$ReallocAsyncCtx2>>2] = 114;
   sp = STACKTOP;
   return;
  }
  ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx>>2] = 81;
+ HEAP32[$ReallocAsyncCtx2>>2] = 114;
  sp = STACKTOP;
  return;
 }
-function __ZNK6events5EventIFvvEE4postEv__async_cb($0) {
+function __ZNK6events5EventIFvvEE4callEv__async_cb_20($0) {
  $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 150 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+}
+function __ZN4mbed11InterruptInC2E7PinName__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0;
+ var $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
  $3 = ((($0)) + 8|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = ___async_retval;
- $AsyncRetVal = HEAP32[$5>>2]|0;
- $6 = HEAP32[$2>>2]|0; //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $7 = ((($6)) + 8|0); //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$7>>2] = $AsyncRetVal; //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $8 = HEAP32[$2>>2]|0; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $9 = ((($8)) + 8|0); //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $10 = HEAP32[$9>>2]|0; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- HEAP32[$4>>2] = $10; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $11 = HEAP32[$4>>2]|0; //@line 142 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
- $12 = ___async_retval;
- HEAP32[$12>>2] = $11;
- return; //@line 142 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = __THREW__; __THREW__ = 0;
+ $10 = $9&1;
+ if ($10) {
+  $18 = ___cxa_find_matching_catch_3(0|0)|0;
+  $19 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($18);
+  // unreachable;
+ }
+ $11 = ((($2)) + 52|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ($12|0)==(0|0);
+ if ($13) {
+  ___resumeException($4|0);
+  // unreachable;
+ }
+ $14 = ((($12)) + 8|0);
+ $15 = HEAP32[$14>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx2 = (invoke_ii(169,12)|0);
+ FUNCTION_TABLE_vi[$15 & 255]($8);
+ $IsAsync4 = ___async;
+ if (!($IsAsync4)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 40;
+ $16 = ((($ReallocAsyncCtx2)) + 4|0);
+ HEAP32[$16>>2] = $4;
+ $17 = ((($ReallocAsyncCtx2)) + 8|0);
+ HEAP32[$17>>2] = $6;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptInC2E7PinName__async_cb_21($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $7 = ___cxa_find_matching_catch_3(0|0)|0;
+  $8 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($7);
+  // unreachable;
+ } else {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+}
+function __ZN4mbed11InterruptInC2E7PinName__async_cb_22($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
 }
 function __ZN6events10EventQueue5eventIvEENS_5EventIFvvEEEPFT_vE__async_cb($0) {
  $0 = $0|0;
@@ -19344,17 +16422,23 @@ function __ZN6events10EventQueue5eventIvEENS_5EventIFvvEEEPFT_vE__async_cb($0) {
  sp = STACKTOP;
  return; //@line 2545 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
 }
-function _mbed_assert_internal__async_cb($0) {
+function __ZN4mbed8CallbackIFvvEE13function_dtorIN6events5EventIS1_EEEEvPv__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
- return;
+ return; //@line 614 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
 }
-function __ZN4mbed8CallbackIFvvEED2Ev__async_cb($0) {
+function _printf__async_cb($0) {
  $0 = $0|0;
- var label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
  sp = STACKTOP;
- return; //@line 264 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ $4 = ___async_retval;
+ HEAP32[$4>>2] = $AsyncRetVal;
+ return;
 }
 function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
  $0 = $0|0;
@@ -19418,7 +16502,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  }
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_23($0) {
  $0 = $0|0;
  var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0;
@@ -19492,7 +16576,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  } while(0);
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_34($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_24($0) {
  $0 = $0|0;
  var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync8 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
@@ -19546,7 +16630,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  }
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_35($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_25($0) {
  $0 = $0|0;
  var $$expand_i1_val = 0, $$expand_i1_val10 = 0, $$expand_i1_val8 = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
  var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
@@ -19560,8 +16644,165 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  $5 = ((($0)) + 12|0);
  $6 = HEAP32[$5>>2]|0;
  $7 = ((($0)) + 16|0);
- $$pre_trunc = HEAP8[$7>>0]|0;
- $8 = $$pre_trunc&1;
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $$pre_trunc = HEAP8[$15>>0]|0;
+ $16 = $$pre_trunc&1;
+ $17 = ((($0)) + 36|0);
+ $18 = HEAP32[$17>>2]|0;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($18)) + 24|0);
+ $24 = ($20|0)>(1);
+ do {
+  if ($24) {
+   $25 = HEAP32[$22>>2]|0;
+   $26 = $25 & 2;
+   $27 = ($26|0)==(0);
+   if ($27) {
+    $28 = HEAP32[$6>>2]|0;
+    $29 = ($28|0)==(1);
+    if (!($29)) {
+     $39 = $25 & 1;
+     $40 = ($39|0)==(0);
+     if ($40) {
+      $56 = HEAP8[$4>>0]|0;
+      $57 = ($56<<24>>24)==(0);
+      if (!($57)) {
+       break;
+      }
+      $58 = HEAP32[$6>>2]|0;
+      $59 = ($58|0)==(1);
+      if ($59) {
+       break;
+      }
+      $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
+      __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
+      $IsAsync = ___async;
+      if (!($IsAsync)) {
+       ___async_unwind = 0;
+      }
+      HEAP32[$ReallocAsyncCtx>>2] = 161;
+      $60 = ((($ReallocAsyncCtx)) + 4|0);
+      HEAP32[$60>>2] = $23;
+      $61 = ((($ReallocAsyncCtx)) + 8|0);
+      HEAP32[$61>>2] = $2;
+      $62 = ((($ReallocAsyncCtx)) + 12|0);
+      HEAP32[$62>>2] = $4;
+      $63 = ((($ReallocAsyncCtx)) + 16|0);
+      HEAP32[$63>>2] = $6;
+      $64 = ((($ReallocAsyncCtx)) + 20|0);
+      HEAP32[$64>>2] = $10;
+      $65 = ((($ReallocAsyncCtx)) + 24|0);
+      HEAP32[$65>>2] = $12;
+      $66 = ((($ReallocAsyncCtx)) + 28|0);
+      HEAP32[$66>>2] = $14;
+      $67 = ((($ReallocAsyncCtx)) + 32|0);
+      $$expand_i1_val10 = $16&1;
+      HEAP8[$67>>0] = $$expand_i1_val10;
+      sp = STACKTOP;
+      return;
+     }
+     $41 = HEAP8[$4>>0]|0;
+     $42 = ($41<<24>>24)==(0);
+     if (!($42)) {
+      break;
+     }
+     $43 = HEAP32[$6>>2]|0;
+     $44 = ($43|0)==(1);
+     if ($44) {
+      $45 = HEAP32[$8>>2]|0;
+      $46 = ($45|0)==(1);
+      if ($46) {
+       break;
+      }
+     }
+     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
+     __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
+     $IsAsync4 = ___async;
+     if (!($IsAsync4)) {
+      ___async_unwind = 0;
+     }
+     HEAP32[$ReallocAsyncCtx2>>2] = 160;
+     $47 = ((($ReallocAsyncCtx2)) + 4|0);
+     HEAP32[$47>>2] = $23;
+     $48 = ((($ReallocAsyncCtx2)) + 8|0);
+     HEAP32[$48>>2] = $2;
+     $49 = ((($ReallocAsyncCtx2)) + 12|0);
+     HEAP32[$49>>2] = $4;
+     $50 = ((($ReallocAsyncCtx2)) + 16|0);
+     HEAP32[$50>>2] = $6;
+     $51 = ((($ReallocAsyncCtx2)) + 20|0);
+     HEAP32[$51>>2] = $8;
+     $52 = ((($ReallocAsyncCtx2)) + 24|0);
+     HEAP32[$52>>2] = $10;
+     $53 = ((($ReallocAsyncCtx2)) + 28|0);
+     HEAP32[$53>>2] = $12;
+     $54 = ((($ReallocAsyncCtx2)) + 32|0);
+     HEAP32[$54>>2] = $14;
+     $55 = ((($ReallocAsyncCtx2)) + 36|0);
+     $$expand_i1_val8 = $16&1;
+     HEAP8[$55>>0] = $$expand_i1_val8;
+     sp = STACKTOP;
+     return;
+    }
+   }
+   $30 = HEAP8[$4>>0]|0;
+   $31 = ($30<<24>>24)==(0);
+   if ($31) {
+    $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
+    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$10,$12,$14,$16);
+    $IsAsync8 = ___async;
+    if (!($IsAsync8)) {
+     ___async_unwind = 0;
+    }
+    HEAP32[$ReallocAsyncCtx3>>2] = 159;
+    $32 = ((($ReallocAsyncCtx3)) + 4|0);
+    HEAP32[$32>>2] = $23;
+    $33 = ((($ReallocAsyncCtx3)) + 8|0);
+    HEAP32[$33>>2] = $2;
+    $34 = ((($ReallocAsyncCtx3)) + 12|0);
+    HEAP32[$34>>2] = $4;
+    $35 = ((($ReallocAsyncCtx3)) + 16|0);
+    HEAP32[$35>>2] = $10;
+    $36 = ((($ReallocAsyncCtx3)) + 20|0);
+    HEAP32[$36>>2] = $12;
+    $37 = ((($ReallocAsyncCtx3)) + 24|0);
+    HEAP32[$37>>2] = $14;
+    $38 = ((($ReallocAsyncCtx3)) + 28|0);
+    $$expand_i1_val = $16&1;
+    HEAP8[$38>>0] = $$expand_i1_val;
+    sp = STACKTOP;
+    return;
+   }
+  }
+ } while(0);
+ return;
+}
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_26($0) {
+ $0 = $0|0;
+ var $$085$off0$reg2mem$0 = 0, $$182$off0 = 0, $$182$off0$expand_i1_val = 0, $$186$off0 = 0, $$186$off0$expand_i1_val = 0, $$283$off0 = 0, $$expand_i1_val = 0, $$pre_trunc = 0, $$pre_trunc16 = 0, $$pre_trunc18 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0;
+ var $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0;
+ var $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0;
+ var $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0;
+ var $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
  $9 = ((($0)) + 20|0);
  $10 = HEAP32[$9>>2]|0;
  $11 = ((($0)) + 24|0);
@@ -19575,207 +16816,50 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  $19 = ((($0)) + 40|0);
  $20 = HEAP32[$19>>2]|0;
  $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($20)) + 24|0);
- $24 = ($22|0)>(1);
- do {
-  if ($24) {
-   $25 = HEAP32[$18>>2]|0;
-   $26 = $25 & 2;
-   $27 = ($26|0)==(0);
-   if ($27) {
-    $28 = HEAP32[$12>>2]|0;
-    $29 = ($28|0)==(1);
-    if (!($29)) {
-     $39 = $25 & 1;
-     $40 = ($39|0)==(0);
-     if ($40) {
-      $56 = HEAP8[$10>>0]|0;
-      $57 = ($56<<24>>24)==(0);
-      if (!($57)) {
-       break;
-      }
-      $58 = HEAP32[$12>>2]|0;
-      $59 = ($58|0)==(1);
-      if ($59) {
-       break;
-      }
-      $ReallocAsyncCtx = (_emscripten_realloc_async_context(36)|0);
-      __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
-      $IsAsync = ___async;
-      if (!($IsAsync)) {
-       ___async_unwind = 0;
-      }
-      HEAP32[$ReallocAsyncCtx>>2] = 161;
-      $60 = ((($ReallocAsyncCtx)) + 4|0);
-      HEAP32[$60>>2] = $23;
-      $61 = ((($ReallocAsyncCtx)) + 8|0);
-      HEAP32[$61>>2] = $16;
-      $62 = ((($ReallocAsyncCtx)) + 12|0);
-      HEAP32[$62>>2] = $10;
-      $63 = ((($ReallocAsyncCtx)) + 16|0);
-      HEAP32[$63>>2] = $12;
-      $64 = ((($ReallocAsyncCtx)) + 20|0);
-      HEAP32[$64>>2] = $2;
-      $65 = ((($ReallocAsyncCtx)) + 24|0);
-      HEAP32[$65>>2] = $4;
-      $66 = ((($ReallocAsyncCtx)) + 28|0);
-      HEAP32[$66>>2] = $6;
-      $67 = ((($ReallocAsyncCtx)) + 32|0);
-      $$expand_i1_val10 = $8&1;
-      HEAP8[$67>>0] = $$expand_i1_val10;
-      sp = STACKTOP;
-      return;
-     }
-     $41 = HEAP8[$10>>0]|0;
-     $42 = ($41<<24>>24)==(0);
-     if (!($42)) {
-      break;
-     }
-     $43 = HEAP32[$12>>2]|0;
-     $44 = ($43|0)==(1);
-     if ($44) {
-      $45 = HEAP32[$14>>2]|0;
-      $46 = ($45|0)==(1);
-      if ($46) {
-       break;
-      }
-     }
-     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(40)|0);
-     __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
-     $IsAsync4 = ___async;
-     if (!($IsAsync4)) {
-      ___async_unwind = 0;
-     }
-     HEAP32[$ReallocAsyncCtx2>>2] = 160;
-     $47 = ((($ReallocAsyncCtx2)) + 4|0);
-     HEAP32[$47>>2] = $23;
-     $48 = ((($ReallocAsyncCtx2)) + 8|0);
-     HEAP32[$48>>2] = $16;
-     $49 = ((($ReallocAsyncCtx2)) + 12|0);
-     HEAP32[$49>>2] = $10;
-     $50 = ((($ReallocAsyncCtx2)) + 16|0);
-     HEAP32[$50>>2] = $12;
-     $51 = ((($ReallocAsyncCtx2)) + 20|0);
-     HEAP32[$51>>2] = $14;
-     $52 = ((($ReallocAsyncCtx2)) + 24|0);
-     HEAP32[$52>>2] = $2;
-     $53 = ((($ReallocAsyncCtx2)) + 28|0);
-     HEAP32[$53>>2] = $4;
-     $54 = ((($ReallocAsyncCtx2)) + 32|0);
-     HEAP32[$54>>2] = $6;
-     $55 = ((($ReallocAsyncCtx2)) + 36|0);
-     $$expand_i1_val8 = $8&1;
-     HEAP8[$55>>0] = $$expand_i1_val8;
-     sp = STACKTOP;
-     return;
-    }
-   }
-   $30 = HEAP8[$10>>0]|0;
-   $31 = ($30<<24>>24)==(0);
-   if ($31) {
-    $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(32)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib($23,$2,$4,$6,$8);
-    $IsAsync8 = ___async;
-    if (!($IsAsync8)) {
-     ___async_unwind = 0;
-    }
-    HEAP32[$ReallocAsyncCtx3>>2] = 159;
-    $32 = ((($ReallocAsyncCtx3)) + 4|0);
-    HEAP32[$32>>2] = $23;
-    $33 = ((($ReallocAsyncCtx3)) + 8|0);
-    HEAP32[$33>>2] = $16;
-    $34 = ((($ReallocAsyncCtx3)) + 12|0);
-    HEAP32[$34>>2] = $10;
-    $35 = ((($ReallocAsyncCtx3)) + 16|0);
-    HEAP32[$35>>2] = $2;
-    $36 = ((($ReallocAsyncCtx3)) + 20|0);
-    HEAP32[$36>>2] = $4;
-    $37 = ((($ReallocAsyncCtx3)) + 24|0);
-    HEAP32[$37>>2] = $6;
-    $38 = ((($ReallocAsyncCtx3)) + 28|0);
-    $$expand_i1_val = $8&1;
-    HEAP8[$38>>0] = $$expand_i1_val;
-    sp = STACKTOP;
-    return;
-   }
-  }
- } while(0);
- return;
-}
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_36($0) {
- $0 = $0|0;
- var $$085$off0$reg2mem$0 = 0, $$182$off0 = 0, $$182$off0$expand_i1_val = 0, $$186$off0 = 0, $$186$off0$expand_i1_val = 0, $$283$off0 = 0, $$expand_i1_val = 0, $$pre_trunc = 0, $$pre_trunc16 = 0, $$pre_trunc18 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0;
- var $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0;
- var $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0;
- var $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync16 = 0;
- var $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $$pre_trunc = HEAP8[$1>>0]|0;
- $2 = $$pre_trunc&1;
- $3 = ((($0)) + 5|0);
- $$pre_trunc16 = HEAP8[$3>>0]|0;
- $4 = $$pre_trunc16&1;
- $5 = ((($0)) + 8|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 12|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 16|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 20|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 24|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 28|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 32|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 36|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 40|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 44|0);
+ $$pre_trunc = HEAP8[$21>>0]|0;
+ $22 = $$pre_trunc&1;
+ $23 = ((($0)) + 48|0);
  $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 48|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 52|0);
+ $25 = ((($0)) + 52|0);
+ $$pre_trunc16 = HEAP8[$25>>0]|0;
+ $26 = $$pre_trunc16&1;
+ $27 = ((($0)) + 53|0);
  $$pre_trunc18 = HEAP8[$27>>0]|0;
  $28 = $$pre_trunc18&1;
  $29 = ((($0)) + 56|0);
  $30 = HEAP32[$29>>2]|0;
- $48 = HEAP8[$18>>0]|0;
+ $48 = HEAP8[$14>>0]|0;
  $49 = ($48<<24>>24)==(0);
  L2: do {
   if ($49) {
-   $50 = HEAP8[$24>>0]|0;
+   $50 = HEAP8[$20>>0]|0;
    $51 = ($50<<24>>24)==(0);
    do {
     if ($51) {
-     $$182$off0 = $2;$$186$off0 = $4;
+     $$182$off0 = $28;$$186$off0 = $26;
     } else {
-     $52 = HEAP8[$22>>0]|0;
+     $52 = HEAP8[$18>>0]|0;
      $53 = ($52<<24>>24)==(0);
      if ($53) {
-      $59 = HEAP32[$20>>2]|0;
+      $59 = HEAP32[$24>>2]|0;
       $60 = $59 & 1;
       $61 = ($60|0)==(0);
       if ($61) {
-       $$085$off0$reg2mem$0 = $4;$$283$off0 = 1;
+       $$085$off0$reg2mem$0 = $26;$$283$off0 = 1;
        label = 13;
        break L2;
       } else {
-       $$182$off0 = 1;$$186$off0 = $4;
+       $$182$off0 = 1;$$186$off0 = $26;
        break;
       }
      }
-     $54 = HEAP32[$14>>2]|0;
+     $54 = HEAP32[$4>>2]|0;
      $55 = ($54|0)==(1);
      if ($55) {
       label = 18;
       break L2;
      }
-     $56 = HEAP32[$20>>2]|0;
+     $56 = HEAP32[$24>>2]|0;
      $57 = $56 & 2;
      $58 = ($57|0)==(0);
      if ($58) {
@@ -19786,51 +16870,51 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
      }
     }
    } while(0);
-   $32 = ((($16)) + 8|0);
-   $31 = ($32>>>0)<($30>>>0);
+   $32 = ((($30)) + 8|0);
+   $31 = ($32>>>0)<($16>>>0);
    if ($31) {
-    HEAP8[$22>>0] = 0;
-    HEAP8[$24>>0] = 0;
+    HEAP8[$18>>0] = 0;
+    HEAP8[$20>>0] = 0;
     $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(60)|0);
-    __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib($32,$10,$6,$6,1,$28);
+    __ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib($32,$10,$6,$6,1,$22);
     $IsAsync16 = ___async;
     if (!($IsAsync16)) {
      ___async_unwind = 0;
     }
     HEAP32[$ReallocAsyncCtx5>>2] = 157;
     $33 = ((($ReallocAsyncCtx5)) + 4|0);
-    $$182$off0$expand_i1_val = $$182$off0&1;
-    HEAP8[$33>>0] = $$182$off0$expand_i1_val;
-    $34 = ((($ReallocAsyncCtx5)) + 5|0);
-    $$186$off0$expand_i1_val = $$186$off0&1;
-    HEAP8[$34>>0] = $$186$off0$expand_i1_val;
-    $35 = ((($ReallocAsyncCtx5)) + 8|0);
+    HEAP32[$33>>2] = $2;
+    $34 = ((($ReallocAsyncCtx5)) + 8|0);
+    HEAP32[$34>>2] = $4;
+    $35 = ((($ReallocAsyncCtx5)) + 12|0);
     HEAP32[$35>>2] = $6;
-    $36 = ((($ReallocAsyncCtx5)) + 12|0);
+    $36 = ((($ReallocAsyncCtx5)) + 16|0);
     HEAP32[$36>>2] = $8;
-    $37 = ((($ReallocAsyncCtx5)) + 16|0);
+    $37 = ((($ReallocAsyncCtx5)) + 20|0);
     HEAP32[$37>>2] = $10;
-    $38 = ((($ReallocAsyncCtx5)) + 20|0);
+    $38 = ((($ReallocAsyncCtx5)) + 24|0);
     HEAP32[$38>>2] = $12;
-    $39 = ((($ReallocAsyncCtx5)) + 24|0);
+    $39 = ((($ReallocAsyncCtx5)) + 28|0);
     HEAP32[$39>>2] = $14;
-    $40 = ((($ReallocAsyncCtx5)) + 28|0);
-    HEAP32[$40>>2] = $32;
-    $41 = ((($ReallocAsyncCtx5)) + 32|0);
+    $40 = ((($ReallocAsyncCtx5)) + 32|0);
+    HEAP32[$40>>2] = $16;
+    $41 = ((($ReallocAsyncCtx5)) + 36|0);
     HEAP32[$41>>2] = $18;
-    $42 = ((($ReallocAsyncCtx5)) + 36|0);
+    $42 = ((($ReallocAsyncCtx5)) + 40|0);
     HEAP32[$42>>2] = $20;
-    $43 = ((($ReallocAsyncCtx5)) + 40|0);
-    HEAP32[$43>>2] = $22;
-    $44 = ((($ReallocAsyncCtx5)) + 44|0);
+    $43 = ((($ReallocAsyncCtx5)) + 44|0);
+    $$expand_i1_val = $22&1;
+    HEAP8[$43>>0] = $$expand_i1_val;
+    $44 = ((($ReallocAsyncCtx5)) + 48|0);
     HEAP32[$44>>2] = $24;
-    $45 = ((($ReallocAsyncCtx5)) + 48|0);
-    HEAP32[$45>>2] = $26;
-    $46 = ((($ReallocAsyncCtx5)) + 52|0);
-    $$expand_i1_val = $28&1;
-    HEAP8[$46>>0] = $$expand_i1_val;
+    $45 = ((($ReallocAsyncCtx5)) + 52|0);
+    $$186$off0$expand_i1_val = $$186$off0&1;
+    HEAP8[$45>>0] = $$186$off0$expand_i1_val;
+    $46 = ((($ReallocAsyncCtx5)) + 53|0);
+    $$182$off0$expand_i1_val = $$182$off0&1;
+    HEAP8[$46>>0] = $$182$off0$expand_i1_val;
     $47 = ((($ReallocAsyncCtx5)) + 56|0);
-    HEAP32[$47>>2] = $30;
+    HEAP32[$47>>2] = $32;
     sp = STACKTOP;
     return;
    } else {
@@ -19838,7 +16922,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
     label = 13;
    }
   } else {
-   $$085$off0$reg2mem$0 = $4;$$283$off0 = $2;
+   $$085$off0$reg2mem$0 = $26;$$283$off0 = $28;
    label = 13;
   }
  } while(0);
@@ -19853,10 +16937,10 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
     $65 = HEAP32[$12>>2]|0;
     $66 = ($65|0)==(1);
     if ($66) {
-     $67 = HEAP32[$14>>2]|0;
+     $67 = HEAP32[$4>>2]|0;
      $68 = ($67|0)==(2);
      if ($68) {
-      HEAP8[$18>>0] = 1;
+      HEAP8[$14>>0] = 1;
       if ($$283$off0) {
        label = 18;
        break;
@@ -19877,328 +16961,237 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dyna
  if ((label|0) == 18) {
   $69 = 3;
  }
- HEAP32[$26>>2] = $69;
+ HEAP32[$2>>2] = $69;
  return;
 }
-function _mbed_die__async_cb($0) {
+function _vfprintf__async_cb($0) {
  $0 = $0|0;
- var $$idx10$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync60 = 0, $ReallocAsyncCtx16 = 0, label = 0, sp = 0;
+ var $$ = 0, $$1$ = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $$idx10$val = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx10$val|0), 1)|0;
- $ReallocAsyncCtx16 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync60 = ___async;
- if (!($IsAsync60)) {
-  ___async_unwind = 0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $18 = HEAP32[$17>>2]|0;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 48|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 52|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 56|0);
+ $28 = HEAP32[$27>>2]|0;
+ $29 = ((($0)) + 60|0);
+ $30 = HEAP32[$29>>2]|0;
+ $31 = HEAP32[$2>>2]|0;
+ $32 = ($31|0)==(0|0);
+ $$ = $32 ? -1 : $4;
+ HEAP32[$8>>2] = $6;
+ HEAP32[$10>>2] = 0;
+ HEAP32[$12>>2] = 0;
+ HEAP32[$14>>2] = 0;
+ HEAP32[$2>>2] = 0;
+ $33 = HEAP32[$16>>2]|0;
+ $34 = $33 & 32;
+ $35 = ($34|0)==(0);
+ $$1$ = $35 ? $$ : -1;
+ $36 = $33 | $18;
+ HEAP32[$16>>2] = $36;
+ $37 = ($20|0)==(0);
+ if (!($37)) {
+  ___unlockfile($22);
  }
- HEAP32[$ReallocAsyncCtx16>>2] = 63;
- $4 = ((($ReallocAsyncCtx16)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
+ $38 = ___async_retval;
+ HEAP32[$38>>2] = $$1$;
  return;
 }
-function _mbed_die__async_cb_37($0) {
+function __ZN4mbed8CallbackIFvvEED2Ev__async_cb($0) {
  $0 = $0|0;
- var $$idx$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 264 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
+}
+function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0;
+ var $8 = 0, $9 = 0, $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $$idx$val$3 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx$val$3|0), 0)|0;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync = ___async;
- if (!($IsAsync)) {
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if ($4) {
+  $12 = ___cxa_find_matching_catch_2()|0;
+  $13 = tempRet0;
+  $14 = ((($2)) + 52|0);
+  $15 = HEAP32[$14>>2]|0;
+  $16 = ($15|0)==(0|0);
+  if ($16) {
+   __ZdlPv($2);
+   ___resumeException($12|0);
+   // unreachable;
+  }
+  $17 = ((($2)) + 40|0);
+  $18 = ((($15)) + 8|0);
+  $19 = HEAP32[$18>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx4 = (invoke_ii(169,16)|0);
+  FUNCTION_TABLE_vi[$19 & 255]($17);
+  $IsAsync12 = ___async;
+  if (!($IsAsync12)) {
+   ___async_unwind = 0;
+  }
+  HEAP32[$ReallocAsyncCtx4>>2] = 35;
+  $20 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$20>>2] = $12;
+  $21 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$21>>2] = $13;
+  $22 = ((($ReallocAsyncCtx4)) + 12|0);
+  HEAP32[$22>>2] = $2;
+  sp = STACKTOP;
+  return;
+ } else {
+  $5 = ((($2)) + 52|0);
+  $6 = HEAP32[$5>>2]|0;
+  $7 = ($6|0)==(0|0);
+  if ($7) {
+   __ZdlPv($2);
+   return;
+  }
+  $8 = ((($2)) + 40|0);
+  $9 = ((($6)) + 8|0);
+  $10 = HEAP32[$9>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx2 = (invoke_ii(169,8)|0);
+  FUNCTION_TABLE_vi[$10 & 255]($8);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 33;
+   $11 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$11>>2] = $2;
+   sp = STACKTOP;
+   return;
+  }
   ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 33;
+  $11 = ((($ReallocAsyncCtx2)) + 4|0);
+  HEAP32[$11>>2] = $2;
+  sp = STACKTOP;
+  return;
  }
- HEAP32[$ReallocAsyncCtx>>2] = 78;
- $4 = ((($ReallocAsyncCtx)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
 }
-function _mbed_die__async_cb_38($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_27($0) {
  $0 = $0|0;
- var $$idx8$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $$idx8$val$3 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx8$val$3|0), 1)|0;
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync4 = ___async;
- if (!($IsAsync4)) {
-  ___async_unwind = 0;
+ $3 = __THREW__; __THREW__ = 0;
+ $4 = $3&1;
+ if (!($4)) {
+  __ZdlPv($2);
+  return;
  }
- HEAP32[$ReallocAsyncCtx2>>2] = 77;
- $4 = ((($ReallocAsyncCtx2)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
+ $5 = ___cxa_find_matching_catch_2()|0;
+ $6 = tempRet0;
+ __ZdlPv($2);
+ ___resumeException($5|0);
+ // unreachable;
 }
-function _mbed_die__async_cb_39($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_28($0) {
  $0 = $0|0;
- var $$idx$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0;
+ var $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $$idx$val$2 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx$val$2|0), 0)|0;
- $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync8 = ___async;
- if (!($IsAsync8)) {
-  ___async_unwind = 0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $18 = ___cxa_find_matching_catch_3(0|0)|0;
+  $19 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($18);
+  // unreachable;
  }
- HEAP32[$ReallocAsyncCtx3>>2] = 76;
- $4 = ((($ReallocAsyncCtx3)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_40($0) {
- $0 = $0|0;
- var $$idx8$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx8$val$2 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx8$val$2|0), 1)|0;
- $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
+ $9 = ((($6)) + 52|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ($10|0)==(0|0);
+ if ($11) {
+  __ZdlPv($6);
+  ___resumeException($2|0);
+  // unreachable;
+ }
+ $12 = ((($6)) + 40|0);
+ $13 = ((($10)) + 8|0);
+ $14 = HEAP32[$13>>2]|0;
+ __THREW__ = 0;
+ $ReallocAsyncCtx4 = (invoke_ii(169,16)|0);
+ FUNCTION_TABLE_vi[$14 & 255]($12);
  $IsAsync12 = ___async;
  if (!($IsAsync12)) {
   ___async_unwind = 0;
  }
- HEAP32[$ReallocAsyncCtx4>>2] = 75;
- $4 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$4>>2] = $2;
+ HEAP32[$ReallocAsyncCtx4>>2] = 35;
+ $15 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$15>>2] = $2;
+ $16 = ((($ReallocAsyncCtx4)) + 8|0);
+ HEAP32[$16>>2] = $4;
+ $17 = ((($ReallocAsyncCtx4)) + 12|0);
+ HEAP32[$17>>2] = $6;
  sp = STACKTOP;
  return;
 }
-function _mbed_die__async_cb_41($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_29($0) {
  $0 = $0|0;
- var $$idx$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync16 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $$idx$val$1 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx$val$1|0), 0)|0;
- $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync16 = ___async;
- if (!($IsAsync16)) {
-  ___async_unwind = 0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = __THREW__; __THREW__ = 0;
+ $8 = $7&1;
+ if ($8) {
+  $9 = ___cxa_find_matching_catch_3(0|0)|0;
+  $10 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($9);
+  // unreachable;
+ } else {
+  __ZdlPv($6);
+  ___resumeException($2|0);
+  // unreachable;
  }
- HEAP32[$ReallocAsyncCtx5>>2] = 74;
- $4 = ((($ReallocAsyncCtx5)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
 }
-function _mbed_die__async_cb_42($0) {
+function __ZN4mbed11InterruptInD0Ev__async_cb_30($0) {
  $0 = $0|0;
- var $$idx8$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync20 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx8$val$1 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx8$val$1|0), 1)|0;
- $ReallocAsyncCtx6 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync20 = ___async;
- if (!($IsAsync20)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx6>>2] = 73;
- $4 = ((($ReallocAsyncCtx6)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_43($0) {
- $0 = $0|0;
- var $$idx$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync24 = 0, $ReallocAsyncCtx7 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx$val = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx$val|0), 0)|0;
- $ReallocAsyncCtx7 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync24 = ___async;
- if (!($IsAsync24)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx7>>2] = 72;
- $4 = ((($ReallocAsyncCtx7)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_44($0) {
- $0 = $0|0;
- var $$idx8$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync28 = 0, $ReallocAsyncCtx8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx8$val = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx8$val|0), 1)|0;
- $ReallocAsyncCtx8 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(400);
- $IsAsync28 = ___async;
- if (!($IsAsync28)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx8>>2] = 71;
- $4 = ((($ReallocAsyncCtx8)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_45($0) {
- $0 = $0|0;
- var $$idx9$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync32 = 0, $ReallocAsyncCtx9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx9$val$3 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx9$val$3|0), 0)|0;
- $ReallocAsyncCtx9 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync32 = ___async;
- if (!($IsAsync32)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx9>>2] = 70;
- $4 = ((($ReallocAsyncCtx9)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_46($0) {
- $0 = $0|0;
- var $$idx10$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync36 = 0, $ReallocAsyncCtx10 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx10$val$3 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx10$val$3|0), 1)|0;
- $ReallocAsyncCtx10 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync36 = ___async;
- if (!($IsAsync36)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx10>>2] = 69;
- $4 = ((($ReallocAsyncCtx10)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_47($0) {
- $0 = $0|0;
- var $$idx9$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync40 = 0, $ReallocAsyncCtx11 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx9$val$2 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx9$val$2|0), 0)|0;
- $ReallocAsyncCtx11 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync40 = ___async;
- if (!($IsAsync40)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx11>>2] = 68;
- $4 = ((($ReallocAsyncCtx11)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_48($0) {
- $0 = $0|0;
- var $$idx10$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync44 = 0, $ReallocAsyncCtx12 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx10$val$2 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx10$val$2|0), 1)|0;
- $ReallocAsyncCtx12 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync44 = ___async;
- if (!($IsAsync44)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx12>>2] = 67;
- $4 = ((($ReallocAsyncCtx12)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_49($0) {
- $0 = $0|0;
- var $$idx9$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync48 = 0, $ReallocAsyncCtx13 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx9$val$1 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx9$val$1|0), 0)|0;
- $ReallocAsyncCtx13 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync48 = ___async;
- if (!($IsAsync48)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx13>>2] = 66;
- $4 = ((($ReallocAsyncCtx13)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_50($0) {
- $0 = $0|0;
- var $$idx10$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync52 = 0, $ReallocAsyncCtx14 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx10$val$1 = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx10$val$1|0), 1)|0;
- $ReallocAsyncCtx14 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync52 = ___async;
- if (!($IsAsync52)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx14>>2] = 65;
- $4 = ((($ReallocAsyncCtx14)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function _mbed_die__async_cb_51($0) {
- $0 = $0|0;
- var $$idx9$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync56 = 0, $ReallocAsyncCtx15 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $$idx9$val = HEAP32[$2>>2]|0;
- $3 = _emscripten_asm_const_iii(0, ($$idx9$val|0), 0)|0;
- $ReallocAsyncCtx15 = (_emscripten_realloc_async_context(8)|0);
- _wait_ms(150);
- $IsAsync56 = ___async;
- if (!($IsAsync56)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx15>>2] = 64;
- $4 = ((($ReallocAsyncCtx15)) + 4|0);
- HEAP32[$4>>2] = $2;
- sp = STACKTOP;
- return;
+ // unreachable;
 }
 function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
  $0 = $0|0;
@@ -20316,7 +17309,7 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
  HEAP8[$14>>0] = $12;
  return;
 }
-function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_52($0) {
+function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_31($0) {
  $0 = $0|0;
  var $$expand_i1_val = 0, $$pre_trunc = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
  var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0;
@@ -20431,106 +17424,79 @@ function __ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dyna
  HEAP8[$14>>0] = $12;
  return;
 }
-function _equeue_alloc__async_cb($0) {
+function __ZN6events5EventIFvvEEC2IPS1_EEPNS_10EventQueueET___async_cb($0) {
  $0 = $0|0;
- var $$0 = 0, $$037$sink$i = 0, $$03741$i = 0, $$1$i9 = 0, $$sink$i = 0, $$sink$in$in$i = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0;
- var $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var label = 0, sp = 0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $3 = 0;
+ var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
  $3 = ((($0)) + 8|0);
  $4 = HEAP32[$3>>2]|0;
- $5 = (($2) + 39)|0;
- $6 = $5 & -4;
- $7 = ((($4)) + 160|0);
- _equeue_mutex_lock($7);
- $8 = ((($4)) + 28|0);
- $9 = HEAP32[$8>>2]|0;
- $10 = ($9|0)==(0|0);
- L2: do {
-  if ($10) {
-   label = 8;
-  } else {
-   $$03741$i = $8;$12 = $9;
-   while(1) {
-    $11 = HEAP32[$12>>2]|0;
-    $13 = ($11>>>0)<($6>>>0);
-    if (!($13)) {
-     break;
-    }
-    $18 = ((($12)) + 8|0);
-    $19 = HEAP32[$18>>2]|0;
-    $20 = ($19|0)==(0|0);
-    if ($20) {
-     label = 8;
-     break L2;
-    } else {
-     $$03741$i = $18;$12 = $19;
-    }
-   }
-   $14 = ((($12)) + 12|0);
-   $15 = HEAP32[$14>>2]|0;
-   $16 = ($15|0)==(0|0);
-   if ($16) {
-    $$037$sink$i = $$03741$i;
-   } else {
-    HEAP32[$$03741$i>>2] = $15;
-    $17 = ((($15)) + 8|0);
-    $$037$sink$i = $17;
-   }
-   $$sink$in$in$i = ((($12)) + 8|0);
-   $$sink$i = HEAP32[$$sink$in$in$i>>2]|0;
-   HEAP32[$$037$sink$i>>2] = $$sink$i;
-   _equeue_mutex_unlock($7);
-   $$1$i9 = $12;
-  }
- } while(0);
- do {
-  if ((label|0) == 8) {
-   $21 = ((($4)) + 32|0);
-   $22 = HEAP32[$21>>2]|0;
-   $23 = ($22>>>0)<($6>>>0);
-   if ($23) {
-    _equeue_mutex_unlock($7);
-    $$0 = 0;
-    $34 = ___async_retval;
-    HEAP32[$34>>2] = $$0;
-    return;
-   } else {
-    $24 = ((($4)) + 36|0);
-    $25 = HEAP32[$24>>2]|0;
-    $26 = (($25) + ($6)|0);
-    HEAP32[$24>>2] = $26;
-    $27 = (($22) - ($6))|0;
-    HEAP32[$21>>2] = $27;
-    HEAP32[$25>>2] = $6;
-    $28 = ((($25)) + 4|0);
-    HEAP8[$28>>0] = 1;
-    _equeue_mutex_unlock($7);
-    $29 = ($25|0)==(0|0);
-    if ($29) {
-     $$0 = 0;
-    } else {
-     $$1$i9 = $25;
-     break;
-    }
-    $34 = ___async_retval;
-    HEAP32[$34>>2] = $$0;
-    return;
-   }
-  }
- } while(0);
- $30 = ((($$1$i9)) + 20|0);
- HEAP32[$30>>2] = 0;
- $31 = ((($$1$i9)) + 24|0);
- HEAP32[$31>>2] = -1;
- $32 = ((($$1$i9)) + 28|0);
- HEAP32[$32>>2] = 0;
- $33 = ((($$1$i9)) + 36|0);
- $$0 = $33;
- $34 = ___async_retval;
- HEAP32[$34>>2] = $$0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal = HEAP32[$7>>2]|0;
+ HEAP32[$2>>2] = $AsyncRetVal; //@line 52 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $8 = HEAP32[$2>>2]|0; //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $9 = ($8|0)!=(0|0); //@line 55 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ if (!($9)) {
+  return; //@line 68 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ }
+ $10 = HEAP32[$4>>2]|0; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $11 = HEAP32[$2>>2]|0; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $12 = ((($11)) + 4|0); //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$12>>2] = $10; //@line 56 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $13 = HEAP32[$2>>2]|0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $14 = ((($13)) + 8|0); //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$14>>2] = 0; //@line 57 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $15 = HEAP32[$2>>2]|0; //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $16 = ((($15)) + 12|0); //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$16>>2] = 0; //@line 58 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $17 = HEAP32[$2>>2]|0; //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $18 = ((($17)) + 16|0); //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$18>>2] = -1; //@line 59 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $19 = HEAP32[$2>>2]|0; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $20 = ((($19)) + 20|0); //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$20>>2] = 117; //@line 61 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $21 = HEAP32[$2>>2]|0; //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $22 = ((($21)) + 24|0); //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$22>>2] = 118; //@line 62 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $23 = HEAP32[$2>>2]|0; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $24 = ((($23)) + 28|0); //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $25 = HEAP32[$6>>2]|0; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$24>>2] = $25; //@line 64 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $26 = HEAP32[$2>>2]|0; //@line 66 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$26>>2] = 1; //@line 66 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ return; //@line 68 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+}
+function _mbed_assert_internal__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _fputc__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ___async_retval;
+ $AsyncRetVal = HEAP32[$3>>2]|0;
+ ___unlockfile($2);
+ $4 = ___async_retval;
+ HEAP32[$4>>2] = $AsyncRetVal;
+ return;
+}
+function _fputc__async_cb_32($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = ___async_retval;
+ HEAP32[$2>>2] = $AsyncRetVal;
  return;
 }
 function __ZN6events5EventIFvvEED2Ev__async_cb($0) {
@@ -20556,103 +17522,374 @@ function __ZN6events5EventIFvvEED2Ev__async_cb($0) {
  sp = STACKTOP;
  return;
 }
-function __ZN6events5EventIFvvEED2Ev__async_cb_53($0) {
+function __ZN6events5EventIFvvEED2Ev__async_cb_33($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return; //@line 101 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb($0) {
+function _mbed_die__async_cb($0) {
  $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0;
- var $8 = 0, $9 = 0, $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
+ var $$idx10$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync60 = 0, $ReallocAsyncCtx16 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if ($4) {
-  $12 = ___cxa_find_matching_catch_2()|0;
-  $13 = tempRet0;
-  $14 = ((($2)) + 52|0);
-  $15 = HEAP32[$14>>2]|0;
-  $16 = ($15|0)==(0|0);
-  if ($16) {
-   __ZdlPv($2);
-   ___resumeException($12|0);
-   // unreachable;
-  }
-  $17 = ((($2)) + 40|0);
-  $18 = ((($15)) + 8|0);
-  $19 = HEAP32[$18>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx4 = (invoke_ii(169,16)|0);
-  FUNCTION_TABLE_vi[$19 & 255]($17);
-  $IsAsync12 = ___async;
-  if (!($IsAsync12)) {
-   ___async_unwind = 0;
-  }
-  HEAP32[$ReallocAsyncCtx4>>2] = 35;
-  $20 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$20>>2] = $12;
-  $21 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$21>>2] = $13;
-  $22 = ((($ReallocAsyncCtx4)) + 12|0);
-  HEAP32[$22>>2] = $2;
-  sp = STACKTOP;
-  return;
- } else {
-  $5 = ((($2)) + 52|0);
-  $6 = HEAP32[$5>>2]|0;
-  $7 = ($6|0)==(0|0);
-  if ($7) {
-   __ZdlPv($2);
-   return;
-  }
-  $8 = ((($2)) + 40|0);
-  $9 = ((($6)) + 8|0);
-  $10 = HEAP32[$9>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx2 = (invoke_ii(169,8)|0);
-  FUNCTION_TABLE_vi[$10 & 255]($8);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 33;
-   $11 = ((($ReallocAsyncCtx2)) + 4|0);
-   HEAP32[$11>>2] = $2;
-   sp = STACKTOP;
-   return;
-  }
+ $$idx10$val = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx10$val|0), 1)|0;
+ $ReallocAsyncCtx16 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync60 = ___async;
+ if (!($IsAsync60)) {
   ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 33;
-  $11 = ((($ReallocAsyncCtx2)) + 4|0);
-  HEAP32[$11>>2] = $2;
-  sp = STACKTOP;
-  return;
  }
+ HEAP32[$ReallocAsyncCtx16>>2] = 63;
+ $4 = ((($ReallocAsyncCtx16)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_54($0) {
+function _mbed_die__async_cb_34($0) {
  $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, label = 0, sp = 0;
+ var $$idx$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if (!($4)) {
-  __ZdlPv($2);
-  return;
+ $$idx$val$3 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx$val$3|0), 0)|0;
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  ___async_unwind = 0;
  }
- $5 = ___cxa_find_matching_catch_2()|0;
- $6 = tempRet0;
- __ZdlPv($2);
- ___resumeException($5|0);
- // unreachable;
+ HEAP32[$ReallocAsyncCtx>>2] = 78;
+ $4 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_55($0) {
+function _mbed_die__async_cb_35($0) {
  $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0;
- var $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
+ var $$idx8$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx8$val$3 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx8$val$3|0), 1)|0;
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync4 = ___async;
+ if (!($IsAsync4)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 77;
+ $4 = ((($ReallocAsyncCtx2)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_36($0) {
+ $0 = $0|0;
+ var $$idx$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx3 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx$val$2 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx$val$2|0), 0)|0;
+ $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync8 = ___async;
+ if (!($IsAsync8)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx3>>2] = 76;
+ $4 = ((($ReallocAsyncCtx3)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_37($0) {
+ $0 = $0|0;
+ var $$idx8$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx8$val$2 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx8$val$2|0), 1)|0;
+ $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync12 = ___async;
+ if (!($IsAsync12)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx4>>2] = 75;
+ $4 = ((($ReallocAsyncCtx4)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_38($0) {
+ $0 = $0|0;
+ var $$idx$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync16 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx$val$1 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx$val$1|0), 0)|0;
+ $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync16 = ___async;
+ if (!($IsAsync16)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx5>>2] = 74;
+ $4 = ((($ReallocAsyncCtx5)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_39($0) {
+ $0 = $0|0;
+ var $$idx8$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync20 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx8$val$1 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx8$val$1|0), 1)|0;
+ $ReallocAsyncCtx6 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync20 = ___async;
+ if (!($IsAsync20)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx6>>2] = 73;
+ $4 = ((($ReallocAsyncCtx6)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_40($0) {
+ $0 = $0|0;
+ var $$idx$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync24 = 0, $ReallocAsyncCtx7 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx$val = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx$val|0), 0)|0;
+ $ReallocAsyncCtx7 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync24 = ___async;
+ if (!($IsAsync24)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx7>>2] = 72;
+ $4 = ((($ReallocAsyncCtx7)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_41($0) {
+ $0 = $0|0;
+ var $$idx8$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync28 = 0, $ReallocAsyncCtx8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx8$val = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx8$val|0), 1)|0;
+ $ReallocAsyncCtx8 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(400);
+ $IsAsync28 = ___async;
+ if (!($IsAsync28)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx8>>2] = 71;
+ $4 = ((($ReallocAsyncCtx8)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_42($0) {
+ $0 = $0|0;
+ var $$idx9$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync32 = 0, $ReallocAsyncCtx9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx9$val$3 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx9$val$3|0), 0)|0;
+ $ReallocAsyncCtx9 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync32 = ___async;
+ if (!($IsAsync32)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx9>>2] = 70;
+ $4 = ((($ReallocAsyncCtx9)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_43($0) {
+ $0 = $0|0;
+ var $$idx10$val$3 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync36 = 0, $ReallocAsyncCtx10 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx10$val$3 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx10$val$3|0), 1)|0;
+ $ReallocAsyncCtx10 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync36 = ___async;
+ if (!($IsAsync36)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx10>>2] = 69;
+ $4 = ((($ReallocAsyncCtx10)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_44($0) {
+ $0 = $0|0;
+ var $$idx9$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync40 = 0, $ReallocAsyncCtx11 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx9$val$2 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx9$val$2|0), 0)|0;
+ $ReallocAsyncCtx11 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync40 = ___async;
+ if (!($IsAsync40)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx11>>2] = 68;
+ $4 = ((($ReallocAsyncCtx11)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_45($0) {
+ $0 = $0|0;
+ var $$idx10$val$2 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync44 = 0, $ReallocAsyncCtx12 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx10$val$2 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx10$val$2|0), 1)|0;
+ $ReallocAsyncCtx12 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync44 = ___async;
+ if (!($IsAsync44)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx12>>2] = 67;
+ $4 = ((($ReallocAsyncCtx12)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_46($0) {
+ $0 = $0|0;
+ var $$idx9$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync48 = 0, $ReallocAsyncCtx13 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx9$val$1 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx9$val$1|0), 0)|0;
+ $ReallocAsyncCtx13 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync48 = ___async;
+ if (!($IsAsync48)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx13>>2] = 66;
+ $4 = ((($ReallocAsyncCtx13)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_47($0) {
+ $0 = $0|0;
+ var $$idx10$val$1 = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync52 = 0, $ReallocAsyncCtx14 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx10$val$1 = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx10$val$1|0), 1)|0;
+ $ReallocAsyncCtx14 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync52 = ___async;
+ if (!($IsAsync52)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx14>>2] = 65;
+ $4 = ((($ReallocAsyncCtx14)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function _mbed_die__async_cb_48($0) {
+ $0 = $0|0;
+ var $$idx9$val = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $IsAsync56 = 0, $ReallocAsyncCtx15 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $$idx9$val = HEAP32[$2>>2]|0;
+ $3 = _emscripten_asm_const_iii(0, ($$idx9$val|0), 0)|0;
+ $ReallocAsyncCtx15 = (_emscripten_realloc_async_context(8)|0);
+ _wait_ms(150);
+ $IsAsync56 = ___async;
+ if (!($IsAsync56)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx15>>2] = 64;
+ $4 = ((($ReallocAsyncCtx15)) + 4|0);
+ HEAP32[$4>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function __ZN6events10EventQueue8dispatchEi__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __GLOBAL__sub_I_main_cpp__async_cb($0) {
+ $0 = $0|0;
+ var $IsAsync3 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ ___cxx_global_var_init_1();
+ ___cxx_global_var_init_2();
+ $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
+ ___cxx_global_var_init_3();
+ $IsAsync3 = ___async;
+ if (!($IsAsync3)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx2>>2] = 84;
+ sp = STACKTOP;
+ return;
+}
+function __GLOBAL__sub_I_main_cpp__async_cb_49($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _equeue_dispatch__async_cb($0) {
+ $0 = $0|0;
+ var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$06690$reg2mem$0 = 0, $$06690$reg2mem$0$phi = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val31 = 0, $$expand_i1_val33 = 0, $$expand_i1_val35 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$reg2mem24$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0;
+ var $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0;
+ var $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0;
+ var $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0;
+ var $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0;
+ var $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0;
+ var $190 = 0, $191 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0;
+ var $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0;
+ var $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0;
+ var $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0, $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0;
+ var $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0, $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0;
+ var label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
@@ -20660,44 +17897,3226 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_55($0) {
  $4 = HEAP32[$3>>2]|0;
  $5 = ((($0)) + 12|0);
  $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $18 = ___cxa_find_matching_catch_3(0|0)|0;
-  $19 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($18);
-  // unreachable;
- }
- $9 = ((($6)) + 52|0);
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
  $10 = HEAP32[$9>>2]|0;
- $11 = ($10|0)==(0|0);
- if ($11) {
-  __ZdlPv($6);
-  ___resumeException($2|0);
-  // unreachable;
- }
- $12 = ((($6)) + 40|0);
- $13 = ((($10)) + 8|0);
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
  $14 = HEAP32[$13>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(169,16)|0);
- FUNCTION_TABLE_vi[$14 & 255]($12);
- $IsAsync12 = ___async;
- if (!($IsAsync12)) {
-  ___async_unwind = 0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $18 = HEAP32[$17>>2]|0;
+ $19 = ((($0)) + 40|0);
+ $$pre_trunc = HEAP8[$19>>0]|0;
+ $20 = $$pre_trunc&1;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 48|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 52|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 56|0);
+ $28 = HEAP32[$27>>2]|0;
+ $29 = ((($0)) + 60|0);
+ $30 = HEAP32[$29>>2]|0;
+ $31 = ((($0)) + 64|0);
+ $32 = HEAP32[$31>>2]|0;
+ $33 = ((($0)) + 68|0);
+ $34 = HEAP32[$33>>2]|0;
+ $35 = ((($0)) + 72|0);
+ $36 = HEAP32[$35>>2]|0;
+ $37 = ((($0)) + 76|0);
+ $38 = HEAP32[$37>>2]|0;
+ $39 = ((($0)) + 80|0);
+ $40 = HEAP32[$39>>2]|0;
+ $$06690$reg2mem$0 = $18;$$reg2mem$0 = $22;$$reg2mem24$0 = $32;
+ while(1) {
+  $67 = ((($$06690$reg2mem$0)) + 24|0);
+  $68 = HEAP32[$67>>2]|0;
+  $69 = ($68|0)>(-1);
+  if ($69) {
+   label = 8;
+   break;
+  }
+  $$idx$val = HEAP32[$36>>2]|0;
+  $92 = ((($$06690$reg2mem$0)) + 4|0);
+  $93 = HEAP8[$92>>0]|0;
+  $94 = $93&255;
+  $95 = (($94) + 1)|0;
+  $96 = $95&255;
+  $97 = $95 & 255;
+  $98 = $97 << $$idx$val;
+  $99 = ($98|0)==(0);
+  $$$i = $99 ? 1 : $96;
+  HEAP8[$92>>0] = $$$i;
+  $100 = ((($$06690$reg2mem$0)) + 28|0);
+  $101 = HEAP32[$100>>2]|0;
+  $102 = ($101|0)==(0|0);
+  if (!($102)) {
+   label = 12;
+   break;
+  }
+  _equeue_mutex_lock($34);
+  $124 = HEAP32[$30>>2]|0;
+  $125 = ($124|0)==(0|0);
+  L6: do {
+   if ($125) {
+    $$027$i$i = $30;
+    label = 21;
+   } else {
+    $126 = HEAP32[$$06690$reg2mem$0>>2]|0;
+    $$029$i$i = $30;$128 = $124;
+    while(1) {
+     $127 = HEAP32[$128>>2]|0;
+     $129 = ($127>>>0)<($126>>>0);
+     if (!($129)) {
+      break;
+     }
+     $130 = ((($128)) + 8|0);
+     $131 = HEAP32[$130>>2]|0;
+     $132 = ($131|0)==(0|0);
+     if ($132) {
+      $$027$i$i = $130;
+      label = 21;
+      break L6;
+     } else {
+      $$029$i$i = $130;$128 = $131;
+     }
+    }
+    $133 = ($127|0)==($126|0);
+    if ($133) {
+     $134 = ((($$06690$reg2mem$0)) + 12|0);
+     HEAP32[$134>>2] = $128;
+     $135 = HEAP32[$$029$i$i>>2]|0;
+     $136 = ((($135)) + 8|0);
+     $$028$i$i = $$029$i$i;$$sink$in$i$i = $136;
+    } else {
+     $$027$i$i = $$029$i$i;
+     label = 21;
+    }
+   }
+  } while(0);
+  if ((label|0) == 21) {
+   label = 0;
+   $137 = ((($$06690$reg2mem$0)) + 12|0);
+   HEAP32[$137>>2] = 0;
+   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
+  }
+  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
+  HEAP32[$$reg2mem24$0>>2] = $$sink21$i$i;
+  HEAP32[$$028$i$i>>2] = $$06690$reg2mem$0;
+  _equeue_mutex_unlock($34);
+  $138 = ($$reg2mem$0|0)==(0|0);
+  if ($138) {
+   label = 24;
+   break;
+  }
+  $41 = ((($$reg2mem$0)) + 8|0);
+  $42 = HEAP32[$41>>2]|0;
+  $43 = ((($$reg2mem$0)) + 32|0);
+  $44 = HEAP32[$43>>2]|0;
+  $45 = ($44|0)==(0|0);
+  if ($45) {
+   $$06690$reg2mem$0$phi = $$reg2mem$0;$$reg2mem$0 = $42;$$reg2mem24$0 = $41;$$06690$reg2mem$0 = $$06690$reg2mem$0$phi;
+  } else {
+   label = 3;
+   break;
+  }
  }
- HEAP32[$ReallocAsyncCtx4>>2] = 35;
- $15 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$15>>2] = $2;
- $16 = ((($ReallocAsyncCtx4)) + 8|0);
- HEAP32[$16>>2] = $4;
- $17 = ((($ReallocAsyncCtx4)) + 12|0);
- HEAP32[$17>>2] = $6;
+ if ((label|0) == 3) {
+  $46 = ((($$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$44 & 255]($46);
+  $IsAsync = ___async;
+  if ($IsAsync) {
+   HEAP32[$ReallocAsyncCtx>>2] = 57;
+   $47 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$47>>2] = $2;
+   $48 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$48>>2] = $4;
+   $49 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$49>>2] = $6;
+   $50 = ((($ReallocAsyncCtx)) + 16|0);
+   HEAP32[$50>>2] = $8;
+   $51 = ((($ReallocAsyncCtx)) + 20|0);
+   HEAP32[$51>>2] = $10;
+   $52 = ((($ReallocAsyncCtx)) + 24|0);
+   HEAP32[$52>>2] = $12;
+   $53 = ((($ReallocAsyncCtx)) + 28|0);
+   HEAP32[$53>>2] = $14;
+   $54 = ((($ReallocAsyncCtx)) + 32|0);
+   HEAP32[$54>>2] = $16;
+   $55 = ((($ReallocAsyncCtx)) + 36|0);
+   HEAP32[$55>>2] = $$reg2mem$0;
+   $56 = ((($ReallocAsyncCtx)) + 40|0);
+   $$expand_i1_val = $20&1;
+   HEAP8[$56>>0] = $$expand_i1_val;
+   $57 = ((($ReallocAsyncCtx)) + 44|0);
+   HEAP32[$57>>2] = $42;
+   $58 = ((($ReallocAsyncCtx)) + 48|0);
+   HEAP32[$58>>2] = $24;
+   $59 = ((($ReallocAsyncCtx)) + 52|0);
+   HEAP32[$59>>2] = $26;
+   $60 = ((($ReallocAsyncCtx)) + 56|0);
+   HEAP32[$60>>2] = $28;
+   $61 = ((($ReallocAsyncCtx)) + 60|0);
+   HEAP32[$61>>2] = $30;
+   $62 = ((($ReallocAsyncCtx)) + 64|0);
+   HEAP32[$62>>2] = $41;
+   $63 = ((($ReallocAsyncCtx)) + 68|0);
+   HEAP32[$63>>2] = $34;
+   $64 = ((($ReallocAsyncCtx)) + 72|0);
+   HEAP32[$64>>2] = $36;
+   $65 = ((($ReallocAsyncCtx)) + 76|0);
+   HEAP32[$65>>2] = $38;
+   $66 = ((($ReallocAsyncCtx)) + 80|0);
+   HEAP32[$66>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx>>2] = 57;
+  $47 = ((($ReallocAsyncCtx)) + 4|0);
+  HEAP32[$47>>2] = $2;
+  $48 = ((($ReallocAsyncCtx)) + 8|0);
+  HEAP32[$48>>2] = $4;
+  $49 = ((($ReallocAsyncCtx)) + 12|0);
+  HEAP32[$49>>2] = $6;
+  $50 = ((($ReallocAsyncCtx)) + 16|0);
+  HEAP32[$50>>2] = $8;
+  $51 = ((($ReallocAsyncCtx)) + 20|0);
+  HEAP32[$51>>2] = $10;
+  $52 = ((($ReallocAsyncCtx)) + 24|0);
+  HEAP32[$52>>2] = $12;
+  $53 = ((($ReallocAsyncCtx)) + 28|0);
+  HEAP32[$53>>2] = $14;
+  $54 = ((($ReallocAsyncCtx)) + 32|0);
+  HEAP32[$54>>2] = $16;
+  $55 = ((($ReallocAsyncCtx)) + 36|0);
+  HEAP32[$55>>2] = $$reg2mem$0;
+  $56 = ((($ReallocAsyncCtx)) + 40|0);
+  $$expand_i1_val = $20&1;
+  HEAP8[$56>>0] = $$expand_i1_val;
+  $57 = ((($ReallocAsyncCtx)) + 44|0);
+  HEAP32[$57>>2] = $42;
+  $58 = ((($ReallocAsyncCtx)) + 48|0);
+  HEAP32[$58>>2] = $24;
+  $59 = ((($ReallocAsyncCtx)) + 52|0);
+  HEAP32[$59>>2] = $26;
+  $60 = ((($ReallocAsyncCtx)) + 56|0);
+  HEAP32[$60>>2] = $28;
+  $61 = ((($ReallocAsyncCtx)) + 60|0);
+  HEAP32[$61>>2] = $30;
+  $62 = ((($ReallocAsyncCtx)) + 64|0);
+  HEAP32[$62>>2] = $41;
+  $63 = ((($ReallocAsyncCtx)) + 68|0);
+  HEAP32[$63>>2] = $34;
+  $64 = ((($ReallocAsyncCtx)) + 72|0);
+  HEAP32[$64>>2] = $36;
+  $65 = ((($ReallocAsyncCtx)) + 76|0);
+  HEAP32[$65>>2] = $38;
+  $66 = ((($ReallocAsyncCtx)) + 80|0);
+  HEAP32[$66>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 8) {
+  $70 = ((($$06690$reg2mem$0)) + 20|0);
+  $71 = HEAP32[$70>>2]|0;
+  $72 = (($71) + ($68))|0;
+  HEAP32[$70>>2] = $72;
+  $73 = (_equeue_tick()|0);
+  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
+  (_equeue_enqueue($2,$$06690$reg2mem$0,$73)|0);
+  $IsAsync12 = ___async;
+  if ($IsAsync12) {
+   HEAP32[$ReallocAsyncCtx4>>2] = 58;
+   $74 = ((($ReallocAsyncCtx4)) + 4|0);
+   HEAP32[$74>>2] = $2;
+   $75 = ((($ReallocAsyncCtx4)) + 8|0);
+   HEAP32[$75>>2] = $4;
+   $76 = ((($ReallocAsyncCtx4)) + 12|0);
+   HEAP32[$76>>2] = $6;
+   $77 = ((($ReallocAsyncCtx4)) + 16|0);
+   HEAP32[$77>>2] = $8;
+   $78 = ((($ReallocAsyncCtx4)) + 20|0);
+   HEAP32[$78>>2] = $10;
+   $79 = ((($ReallocAsyncCtx4)) + 24|0);
+   HEAP32[$79>>2] = $12;
+   $80 = ((($ReallocAsyncCtx4)) + 28|0);
+   HEAP32[$80>>2] = $14;
+   $81 = ((($ReallocAsyncCtx4)) + 32|0);
+   HEAP32[$81>>2] = $16;
+   $82 = ((($ReallocAsyncCtx4)) + 36|0);
+   $$expand_i1_val31 = $20&1;
+   HEAP8[$82>>0] = $$expand_i1_val31;
+   $83 = ((($ReallocAsyncCtx4)) + 40|0);
+   HEAP32[$83>>2] = $$reg2mem$0;
+   $84 = ((($ReallocAsyncCtx4)) + 44|0);
+   HEAP32[$84>>2] = $24;
+   $85 = ((($ReallocAsyncCtx4)) + 48|0);
+   HEAP32[$85>>2] = $26;
+   $86 = ((($ReallocAsyncCtx4)) + 52|0);
+   HEAP32[$86>>2] = $28;
+   $87 = ((($ReallocAsyncCtx4)) + 56|0);
+   HEAP32[$87>>2] = $30;
+   $88 = ((($ReallocAsyncCtx4)) + 60|0);
+   HEAP32[$88>>2] = $34;
+   $89 = ((($ReallocAsyncCtx4)) + 64|0);
+   HEAP32[$89>>2] = $36;
+   $90 = ((($ReallocAsyncCtx4)) + 68|0);
+   HEAP32[$90>>2] = $38;
+   $91 = ((($ReallocAsyncCtx4)) + 72|0);
+   HEAP32[$91>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx4>>2] = 58;
+  $74 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$74>>2] = $2;
+  $75 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$75>>2] = $4;
+  $76 = ((($ReallocAsyncCtx4)) + 12|0);
+  HEAP32[$76>>2] = $6;
+  $77 = ((($ReallocAsyncCtx4)) + 16|0);
+  HEAP32[$77>>2] = $8;
+  $78 = ((($ReallocAsyncCtx4)) + 20|0);
+  HEAP32[$78>>2] = $10;
+  $79 = ((($ReallocAsyncCtx4)) + 24|0);
+  HEAP32[$79>>2] = $12;
+  $80 = ((($ReallocAsyncCtx4)) + 28|0);
+  HEAP32[$80>>2] = $14;
+  $81 = ((($ReallocAsyncCtx4)) + 32|0);
+  HEAP32[$81>>2] = $16;
+  $82 = ((($ReallocAsyncCtx4)) + 36|0);
+  $$expand_i1_val31 = $20&1;
+  HEAP8[$82>>0] = $$expand_i1_val31;
+  $83 = ((($ReallocAsyncCtx4)) + 40|0);
+  HEAP32[$83>>2] = $$reg2mem$0;
+  $84 = ((($ReallocAsyncCtx4)) + 44|0);
+  HEAP32[$84>>2] = $24;
+  $85 = ((($ReallocAsyncCtx4)) + 48|0);
+  HEAP32[$85>>2] = $26;
+  $86 = ((($ReallocAsyncCtx4)) + 52|0);
+  HEAP32[$86>>2] = $28;
+  $87 = ((($ReallocAsyncCtx4)) + 56|0);
+  HEAP32[$87>>2] = $30;
+  $88 = ((($ReallocAsyncCtx4)) + 60|0);
+  HEAP32[$88>>2] = $34;
+  $89 = ((($ReallocAsyncCtx4)) + 64|0);
+  HEAP32[$89>>2] = $36;
+  $90 = ((($ReallocAsyncCtx4)) + 68|0);
+  HEAP32[$90>>2] = $38;
+  $91 = ((($ReallocAsyncCtx4)) + 72|0);
+  HEAP32[$91>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 12) {
+  $103 = ((($$06690$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$101 & 255]($103);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 59;
+   $104 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$104>>2] = $2;
+   $105 = ((($ReallocAsyncCtx2)) + 8|0);
+   HEAP32[$105>>2] = $4;
+   $106 = ((($ReallocAsyncCtx2)) + 12|0);
+   HEAP32[$106>>2] = $6;
+   $107 = ((($ReallocAsyncCtx2)) + 16|0);
+   HEAP32[$107>>2] = $8;
+   $108 = ((($ReallocAsyncCtx2)) + 20|0);
+   HEAP32[$108>>2] = $10;
+   $109 = ((($ReallocAsyncCtx2)) + 24|0);
+   HEAP32[$109>>2] = $12;
+   $110 = ((($ReallocAsyncCtx2)) + 28|0);
+   HEAP32[$110>>2] = $14;
+   $111 = ((($ReallocAsyncCtx2)) + 32|0);
+   HEAP32[$111>>2] = $16;
+   $112 = ((($ReallocAsyncCtx2)) + 36|0);
+   $$expand_i1_val33 = $20&1;
+   HEAP8[$112>>0] = $$expand_i1_val33;
+   $113 = ((($ReallocAsyncCtx2)) + 40|0);
+   HEAP32[$113>>2] = $$reg2mem$0;
+   $114 = ((($ReallocAsyncCtx2)) + 44|0);
+   HEAP32[$114>>2] = $24;
+   $115 = ((($ReallocAsyncCtx2)) + 48|0);
+   HEAP32[$115>>2] = $26;
+   $116 = ((($ReallocAsyncCtx2)) + 52|0);
+   HEAP32[$116>>2] = $28;
+   $117 = ((($ReallocAsyncCtx2)) + 56|0);
+   HEAP32[$117>>2] = $$06690$reg2mem$0;
+   $118 = ((($ReallocAsyncCtx2)) + 60|0);
+   HEAP32[$118>>2] = $30;
+   $119 = ((($ReallocAsyncCtx2)) + 64|0);
+   HEAP32[$119>>2] = $$reg2mem24$0;
+   $120 = ((($ReallocAsyncCtx2)) + 68|0);
+   HEAP32[$120>>2] = $34;
+   $121 = ((($ReallocAsyncCtx2)) + 72|0);
+   HEAP32[$121>>2] = $36;
+   $122 = ((($ReallocAsyncCtx2)) + 76|0);
+   HEAP32[$122>>2] = $38;
+   $123 = ((($ReallocAsyncCtx2)) + 80|0);
+   HEAP32[$123>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 59;
+  $104 = ((($ReallocAsyncCtx2)) + 4|0);
+  HEAP32[$104>>2] = $2;
+  $105 = ((($ReallocAsyncCtx2)) + 8|0);
+  HEAP32[$105>>2] = $4;
+  $106 = ((($ReallocAsyncCtx2)) + 12|0);
+  HEAP32[$106>>2] = $6;
+  $107 = ((($ReallocAsyncCtx2)) + 16|0);
+  HEAP32[$107>>2] = $8;
+  $108 = ((($ReallocAsyncCtx2)) + 20|0);
+  HEAP32[$108>>2] = $10;
+  $109 = ((($ReallocAsyncCtx2)) + 24|0);
+  HEAP32[$109>>2] = $12;
+  $110 = ((($ReallocAsyncCtx2)) + 28|0);
+  HEAP32[$110>>2] = $14;
+  $111 = ((($ReallocAsyncCtx2)) + 32|0);
+  HEAP32[$111>>2] = $16;
+  $112 = ((($ReallocAsyncCtx2)) + 36|0);
+  $$expand_i1_val33 = $20&1;
+  HEAP8[$112>>0] = $$expand_i1_val33;
+  $113 = ((($ReallocAsyncCtx2)) + 40|0);
+  HEAP32[$113>>2] = $$reg2mem$0;
+  $114 = ((($ReallocAsyncCtx2)) + 44|0);
+  HEAP32[$114>>2] = $24;
+  $115 = ((($ReallocAsyncCtx2)) + 48|0);
+  HEAP32[$115>>2] = $26;
+  $116 = ((($ReallocAsyncCtx2)) + 52|0);
+  HEAP32[$116>>2] = $28;
+  $117 = ((($ReallocAsyncCtx2)) + 56|0);
+  HEAP32[$117>>2] = $$06690$reg2mem$0;
+  $118 = ((($ReallocAsyncCtx2)) + 60|0);
+  HEAP32[$118>>2] = $30;
+  $119 = ((($ReallocAsyncCtx2)) + 64|0);
+  HEAP32[$119>>2] = $$reg2mem24$0;
+  $120 = ((($ReallocAsyncCtx2)) + 68|0);
+  HEAP32[$120>>2] = $34;
+  $121 = ((($ReallocAsyncCtx2)) + 72|0);
+  HEAP32[$121>>2] = $36;
+  $122 = ((($ReallocAsyncCtx2)) + 76|0);
+  HEAP32[$122>>2] = $38;
+  $123 = ((($ReallocAsyncCtx2)) + 80|0);
+  HEAP32[$123>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 24) {
+  $139 = (_equeue_tick()|0);
+  if ($20) {
+   $140 = (($24) - ($139))|0;
+   $141 = ($140|0)<(1);
+   if ($141) {
+    $142 = ((($2)) + 44|0);
+    $143 = HEAP32[$142>>2]|0;
+    $144 = ($143|0)==(0|0);
+    if ($144) {
+     return;
+    }
+    _equeue_mutex_lock($6);
+    $145 = HEAP32[$142>>2]|0;
+    $146 = ($145|0)==(0|0);
+    if (!($146)) {
+     $147 = HEAP32[$12>>2]|0;
+     $148 = ($147|0)==(0|0);
+     if (!($148)) {
+      $149 = ((($2)) + 48|0);
+      $150 = HEAP32[$149>>2]|0;
+      $151 = ((($147)) + 20|0);
+      $152 = HEAP32[$151>>2]|0;
+      $153 = (($152) - ($139))|0;
+      $154 = $153 >> 31;
+      $155 = $154 ^ -1;
+      $156 = $153 & $155;
+      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
+      FUNCTION_TABLE_vii[$145 & 255]($150,$156);
+      $IsAsync8 = ___async;
+      if ($IsAsync8) {
+       HEAP32[$ReallocAsyncCtx3>>2] = 60;
+       $157 = ((($ReallocAsyncCtx3)) + 4|0);
+       HEAP32[$157>>2] = $4;
+       $158 = ((($ReallocAsyncCtx3)) + 8|0);
+       HEAP32[$158>>2] = $6;
+       sp = STACKTOP;
+       return;
+      }
+      ___async_unwind = 0;
+      HEAP32[$ReallocAsyncCtx3>>2] = 60;
+      $157 = ((($ReallocAsyncCtx3)) + 4|0);
+      HEAP32[$157>>2] = $4;
+      $158 = ((($ReallocAsyncCtx3)) + 8|0);
+      HEAP32[$158>>2] = $6;
+      sp = STACKTOP;
+      return;
+     }
+    }
+    HEAP8[$4>>0] = 1;
+    _equeue_mutex_unlock($6);
+    return;
+   } else {
+    $$064 = $140;
+   }
+  } else {
+   $$064 = -1;
+  }
+  _equeue_mutex_lock($6);
+  $159 = HEAP32[$12>>2]|0;
+  $160 = ($159|0)==(0|0);
+  if ($160) {
+   $$2 = $$064;
+  } else {
+   $161 = ((($159)) + 20|0);
+   $162 = HEAP32[$161>>2]|0;
+   $163 = (($162) - ($139))|0;
+   $164 = $163 >> 31;
+   $165 = $164 ^ -1;
+   $166 = $163 & $165;
+   $167 = ($166>>>0)<($$064>>>0);
+   $$$064 = $167 ? $166 : $$064;
+   $$2 = $$$064;
+  }
+  _equeue_mutex_unlock($6);
+  (_equeue_sema_wait($14,$$2)|0);
+  $168 = HEAP32[$16>>2]|0;
+  $169 = ($168|0)==(0);
+  do {
+   if (!($169)) {
+    _equeue_mutex_lock($6);
+    $170 = HEAP32[$16>>2]|0;
+    $171 = ($170|0)==(0);
+    if ($171) {
+     _equeue_mutex_unlock($6);
+     break;
+    }
+    $172 = (($170) + -1)|0;
+    HEAP32[$16>>2] = $172;
+    _equeue_mutex_unlock($6);
+    return;
+   }
+  } while(0);
+  $173 = (_equeue_tick()|0);
+  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
+  _wait_ms(20);
+  $IsAsync16 = ___async;
+  if ($IsAsync16) {
+   HEAP32[$ReallocAsyncCtx5>>2] = 61;
+   $174 = ((($ReallocAsyncCtx5)) + 4|0);
+   HEAP32[$174>>2] = $2;
+   $175 = ((($ReallocAsyncCtx5)) + 8|0);
+   HEAP32[$175>>2] = $4;
+   $176 = ((($ReallocAsyncCtx5)) + 12|0);
+   HEAP32[$176>>2] = $6;
+   $177 = ((($ReallocAsyncCtx5)) + 16|0);
+   HEAP32[$177>>2] = $8;
+   $178 = ((($ReallocAsyncCtx5)) + 20|0);
+   HEAP32[$178>>2] = $10;
+   $179 = ((($ReallocAsyncCtx5)) + 24|0);
+   HEAP32[$179>>2] = $12;
+   $180 = ((($ReallocAsyncCtx5)) + 28|0);
+   HEAP32[$180>>2] = $14;
+   $181 = ((($ReallocAsyncCtx5)) + 32|0);
+   HEAP32[$181>>2] = $16;
+   $182 = ((($ReallocAsyncCtx5)) + 36|0);
+   $$expand_i1_val35 = $20&1;
+   HEAP8[$182>>0] = $$expand_i1_val35;
+   $183 = ((($ReallocAsyncCtx5)) + 40|0);
+   HEAP32[$183>>2] = $24;
+   $184 = ((($ReallocAsyncCtx5)) + 44|0);
+   HEAP32[$184>>2] = $26;
+   $185 = ((($ReallocAsyncCtx5)) + 48|0);
+   HEAP32[$185>>2] = $173;
+   $186 = ((($ReallocAsyncCtx5)) + 52|0);
+   HEAP32[$186>>2] = $28;
+   $187 = ((($ReallocAsyncCtx5)) + 56|0);
+   HEAP32[$187>>2] = $30;
+   $188 = ((($ReallocAsyncCtx5)) + 60|0);
+   HEAP32[$188>>2] = $34;
+   $189 = ((($ReallocAsyncCtx5)) + 64|0);
+   HEAP32[$189>>2] = $36;
+   $190 = ((($ReallocAsyncCtx5)) + 68|0);
+   HEAP32[$190>>2] = $38;
+   $191 = ((($ReallocAsyncCtx5)) + 72|0);
+   HEAP32[$191>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx5>>2] = 61;
+  $174 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$174>>2] = $2;
+  $175 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$175>>2] = $4;
+  $176 = ((($ReallocAsyncCtx5)) + 12|0);
+  HEAP32[$176>>2] = $6;
+  $177 = ((($ReallocAsyncCtx5)) + 16|0);
+  HEAP32[$177>>2] = $8;
+  $178 = ((($ReallocAsyncCtx5)) + 20|0);
+  HEAP32[$178>>2] = $10;
+  $179 = ((($ReallocAsyncCtx5)) + 24|0);
+  HEAP32[$179>>2] = $12;
+  $180 = ((($ReallocAsyncCtx5)) + 28|0);
+  HEAP32[$180>>2] = $14;
+  $181 = ((($ReallocAsyncCtx5)) + 32|0);
+  HEAP32[$181>>2] = $16;
+  $182 = ((($ReallocAsyncCtx5)) + 36|0);
+  $$expand_i1_val35 = $20&1;
+  HEAP8[$182>>0] = $$expand_i1_val35;
+  $183 = ((($ReallocAsyncCtx5)) + 40|0);
+  HEAP32[$183>>2] = $24;
+  $184 = ((($ReallocAsyncCtx5)) + 44|0);
+  HEAP32[$184>>2] = $26;
+  $185 = ((($ReallocAsyncCtx5)) + 48|0);
+  HEAP32[$185>>2] = $173;
+  $186 = ((($ReallocAsyncCtx5)) + 52|0);
+  HEAP32[$186>>2] = $28;
+  $187 = ((($ReallocAsyncCtx5)) + 56|0);
+  HEAP32[$187>>2] = $30;
+  $188 = ((($ReallocAsyncCtx5)) + 60|0);
+  HEAP32[$188>>2] = $34;
+  $189 = ((($ReallocAsyncCtx5)) + 64|0);
+  HEAP32[$189>>2] = $36;
+  $190 = ((($ReallocAsyncCtx5)) + 68|0);
+  HEAP32[$190>>2] = $38;
+  $191 = ((($ReallocAsyncCtx5)) + 72|0);
+  HEAP32[$191>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+}
+function _equeue_dispatch__async_cb_50($0) {
+ $0 = $0|0;
+ var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$06690$reg2mem$0 = 0, $$06690$reg2mem$0$phi = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val31 = 0, $$expand_i1_val33 = 0, $$expand_i1_val35 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$reg2mem24$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0;
+ var $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0;
+ var $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0;
+ var $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0;
+ var $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0;
+ var $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0;
+ var $190 = 0, $191 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0;
+ var $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0, $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0;
+ var $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0, $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0;
+ var $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0, $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0;
+ var $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0, $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $$pre_trunc = HEAP8[$17>>0]|0;
+ $18 = $$pre_trunc&1;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 48|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 52|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 56|0);
+ $28 = HEAP32[$27>>2]|0;
+ $29 = ((($0)) + 60|0);
+ $30 = HEAP32[$29>>2]|0;
+ $31 = ((($0)) + 64|0);
+ $32 = HEAP32[$31>>2]|0;
+ $33 = ((($0)) + 68|0);
+ $34 = HEAP32[$33>>2]|0;
+ $35 = ((($0)) + 72|0);
+ $36 = HEAP32[$35>>2]|0;
+ $37 = ((($0)) + 76|0);
+ $38 = HEAP32[$37>>2]|0;
+ $39 = ((($0)) + 80|0);
+ $40 = HEAP32[$39>>2]|0;
+ $$06690$reg2mem$0 = $28;$$reg2mem$0 = $20;$$reg2mem24$0 = $32;
+ while(1) {
+  _equeue_mutex_lock($34);
+  $124 = HEAP32[$30>>2]|0;
+  $125 = ($124|0)==(0|0);
+  L4: do {
+   if ($125) {
+    $$027$i$i = $30;
+    label = 21;
+   } else {
+    $126 = HEAP32[$$06690$reg2mem$0>>2]|0;
+    $$029$i$i = $30;$128 = $124;
+    while(1) {
+     $127 = HEAP32[$128>>2]|0;
+     $129 = ($127>>>0)<($126>>>0);
+     if (!($129)) {
+      break;
+     }
+     $130 = ((($128)) + 8|0);
+     $131 = HEAP32[$130>>2]|0;
+     $132 = ($131|0)==(0|0);
+     if ($132) {
+      $$027$i$i = $130;
+      label = 21;
+      break L4;
+     } else {
+      $$029$i$i = $130;$128 = $131;
+     }
+    }
+    $133 = ($127|0)==($126|0);
+    if ($133) {
+     $134 = ((($$06690$reg2mem$0)) + 12|0);
+     HEAP32[$134>>2] = $128;
+     $135 = HEAP32[$$029$i$i>>2]|0;
+     $136 = ((($135)) + 8|0);
+     $$028$i$i = $$029$i$i;$$sink$in$i$i = $136;
+    } else {
+     $$027$i$i = $$029$i$i;
+     label = 21;
+    }
+   }
+  } while(0);
+  if ((label|0) == 21) {
+   label = 0;
+   $137 = ((($$06690$reg2mem$0)) + 12|0);
+   HEAP32[$137>>2] = 0;
+   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
+  }
+  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
+  HEAP32[$$reg2mem24$0>>2] = $$sink21$i$i;
+  HEAP32[$$028$i$i>>2] = $$06690$reg2mem$0;
+  _equeue_mutex_unlock($34);
+  $138 = ($$reg2mem$0|0)==(0|0);
+  if ($138) {
+   label = 24;
+   break;
+  }
+  $41 = ((($$reg2mem$0)) + 8|0);
+  $42 = HEAP32[$41>>2]|0;
+  $43 = ((($$reg2mem$0)) + 32|0);
+  $44 = HEAP32[$43>>2]|0;
+  $45 = ($44|0)==(0|0);
+  if (!($45)) {
+   label = 3;
+   break;
+  }
+  $67 = ((($$reg2mem$0)) + 24|0);
+  $68 = HEAP32[$67>>2]|0;
+  $69 = ($68|0)>(-1);
+  if ($69) {
+   label = 7;
+   break;
+  }
+  $$idx$val = HEAP32[$36>>2]|0;
+  $92 = ((($$reg2mem$0)) + 4|0);
+  $93 = HEAP8[$92>>0]|0;
+  $94 = $93&255;
+  $95 = (($94) + 1)|0;
+  $96 = $95&255;
+  $97 = $95 & 255;
+  $98 = $97 << $$idx$val;
+  $99 = ($98|0)==(0);
+  $$$i = $99 ? 1 : $96;
+  HEAP8[$92>>0] = $$$i;
+  $100 = ((($$reg2mem$0)) + 28|0);
+  $101 = HEAP32[$100>>2]|0;
+  $102 = ($101|0)==(0|0);
+  if ($102) {
+   $$06690$reg2mem$0$phi = $$reg2mem$0;$$reg2mem$0 = $42;$$reg2mem24$0 = $41;$$06690$reg2mem$0 = $$06690$reg2mem$0$phi;
+  } else {
+   label = 11;
+   break;
+  }
+ }
+ if ((label|0) == 3) {
+  $46 = ((($$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$44 & 255]($46);
+  $IsAsync = ___async;
+  if ($IsAsync) {
+   HEAP32[$ReallocAsyncCtx>>2] = 57;
+   $47 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$47>>2] = $2;
+   $48 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$48>>2] = $4;
+   $49 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$49>>2] = $6;
+   $50 = ((($ReallocAsyncCtx)) + 16|0);
+   HEAP32[$50>>2] = $8;
+   $51 = ((($ReallocAsyncCtx)) + 20|0);
+   HEAP32[$51>>2] = $10;
+   $52 = ((($ReallocAsyncCtx)) + 24|0);
+   HEAP32[$52>>2] = $12;
+   $53 = ((($ReallocAsyncCtx)) + 28|0);
+   HEAP32[$53>>2] = $14;
+   $54 = ((($ReallocAsyncCtx)) + 32|0);
+   HEAP32[$54>>2] = $16;
+   $55 = ((($ReallocAsyncCtx)) + 36|0);
+   HEAP32[$55>>2] = $$reg2mem$0;
+   $56 = ((($ReallocAsyncCtx)) + 40|0);
+   $$expand_i1_val = $18&1;
+   HEAP8[$56>>0] = $$expand_i1_val;
+   $57 = ((($ReallocAsyncCtx)) + 44|0);
+   HEAP32[$57>>2] = $42;
+   $58 = ((($ReallocAsyncCtx)) + 48|0);
+   HEAP32[$58>>2] = $22;
+   $59 = ((($ReallocAsyncCtx)) + 52|0);
+   HEAP32[$59>>2] = $24;
+   $60 = ((($ReallocAsyncCtx)) + 56|0);
+   HEAP32[$60>>2] = $26;
+   $61 = ((($ReallocAsyncCtx)) + 60|0);
+   HEAP32[$61>>2] = $30;
+   $62 = ((($ReallocAsyncCtx)) + 64|0);
+   HEAP32[$62>>2] = $41;
+   $63 = ((($ReallocAsyncCtx)) + 68|0);
+   HEAP32[$63>>2] = $34;
+   $64 = ((($ReallocAsyncCtx)) + 72|0);
+   HEAP32[$64>>2] = $36;
+   $65 = ((($ReallocAsyncCtx)) + 76|0);
+   HEAP32[$65>>2] = $38;
+   $66 = ((($ReallocAsyncCtx)) + 80|0);
+   HEAP32[$66>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx>>2] = 57;
+  $47 = ((($ReallocAsyncCtx)) + 4|0);
+  HEAP32[$47>>2] = $2;
+  $48 = ((($ReallocAsyncCtx)) + 8|0);
+  HEAP32[$48>>2] = $4;
+  $49 = ((($ReallocAsyncCtx)) + 12|0);
+  HEAP32[$49>>2] = $6;
+  $50 = ((($ReallocAsyncCtx)) + 16|0);
+  HEAP32[$50>>2] = $8;
+  $51 = ((($ReallocAsyncCtx)) + 20|0);
+  HEAP32[$51>>2] = $10;
+  $52 = ((($ReallocAsyncCtx)) + 24|0);
+  HEAP32[$52>>2] = $12;
+  $53 = ((($ReallocAsyncCtx)) + 28|0);
+  HEAP32[$53>>2] = $14;
+  $54 = ((($ReallocAsyncCtx)) + 32|0);
+  HEAP32[$54>>2] = $16;
+  $55 = ((($ReallocAsyncCtx)) + 36|0);
+  HEAP32[$55>>2] = $$reg2mem$0;
+  $56 = ((($ReallocAsyncCtx)) + 40|0);
+  $$expand_i1_val = $18&1;
+  HEAP8[$56>>0] = $$expand_i1_val;
+  $57 = ((($ReallocAsyncCtx)) + 44|0);
+  HEAP32[$57>>2] = $42;
+  $58 = ((($ReallocAsyncCtx)) + 48|0);
+  HEAP32[$58>>2] = $22;
+  $59 = ((($ReallocAsyncCtx)) + 52|0);
+  HEAP32[$59>>2] = $24;
+  $60 = ((($ReallocAsyncCtx)) + 56|0);
+  HEAP32[$60>>2] = $26;
+  $61 = ((($ReallocAsyncCtx)) + 60|0);
+  HEAP32[$61>>2] = $30;
+  $62 = ((($ReallocAsyncCtx)) + 64|0);
+  HEAP32[$62>>2] = $41;
+  $63 = ((($ReallocAsyncCtx)) + 68|0);
+  HEAP32[$63>>2] = $34;
+  $64 = ((($ReallocAsyncCtx)) + 72|0);
+  HEAP32[$64>>2] = $36;
+  $65 = ((($ReallocAsyncCtx)) + 76|0);
+  HEAP32[$65>>2] = $38;
+  $66 = ((($ReallocAsyncCtx)) + 80|0);
+  HEAP32[$66>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 7) {
+  $70 = ((($$reg2mem$0)) + 20|0);
+  $71 = HEAP32[$70>>2]|0;
+  $72 = (($71) + ($68))|0;
+  HEAP32[$70>>2] = $72;
+  $73 = (_equeue_tick()|0);
+  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
+  (_equeue_enqueue($2,$$reg2mem$0,$73)|0);
+  $IsAsync12 = ___async;
+  if ($IsAsync12) {
+   HEAP32[$ReallocAsyncCtx4>>2] = 58;
+   $74 = ((($ReallocAsyncCtx4)) + 4|0);
+   HEAP32[$74>>2] = $2;
+   $75 = ((($ReallocAsyncCtx4)) + 8|0);
+   HEAP32[$75>>2] = $4;
+   $76 = ((($ReallocAsyncCtx4)) + 12|0);
+   HEAP32[$76>>2] = $6;
+   $77 = ((($ReallocAsyncCtx4)) + 16|0);
+   HEAP32[$77>>2] = $8;
+   $78 = ((($ReallocAsyncCtx4)) + 20|0);
+   HEAP32[$78>>2] = $10;
+   $79 = ((($ReallocAsyncCtx4)) + 24|0);
+   HEAP32[$79>>2] = $12;
+   $80 = ((($ReallocAsyncCtx4)) + 28|0);
+   HEAP32[$80>>2] = $14;
+   $81 = ((($ReallocAsyncCtx4)) + 32|0);
+   HEAP32[$81>>2] = $16;
+   $82 = ((($ReallocAsyncCtx4)) + 36|0);
+   $$expand_i1_val31 = $18&1;
+   HEAP8[$82>>0] = $$expand_i1_val31;
+   $83 = ((($ReallocAsyncCtx4)) + 40|0);
+   HEAP32[$83>>2] = $42;
+   $84 = ((($ReallocAsyncCtx4)) + 44|0);
+   HEAP32[$84>>2] = $22;
+   $85 = ((($ReallocAsyncCtx4)) + 48|0);
+   HEAP32[$85>>2] = $24;
+   $86 = ((($ReallocAsyncCtx4)) + 52|0);
+   HEAP32[$86>>2] = $26;
+   $87 = ((($ReallocAsyncCtx4)) + 56|0);
+   HEAP32[$87>>2] = $30;
+   $88 = ((($ReallocAsyncCtx4)) + 60|0);
+   HEAP32[$88>>2] = $34;
+   $89 = ((($ReallocAsyncCtx4)) + 64|0);
+   HEAP32[$89>>2] = $36;
+   $90 = ((($ReallocAsyncCtx4)) + 68|0);
+   HEAP32[$90>>2] = $38;
+   $91 = ((($ReallocAsyncCtx4)) + 72|0);
+   HEAP32[$91>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx4>>2] = 58;
+  $74 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$74>>2] = $2;
+  $75 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$75>>2] = $4;
+  $76 = ((($ReallocAsyncCtx4)) + 12|0);
+  HEAP32[$76>>2] = $6;
+  $77 = ((($ReallocAsyncCtx4)) + 16|0);
+  HEAP32[$77>>2] = $8;
+  $78 = ((($ReallocAsyncCtx4)) + 20|0);
+  HEAP32[$78>>2] = $10;
+  $79 = ((($ReallocAsyncCtx4)) + 24|0);
+  HEAP32[$79>>2] = $12;
+  $80 = ((($ReallocAsyncCtx4)) + 28|0);
+  HEAP32[$80>>2] = $14;
+  $81 = ((($ReallocAsyncCtx4)) + 32|0);
+  HEAP32[$81>>2] = $16;
+  $82 = ((($ReallocAsyncCtx4)) + 36|0);
+  $$expand_i1_val31 = $18&1;
+  HEAP8[$82>>0] = $$expand_i1_val31;
+  $83 = ((($ReallocAsyncCtx4)) + 40|0);
+  HEAP32[$83>>2] = $42;
+  $84 = ((($ReallocAsyncCtx4)) + 44|0);
+  HEAP32[$84>>2] = $22;
+  $85 = ((($ReallocAsyncCtx4)) + 48|0);
+  HEAP32[$85>>2] = $24;
+  $86 = ((($ReallocAsyncCtx4)) + 52|0);
+  HEAP32[$86>>2] = $26;
+  $87 = ((($ReallocAsyncCtx4)) + 56|0);
+  HEAP32[$87>>2] = $30;
+  $88 = ((($ReallocAsyncCtx4)) + 60|0);
+  HEAP32[$88>>2] = $34;
+  $89 = ((($ReallocAsyncCtx4)) + 64|0);
+  HEAP32[$89>>2] = $36;
+  $90 = ((($ReallocAsyncCtx4)) + 68|0);
+  HEAP32[$90>>2] = $38;
+  $91 = ((($ReallocAsyncCtx4)) + 72|0);
+  HEAP32[$91>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 11) {
+  $103 = ((($$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$101 & 255]($103);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 59;
+   $104 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$104>>2] = $2;
+   $105 = ((($ReallocAsyncCtx2)) + 8|0);
+   HEAP32[$105>>2] = $4;
+   $106 = ((($ReallocAsyncCtx2)) + 12|0);
+   HEAP32[$106>>2] = $6;
+   $107 = ((($ReallocAsyncCtx2)) + 16|0);
+   HEAP32[$107>>2] = $8;
+   $108 = ((($ReallocAsyncCtx2)) + 20|0);
+   HEAP32[$108>>2] = $10;
+   $109 = ((($ReallocAsyncCtx2)) + 24|0);
+   HEAP32[$109>>2] = $12;
+   $110 = ((($ReallocAsyncCtx2)) + 28|0);
+   HEAP32[$110>>2] = $14;
+   $111 = ((($ReallocAsyncCtx2)) + 32|0);
+   HEAP32[$111>>2] = $16;
+   $112 = ((($ReallocAsyncCtx2)) + 36|0);
+   $$expand_i1_val33 = $18&1;
+   HEAP8[$112>>0] = $$expand_i1_val33;
+   $113 = ((($ReallocAsyncCtx2)) + 40|0);
+   HEAP32[$113>>2] = $42;
+   $114 = ((($ReallocAsyncCtx2)) + 44|0);
+   HEAP32[$114>>2] = $22;
+   $115 = ((($ReallocAsyncCtx2)) + 48|0);
+   HEAP32[$115>>2] = $24;
+   $116 = ((($ReallocAsyncCtx2)) + 52|0);
+   HEAP32[$116>>2] = $26;
+   $117 = ((($ReallocAsyncCtx2)) + 56|0);
+   HEAP32[$117>>2] = $$reg2mem$0;
+   $118 = ((($ReallocAsyncCtx2)) + 60|0);
+   HEAP32[$118>>2] = $30;
+   $119 = ((($ReallocAsyncCtx2)) + 64|0);
+   HEAP32[$119>>2] = $41;
+   $120 = ((($ReallocAsyncCtx2)) + 68|0);
+   HEAP32[$120>>2] = $34;
+   $121 = ((($ReallocAsyncCtx2)) + 72|0);
+   HEAP32[$121>>2] = $36;
+   $122 = ((($ReallocAsyncCtx2)) + 76|0);
+   HEAP32[$122>>2] = $38;
+   $123 = ((($ReallocAsyncCtx2)) + 80|0);
+   HEAP32[$123>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 59;
+  $104 = ((($ReallocAsyncCtx2)) + 4|0);
+  HEAP32[$104>>2] = $2;
+  $105 = ((($ReallocAsyncCtx2)) + 8|0);
+  HEAP32[$105>>2] = $4;
+  $106 = ((($ReallocAsyncCtx2)) + 12|0);
+  HEAP32[$106>>2] = $6;
+  $107 = ((($ReallocAsyncCtx2)) + 16|0);
+  HEAP32[$107>>2] = $8;
+  $108 = ((($ReallocAsyncCtx2)) + 20|0);
+  HEAP32[$108>>2] = $10;
+  $109 = ((($ReallocAsyncCtx2)) + 24|0);
+  HEAP32[$109>>2] = $12;
+  $110 = ((($ReallocAsyncCtx2)) + 28|0);
+  HEAP32[$110>>2] = $14;
+  $111 = ((($ReallocAsyncCtx2)) + 32|0);
+  HEAP32[$111>>2] = $16;
+  $112 = ((($ReallocAsyncCtx2)) + 36|0);
+  $$expand_i1_val33 = $18&1;
+  HEAP8[$112>>0] = $$expand_i1_val33;
+  $113 = ((($ReallocAsyncCtx2)) + 40|0);
+  HEAP32[$113>>2] = $42;
+  $114 = ((($ReallocAsyncCtx2)) + 44|0);
+  HEAP32[$114>>2] = $22;
+  $115 = ((($ReallocAsyncCtx2)) + 48|0);
+  HEAP32[$115>>2] = $24;
+  $116 = ((($ReallocAsyncCtx2)) + 52|0);
+  HEAP32[$116>>2] = $26;
+  $117 = ((($ReallocAsyncCtx2)) + 56|0);
+  HEAP32[$117>>2] = $$reg2mem$0;
+  $118 = ((($ReallocAsyncCtx2)) + 60|0);
+  HEAP32[$118>>2] = $30;
+  $119 = ((($ReallocAsyncCtx2)) + 64|0);
+  HEAP32[$119>>2] = $41;
+  $120 = ((($ReallocAsyncCtx2)) + 68|0);
+  HEAP32[$120>>2] = $34;
+  $121 = ((($ReallocAsyncCtx2)) + 72|0);
+  HEAP32[$121>>2] = $36;
+  $122 = ((($ReallocAsyncCtx2)) + 76|0);
+  HEAP32[$122>>2] = $38;
+  $123 = ((($ReallocAsyncCtx2)) + 80|0);
+  HEAP32[$123>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 24) {
+  $139 = (_equeue_tick()|0);
+  if ($18) {
+   $140 = (($22) - ($139))|0;
+   $141 = ($140|0)<(1);
+   if ($141) {
+    $142 = ((($2)) + 44|0);
+    $143 = HEAP32[$142>>2]|0;
+    $144 = ($143|0)==(0|0);
+    if ($144) {
+     return;
+    }
+    _equeue_mutex_lock($6);
+    $145 = HEAP32[$142>>2]|0;
+    $146 = ($145|0)==(0|0);
+    if (!($146)) {
+     $147 = HEAP32[$12>>2]|0;
+     $148 = ($147|0)==(0|0);
+     if (!($148)) {
+      $149 = ((($2)) + 48|0);
+      $150 = HEAP32[$149>>2]|0;
+      $151 = ((($147)) + 20|0);
+      $152 = HEAP32[$151>>2]|0;
+      $153 = (($152) - ($139))|0;
+      $154 = $153 >> 31;
+      $155 = $154 ^ -1;
+      $156 = $153 & $155;
+      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
+      FUNCTION_TABLE_vii[$145 & 255]($150,$156);
+      $IsAsync8 = ___async;
+      if ($IsAsync8) {
+       HEAP32[$ReallocAsyncCtx3>>2] = 60;
+       $157 = ((($ReallocAsyncCtx3)) + 4|0);
+       HEAP32[$157>>2] = $4;
+       $158 = ((($ReallocAsyncCtx3)) + 8|0);
+       HEAP32[$158>>2] = $6;
+       sp = STACKTOP;
+       return;
+      }
+      ___async_unwind = 0;
+      HEAP32[$ReallocAsyncCtx3>>2] = 60;
+      $157 = ((($ReallocAsyncCtx3)) + 4|0);
+      HEAP32[$157>>2] = $4;
+      $158 = ((($ReallocAsyncCtx3)) + 8|0);
+      HEAP32[$158>>2] = $6;
+      sp = STACKTOP;
+      return;
+     }
+    }
+    HEAP8[$4>>0] = 1;
+    _equeue_mutex_unlock($6);
+    return;
+   } else {
+    $$064 = $140;
+   }
+  } else {
+   $$064 = -1;
+  }
+  _equeue_mutex_lock($6);
+  $159 = HEAP32[$12>>2]|0;
+  $160 = ($159|0)==(0|0);
+  if ($160) {
+   $$2 = $$064;
+  } else {
+   $161 = ((($159)) + 20|0);
+   $162 = HEAP32[$161>>2]|0;
+   $163 = (($162) - ($139))|0;
+   $164 = $163 >> 31;
+   $165 = $164 ^ -1;
+   $166 = $163 & $165;
+   $167 = ($166>>>0)<($$064>>>0);
+   $$$064 = $167 ? $166 : $$064;
+   $$2 = $$$064;
+  }
+  _equeue_mutex_unlock($6);
+  (_equeue_sema_wait($14,$$2)|0);
+  $168 = HEAP32[$16>>2]|0;
+  $169 = ($168|0)==(0);
+  do {
+   if (!($169)) {
+    _equeue_mutex_lock($6);
+    $170 = HEAP32[$16>>2]|0;
+    $171 = ($170|0)==(0);
+    if ($171) {
+     _equeue_mutex_unlock($6);
+     break;
+    }
+    $172 = (($170) + -1)|0;
+    HEAP32[$16>>2] = $172;
+    _equeue_mutex_unlock($6);
+    return;
+   }
+  } while(0);
+  $173 = (_equeue_tick()|0);
+  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
+  _wait_ms(20);
+  $IsAsync16 = ___async;
+  if ($IsAsync16) {
+   HEAP32[$ReallocAsyncCtx5>>2] = 61;
+   $174 = ((($ReallocAsyncCtx5)) + 4|0);
+   HEAP32[$174>>2] = $2;
+   $175 = ((($ReallocAsyncCtx5)) + 8|0);
+   HEAP32[$175>>2] = $4;
+   $176 = ((($ReallocAsyncCtx5)) + 12|0);
+   HEAP32[$176>>2] = $6;
+   $177 = ((($ReallocAsyncCtx5)) + 16|0);
+   HEAP32[$177>>2] = $8;
+   $178 = ((($ReallocAsyncCtx5)) + 20|0);
+   HEAP32[$178>>2] = $10;
+   $179 = ((($ReallocAsyncCtx5)) + 24|0);
+   HEAP32[$179>>2] = $12;
+   $180 = ((($ReallocAsyncCtx5)) + 28|0);
+   HEAP32[$180>>2] = $14;
+   $181 = ((($ReallocAsyncCtx5)) + 32|0);
+   HEAP32[$181>>2] = $16;
+   $182 = ((($ReallocAsyncCtx5)) + 36|0);
+   $$expand_i1_val35 = $18&1;
+   HEAP8[$182>>0] = $$expand_i1_val35;
+   $183 = ((($ReallocAsyncCtx5)) + 40|0);
+   HEAP32[$183>>2] = $22;
+   $184 = ((($ReallocAsyncCtx5)) + 44|0);
+   HEAP32[$184>>2] = $24;
+   $185 = ((($ReallocAsyncCtx5)) + 48|0);
+   HEAP32[$185>>2] = $173;
+   $186 = ((($ReallocAsyncCtx5)) + 52|0);
+   HEAP32[$186>>2] = $26;
+   $187 = ((($ReallocAsyncCtx5)) + 56|0);
+   HEAP32[$187>>2] = $30;
+   $188 = ((($ReallocAsyncCtx5)) + 60|0);
+   HEAP32[$188>>2] = $34;
+   $189 = ((($ReallocAsyncCtx5)) + 64|0);
+   HEAP32[$189>>2] = $36;
+   $190 = ((($ReallocAsyncCtx5)) + 68|0);
+   HEAP32[$190>>2] = $38;
+   $191 = ((($ReallocAsyncCtx5)) + 72|0);
+   HEAP32[$191>>2] = $40;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx5>>2] = 61;
+  $174 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$174>>2] = $2;
+  $175 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$175>>2] = $4;
+  $176 = ((($ReallocAsyncCtx5)) + 12|0);
+  HEAP32[$176>>2] = $6;
+  $177 = ((($ReallocAsyncCtx5)) + 16|0);
+  HEAP32[$177>>2] = $8;
+  $178 = ((($ReallocAsyncCtx5)) + 20|0);
+  HEAP32[$178>>2] = $10;
+  $179 = ((($ReallocAsyncCtx5)) + 24|0);
+  HEAP32[$179>>2] = $12;
+  $180 = ((($ReallocAsyncCtx5)) + 28|0);
+  HEAP32[$180>>2] = $14;
+  $181 = ((($ReallocAsyncCtx5)) + 32|0);
+  HEAP32[$181>>2] = $16;
+  $182 = ((($ReallocAsyncCtx5)) + 36|0);
+  $$expand_i1_val35 = $18&1;
+  HEAP8[$182>>0] = $$expand_i1_val35;
+  $183 = ((($ReallocAsyncCtx5)) + 40|0);
+  HEAP32[$183>>2] = $22;
+  $184 = ((($ReallocAsyncCtx5)) + 44|0);
+  HEAP32[$184>>2] = $24;
+  $185 = ((($ReallocAsyncCtx5)) + 48|0);
+  HEAP32[$185>>2] = $173;
+  $186 = ((($ReallocAsyncCtx5)) + 52|0);
+  HEAP32[$186>>2] = $26;
+  $187 = ((($ReallocAsyncCtx5)) + 56|0);
+  HEAP32[$187>>2] = $30;
+  $188 = ((($ReallocAsyncCtx5)) + 60|0);
+  HEAP32[$188>>2] = $34;
+  $189 = ((($ReallocAsyncCtx5)) + 64|0);
+  HEAP32[$189>>2] = $36;
+  $190 = ((($ReallocAsyncCtx5)) + 68|0);
+  HEAP32[$190>>2] = $38;
+  $191 = ((($ReallocAsyncCtx5)) + 72|0);
+  HEAP32[$191>>2] = $40;
+  sp = STACKTOP;
+  return;
+ }
+}
+function _equeue_dispatch__async_cb_51($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ HEAP8[$2>>0] = 1;
+ _equeue_mutex_unlock($4);
+ return;
+}
+function _equeue_dispatch__async_cb_52($0) {
+ $0 = $0|0;
+ var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$064 = 0, $$2 = 0, $$expand_i1_val = 0, $$expand_i1_val12 = 0, $$expand_i1_val14 = 0, $$expand_i1_val16 = 0, $$idx$val = 0, $$pre_trunc = 0, $$reg2mem$0 = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $1 = 0, $10 = 0, $100 = 0, $101 = 0;
+ var $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0, $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0, $118 = 0, $119 = 0, $12 = 0;
+ var $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0, $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0, $136 = 0, $137 = 0, $138 = 0;
+ var $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0, $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0, $154 = 0, $155 = 0, $156 = 0;
+ var $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0, $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0, $172 = 0, $173 = 0, $174 = 0;
+ var $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0, $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0;
+ var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
+ var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
+ var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0, $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0;
+ var $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0, $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0;
+ var $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $$pre_trunc = HEAP8[$17>>0]|0;
+ $18 = $$pre_trunc&1;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 48|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 52|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 56|0);
+ $28 = HEAP32[$27>>2]|0;
+ $29 = ((($0)) + 60|0);
+ $30 = HEAP32[$29>>2]|0;
+ $31 = ((($0)) + 64|0);
+ $32 = HEAP32[$31>>2]|0;
+ $33 = ((($0)) + 68|0);
+ $34 = HEAP32[$33>>2]|0;
+ $35 = ((($0)) + 72|0);
+ $36 = HEAP32[$35>>2]|0;
+ $$reg2mem$0 = $20;
+ while(1) {
+  $134 = ($$reg2mem$0|0)==(0|0);
+  if ($134) {
+   label = 24;
+   break;
+  }
+  $37 = ((($$reg2mem$0)) + 8|0);
+  $38 = HEAP32[$37>>2]|0;
+  $39 = ((($$reg2mem$0)) + 32|0);
+  $40 = HEAP32[$39>>2]|0;
+  $41 = ($40|0)==(0|0);
+  if (!($41)) {
+   label = 3;
+   break;
+  }
+  $63 = ((($$reg2mem$0)) + 24|0);
+  $64 = HEAP32[$63>>2]|0;
+  $65 = ($64|0)>(-1);
+  if ($65) {
+   label = 7;
+   break;
+  }
+  $$idx$val = HEAP32[$32>>2]|0;
+  $88 = ((($$reg2mem$0)) + 4|0);
+  $89 = HEAP8[$88>>0]|0;
+  $90 = $89&255;
+  $91 = (($90) + 1)|0;
+  $92 = $91&255;
+  $93 = $91 & 255;
+  $94 = $93 << $$idx$val;
+  $95 = ($94|0)==(0);
+  $$$i = $95 ? 1 : $92;
+  HEAP8[$88>>0] = $$$i;
+  $96 = ((($$reg2mem$0)) + 28|0);
+  $97 = HEAP32[$96>>2]|0;
+  $98 = ($97|0)==(0|0);
+  if (!($98)) {
+   label = 12;
+   break;
+  }
+  _equeue_mutex_lock($30);
+  $120 = HEAP32[$28>>2]|0;
+  $121 = ($120|0)==(0|0);
+  L8: do {
+   if ($121) {
+    $$027$i$i = $28;
+    label = 21;
+   } else {
+    $122 = HEAP32[$$reg2mem$0>>2]|0;
+    $$029$i$i = $28;$124 = $120;
+    while(1) {
+     $123 = HEAP32[$124>>2]|0;
+     $125 = ($123>>>0)<($122>>>0);
+     if (!($125)) {
+      break;
+     }
+     $126 = ((($124)) + 8|0);
+     $127 = HEAP32[$126>>2]|0;
+     $128 = ($127|0)==(0|0);
+     if ($128) {
+      $$027$i$i = $126;
+      label = 21;
+      break L8;
+     } else {
+      $$029$i$i = $126;$124 = $127;
+     }
+    }
+    $129 = ($123|0)==($122|0);
+    if ($129) {
+     $130 = ((($$reg2mem$0)) + 12|0);
+     HEAP32[$130>>2] = $124;
+     $131 = HEAP32[$$029$i$i>>2]|0;
+     $132 = ((($131)) + 8|0);
+     $$028$i$i = $$029$i$i;$$sink$in$i$i = $132;
+    } else {
+     $$027$i$i = $$029$i$i;
+     label = 21;
+    }
+   }
+  } while(0);
+  if ((label|0) == 21) {
+   label = 0;
+   $133 = ((($$reg2mem$0)) + 12|0);
+   HEAP32[$133>>2] = 0;
+   $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
+  }
+  $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
+  HEAP32[$37>>2] = $$sink21$i$i;
+  HEAP32[$$028$i$i>>2] = $$reg2mem$0;
+  _equeue_mutex_unlock($30);
+  $$reg2mem$0 = $38;
+ }
+ if ((label|0) == 3) {
+  $42 = ((($$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$40 & 255]($42);
+  $IsAsync = ___async;
+  if ($IsAsync) {
+   HEAP32[$ReallocAsyncCtx>>2] = 57;
+   $43 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$43>>2] = $2;
+   $44 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$44>>2] = $4;
+   $45 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$45>>2] = $6;
+   $46 = ((($ReallocAsyncCtx)) + 16|0);
+   HEAP32[$46>>2] = $8;
+   $47 = ((($ReallocAsyncCtx)) + 20|0);
+   HEAP32[$47>>2] = $10;
+   $48 = ((($ReallocAsyncCtx)) + 24|0);
+   HEAP32[$48>>2] = $12;
+   $49 = ((($ReallocAsyncCtx)) + 28|0);
+   HEAP32[$49>>2] = $14;
+   $50 = ((($ReallocAsyncCtx)) + 32|0);
+   HEAP32[$50>>2] = $16;
+   $51 = ((($ReallocAsyncCtx)) + 36|0);
+   HEAP32[$51>>2] = $$reg2mem$0;
+   $52 = ((($ReallocAsyncCtx)) + 40|0);
+   $$expand_i1_val = $18&1;
+   HEAP8[$52>>0] = $$expand_i1_val;
+   $53 = ((($ReallocAsyncCtx)) + 44|0);
+   HEAP32[$53>>2] = $38;
+   $54 = ((($ReallocAsyncCtx)) + 48|0);
+   HEAP32[$54>>2] = $22;
+   $55 = ((($ReallocAsyncCtx)) + 52|0);
+   HEAP32[$55>>2] = $24;
+   $56 = ((($ReallocAsyncCtx)) + 56|0);
+   HEAP32[$56>>2] = $26;
+   $57 = ((($ReallocAsyncCtx)) + 60|0);
+   HEAP32[$57>>2] = $28;
+   $58 = ((($ReallocAsyncCtx)) + 64|0);
+   HEAP32[$58>>2] = $37;
+   $59 = ((($ReallocAsyncCtx)) + 68|0);
+   HEAP32[$59>>2] = $30;
+   $60 = ((($ReallocAsyncCtx)) + 72|0);
+   HEAP32[$60>>2] = $32;
+   $61 = ((($ReallocAsyncCtx)) + 76|0);
+   HEAP32[$61>>2] = $34;
+   $62 = ((($ReallocAsyncCtx)) + 80|0);
+   HEAP32[$62>>2] = $36;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx>>2] = 57;
+  $43 = ((($ReallocAsyncCtx)) + 4|0);
+  HEAP32[$43>>2] = $2;
+  $44 = ((($ReallocAsyncCtx)) + 8|0);
+  HEAP32[$44>>2] = $4;
+  $45 = ((($ReallocAsyncCtx)) + 12|0);
+  HEAP32[$45>>2] = $6;
+  $46 = ((($ReallocAsyncCtx)) + 16|0);
+  HEAP32[$46>>2] = $8;
+  $47 = ((($ReallocAsyncCtx)) + 20|0);
+  HEAP32[$47>>2] = $10;
+  $48 = ((($ReallocAsyncCtx)) + 24|0);
+  HEAP32[$48>>2] = $12;
+  $49 = ((($ReallocAsyncCtx)) + 28|0);
+  HEAP32[$49>>2] = $14;
+  $50 = ((($ReallocAsyncCtx)) + 32|0);
+  HEAP32[$50>>2] = $16;
+  $51 = ((($ReallocAsyncCtx)) + 36|0);
+  HEAP32[$51>>2] = $$reg2mem$0;
+  $52 = ((($ReallocAsyncCtx)) + 40|0);
+  $$expand_i1_val = $18&1;
+  HEAP8[$52>>0] = $$expand_i1_val;
+  $53 = ((($ReallocAsyncCtx)) + 44|0);
+  HEAP32[$53>>2] = $38;
+  $54 = ((($ReallocAsyncCtx)) + 48|0);
+  HEAP32[$54>>2] = $22;
+  $55 = ((($ReallocAsyncCtx)) + 52|0);
+  HEAP32[$55>>2] = $24;
+  $56 = ((($ReallocAsyncCtx)) + 56|0);
+  HEAP32[$56>>2] = $26;
+  $57 = ((($ReallocAsyncCtx)) + 60|0);
+  HEAP32[$57>>2] = $28;
+  $58 = ((($ReallocAsyncCtx)) + 64|0);
+  HEAP32[$58>>2] = $37;
+  $59 = ((($ReallocAsyncCtx)) + 68|0);
+  HEAP32[$59>>2] = $30;
+  $60 = ((($ReallocAsyncCtx)) + 72|0);
+  HEAP32[$60>>2] = $32;
+  $61 = ((($ReallocAsyncCtx)) + 76|0);
+  HEAP32[$61>>2] = $34;
+  $62 = ((($ReallocAsyncCtx)) + 80|0);
+  HEAP32[$62>>2] = $36;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 7) {
+  $66 = ((($$reg2mem$0)) + 20|0);
+  $67 = HEAP32[$66>>2]|0;
+  $68 = (($67) + ($64))|0;
+  HEAP32[$66>>2] = $68;
+  $69 = (_equeue_tick()|0);
+  $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
+  (_equeue_enqueue($2,$$reg2mem$0,$69)|0);
+  $IsAsync12 = ___async;
+  if ($IsAsync12) {
+   HEAP32[$ReallocAsyncCtx4>>2] = 58;
+   $70 = ((($ReallocAsyncCtx4)) + 4|0);
+   HEAP32[$70>>2] = $2;
+   $71 = ((($ReallocAsyncCtx4)) + 8|0);
+   HEAP32[$71>>2] = $4;
+   $72 = ((($ReallocAsyncCtx4)) + 12|0);
+   HEAP32[$72>>2] = $6;
+   $73 = ((($ReallocAsyncCtx4)) + 16|0);
+   HEAP32[$73>>2] = $8;
+   $74 = ((($ReallocAsyncCtx4)) + 20|0);
+   HEAP32[$74>>2] = $10;
+   $75 = ((($ReallocAsyncCtx4)) + 24|0);
+   HEAP32[$75>>2] = $12;
+   $76 = ((($ReallocAsyncCtx4)) + 28|0);
+   HEAP32[$76>>2] = $14;
+   $77 = ((($ReallocAsyncCtx4)) + 32|0);
+   HEAP32[$77>>2] = $16;
+   $78 = ((($ReallocAsyncCtx4)) + 36|0);
+   $$expand_i1_val12 = $18&1;
+   HEAP8[$78>>0] = $$expand_i1_val12;
+   $79 = ((($ReallocAsyncCtx4)) + 40|0);
+   HEAP32[$79>>2] = $38;
+   $80 = ((($ReallocAsyncCtx4)) + 44|0);
+   HEAP32[$80>>2] = $22;
+   $81 = ((($ReallocAsyncCtx4)) + 48|0);
+   HEAP32[$81>>2] = $24;
+   $82 = ((($ReallocAsyncCtx4)) + 52|0);
+   HEAP32[$82>>2] = $26;
+   $83 = ((($ReallocAsyncCtx4)) + 56|0);
+   HEAP32[$83>>2] = $28;
+   $84 = ((($ReallocAsyncCtx4)) + 60|0);
+   HEAP32[$84>>2] = $30;
+   $85 = ((($ReallocAsyncCtx4)) + 64|0);
+   HEAP32[$85>>2] = $32;
+   $86 = ((($ReallocAsyncCtx4)) + 68|0);
+   HEAP32[$86>>2] = $34;
+   $87 = ((($ReallocAsyncCtx4)) + 72|0);
+   HEAP32[$87>>2] = $36;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx4>>2] = 58;
+  $70 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$70>>2] = $2;
+  $71 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$71>>2] = $4;
+  $72 = ((($ReallocAsyncCtx4)) + 12|0);
+  HEAP32[$72>>2] = $6;
+  $73 = ((($ReallocAsyncCtx4)) + 16|0);
+  HEAP32[$73>>2] = $8;
+  $74 = ((($ReallocAsyncCtx4)) + 20|0);
+  HEAP32[$74>>2] = $10;
+  $75 = ((($ReallocAsyncCtx4)) + 24|0);
+  HEAP32[$75>>2] = $12;
+  $76 = ((($ReallocAsyncCtx4)) + 28|0);
+  HEAP32[$76>>2] = $14;
+  $77 = ((($ReallocAsyncCtx4)) + 32|0);
+  HEAP32[$77>>2] = $16;
+  $78 = ((($ReallocAsyncCtx4)) + 36|0);
+  $$expand_i1_val12 = $18&1;
+  HEAP8[$78>>0] = $$expand_i1_val12;
+  $79 = ((($ReallocAsyncCtx4)) + 40|0);
+  HEAP32[$79>>2] = $38;
+  $80 = ((($ReallocAsyncCtx4)) + 44|0);
+  HEAP32[$80>>2] = $22;
+  $81 = ((($ReallocAsyncCtx4)) + 48|0);
+  HEAP32[$81>>2] = $24;
+  $82 = ((($ReallocAsyncCtx4)) + 52|0);
+  HEAP32[$82>>2] = $26;
+  $83 = ((($ReallocAsyncCtx4)) + 56|0);
+  HEAP32[$83>>2] = $28;
+  $84 = ((($ReallocAsyncCtx4)) + 60|0);
+  HEAP32[$84>>2] = $30;
+  $85 = ((($ReallocAsyncCtx4)) + 64|0);
+  HEAP32[$85>>2] = $32;
+  $86 = ((($ReallocAsyncCtx4)) + 68|0);
+  HEAP32[$86>>2] = $34;
+  $87 = ((($ReallocAsyncCtx4)) + 72|0);
+  HEAP32[$87>>2] = $36;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 12) {
+  $99 = ((($$reg2mem$0)) + 36|0);
+  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
+  FUNCTION_TABLE_vi[$97 & 255]($99);
+  $IsAsync4 = ___async;
+  if ($IsAsync4) {
+   HEAP32[$ReallocAsyncCtx2>>2] = 59;
+   $100 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$100>>2] = $2;
+   $101 = ((($ReallocAsyncCtx2)) + 8|0);
+   HEAP32[$101>>2] = $4;
+   $102 = ((($ReallocAsyncCtx2)) + 12|0);
+   HEAP32[$102>>2] = $6;
+   $103 = ((($ReallocAsyncCtx2)) + 16|0);
+   HEAP32[$103>>2] = $8;
+   $104 = ((($ReallocAsyncCtx2)) + 20|0);
+   HEAP32[$104>>2] = $10;
+   $105 = ((($ReallocAsyncCtx2)) + 24|0);
+   HEAP32[$105>>2] = $12;
+   $106 = ((($ReallocAsyncCtx2)) + 28|0);
+   HEAP32[$106>>2] = $14;
+   $107 = ((($ReallocAsyncCtx2)) + 32|0);
+   HEAP32[$107>>2] = $16;
+   $108 = ((($ReallocAsyncCtx2)) + 36|0);
+   $$expand_i1_val14 = $18&1;
+   HEAP8[$108>>0] = $$expand_i1_val14;
+   $109 = ((($ReallocAsyncCtx2)) + 40|0);
+   HEAP32[$109>>2] = $38;
+   $110 = ((($ReallocAsyncCtx2)) + 44|0);
+   HEAP32[$110>>2] = $22;
+   $111 = ((($ReallocAsyncCtx2)) + 48|0);
+   HEAP32[$111>>2] = $24;
+   $112 = ((($ReallocAsyncCtx2)) + 52|0);
+   HEAP32[$112>>2] = $26;
+   $113 = ((($ReallocAsyncCtx2)) + 56|0);
+   HEAP32[$113>>2] = $$reg2mem$0;
+   $114 = ((($ReallocAsyncCtx2)) + 60|0);
+   HEAP32[$114>>2] = $28;
+   $115 = ((($ReallocAsyncCtx2)) + 64|0);
+   HEAP32[$115>>2] = $37;
+   $116 = ((($ReallocAsyncCtx2)) + 68|0);
+   HEAP32[$116>>2] = $30;
+   $117 = ((($ReallocAsyncCtx2)) + 72|0);
+   HEAP32[$117>>2] = $32;
+   $118 = ((($ReallocAsyncCtx2)) + 76|0);
+   HEAP32[$118>>2] = $34;
+   $119 = ((($ReallocAsyncCtx2)) + 80|0);
+   HEAP32[$119>>2] = $36;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx2>>2] = 59;
+  $100 = ((($ReallocAsyncCtx2)) + 4|0);
+  HEAP32[$100>>2] = $2;
+  $101 = ((($ReallocAsyncCtx2)) + 8|0);
+  HEAP32[$101>>2] = $4;
+  $102 = ((($ReallocAsyncCtx2)) + 12|0);
+  HEAP32[$102>>2] = $6;
+  $103 = ((($ReallocAsyncCtx2)) + 16|0);
+  HEAP32[$103>>2] = $8;
+  $104 = ((($ReallocAsyncCtx2)) + 20|0);
+  HEAP32[$104>>2] = $10;
+  $105 = ((($ReallocAsyncCtx2)) + 24|0);
+  HEAP32[$105>>2] = $12;
+  $106 = ((($ReallocAsyncCtx2)) + 28|0);
+  HEAP32[$106>>2] = $14;
+  $107 = ((($ReallocAsyncCtx2)) + 32|0);
+  HEAP32[$107>>2] = $16;
+  $108 = ((($ReallocAsyncCtx2)) + 36|0);
+  $$expand_i1_val14 = $18&1;
+  HEAP8[$108>>0] = $$expand_i1_val14;
+  $109 = ((($ReallocAsyncCtx2)) + 40|0);
+  HEAP32[$109>>2] = $38;
+  $110 = ((($ReallocAsyncCtx2)) + 44|0);
+  HEAP32[$110>>2] = $22;
+  $111 = ((($ReallocAsyncCtx2)) + 48|0);
+  HEAP32[$111>>2] = $24;
+  $112 = ((($ReallocAsyncCtx2)) + 52|0);
+  HEAP32[$112>>2] = $26;
+  $113 = ((($ReallocAsyncCtx2)) + 56|0);
+  HEAP32[$113>>2] = $$reg2mem$0;
+  $114 = ((($ReallocAsyncCtx2)) + 60|0);
+  HEAP32[$114>>2] = $28;
+  $115 = ((($ReallocAsyncCtx2)) + 64|0);
+  HEAP32[$115>>2] = $37;
+  $116 = ((($ReallocAsyncCtx2)) + 68|0);
+  HEAP32[$116>>2] = $30;
+  $117 = ((($ReallocAsyncCtx2)) + 72|0);
+  HEAP32[$117>>2] = $32;
+  $118 = ((($ReallocAsyncCtx2)) + 76|0);
+  HEAP32[$118>>2] = $34;
+  $119 = ((($ReallocAsyncCtx2)) + 80|0);
+  HEAP32[$119>>2] = $36;
+  sp = STACKTOP;
+  return;
+ }
+ else if ((label|0) == 24) {
+  $135 = (_equeue_tick()|0);
+  if ($18) {
+   $136 = (($22) - ($135))|0;
+   $137 = ($136|0)<(1);
+   if ($137) {
+    $138 = ((($2)) + 44|0);
+    $139 = HEAP32[$138>>2]|0;
+    $140 = ($139|0)==(0|0);
+    if ($140) {
+     return;
+    }
+    _equeue_mutex_lock($6);
+    $141 = HEAP32[$138>>2]|0;
+    $142 = ($141|0)==(0|0);
+    if (!($142)) {
+     $143 = HEAP32[$12>>2]|0;
+     $144 = ($143|0)==(0|0);
+     if (!($144)) {
+      $145 = ((($2)) + 48|0);
+      $146 = HEAP32[$145>>2]|0;
+      $147 = ((($143)) + 20|0);
+      $148 = HEAP32[$147>>2]|0;
+      $149 = (($148) - ($135))|0;
+      $150 = $149 >> 31;
+      $151 = $150 ^ -1;
+      $152 = $149 & $151;
+      $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
+      FUNCTION_TABLE_vii[$141 & 255]($146,$152);
+      $IsAsync8 = ___async;
+      if ($IsAsync8) {
+       HEAP32[$ReallocAsyncCtx3>>2] = 60;
+       $153 = ((($ReallocAsyncCtx3)) + 4|0);
+       HEAP32[$153>>2] = $4;
+       $154 = ((($ReallocAsyncCtx3)) + 8|0);
+       HEAP32[$154>>2] = $6;
+       sp = STACKTOP;
+       return;
+      }
+      ___async_unwind = 0;
+      HEAP32[$ReallocAsyncCtx3>>2] = 60;
+      $153 = ((($ReallocAsyncCtx3)) + 4|0);
+      HEAP32[$153>>2] = $4;
+      $154 = ((($ReallocAsyncCtx3)) + 8|0);
+      HEAP32[$154>>2] = $6;
+      sp = STACKTOP;
+      return;
+     }
+    }
+    HEAP8[$4>>0] = 1;
+    _equeue_mutex_unlock($6);
+    return;
+   } else {
+    $$064 = $136;
+   }
+  } else {
+   $$064 = -1;
+  }
+  _equeue_mutex_lock($6);
+  $155 = HEAP32[$12>>2]|0;
+  $156 = ($155|0)==(0|0);
+  if ($156) {
+   $$2 = $$064;
+  } else {
+   $157 = ((($155)) + 20|0);
+   $158 = HEAP32[$157>>2]|0;
+   $159 = (($158) - ($135))|0;
+   $160 = $159 >> 31;
+   $161 = $160 ^ -1;
+   $162 = $159 & $161;
+   $163 = ($162>>>0)<($$064>>>0);
+   $$$064 = $163 ? $162 : $$064;
+   $$2 = $$$064;
+  }
+  _equeue_mutex_unlock($6);
+  (_equeue_sema_wait($14,$$2)|0);
+  $164 = HEAP32[$16>>2]|0;
+  $165 = ($164|0)==(0);
+  do {
+   if (!($165)) {
+    _equeue_mutex_lock($6);
+    $166 = HEAP32[$16>>2]|0;
+    $167 = ($166|0)==(0);
+    if ($167) {
+     _equeue_mutex_unlock($6);
+     break;
+    }
+    $168 = (($166) + -1)|0;
+    HEAP32[$16>>2] = $168;
+    _equeue_mutex_unlock($6);
+    return;
+   }
+  } while(0);
+  $169 = (_equeue_tick()|0);
+  $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
+  _wait_ms(20);
+  $IsAsync16 = ___async;
+  if ($IsAsync16) {
+   HEAP32[$ReallocAsyncCtx5>>2] = 61;
+   $170 = ((($ReallocAsyncCtx5)) + 4|0);
+   HEAP32[$170>>2] = $2;
+   $171 = ((($ReallocAsyncCtx5)) + 8|0);
+   HEAP32[$171>>2] = $4;
+   $172 = ((($ReallocAsyncCtx5)) + 12|0);
+   HEAP32[$172>>2] = $6;
+   $173 = ((($ReallocAsyncCtx5)) + 16|0);
+   HEAP32[$173>>2] = $8;
+   $174 = ((($ReallocAsyncCtx5)) + 20|0);
+   HEAP32[$174>>2] = $10;
+   $175 = ((($ReallocAsyncCtx5)) + 24|0);
+   HEAP32[$175>>2] = $12;
+   $176 = ((($ReallocAsyncCtx5)) + 28|0);
+   HEAP32[$176>>2] = $14;
+   $177 = ((($ReallocAsyncCtx5)) + 32|0);
+   HEAP32[$177>>2] = $16;
+   $178 = ((($ReallocAsyncCtx5)) + 36|0);
+   $$expand_i1_val16 = $18&1;
+   HEAP8[$178>>0] = $$expand_i1_val16;
+   $179 = ((($ReallocAsyncCtx5)) + 40|0);
+   HEAP32[$179>>2] = $22;
+   $180 = ((($ReallocAsyncCtx5)) + 44|0);
+   HEAP32[$180>>2] = $24;
+   $181 = ((($ReallocAsyncCtx5)) + 48|0);
+   HEAP32[$181>>2] = $169;
+   $182 = ((($ReallocAsyncCtx5)) + 52|0);
+   HEAP32[$182>>2] = $26;
+   $183 = ((($ReallocAsyncCtx5)) + 56|0);
+   HEAP32[$183>>2] = $28;
+   $184 = ((($ReallocAsyncCtx5)) + 60|0);
+   HEAP32[$184>>2] = $30;
+   $185 = ((($ReallocAsyncCtx5)) + 64|0);
+   HEAP32[$185>>2] = $32;
+   $186 = ((($ReallocAsyncCtx5)) + 68|0);
+   HEAP32[$186>>2] = $34;
+   $187 = ((($ReallocAsyncCtx5)) + 72|0);
+   HEAP32[$187>>2] = $36;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx5>>2] = 61;
+  $170 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$170>>2] = $2;
+  $171 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$171>>2] = $4;
+  $172 = ((($ReallocAsyncCtx5)) + 12|0);
+  HEAP32[$172>>2] = $6;
+  $173 = ((($ReallocAsyncCtx5)) + 16|0);
+  HEAP32[$173>>2] = $8;
+  $174 = ((($ReallocAsyncCtx5)) + 20|0);
+  HEAP32[$174>>2] = $10;
+  $175 = ((($ReallocAsyncCtx5)) + 24|0);
+  HEAP32[$175>>2] = $12;
+  $176 = ((($ReallocAsyncCtx5)) + 28|0);
+  HEAP32[$176>>2] = $14;
+  $177 = ((($ReallocAsyncCtx5)) + 32|0);
+  HEAP32[$177>>2] = $16;
+  $178 = ((($ReallocAsyncCtx5)) + 36|0);
+  $$expand_i1_val16 = $18&1;
+  HEAP8[$178>>0] = $$expand_i1_val16;
+  $179 = ((($ReallocAsyncCtx5)) + 40|0);
+  HEAP32[$179>>2] = $22;
+  $180 = ((($ReallocAsyncCtx5)) + 44|0);
+  HEAP32[$180>>2] = $24;
+  $181 = ((($ReallocAsyncCtx5)) + 48|0);
+  HEAP32[$181>>2] = $169;
+  $182 = ((($ReallocAsyncCtx5)) + 52|0);
+  HEAP32[$182>>2] = $26;
+  $183 = ((($ReallocAsyncCtx5)) + 56|0);
+  HEAP32[$183>>2] = $28;
+  $184 = ((($ReallocAsyncCtx5)) + 60|0);
+  HEAP32[$184>>2] = $30;
+  $185 = ((($ReallocAsyncCtx5)) + 64|0);
+  HEAP32[$185>>2] = $32;
+  $186 = ((($ReallocAsyncCtx5)) + 68|0);
+  HEAP32[$186>>2] = $34;
+  $187 = ((($ReallocAsyncCtx5)) + 72|0);
+  HEAP32[$187>>2] = $36;
+  sp = STACKTOP;
+  return;
+ }
+}
+function _equeue_dispatch__async_cb_53($0) {
+ $0 = $0|0;
+ var $$$064 = 0, $$$i = 0, $$027$i$i = 0, $$028$i$i = 0, $$029$i$i = 0, $$03956$i = 0, $$03956$i$phi = 0, $$04055$i = 0, $$0405571$i = 0, $$04063$i = 0, $$04159$i = 0, $$04258$i = 0, $$057$i = 0, $$064 = 0, $$06690 = 0, $$2 = 0, $$cast$i = 0, $$expand_i1_val = 0, $$expand_i1_val11 = 0, $$expand_i1_val13 = 0;
+ var $$expand_i1_val9 = 0, $$idx$val = 0, $$pre_trunc = 0, $$sink$in$i$i = 0, $$sink21$i$i = 0, $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72 = 0, $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71 = 0, $1 = 0, $10 = 0, $100 = 0, $101 = 0, $102 = 0, $103 = 0, $104 = 0, $105 = 0, $106 = 0, $107 = 0, $108 = 0, $109 = 0, $11 = 0;
+ var $110 = 0, $111 = 0, $112 = 0, $113 = 0, $114 = 0, $115 = 0, $116 = 0, $117 = 0, $118 = 0, $119 = 0, $12 = 0, $120 = 0, $121 = 0, $122 = 0, $123 = 0, $124 = 0, $125 = 0, $126 = 0, $127 = 0, $128 = 0;
+ var $129 = 0, $13 = 0, $130 = 0, $131 = 0, $132 = 0, $133 = 0, $134 = 0, $135 = 0, $136 = 0, $137 = 0, $138 = 0, $139 = 0, $14 = 0, $140 = 0, $141 = 0, $142 = 0, $143 = 0, $144 = 0, $145 = 0, $146 = 0;
+ var $147 = 0, $148 = 0, $149 = 0, $15 = 0, $150 = 0, $151 = 0, $152 = 0, $153 = 0, $154 = 0, $155 = 0, $156 = 0, $157 = 0, $158 = 0, $159 = 0, $16 = 0, $160 = 0, $161 = 0, $162 = 0, $163 = 0, $164 = 0;
+ var $165 = 0, $166 = 0, $167 = 0, $168 = 0, $169 = 0, $17 = 0, $170 = 0, $171 = 0, $172 = 0, $173 = 0, $174 = 0, $175 = 0, $176 = 0, $177 = 0, $178 = 0, $179 = 0, $18 = 0, $180 = 0, $181 = 0, $182 = 0;
+ var $183 = 0, $184 = 0, $185 = 0, $186 = 0, $187 = 0, $188 = 0, $189 = 0, $19 = 0, $190 = 0, $191 = 0, $192 = 0, $193 = 0, $194 = 0, $195 = 0, $196 = 0, $197 = 0, $198 = 0, $199 = 0, $2 = 0, $20 = 0;
+ var $200 = 0, $201 = 0, $202 = 0, $203 = 0, $204 = 0, $205 = 0, $206 = 0, $207 = 0, $208 = 0, $209 = 0, $21 = 0, $210 = 0, $211 = 0, $212 = 0, $213 = 0, $214 = 0, $215 = 0, $216 = 0, $22 = 0, $23 = 0;
+ var $24 = 0, $25 = 0, $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $39 = 0, $4 = 0, $40 = 0, $41 = 0;
+ var $42 = 0, $43 = 0, $44 = 0, $45 = 0, $46 = 0, $47 = 0, $48 = 0, $49 = 0, $5 = 0, $50 = 0, $51 = 0, $52 = 0, $53 = 0, $54 = 0, $55 = 0, $56 = 0, $57 = 0, $58 = 0, $59 = 0, $6 = 0;
+ var $60 = 0, $61 = 0, $62 = 0, $63 = 0, $64 = 0, $65 = 0, $66 = 0, $67 = 0, $68 = 0, $69 = 0, $7 = 0, $70 = 0, $71 = 0, $72 = 0, $73 = 0, $74 = 0, $75 = 0, $76 = 0, $77 = 0, $78 = 0;
+ var $79 = 0, $8 = 0, $80 = 0, $81 = 0, $82 = 0, $83 = 0, $84 = 0, $85 = 0, $86 = 0, $87 = 0, $88 = 0, $89 = 0, $9 = 0, $90 = 0, $91 = 0, $92 = 0, $93 = 0, $94 = 0, $95 = 0, $96 = 0;
+ var $97 = 0, $98 = 0, $99 = 0, $IsAsync = 0, $IsAsync12 = 0, $IsAsync16 = 0, $IsAsync4 = 0, $IsAsync8 = 0, $ReallocAsyncCtx = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx3 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = ((($0)) + 28|0);
+ $14 = HEAP32[$13>>2]|0;
+ $15 = ((($0)) + 32|0);
+ $16 = HEAP32[$15>>2]|0;
+ $17 = ((($0)) + 36|0);
+ $$pre_trunc = HEAP8[$17>>0]|0;
+ $18 = $$pre_trunc&1;
+ $19 = ((($0)) + 40|0);
+ $20 = HEAP32[$19>>2]|0;
+ $21 = ((($0)) + 44|0);
+ $22 = HEAP32[$21>>2]|0;
+ $23 = ((($0)) + 48|0);
+ $24 = HEAP32[$23>>2]|0;
+ $25 = ((($0)) + 52|0);
+ $26 = HEAP32[$25>>2]|0;
+ $27 = ((($0)) + 56|0);
+ $28 = HEAP32[$27>>2]|0;
+ $29 = ((($0)) + 60|0);
+ $30 = HEAP32[$29>>2]|0;
+ $31 = ((($0)) + 64|0);
+ $32 = HEAP32[$31>>2]|0;
+ $33 = ((($0)) + 68|0);
+ $34 = HEAP32[$33>>2]|0;
+ $35 = ((($0)) + 72|0);
+ $36 = HEAP32[$35>>2]|0;
+ _equeue_mutex_lock($6);
+ $37 = HEAP8[$26>>0]|0;
+ $38 = $37&255;
+ $39 = (($38) + 1)|0;
+ $40 = $39&255;
+ HEAP8[$26>>0] = $40;
+ $41 = HEAP32[$22>>2]|0;
+ $42 = (($41) - ($24))|0;
+ $43 = ($42|0)<(1);
+ if ($43) {
+  HEAP32[$22>>2] = $24;
+ }
+ $44 = HEAP32[$34>>2]|0;
+ HEAP32[$36>>2] = $44;
+ $$cast$i = $44;
+ $45 = ($44|0)==(0);
+ L6: do {
+  if ($45) {
+   $$04055$i = $8;$54 = $$cast$i;
+   label = 8;
+  } else {
+   $$04063$i = $8;$47 = $$cast$i;
+   while(1) {
+    $46 = ((($47)) + 20|0);
+    $48 = HEAP32[$46>>2]|0;
+    $49 = (($48) - ($24))|0;
+    $50 = ($49|0)<(1);
+    if (!($50)) {
+     $$04055$i = $$04063$i;$54 = $47;
+     label = 8;
+     break L6;
+    }
+    $51 = ((($47)) + 8|0);
+    $52 = HEAP32[$51>>2]|0;
+    $53 = ($52|0)==(0|0);
+    if ($53) {
+     break;
+    } else {
+     $$04063$i = $51;$47 = $52;
+    }
+   }
+   HEAP32[$12>>2] = 0;
+   $$0405571$i = $51;
+  }
+ } while(0);
+ if ((label|0) == 8) {
+  HEAP32[$12>>2] = $54;
+  $55 = ($54|0)==(0|0);
+  if ($55) {
+   $$0405571$i = $$04055$i;
+  } else {
+   $56 = ((($54)) + 16|0);
+   HEAP32[$56>>2] = $12;
+   $$0405571$i = $$04055$i;
+  }
+ }
+ HEAP32[$$0405571$i>>2] = 0;
+ _equeue_mutex_unlock($6);
+ $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71 = HEAP32[$8>>2]|0;
+ $57 = ($$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71|0)==(0|0);
+ L15: do {
+  if ($57) {
+  } else {
+   $$04159$i = $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$52$i71;$$04258$i = $8;
+   while(1) {
+    $58 = ((($$04159$i)) + 8|0);
+    $59 = HEAP32[$58>>2]|0;
+    $$03956$i = 0;$$057$i = $$04159$i;
+    while(1) {
+     $61 = ((($$057$i)) + 8|0);
+     HEAP32[$61>>2] = $$03956$i;
+     $62 = ((($$057$i)) + 12|0);
+     $63 = HEAP32[$62>>2]|0;
+     $64 = ($63|0)==(0|0);
+     if ($64) {
+      break;
+     } else {
+      $$03956$i$phi = $$057$i;$$057$i = $63;$$03956$i = $$03956$i$phi;
+     }
+    }
+    HEAP32[$$04258$i>>2] = $$057$i;
+    $60 = ($59|0)==(0|0);
+    if ($60) {
+     break;
+    } else {
+     $$04159$i = $59;$$04258$i = $58;
+    }
+   }
+   $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72 = HEAP32[$8>>2]|0;
+   $65 = ($$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72|0)==(0|0);
+   if (!($65)) {
+    $$06690 = $$sroa$0$i$0$$sroa$0$0$$sroa$0$0$$0$4353$pre$i72;
+    while(1) {
+     $66 = ((($$06690)) + 8|0);
+     $67 = HEAP32[$66>>2]|0;
+     $68 = ((($$06690)) + 32|0);
+     $69 = HEAP32[$68>>2]|0;
+     $70 = ($69|0)==(0|0);
+     if (!($70)) {
+      label = 17;
+      break;
+     }
+     $92 = ((($$06690)) + 24|0);
+     $93 = HEAP32[$92>>2]|0;
+     $94 = ($93|0)>(-1);
+     if ($94) {
+      label = 21;
+      break;
+     }
+     $$idx$val = HEAP32[$32>>2]|0;
+     $117 = ((($$06690)) + 4|0);
+     $118 = HEAP8[$117>>0]|0;
+     $119 = $118&255;
+     $120 = (($119) + 1)|0;
+     $121 = $120&255;
+     $122 = $120 & 255;
+     $123 = $122 << $$idx$val;
+     $124 = ($123|0)==(0);
+     $$$i = $124 ? 1 : $121;
+     HEAP8[$117>>0] = $$$i;
+     $125 = ((($$06690)) + 28|0);
+     $126 = HEAP32[$125>>2]|0;
+     $127 = ($126|0)==(0|0);
+     if (!($127)) {
+      label = 25;
+      break;
+     }
+     _equeue_mutex_lock($30);
+     $149 = HEAP32[$28>>2]|0;
+     $150 = ($149|0)==(0|0);
+     L28: do {
+      if ($150) {
+       $$027$i$i = $28;
+       label = 34;
+      } else {
+       $151 = HEAP32[$$06690>>2]|0;
+       $$029$i$i = $28;$153 = $149;
+       while(1) {
+        $152 = HEAP32[$153>>2]|0;
+        $154 = ($152>>>0)<($151>>>0);
+        if (!($154)) {
+         break;
+        }
+        $155 = ((($153)) + 8|0);
+        $156 = HEAP32[$155>>2]|0;
+        $157 = ($156|0)==(0|0);
+        if ($157) {
+         $$027$i$i = $155;
+         label = 34;
+         break L28;
+        } else {
+         $$029$i$i = $155;$153 = $156;
+        }
+       }
+       $158 = ($152|0)==($151|0);
+       if ($158) {
+        $159 = ((($$06690)) + 12|0);
+        HEAP32[$159>>2] = $153;
+        $160 = HEAP32[$$029$i$i>>2]|0;
+        $161 = ((($160)) + 8|0);
+        $$028$i$i = $$029$i$i;$$sink$in$i$i = $161;
+       } else {
+        $$027$i$i = $$029$i$i;
+        label = 34;
+       }
+      }
+     } while(0);
+     if ((label|0) == 34) {
+      label = 0;
+      $162 = ((($$06690)) + 12|0);
+      HEAP32[$162>>2] = 0;
+      $$028$i$i = $$027$i$i;$$sink$in$i$i = $$027$i$i;
+     }
+     $$sink21$i$i = HEAP32[$$sink$in$i$i>>2]|0;
+     HEAP32[$66>>2] = $$sink21$i$i;
+     HEAP32[$$028$i$i>>2] = $$06690;
+     _equeue_mutex_unlock($30);
+     $163 = ($67|0)==(0|0);
+     if ($163) {
+      break L15;
+     } else {
+      $$06690 = $67;
+     }
+    }
+    if ((label|0) == 17) {
+     $71 = ((($$06690)) + 36|0);
+     $ReallocAsyncCtx = (_emscripten_realloc_async_context(84)|0);
+     FUNCTION_TABLE_vi[$69 & 255]($71);
+     $IsAsync = ___async;
+     if ($IsAsync) {
+      HEAP32[$ReallocAsyncCtx>>2] = 57;
+      $72 = ((($ReallocAsyncCtx)) + 4|0);
+      HEAP32[$72>>2] = $2;
+      $73 = ((($ReallocAsyncCtx)) + 8|0);
+      HEAP32[$73>>2] = $4;
+      $74 = ((($ReallocAsyncCtx)) + 12|0);
+      HEAP32[$74>>2] = $6;
+      $75 = ((($ReallocAsyncCtx)) + 16|0);
+      HEAP32[$75>>2] = $8;
+      $76 = ((($ReallocAsyncCtx)) + 20|0);
+      HEAP32[$76>>2] = $10;
+      $77 = ((($ReallocAsyncCtx)) + 24|0);
+      HEAP32[$77>>2] = $12;
+      $78 = ((($ReallocAsyncCtx)) + 28|0);
+      HEAP32[$78>>2] = $14;
+      $79 = ((($ReallocAsyncCtx)) + 32|0);
+      HEAP32[$79>>2] = $16;
+      $80 = ((($ReallocAsyncCtx)) + 36|0);
+      HEAP32[$80>>2] = $$06690;
+      $81 = ((($ReallocAsyncCtx)) + 40|0);
+      $$expand_i1_val = $18&1;
+      HEAP8[$81>>0] = $$expand_i1_val;
+      $82 = ((($ReallocAsyncCtx)) + 44|0);
+      HEAP32[$82>>2] = $67;
+      $83 = ((($ReallocAsyncCtx)) + 48|0);
+      HEAP32[$83>>2] = $20;
+      $84 = ((($ReallocAsyncCtx)) + 52|0);
+      HEAP32[$84>>2] = $22;
+      $85 = ((($ReallocAsyncCtx)) + 56|0);
+      HEAP32[$85>>2] = $26;
+      $86 = ((($ReallocAsyncCtx)) + 60|0);
+      HEAP32[$86>>2] = $28;
+      $87 = ((($ReallocAsyncCtx)) + 64|0);
+      HEAP32[$87>>2] = $66;
+      $88 = ((($ReallocAsyncCtx)) + 68|0);
+      HEAP32[$88>>2] = $30;
+      $89 = ((($ReallocAsyncCtx)) + 72|0);
+      HEAP32[$89>>2] = $32;
+      $90 = ((($ReallocAsyncCtx)) + 76|0);
+      HEAP32[$90>>2] = $34;
+      $91 = ((($ReallocAsyncCtx)) + 80|0);
+      HEAP32[$91>>2] = $36;
+      sp = STACKTOP;
+      return;
+     }
+     ___async_unwind = 0;
+     HEAP32[$ReallocAsyncCtx>>2] = 57;
+     $72 = ((($ReallocAsyncCtx)) + 4|0);
+     HEAP32[$72>>2] = $2;
+     $73 = ((($ReallocAsyncCtx)) + 8|0);
+     HEAP32[$73>>2] = $4;
+     $74 = ((($ReallocAsyncCtx)) + 12|0);
+     HEAP32[$74>>2] = $6;
+     $75 = ((($ReallocAsyncCtx)) + 16|0);
+     HEAP32[$75>>2] = $8;
+     $76 = ((($ReallocAsyncCtx)) + 20|0);
+     HEAP32[$76>>2] = $10;
+     $77 = ((($ReallocAsyncCtx)) + 24|0);
+     HEAP32[$77>>2] = $12;
+     $78 = ((($ReallocAsyncCtx)) + 28|0);
+     HEAP32[$78>>2] = $14;
+     $79 = ((($ReallocAsyncCtx)) + 32|0);
+     HEAP32[$79>>2] = $16;
+     $80 = ((($ReallocAsyncCtx)) + 36|0);
+     HEAP32[$80>>2] = $$06690;
+     $81 = ((($ReallocAsyncCtx)) + 40|0);
+     $$expand_i1_val = $18&1;
+     HEAP8[$81>>0] = $$expand_i1_val;
+     $82 = ((($ReallocAsyncCtx)) + 44|0);
+     HEAP32[$82>>2] = $67;
+     $83 = ((($ReallocAsyncCtx)) + 48|0);
+     HEAP32[$83>>2] = $20;
+     $84 = ((($ReallocAsyncCtx)) + 52|0);
+     HEAP32[$84>>2] = $22;
+     $85 = ((($ReallocAsyncCtx)) + 56|0);
+     HEAP32[$85>>2] = $26;
+     $86 = ((($ReallocAsyncCtx)) + 60|0);
+     HEAP32[$86>>2] = $28;
+     $87 = ((($ReallocAsyncCtx)) + 64|0);
+     HEAP32[$87>>2] = $66;
+     $88 = ((($ReallocAsyncCtx)) + 68|0);
+     HEAP32[$88>>2] = $30;
+     $89 = ((($ReallocAsyncCtx)) + 72|0);
+     HEAP32[$89>>2] = $32;
+     $90 = ((($ReallocAsyncCtx)) + 76|0);
+     HEAP32[$90>>2] = $34;
+     $91 = ((($ReallocAsyncCtx)) + 80|0);
+     HEAP32[$91>>2] = $36;
+     sp = STACKTOP;
+     return;
+    }
+    else if ((label|0) == 21) {
+     $95 = ((($$06690)) + 20|0);
+     $96 = HEAP32[$95>>2]|0;
+     $97 = (($96) + ($93))|0;
+     HEAP32[$95>>2] = $97;
+     $98 = (_equeue_tick()|0);
+     $ReallocAsyncCtx4 = (_emscripten_realloc_async_context(76)|0);
+     (_equeue_enqueue($2,$$06690,$98)|0);
+     $IsAsync12 = ___async;
+     if ($IsAsync12) {
+      HEAP32[$ReallocAsyncCtx4>>2] = 58;
+      $99 = ((($ReallocAsyncCtx4)) + 4|0);
+      HEAP32[$99>>2] = $2;
+      $100 = ((($ReallocAsyncCtx4)) + 8|0);
+      HEAP32[$100>>2] = $4;
+      $101 = ((($ReallocAsyncCtx4)) + 12|0);
+      HEAP32[$101>>2] = $6;
+      $102 = ((($ReallocAsyncCtx4)) + 16|0);
+      HEAP32[$102>>2] = $8;
+      $103 = ((($ReallocAsyncCtx4)) + 20|0);
+      HEAP32[$103>>2] = $10;
+      $104 = ((($ReallocAsyncCtx4)) + 24|0);
+      HEAP32[$104>>2] = $12;
+      $105 = ((($ReallocAsyncCtx4)) + 28|0);
+      HEAP32[$105>>2] = $14;
+      $106 = ((($ReallocAsyncCtx4)) + 32|0);
+      HEAP32[$106>>2] = $16;
+      $107 = ((($ReallocAsyncCtx4)) + 36|0);
+      $$expand_i1_val9 = $18&1;
+      HEAP8[$107>>0] = $$expand_i1_val9;
+      $108 = ((($ReallocAsyncCtx4)) + 40|0);
+      HEAP32[$108>>2] = $67;
+      $109 = ((($ReallocAsyncCtx4)) + 44|0);
+      HEAP32[$109>>2] = $20;
+      $110 = ((($ReallocAsyncCtx4)) + 48|0);
+      HEAP32[$110>>2] = $22;
+      $111 = ((($ReallocAsyncCtx4)) + 52|0);
+      HEAP32[$111>>2] = $26;
+      $112 = ((($ReallocAsyncCtx4)) + 56|0);
+      HEAP32[$112>>2] = $28;
+      $113 = ((($ReallocAsyncCtx4)) + 60|0);
+      HEAP32[$113>>2] = $30;
+      $114 = ((($ReallocAsyncCtx4)) + 64|0);
+      HEAP32[$114>>2] = $32;
+      $115 = ((($ReallocAsyncCtx4)) + 68|0);
+      HEAP32[$115>>2] = $34;
+      $116 = ((($ReallocAsyncCtx4)) + 72|0);
+      HEAP32[$116>>2] = $36;
+      sp = STACKTOP;
+      return;
+     }
+     ___async_unwind = 0;
+     HEAP32[$ReallocAsyncCtx4>>2] = 58;
+     $99 = ((($ReallocAsyncCtx4)) + 4|0);
+     HEAP32[$99>>2] = $2;
+     $100 = ((($ReallocAsyncCtx4)) + 8|0);
+     HEAP32[$100>>2] = $4;
+     $101 = ((($ReallocAsyncCtx4)) + 12|0);
+     HEAP32[$101>>2] = $6;
+     $102 = ((($ReallocAsyncCtx4)) + 16|0);
+     HEAP32[$102>>2] = $8;
+     $103 = ((($ReallocAsyncCtx4)) + 20|0);
+     HEAP32[$103>>2] = $10;
+     $104 = ((($ReallocAsyncCtx4)) + 24|0);
+     HEAP32[$104>>2] = $12;
+     $105 = ((($ReallocAsyncCtx4)) + 28|0);
+     HEAP32[$105>>2] = $14;
+     $106 = ((($ReallocAsyncCtx4)) + 32|0);
+     HEAP32[$106>>2] = $16;
+     $107 = ((($ReallocAsyncCtx4)) + 36|0);
+     $$expand_i1_val9 = $18&1;
+     HEAP8[$107>>0] = $$expand_i1_val9;
+     $108 = ((($ReallocAsyncCtx4)) + 40|0);
+     HEAP32[$108>>2] = $67;
+     $109 = ((($ReallocAsyncCtx4)) + 44|0);
+     HEAP32[$109>>2] = $20;
+     $110 = ((($ReallocAsyncCtx4)) + 48|0);
+     HEAP32[$110>>2] = $22;
+     $111 = ((($ReallocAsyncCtx4)) + 52|0);
+     HEAP32[$111>>2] = $26;
+     $112 = ((($ReallocAsyncCtx4)) + 56|0);
+     HEAP32[$112>>2] = $28;
+     $113 = ((($ReallocAsyncCtx4)) + 60|0);
+     HEAP32[$113>>2] = $30;
+     $114 = ((($ReallocAsyncCtx4)) + 64|0);
+     HEAP32[$114>>2] = $32;
+     $115 = ((($ReallocAsyncCtx4)) + 68|0);
+     HEAP32[$115>>2] = $34;
+     $116 = ((($ReallocAsyncCtx4)) + 72|0);
+     HEAP32[$116>>2] = $36;
+     sp = STACKTOP;
+     return;
+    }
+    else if ((label|0) == 25) {
+     $128 = ((($$06690)) + 36|0);
+     $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(84)|0);
+     FUNCTION_TABLE_vi[$126 & 255]($128);
+     $IsAsync4 = ___async;
+     if ($IsAsync4) {
+      HEAP32[$ReallocAsyncCtx2>>2] = 59;
+      $129 = ((($ReallocAsyncCtx2)) + 4|0);
+      HEAP32[$129>>2] = $2;
+      $130 = ((($ReallocAsyncCtx2)) + 8|0);
+      HEAP32[$130>>2] = $4;
+      $131 = ((($ReallocAsyncCtx2)) + 12|0);
+      HEAP32[$131>>2] = $6;
+      $132 = ((($ReallocAsyncCtx2)) + 16|0);
+      HEAP32[$132>>2] = $8;
+      $133 = ((($ReallocAsyncCtx2)) + 20|0);
+      HEAP32[$133>>2] = $10;
+      $134 = ((($ReallocAsyncCtx2)) + 24|0);
+      HEAP32[$134>>2] = $12;
+      $135 = ((($ReallocAsyncCtx2)) + 28|0);
+      HEAP32[$135>>2] = $14;
+      $136 = ((($ReallocAsyncCtx2)) + 32|0);
+      HEAP32[$136>>2] = $16;
+      $137 = ((($ReallocAsyncCtx2)) + 36|0);
+      $$expand_i1_val11 = $18&1;
+      HEAP8[$137>>0] = $$expand_i1_val11;
+      $138 = ((($ReallocAsyncCtx2)) + 40|0);
+      HEAP32[$138>>2] = $67;
+      $139 = ((($ReallocAsyncCtx2)) + 44|0);
+      HEAP32[$139>>2] = $20;
+      $140 = ((($ReallocAsyncCtx2)) + 48|0);
+      HEAP32[$140>>2] = $22;
+      $141 = ((($ReallocAsyncCtx2)) + 52|0);
+      HEAP32[$141>>2] = $26;
+      $142 = ((($ReallocAsyncCtx2)) + 56|0);
+      HEAP32[$142>>2] = $$06690;
+      $143 = ((($ReallocAsyncCtx2)) + 60|0);
+      HEAP32[$143>>2] = $28;
+      $144 = ((($ReallocAsyncCtx2)) + 64|0);
+      HEAP32[$144>>2] = $66;
+      $145 = ((($ReallocAsyncCtx2)) + 68|0);
+      HEAP32[$145>>2] = $30;
+      $146 = ((($ReallocAsyncCtx2)) + 72|0);
+      HEAP32[$146>>2] = $32;
+      $147 = ((($ReallocAsyncCtx2)) + 76|0);
+      HEAP32[$147>>2] = $34;
+      $148 = ((($ReallocAsyncCtx2)) + 80|0);
+      HEAP32[$148>>2] = $36;
+      sp = STACKTOP;
+      return;
+     }
+     ___async_unwind = 0;
+     HEAP32[$ReallocAsyncCtx2>>2] = 59;
+     $129 = ((($ReallocAsyncCtx2)) + 4|0);
+     HEAP32[$129>>2] = $2;
+     $130 = ((($ReallocAsyncCtx2)) + 8|0);
+     HEAP32[$130>>2] = $4;
+     $131 = ((($ReallocAsyncCtx2)) + 12|0);
+     HEAP32[$131>>2] = $6;
+     $132 = ((($ReallocAsyncCtx2)) + 16|0);
+     HEAP32[$132>>2] = $8;
+     $133 = ((($ReallocAsyncCtx2)) + 20|0);
+     HEAP32[$133>>2] = $10;
+     $134 = ((($ReallocAsyncCtx2)) + 24|0);
+     HEAP32[$134>>2] = $12;
+     $135 = ((($ReallocAsyncCtx2)) + 28|0);
+     HEAP32[$135>>2] = $14;
+     $136 = ((($ReallocAsyncCtx2)) + 32|0);
+     HEAP32[$136>>2] = $16;
+     $137 = ((($ReallocAsyncCtx2)) + 36|0);
+     $$expand_i1_val11 = $18&1;
+     HEAP8[$137>>0] = $$expand_i1_val11;
+     $138 = ((($ReallocAsyncCtx2)) + 40|0);
+     HEAP32[$138>>2] = $67;
+     $139 = ((($ReallocAsyncCtx2)) + 44|0);
+     HEAP32[$139>>2] = $20;
+     $140 = ((($ReallocAsyncCtx2)) + 48|0);
+     HEAP32[$140>>2] = $22;
+     $141 = ((($ReallocAsyncCtx2)) + 52|0);
+     HEAP32[$141>>2] = $26;
+     $142 = ((($ReallocAsyncCtx2)) + 56|0);
+     HEAP32[$142>>2] = $$06690;
+     $143 = ((($ReallocAsyncCtx2)) + 60|0);
+     HEAP32[$143>>2] = $28;
+     $144 = ((($ReallocAsyncCtx2)) + 64|0);
+     HEAP32[$144>>2] = $66;
+     $145 = ((($ReallocAsyncCtx2)) + 68|0);
+     HEAP32[$145>>2] = $30;
+     $146 = ((($ReallocAsyncCtx2)) + 72|0);
+     HEAP32[$146>>2] = $32;
+     $147 = ((($ReallocAsyncCtx2)) + 76|0);
+     HEAP32[$147>>2] = $34;
+     $148 = ((($ReallocAsyncCtx2)) + 80|0);
+     HEAP32[$148>>2] = $36;
+     sp = STACKTOP;
+     return;
+    }
+   }
+  }
+ } while(0);
+ $164 = (_equeue_tick()|0);
+ if ($18) {
+  $165 = (($20) - ($164))|0;
+  $166 = ($165|0)<(1);
+  if ($166) {
+   $167 = ((($2)) + 44|0);
+   $168 = HEAP32[$167>>2]|0;
+   $169 = ($168|0)==(0|0);
+   if ($169) {
+    return;
+   }
+   _equeue_mutex_lock($6);
+   $170 = HEAP32[$167>>2]|0;
+   $171 = ($170|0)==(0|0);
+   if (!($171)) {
+    $172 = HEAP32[$12>>2]|0;
+    $173 = ($172|0)==(0|0);
+    if (!($173)) {
+     $174 = ((($2)) + 48|0);
+     $175 = HEAP32[$174>>2]|0;
+     $176 = ((($172)) + 20|0);
+     $177 = HEAP32[$176>>2]|0;
+     $178 = (($177) - ($164))|0;
+     $179 = $178 >> 31;
+     $180 = $179 ^ -1;
+     $181 = $178 & $180;
+     $ReallocAsyncCtx3 = (_emscripten_realloc_async_context(12)|0);
+     FUNCTION_TABLE_vii[$170 & 255]($175,$181);
+     $IsAsync8 = ___async;
+     if ($IsAsync8) {
+      HEAP32[$ReallocAsyncCtx3>>2] = 60;
+      $182 = ((($ReallocAsyncCtx3)) + 4|0);
+      HEAP32[$182>>2] = $4;
+      $183 = ((($ReallocAsyncCtx3)) + 8|0);
+      HEAP32[$183>>2] = $6;
+      sp = STACKTOP;
+      return;
+     }
+     ___async_unwind = 0;
+     HEAP32[$ReallocAsyncCtx3>>2] = 60;
+     $182 = ((($ReallocAsyncCtx3)) + 4|0);
+     HEAP32[$182>>2] = $4;
+     $183 = ((($ReallocAsyncCtx3)) + 8|0);
+     HEAP32[$183>>2] = $6;
+     sp = STACKTOP;
+     return;
+    }
+   }
+   HEAP8[$4>>0] = 1;
+   _equeue_mutex_unlock($6);
+   return;
+  } else {
+   $$064 = $165;
+  }
+ } else {
+  $$064 = -1;
+ }
+ _equeue_mutex_lock($6);
+ $184 = HEAP32[$12>>2]|0;
+ $185 = ($184|0)==(0|0);
+ if ($185) {
+  $$2 = $$064;
+ } else {
+  $186 = ((($184)) + 20|0);
+  $187 = HEAP32[$186>>2]|0;
+  $188 = (($187) - ($164))|0;
+  $189 = $188 >> 31;
+  $190 = $189 ^ -1;
+  $191 = $188 & $190;
+  $192 = ($191>>>0)<($$064>>>0);
+  $$$064 = $192 ? $191 : $$064;
+  $$2 = $$$064;
+ }
+ _equeue_mutex_unlock($6);
+ (_equeue_sema_wait($14,$$2)|0);
+ $193 = HEAP32[$16>>2]|0;
+ $194 = ($193|0)==(0);
+ do {
+  if (!($194)) {
+   _equeue_mutex_lock($6);
+   $195 = HEAP32[$16>>2]|0;
+   $196 = ($195|0)==(0);
+   if ($196) {
+    _equeue_mutex_unlock($6);
+    break;
+   }
+   $197 = (($195) + -1)|0;
+   HEAP32[$16>>2] = $197;
+   _equeue_mutex_unlock($6);
+   return;
+  }
+ } while(0);
+ $198 = (_equeue_tick()|0);
+ $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(76)|0);
+ _wait_ms(20);
+ $IsAsync16 = ___async;
+ if ($IsAsync16) {
+  HEAP32[$ReallocAsyncCtx5>>2] = 61;
+  $199 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$199>>2] = $2;
+  $200 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$200>>2] = $4;
+  $201 = ((($ReallocAsyncCtx5)) + 12|0);
+  HEAP32[$201>>2] = $6;
+  $202 = ((($ReallocAsyncCtx5)) + 16|0);
+  HEAP32[$202>>2] = $8;
+  $203 = ((($ReallocAsyncCtx5)) + 20|0);
+  HEAP32[$203>>2] = $10;
+  $204 = ((($ReallocAsyncCtx5)) + 24|0);
+  HEAP32[$204>>2] = $12;
+  $205 = ((($ReallocAsyncCtx5)) + 28|0);
+  HEAP32[$205>>2] = $14;
+  $206 = ((($ReallocAsyncCtx5)) + 32|0);
+  HEAP32[$206>>2] = $16;
+  $207 = ((($ReallocAsyncCtx5)) + 36|0);
+  $$expand_i1_val13 = $18&1;
+  HEAP8[$207>>0] = $$expand_i1_val13;
+  $208 = ((($ReallocAsyncCtx5)) + 40|0);
+  HEAP32[$208>>2] = $20;
+  $209 = ((($ReallocAsyncCtx5)) + 44|0);
+  HEAP32[$209>>2] = $22;
+  $210 = ((($ReallocAsyncCtx5)) + 48|0);
+  HEAP32[$210>>2] = $198;
+  $211 = ((($ReallocAsyncCtx5)) + 52|0);
+  HEAP32[$211>>2] = $26;
+  $212 = ((($ReallocAsyncCtx5)) + 56|0);
+  HEAP32[$212>>2] = $28;
+  $213 = ((($ReallocAsyncCtx5)) + 60|0);
+  HEAP32[$213>>2] = $30;
+  $214 = ((($ReallocAsyncCtx5)) + 64|0);
+  HEAP32[$214>>2] = $32;
+  $215 = ((($ReallocAsyncCtx5)) + 68|0);
+  HEAP32[$215>>2] = $34;
+  $216 = ((($ReallocAsyncCtx5)) + 72|0);
+  HEAP32[$216>>2] = $36;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx5>>2] = 61;
+ $199 = ((($ReallocAsyncCtx5)) + 4|0);
+ HEAP32[$199>>2] = $2;
+ $200 = ((($ReallocAsyncCtx5)) + 8|0);
+ HEAP32[$200>>2] = $4;
+ $201 = ((($ReallocAsyncCtx5)) + 12|0);
+ HEAP32[$201>>2] = $6;
+ $202 = ((($ReallocAsyncCtx5)) + 16|0);
+ HEAP32[$202>>2] = $8;
+ $203 = ((($ReallocAsyncCtx5)) + 20|0);
+ HEAP32[$203>>2] = $10;
+ $204 = ((($ReallocAsyncCtx5)) + 24|0);
+ HEAP32[$204>>2] = $12;
+ $205 = ((($ReallocAsyncCtx5)) + 28|0);
+ HEAP32[$205>>2] = $14;
+ $206 = ((($ReallocAsyncCtx5)) + 32|0);
+ HEAP32[$206>>2] = $16;
+ $207 = ((($ReallocAsyncCtx5)) + 36|0);
+ $$expand_i1_val13 = $18&1;
+ HEAP8[$207>>0] = $$expand_i1_val13;
+ $208 = ((($ReallocAsyncCtx5)) + 40|0);
+ HEAP32[$208>>2] = $20;
+ $209 = ((($ReallocAsyncCtx5)) + 44|0);
+ HEAP32[$209>>2] = $22;
+ $210 = ((($ReallocAsyncCtx5)) + 48|0);
+ HEAP32[$210>>2] = $198;
+ $211 = ((($ReallocAsyncCtx5)) + 52|0);
+ HEAP32[$211>>2] = $26;
+ $212 = ((($ReallocAsyncCtx5)) + 56|0);
+ HEAP32[$212>>2] = $28;
+ $213 = ((($ReallocAsyncCtx5)) + 60|0);
+ HEAP32[$213>>2] = $30;
+ $214 = ((($ReallocAsyncCtx5)) + 64|0);
+ HEAP32[$214>>2] = $32;
+ $215 = ((($ReallocAsyncCtx5)) + 68|0);
+ HEAP32[$215>>2] = $34;
+ $216 = ((($ReallocAsyncCtx5)) + 72|0);
+ HEAP32[$216>>2] = $36;
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_56($0) {
+function _wait_ms__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK6events5EventIFvvEE4postEv__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $AsyncRetVal = HEAP32[$5>>2]|0;
+ $6 = HEAP32[$2>>2]|0; //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $7 = ((($6)) + 8|0); //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$7>>2] = $AsyncRetVal; //@line 140 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $8 = HEAP32[$2>>2]|0; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $9 = ((($8)) + 8|0); //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $10 = HEAP32[$9>>2]|0; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ HEAP32[$4>>2] = $10; //@line 141 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $11 = HEAP32[$4>>2]|0; //@line 142 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+ $12 = ___async_retval;
+ HEAP32[$12>>2] = $11;
+ return; //@line 142 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
+}
+function ___cxx_global_var_init__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return; //@line 8 "demos/events/main.cpp"
+}
+function __ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb($0) {
+ $0 = $0|0;
+ var $$0 = 0, $$0$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($2)) + 24|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ($8|0)==(1);
+ if ($9) {
+  $10 = ((($2)) + 16|0);
+  $11 = HEAP32[$10>>2]|0;
+  HEAP32[$4>>2] = $11;
+  $$0 = 1;
+ } else {
+  $$0 = 0;
+ }
+ $12 = ___async_retval;
+ $$0$expand_i1_val = $$0&1;
+ HEAP8[$12>>0] = $$0$expand_i1_val;
+ return;
+}
+function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_54($0) {
+ $0 = $0|0;
+ var $$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
+ var $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, dest = 0, label = 0, sp = 0, stop = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal = HEAP32[$7>>2]|0;
+ $8 = ($AsyncRetVal|0)==(0|0);
+ if ($8) {
+  $20 = ___async_retval;
+  $$expand_i1_val = 0;
+  HEAP8[$20>>0] = $$expand_i1_val;
+  return;
+ }
+ $9 = ((($2)) + 4|0);
+ dest=$9; stop=dest+52|0; do { HEAP32[dest>>2]=0|0; dest=dest+4|0; } while ((dest|0) < (stop|0));
+ HEAP32[$2>>2] = $AsyncRetVal;
+ $10 = ((($2)) + 8|0);
+ HEAP32[$10>>2] = $4;
+ $11 = ((($2)) + 12|0);
+ HEAP32[$11>>2] = -1;
+ $12 = ((($2)) + 48|0);
+ HEAP32[$12>>2] = 1;
+ $13 = HEAP32[$AsyncRetVal>>2]|0;
+ $14 = ((($13)) + 28|0);
+ $15 = HEAP32[$14>>2]|0;
+ $16 = HEAP32[$6>>2]|0;
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+ FUNCTION_TABLE_viiii[$15 & 31]($AsyncRetVal,$2,$16,1);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 143;
+ $17 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$17>>2] = $2;
+ $18 = ((($ReallocAsyncCtx)) + 8|0);
+ HEAP32[$18>>2] = $6;
+ $19 = ((($ReallocAsyncCtx)) + 12|0);
+ HEAP32[$19>>2] = $2;
+ sp = STACKTOP;
+ return;
+}
+function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
+ $0 = $0|0;
+ var $$037$off038 = 0, $$037$off039 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $not$ = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = ((($0)) + 24|0);
+ $12 = HEAP32[$11>>2]|0;
+ $13 = HEAP8[$2>>0]|0;
+ $14 = ($13<<24>>24)==(0);
+ if ($14) {
+  $$037$off038 = 4;
+  label = 4;
+ } else {
+  $15 = HEAP8[$10>>0]|0;
+  $not$ = ($15<<24>>24)==(0);
+  if ($not$) {
+   $$037$off038 = 3;
+   label = 4;
+  } else {
+   $$037$off039 = 3;
+  }
+ }
+ if ((label|0) == 4) {
+  HEAP32[$6>>2] = $4;
+  $16 = ((($8)) + 40|0);
+  $17 = HEAP32[$16>>2]|0;
+  $18 = (($17) + 1)|0;
+  HEAP32[$16>>2] = $18;
+  $19 = ((($8)) + 36|0);
+  $20 = HEAP32[$19>>2]|0;
+  $21 = ($20|0)==(1);
+  if ($21) {
+   $22 = ((($8)) + 24|0);
+   $23 = HEAP32[$22>>2]|0;
+   $24 = ($23|0)==(2);
+   if ($24) {
+    $25 = ((($8)) + 54|0);
+    HEAP8[$25>>0] = 1;
+    $$037$off039 = $$037$off038;
+   } else {
+    $$037$off039 = $$037$off038;
+   }
+  } else {
+   $$037$off039 = $$037$off038;
+  }
+ }
+ HEAP32[$12>>2] = $$037$off039;
+ return;
+}
+function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_55($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ return;
+}
+function _equeue_enqueue__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ _equeue_mutex_unlock($2);
+ $5 = ___async_retval;
+ HEAP32[$5>>2] = $4;
+ return;
+}
+function _fflush__async_cb($0) {
+ $0 = $0|0;
+ var $$023 = 0, $$02327$reg2mem$0 = 0, $$1 = 0, $$1$phi = 0, $$reg2mem$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0;
+ var $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ___async_retval;
+ $AsyncRetVal = HEAP32[$7>>2]|0;
+ $23 = $AsyncRetVal | $2;
+ $$02327$reg2mem$0 = $6;$$1 = $23;$$reg2mem$0 = $4;
+ while(1) {
+  $24 = ($$reg2mem$0|0)==(0);
+  if (!($24)) {
+   ___unlockfile($$02327$reg2mem$0);
+  }
+  $25 = ((($$02327$reg2mem$0)) + 56|0);
+  $$023 = HEAP32[$25>>2]|0;
+  $26 = ($$023|0)==(0|0);
+  if ($26) {
+   label = 12;
+   break;
+  }
+  $8 = ((($$023)) + 76|0);
+  $9 = HEAP32[$8>>2]|0;
+  $10 = ($9|0)>(-1);
+  if ($10) {
+   $11 = (___lockfile($$023)|0);
+   $20 = $11;
+  } else {
+   $20 = 0;
+  }
+  $12 = ((($$023)) + 20|0);
+  $13 = HEAP32[$12>>2]|0;
+  $14 = ((($$023)) + 28|0);
+  $15 = HEAP32[$14>>2]|0;
+  $16 = ($13>>>0)>($15>>>0);
+  if ($16) {
+   break;
+  } else {
+   $$1$phi = $$1;$$02327$reg2mem$0 = $$023;$$reg2mem$0 = $20;$$1 = $$1$phi;
+  }
+ }
+ if ((label|0) == 12) {
+  ___ofl_unlock();
+  $27 = ___async_retval;
+  HEAP32[$27>>2] = $$1;
+  return;
+ }
+ $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+ $17 = (___fflush_unlocked($$023)|0);
+ $IsAsync = ___async;
+ if (!($IsAsync)) {
+  $22 = ___async_retval;
+  HEAP32[$22>>2] = $17;
+  ___async_unwind = 0;
+ }
+ HEAP32[$ReallocAsyncCtx>>2] = 130;
+ $18 = ((($ReallocAsyncCtx)) + 4|0);
+ HEAP32[$18>>2] = $$1;
+ $19 = ((($ReallocAsyncCtx)) + 8|0);
+ HEAP32[$19>>2] = $20;
+ $21 = ((($ReallocAsyncCtx)) + 12|0);
+ HEAP32[$21>>2] = $$023;
+ sp = STACKTOP;
+ return;
+}
+function _fflush__async_cb_56($0) {
+ $0 = $0|0;
+ var $$pre_trunc = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $$pre_trunc = HEAP8[$1>>0]|0;
+ $2 = $$pre_trunc&1;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ___async_retval;
+ $AsyncRetVal = HEAP32[$5>>2]|0;
+ if (!($2)) {
+  ___unlockfile($4);
+ }
+ $6 = ___async_retval;
+ HEAP32[$6>>2] = $AsyncRetVal;
+ return;
+}
+function _fflush__async_cb_57($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = ___async_retval;
+ HEAP32[$2>>2] = $AsyncRetVal;
+ return;
+}
+function _fflush__async_cb_58($0) {
+ $0 = $0|0;
+ var $$023 = 0, $$02325 = 0, $$02327 = 0, $$024$lcssa = 0, $$02426 = 0, $$02426$phi = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0;
+ var $22 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $2 = (___ofl_lock()|0);
+ $$02325 = HEAP32[$2>>2]|0;
+ $3 = ($$02325|0)==(0|0);
+ L3: do {
+  if ($3) {
+   $$024$lcssa = $AsyncRetVal;
+  } else {
+   $$02327 = $$02325;$$02426 = $AsyncRetVal;
+   while(1) {
+    $4 = ((($$02327)) + 76|0);
+    $5 = HEAP32[$4>>2]|0;
+    $6 = ($5|0)>(-1);
+    if ($6) {
+     $7 = (___lockfile($$02327)|0);
+     $16 = $7;
+    } else {
+     $16 = 0;
+    }
+    $8 = ((($$02327)) + 20|0);
+    $9 = HEAP32[$8>>2]|0;
+    $10 = ((($$02327)) + 28|0);
+    $11 = HEAP32[$10>>2]|0;
+    $12 = ($9>>>0)>($11>>>0);
+    if ($12) {
+     break;
+    }
+    $19 = ($16|0)==(0);
+    if (!($19)) {
+     ___unlockfile($$02327);
+    }
+    $20 = ((($$02327)) + 56|0);
+    $$023 = HEAP32[$20>>2]|0;
+    $21 = ($$023|0)==(0|0);
+    if ($21) {
+     $$024$lcssa = $$02426;
+     break L3;
+    } else {
+     $$02426$phi = $$02426;$$02327 = $$023;$$02426 = $$02426$phi;
+    }
+   }
+   $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
+   $13 = (___fflush_unlocked($$02327)|0);
+   $IsAsync = ___async;
+   if (!($IsAsync)) {
+    $18 = ___async_retval;
+    HEAP32[$18>>2] = $13;
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx>>2] = 130;
+   $14 = ((($ReallocAsyncCtx)) + 4|0);
+   HEAP32[$14>>2] = $$02426;
+   $15 = ((($ReallocAsyncCtx)) + 8|0);
+   HEAP32[$15>>2] = $16;
+   $17 = ((($ReallocAsyncCtx)) + 12|0);
+   HEAP32[$17>>2] = $$02327;
+   sp = STACKTOP;
+   return;
+  }
+ } while(0);
+ ___ofl_unlock();
+ $22 = ___async_retval;
+ HEAP32[$22>>2] = $$024$lcssa;
+ return;
+}
+function __ZSt11__terminatePFvvE__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = __THREW__; __THREW__ = 0;
+ $10 = $9&1;
+ if (!($10)) {
+  __THREW__ = 0;
+  invoke_vii(153,(4238|0),($6|0));
+  $11 = __THREW__; __THREW__ = 0;
+ }
+ $12 = ___cxa_find_matching_catch_3(0|0)|0;
+ $13 = tempRet0;
+ (___cxa_begin_catch(($12|0))|0);
+ __THREW__ = 0;
+ invoke_vii(153,(4278|0),($2|0));
+ $14 = __THREW__; __THREW__ = 0;
+ $15 = ___cxa_find_matching_catch_3(0|0)|0;
+ $16 = tempRet0;
+ __THREW__ = 0;
+ invoke_v(154);
+ $17 = __THREW__; __THREW__ = 0;
+ $18 = $17&1;
+ if ($18) {
+  $19 = ___cxa_find_matching_catch_3(0|0)|0;
+  $20 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($19);
+  // unreachable;
+ } else {
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($15);
+  // unreachable;
+ }
+}
+function __ZSt11__terminatePFvvE__async_cb_59($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt11__terminatePFvvE__async_cb_60($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb($0) {
+ $0 = $0|0;
+ var $$pre = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync3 = 0, $ReallocAsyncCtx2 = 0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $$pre = HEAP32[$2>>2]|0;
+ $11 = ($$pre|0)==(0|0);
+ if ($11) {
+  HEAP32[$4>>2] = 0;
+  $17 = ((($10)) + 28|0);
+  _gpio_irq_set($17,2,1);
+  return;
+ } else {
+  $12 = ((($$pre)) + 4|0);
+  $13 = HEAP32[$12>>2]|0;
+  $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
+  FUNCTION_TABLE_vii[$13 & 255]($6,$8);
+  $IsAsync3 = ___async;
+  if (!($IsAsync3)) {
+   ___async_unwind = 0;
+  }
+  HEAP32[$ReallocAsyncCtx2>>2] = 44;
+  $14 = ((($ReallocAsyncCtx2)) + 4|0);
+  HEAP32[$14>>2] = $2;
+  $15 = ((($ReallocAsyncCtx2)) + 8|0);
+  HEAP32[$15>>2] = $4;
+  $16 = ((($ReallocAsyncCtx2)) + 12|0);
+  HEAP32[$16>>2] = $10;
+  sp = STACKTOP;
+  return;
+ }
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_61($0) {
+ $0 = $0|0;
+ var $$pre$i$i = 0, $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $$pre$i$i = HEAP32[$2>>2]|0;
+ HEAP32[$4>>2] = $$pre$i$i;
+ $7 = ((($6)) + 28|0);
+ _gpio_irq_set($7,2,1);
+ return;
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_62($0) {
+ $0 = $0|0;
+ var $$phi$trans$insert = 0, $$pre10 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
+ var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync10 = 0, $IsAsync18 = 0, $ReallocAsyncCtx4 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = __THREW__; __THREW__ = 0;
+ $12 = $11&1;
+ if ($12) {
+  $22 = ___cxa_find_matching_catch_2()|0;
+  $23 = tempRet0;
+  $24 = ((($6)) + 12|0);
+  $25 = HEAP32[$24>>2]|0;
+  $26 = ($25|0)==(0|0);
+  if ($26) {
+   ___resumeException($22|0);
+   // unreachable;
+  }
+  $27 = ((($25)) + 8|0);
+  $28 = HEAP32[$27>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx6 = (invoke_ii(169,16)|0);
+  FUNCTION_TABLE_vi[$28 & 255]($2);
+  $IsAsync18 = ___async;
+  if ($IsAsync18) {
+   HEAP32[$ReallocAsyncCtx6>>2] = 48;
+   $29 = ((($ReallocAsyncCtx6)) + 4|0);
+   HEAP32[$29>>2] = $2;
+   $30 = ((($ReallocAsyncCtx6)) + 8|0);
+   HEAP32[$30>>2] = $22;
+   $31 = ((($ReallocAsyncCtx6)) + 12|0);
+   HEAP32[$31>>2] = $23;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx6>>2] = 48;
+  $29 = ((($ReallocAsyncCtx6)) + 4|0);
+  HEAP32[$29>>2] = $2;
+  $30 = ((($ReallocAsyncCtx6)) + 8|0);
+  HEAP32[$30>>2] = $22;
+  $31 = ((($ReallocAsyncCtx6)) + 12|0);
+  HEAP32[$31>>2] = $23;
+  sp = STACKTOP;
+  return;
+ }
+ $$phi$trans$insert = ((($6)) + 12|0);
+ $$pre10 = HEAP32[$$phi$trans$insert>>2]|0;
+ $13 = ($$pre10|0)==(0|0);
+ if ($13) {
+  HEAP32[$8>>2] = 0;
+  $21 = ((($4)) + 28|0);
+  _gpio_irq_set($21,2,0);
+  return;
+ } else {
+  $14 = ((($$pre10)) + 4|0);
+  $15 = HEAP32[$14>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx4 = (invoke_ii(169,24)|0);
+  FUNCTION_TABLE_vii[$15 & 255]($10,$2);
+  $IsAsync10 = ___async;
+  if (!($IsAsync10)) {
+   ___async_unwind = 0;
+  }
+  HEAP32[$ReallocAsyncCtx4>>2] = 46;
+  $16 = ((($ReallocAsyncCtx4)) + 4|0);
+  HEAP32[$16>>2] = $6;
+  $17 = ((($ReallocAsyncCtx4)) + 8|0);
+  HEAP32[$17>>2] = $$phi$trans$insert;
+  $18 = ((($ReallocAsyncCtx4)) + 12|0);
+  HEAP32[$18>>2] = $8;
+  $19 = ((($ReallocAsyncCtx4)) + 16|0);
+  HEAP32[$19>>2] = $2;
+  $20 = ((($ReallocAsyncCtx4)) + 20|0);
+  HEAP32[$20>>2] = $4;
+  sp = STACKTOP;
+  return;
+ }
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_63($0) {
+ $0 = $0|0;
+ var $$pre$i$i4 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0;
+ var $27 = 0, $28 = 0, $29 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync14 = 0, $IsAsync18 = 0, $ReallocAsyncCtx5 = 0, $ReallocAsyncCtx6 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($0)) + 16|0);
+ $8 = HEAP32[$7>>2]|0;
+ $9 = ((($0)) + 20|0);
+ $10 = HEAP32[$9>>2]|0;
+ $11 = __THREW__; __THREW__ = 0;
+ $12 = $11&1;
+ if ($12) {
+  $20 = ___cxa_find_matching_catch_2()|0;
+  $21 = tempRet0;
+  $22 = ((($2)) + 12|0);
+  $23 = HEAP32[$22>>2]|0;
+  $24 = ($23|0)==(0|0);
+  if ($24) {
+   ___resumeException($20|0);
+   // unreachable;
+  }
+  $25 = ((($23)) + 8|0);
+  $26 = HEAP32[$25>>2]|0;
+  __THREW__ = 0;
+  $ReallocAsyncCtx6 = (invoke_ii(169,16)|0);
+  FUNCTION_TABLE_vi[$26 & 255]($8);
+  $IsAsync18 = ___async;
+  if ($IsAsync18) {
+   HEAP32[$ReallocAsyncCtx6>>2] = 48;
+   $27 = ((($ReallocAsyncCtx6)) + 4|0);
+   HEAP32[$27>>2] = $8;
+   $28 = ((($ReallocAsyncCtx6)) + 8|0);
+   HEAP32[$28>>2] = $20;
+   $29 = ((($ReallocAsyncCtx6)) + 12|0);
+   HEAP32[$29>>2] = $21;
+   sp = STACKTOP;
+   return;
+  }
+  ___async_unwind = 0;
+  HEAP32[$ReallocAsyncCtx6>>2] = 48;
+  $27 = ((($ReallocAsyncCtx6)) + 4|0);
+  HEAP32[$27>>2] = $8;
+  $28 = ((($ReallocAsyncCtx6)) + 8|0);
+  HEAP32[$28>>2] = $20;
+  $29 = ((($ReallocAsyncCtx6)) + 12|0);
+  HEAP32[$29>>2] = $21;
+  sp = STACKTOP;
+  return;
+ }
+ $$pre$i$i4 = HEAP32[$4>>2]|0;
+ HEAP32[$6>>2] = $$pre$i$i4;
+ $13 = ($$pre$i$i4|0)==(0);
+ if ($13) {
+  $19 = ((($10)) + 28|0);
+  _gpio_irq_set($19,2,0);
+  return;
+ }
+ $14 = $$pre$i$i4;
+ $15 = ((($14)) + 8|0);
+ $16 = HEAP32[$15>>2]|0;
+ $ReallocAsyncCtx5 = (_emscripten_realloc_async_context(12)|0);
+ FUNCTION_TABLE_vi[$16 & 255]($8);
+ $IsAsync14 = ___async;
+ if ($IsAsync14) {
+  HEAP32[$ReallocAsyncCtx5>>2] = 47;
+  $17 = ((($ReallocAsyncCtx5)) + 4|0);
+  HEAP32[$17>>2] = $8;
+  $18 = ((($ReallocAsyncCtx5)) + 8|0);
+  HEAP32[$18>>2] = $10;
+  sp = STACKTOP;
+  return;
+ }
+ ___async_unwind = 0;
+ HEAP32[$ReallocAsyncCtx5>>2] = 47;
+ $17 = ((($ReallocAsyncCtx5)) + 4|0);
+ HEAP32[$17>>2] = $8;
+ $18 = ((($ReallocAsyncCtx5)) + 8|0);
+ HEAP32[$18>>2] = $10;
+ sp = STACKTOP;
+ return;
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_64($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($4)) + 28|0);
+ _gpio_irq_set($5,2,0);
+ return;
+}
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_65($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
@@ -20716,16 +21135,110 @@ function __ZN4mbed11InterruptInD0Ev__async_cb_56($0) {
   ___clang_call_terminate($9);
   // unreachable;
  } else {
-  __ZdlPv($6);
-  ___resumeException($2|0);
+  ___resumeException($4|0);
   // unreachable;
  }
 }
-function __ZN4mbed11InterruptInD0Ev__async_cb_57($0) {
+function __ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_66($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  // unreachable;
+}
+function __ZSt9terminatev__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt9terminatev__async_cb_67($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function __ZSt9terminatev__async_cb_68($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function ___cxa_is_pointer_type__async_cb($0) {
+ $0 = $0|0;
+ var $1 = 0, $2 = 0, $3 = 0, $AsyncRetVal = 0, $phitmp = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ___async_retval;
+ $AsyncRetVal = HEAP32[$1>>2]|0;
+ $phitmp = ($AsyncRetVal|0)!=(0|0);
+ $2 = $phitmp&1;
+ $3 = ___async_retval;
+ HEAP32[$3>>2] = $2;
+ return;
+}
+function _equeue_dealloc__async_cb($0) {
+ $0 = $0|0;
+ var $$027$i = 0, $$028$i = 0, $$029$i = 0, $$sink$in$i = 0, $$sink21$i = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0;
+ var $23 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = ((($2)) + 160|0);
+ _equeue_mutex_lock($7);
+ $8 = ((($2)) + 28|0);
+ $9 = HEAP32[$8>>2]|0;
+ $10 = ($9|0)==(0|0);
+ L3: do {
+  if ($10) {
+   $$027$i = $8;
+   label = 9;
+  } else {
+   $11 = HEAP32[$6>>2]|0;
+   $$029$i = $8;$13 = $9;
+   while(1) {
+    $12 = HEAP32[$13>>2]|0;
+    $14 = ($12>>>0)<($11>>>0);
+    if (!($14)) {
+     break;
+    }
+    $15 = ((($13)) + 8|0);
+    $16 = HEAP32[$15>>2]|0;
+    $17 = ($16|0)==(0|0);
+    if ($17) {
+     $$027$i = $15;
+     label = 9;
+     break L3;
+    } else {
+     $$029$i = $15;$13 = $16;
+    }
+   }
+   $18 = ($12|0)==($11|0);
+   if ($18) {
+    $19 = ((($4)) + -24|0);
+    HEAP32[$19>>2] = $13;
+    $20 = HEAP32[$$029$i>>2]|0;
+    $21 = ((($20)) + 8|0);
+    $$028$i = $$029$i;$$sink$in$i = $21;
+   } else {
+    $$027$i = $$029$i;
+    label = 9;
+   }
+  }
+ } while(0);
+ if ((label|0) == 9) {
+  $22 = ((($4)) + -24|0);
+  HEAP32[$22>>2] = 0;
+  $$028$i = $$027$i;$$sink$in$i = $$027$i;
+ }
+ $$sink21$i = HEAP32[$$sink$in$i>>2]|0;
+ $23 = ((($4)) + -28|0);
+ HEAP32[$23>>2] = $$sink21$i;
+ HEAP32[$$028$i>>2] = $6;
+ _equeue_mutex_unlock($7);
+ return;
 }
 function __ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb($0) {
  $0 = $0|0;
@@ -20741,7 +21254,7 @@ function __ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb($0) {
  HEAP32[$5>>2] = $4;
  return; //@line 213 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/Event.h"
 }
-function __ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb_58($0) {
+function __ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb_69($0) {
  $0 = $0|0;
  var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $26 = 0, $27 = 0;
  var $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, label = 0, sp = 0;
@@ -20804,589 +21317,110 @@ function __ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb_58($0
  sp = STACKTOP;
  return;
 }
-function __ZN4mbed11InterruptInC2E7PinName__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0;
- var $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = __THREW__; __THREW__ = 0;
- $10 = $9&1;
- if ($10) {
-  $18 = ___cxa_find_matching_catch_3(0|0)|0;
-  $19 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($18);
-  // unreachable;
- }
- $11 = ((($2)) + 52|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ($12|0)==(0|0);
- if ($13) {
-  ___resumeException($4|0);
-  // unreachable;
- }
- $14 = ((($12)) + 8|0);
- $15 = HEAP32[$14>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx2 = (invoke_ii(169,12)|0);
- FUNCTION_TABLE_vi[$15 & 255]($8);
- $IsAsync4 = ___async;
- if (!($IsAsync4)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx2>>2] = 40;
- $16 = ((($ReallocAsyncCtx2)) + 4|0);
- HEAP32[$16>>2] = $4;
- $17 = ((($ReallocAsyncCtx2)) + 8|0);
- HEAP32[$17>>2] = $6;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInC2E7PinName__async_cb_59($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $7 = ___cxa_find_matching_catch_3(0|0)|0;
-  $8 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($7);
-  // unreachable;
- } else {
-  ___resumeException($2|0);
-  // unreachable;
- }
-}
-function __ZN4mbed11InterruptInC2E7PinName__async_cb_60($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZL25default_terminate_handlerv__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var $AsyncRetVal = 0, $AsyncRetVal$pre_trunc = 0, $IsAsync15 = 0, $ReallocAsyncCtx2 = 0, $vararg_ptr6 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 20|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 24|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ___async_retval;
- $AsyncRetVal$pre_trunc = HEAP8[$11>>0]|0;
- $AsyncRetVal = $AsyncRetVal$pre_trunc&1;
- if (!($AsyncRetVal)) {
-  HEAP32[$4>>2] = 3947;
-  $vararg_ptr6 = ((($4)) + 4|0);
-  HEAP32[$vararg_ptr6>>2] = $6;
-  _abort_message(3856,$4);
-  // unreachable;
- }
- $12 = HEAP32[$2>>2]|0;
- $13 = HEAP32[$12>>2]|0;
- $14 = ((($13)) + 8|0);
- $15 = HEAP32[$14>>2]|0;
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(16)|0);
- $16 = (FUNCTION_TABLE_ii[$15 & 255]($12)|0);
- $IsAsync15 = ___async;
- if (!($IsAsync15)) {
-  $20 = ___async_retval;
-  HEAP32[$20>>2] = $16;
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx2>>2] = 138;
- $17 = ((($ReallocAsyncCtx2)) + 4|0);
- HEAP32[$17>>2] = $8;
- $18 = ((($ReallocAsyncCtx2)) + 8|0);
- HEAP32[$18>>2] = $6;
- $19 = ((($ReallocAsyncCtx2)) + 12|0);
- HEAP32[$19>>2] = $10;
- sp = STACKTOP;
- return;
-}
-function __ZL25default_terminate_handlerv__async_cb_61($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $AsyncRetVal = 0, $vararg_ptr1 = 0, $vararg_ptr2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ___async_retval;
- $AsyncRetVal = HEAP32[$5>>2]|0;
- HEAP32[$2>>2] = 3947;
- $vararg_ptr1 = ((($2)) + 4|0);
- HEAP32[$vararg_ptr1>>2] = $4;
- $vararg_ptr2 = ((($2)) + 8|0);
- HEAP32[$vararg_ptr2>>2] = $AsyncRetVal;
- _abort_message(3811,$2);
- // unreachable;
-}
-function __ZN4mbed8CallbackIFvvEE13function_callIN6events5EventIS1_EEEEvPKv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 603 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/platform/Callback.h"
-}
-function __ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function _fputc__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ___async_retval;
- $AsyncRetVal = HEAP32[$3>>2]|0;
- ___unlockfile($2);
- $4 = ___async_retval;
- HEAP32[$4>>2] = $AsyncRetVal;
- return;
-}
-function _fputc__async_cb_62($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $AsyncRetVal = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $2 = ___async_retval;
- HEAP32[$2>>2] = $AsyncRetVal;
- return;
-}
-function __GLOBAL__sub_I_main_cpp__async_cb($0) {
- $0 = $0|0;
- var $IsAsync3 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- ___cxx_global_var_init_1();
- ___cxx_global_var_init_2();
- $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(4)|0);
- ___cxx_global_var_init_3();
- $IsAsync3 = ___async;
- if (!($IsAsync3)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx2>>2] = 84;
- sp = STACKTOP;
- return;
-}
-function __GLOBAL__sub_I_main_cpp__async_cb_63($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var $IsAsync12 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, $ReallocAsyncCtx4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = __THREW__; __THREW__ = 0;
- $4 = $3&1;
- if (!($4)) {
-  $5 = ((($2)) + 52|0);
-  $6 = HEAP32[$5>>2]|0;
-  $7 = ($6|0)==(0|0);
-  if ($7) {
-   return;
-  }
-  $8 = ((($2)) + 40|0);
-  $9 = ((($6)) + 8|0);
-  $10 = HEAP32[$9>>2]|0;
-  __THREW__ = 0;
-  $ReallocAsyncCtx2 = (invoke_ii(169,4)|0);
-  FUNCTION_TABLE_vi[$10 & 255]($8);
-  $IsAsync4 = ___async;
-  if ($IsAsync4) {
-   HEAP32[$ReallocAsyncCtx2>>2] = 29;
-   sp = STACKTOP;
-   return;
-  }
-  ___async_unwind = 0;
-  HEAP32[$ReallocAsyncCtx2>>2] = 29;
-  sp = STACKTOP;
-  return;
- }
- $11 = ___cxa_find_matching_catch_2()|0;
- $12 = tempRet0;
- $13 = ((($2)) + 52|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ($14|0)==(0|0);
- if ($15) {
-  ___resumeException($11|0);
-  // unreachable;
- }
- $16 = ((($2)) + 40|0);
- $17 = ((($14)) + 8|0);
- $18 = HEAP32[$17>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(169,12)|0);
- FUNCTION_TABLE_vi[$18 & 255]($16);
- $IsAsync12 = ___async;
- if ($IsAsync12) {
-  HEAP32[$ReallocAsyncCtx4>>2] = 31;
-  $19 = ((($ReallocAsyncCtx4)) + 4|0);
-  HEAP32[$19>>2] = $11;
-  $20 = ((($ReallocAsyncCtx4)) + 8|0);
-  HEAP32[$20>>2] = $12;
-  sp = STACKTOP;
-  return;
- }
- ___async_unwind = 0;
- HEAP32[$ReallocAsyncCtx4>>2] = 31;
- $19 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$19>>2] = $11;
- $20 = ((($ReallocAsyncCtx4)) + 8|0);
- HEAP32[$20>>2] = $12;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_64($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = __THREW__; __THREW__ = 0;
- $2 = $1&1;
- if (!($2)) {
-  return;
- }
- $3 = ___cxa_find_matching_catch_2()|0;
- $4 = tempRet0;
- ___resumeException($3|0);
- // unreachable;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_65($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync12 = 0, $ReallocAsyncCtx4 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = __THREW__; __THREW__ = 0;
- $8 = $7&1;
- if ($8) {
-  $17 = ___cxa_find_matching_catch_3(0|0)|0;
-  $18 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($17);
-  // unreachable;
- }
- $9 = ((($6)) + 52|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ($10|0)==(0|0);
- if ($11) {
-  ___resumeException($2|0);
-  // unreachable;
- }
- $12 = ((($6)) + 40|0);
- $13 = ((($10)) + 8|0);
- $14 = HEAP32[$13>>2]|0;
- __THREW__ = 0;
- $ReallocAsyncCtx4 = (invoke_ii(169,12)|0);
- FUNCTION_TABLE_vi[$14 & 255]($12);
- $IsAsync12 = ___async;
- if (!($IsAsync12)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx4>>2] = 31;
- $15 = ((($ReallocAsyncCtx4)) + 4|0);
- HEAP32[$15>>2] = $2;
- $16 = ((($ReallocAsyncCtx4)) + 8|0);
- HEAP32[$16>>2] = $4;
- sp = STACKTOP;
- return;
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_66($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = __THREW__; __THREW__ = 0;
- $6 = $5&1;
- if ($6) {
-  $7 = ___cxa_find_matching_catch_3(0|0)|0;
-  $8 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($7);
-  // unreachable;
- } else {
-  ___resumeException($2|0);
-  // unreachable;
- }
-}
-function __ZN4mbed11InterruptInD2Ev__async_cb_67($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 2290 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
-}
-function _wait_ms__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return;
-}
-function __ZN6events10EventQueue9context00IPFvvEEclEv__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 2307 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
-}
-function __ZSt11__terminatePFvvE__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = __THREW__; __THREW__ = 0;
- $10 = $9&1;
- if (!($10)) {
-  __THREW__ = 0;
-  invoke_vii(153,(4238|0),($6|0));
-  $11 = __THREW__; __THREW__ = 0;
- }
- $12 = ___cxa_find_matching_catch_3(0|0)|0;
- $13 = tempRet0;
- (___cxa_begin_catch(($12|0))|0);
- __THREW__ = 0;
- invoke_vii(153,(4278|0),($2|0));
- $14 = __THREW__; __THREW__ = 0;
- $15 = ___cxa_find_matching_catch_3(0|0)|0;
- $16 = tempRet0;
- __THREW__ = 0;
- invoke_v(154);
- $17 = __THREW__; __THREW__ = 0;
- $18 = $17&1;
- if ($18) {
-  $19 = ___cxa_find_matching_catch_3(0|0)|0;
-  $20 = tempRet0;
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($19);
-  // unreachable;
- } else {
-  (_emscripten_realloc_async_context(4)|0);
-  ___clang_call_terminate($15);
-  // unreachable;
- }
-}
-function __ZSt11__terminatePFvvE__async_cb_68($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function __ZSt11__terminatePFvvE__async_cb_69($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- // unreachable;
-}
-function ___cxx_global_var_init__async_cb($0) {
- $0 = $0|0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- return; //@line 8 "demos/events/main.cpp"
-}
-function _vfprintf__async_cb($0) {
- $0 = $0|0;
- var $$ = 0, $$1$ = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $26 = 0, $27 = 0, $28 = 0, $29 = 0, $3 = 0, $30 = 0, $31 = 0, $32 = 0, $33 = 0, $34 = 0, $35 = 0, $36 = 0, $37 = 0, $38 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0;
- var label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($0)) + 16|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ((($0)) + 20|0);
- $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = ((($0)) + 28|0);
- $14 = HEAP32[$13>>2]|0;
- $15 = ((($0)) + 32|0);
- $16 = HEAP32[$15>>2]|0;
- $17 = ((($0)) + 36|0);
- $18 = HEAP32[$17>>2]|0;
- $19 = ((($0)) + 40|0);
- $20 = HEAP32[$19>>2]|0;
- $21 = ((($0)) + 44|0);
- $22 = HEAP32[$21>>2]|0;
- $23 = ((($0)) + 48|0);
- $24 = HEAP32[$23>>2]|0;
- $25 = ((($0)) + 52|0);
- $26 = HEAP32[$25>>2]|0;
- $27 = ((($0)) + 56|0);
- $28 = HEAP32[$27>>2]|0;
- $29 = ((($0)) + 60|0);
- $30 = HEAP32[$29>>2]|0;
- $31 = HEAP32[$2>>2]|0;
- $32 = ($31|0)==(0|0);
- $$ = $32 ? -1 : $4;
- HEAP32[$8>>2] = $6;
- HEAP32[$10>>2] = 0;
- HEAP32[$12>>2] = 0;
- HEAP32[$14>>2] = 0;
- HEAP32[$2>>2] = 0;
- $33 = HEAP32[$16>>2]|0;
- $34 = $33 & 32;
- $35 = ($34|0)==(0);
- $$1$ = $35 ? $$ : -1;
- $36 = $33 | $18;
- HEAP32[$16>>2] = $36;
- $37 = ($20|0)==(0);
- if (!($37)) {
-  ___unlockfile($22);
- }
- $38 = ___async_retval;
- HEAP32[$38>>2] = $$1$;
- return;
-}
-function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb($0) {
- $0 = $0|0;
- var $$0 = 0, $$0$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ((($2)) + 24|0);
- $8 = HEAP32[$7>>2]|0;
- $9 = ($8|0)==(1);
- if ($9) {
-  $10 = ((($2)) + 16|0);
-  $11 = HEAP32[$10>>2]|0;
-  HEAP32[$4>>2] = $11;
-  $$0 = 1;
- } else {
-  $$0 = 0;
- }
- $12 = ___async_retval;
- $$0$expand_i1_val = $$0&1;
- HEAP8[$12>>0] = $$0$expand_i1_val;
- return;
-}
-function __ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_70($0) {
- $0 = $0|0;
- var $$expand_i1_val = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0;
- var $9 = 0, $AsyncRetVal = 0, $IsAsync = 0, $ReallocAsyncCtx = 0, dest = 0, label = 0, sp = 0, stop = 0;
- sp = STACKTOP;
- $1 = ((($0)) + 4|0);
- $2 = HEAP32[$1>>2]|0;
- $3 = ((($0)) + 8|0);
- $4 = HEAP32[$3>>2]|0;
- $5 = ((($0)) + 12|0);
- $6 = HEAP32[$5>>2]|0;
- $7 = ___async_retval;
- $AsyncRetVal = HEAP32[$7>>2]|0;
- $8 = ($AsyncRetVal|0)==(0|0);
- if ($8) {
-  $20 = ___async_retval;
-  $$expand_i1_val = 0;
-  HEAP8[$20>>0] = $$expand_i1_val;
-  return;
- }
- $9 = ((($2)) + 4|0);
- dest=$9; stop=dest+52|0; do { HEAP32[dest>>2]=0|0; dest=dest+4|0; } while ((dest|0) < (stop|0));
- HEAP32[$2>>2] = $AsyncRetVal;
- $10 = ((($2)) + 8|0);
- HEAP32[$10>>2] = $4;
- $11 = ((($2)) + 12|0);
- HEAP32[$11>>2] = -1;
- $12 = ((($2)) + 48|0);
- HEAP32[$12>>2] = 1;
- $13 = HEAP32[$AsyncRetVal>>2]|0;
- $14 = ((($13)) + 28|0);
- $15 = HEAP32[$14>>2]|0;
- $16 = HEAP32[$6>>2]|0;
- $ReallocAsyncCtx = (_emscripten_realloc_async_context(16)|0);
- FUNCTION_TABLE_viiii[$15 & 31]($AsyncRetVal,$2,$16,1);
- $IsAsync = ___async;
- if (!($IsAsync)) {
-  ___async_unwind = 0;
- }
- HEAP32[$ReallocAsyncCtx>>2] = 143;
- $17 = ((($ReallocAsyncCtx)) + 4|0);
- HEAP32[$17>>2] = $2;
- $18 = ((($ReallocAsyncCtx)) + 8|0);
- HEAP32[$18>>2] = $6;
- $19 = ((($ReallocAsyncCtx)) + 12|0);
- HEAP32[$19>>2] = $2;
- sp = STACKTOP;
- return;
-}
-function ___cxa_is_pointer_type__async_cb($0) {
- $0 = $0|0;
- var $1 = 0, $2 = 0, $3 = 0, $AsyncRetVal = 0, $phitmp = 0, label = 0, sp = 0;
- sp = STACKTOP;
- $1 = ___async_retval;
- $AsyncRetVal = HEAP32[$1>>2]|0;
- $phitmp = ($AsyncRetVal|0)!=(0|0);
- $2 = $phitmp&1;
- $3 = ___async_retval;
- HEAP32[$3>>2] = $2;
- return;
-}
 function __ZN6events10EventQueue16dispatch_foreverEv__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
  return; //@line 92 "/Users/janjon01/repos/mbed-simulator/mbed-simulator-hal/mbed-os/events/EventQueue.h"
 }
-function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb($0) {
+function __ZN6events10EventQueueC2EjPh__async_cb($0) {
  $0 = $0|0;
- var $$037$off038 = 0, $$037$off039 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0;
- var $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $not$ = 0, label = 0, sp = 0;
+ var $1 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = __THREW__; __THREW__ = 0;
+ $6 = $5&1;
+ if ($6) {
+  $7 = ___cxa_find_matching_catch_3(0|0)|0;
+  $8 = tempRet0;
+  (_emscripten_realloc_async_context(4)|0);
+  ___clang_call_terminate($7);
+  // unreachable;
+ } else {
+  ___resumeException($2|0);
+  // unreachable;
+ }
+}
+function __ZN6events10EventQueueC2EjPh__async_cb_70($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function ___clang_call_terminate__async_cb($0) {
+ $0 = $0|0;
+ var label = 0, sp = 0;
+ sp = STACKTOP;
+ // unreachable;
+}
+function ___fflush_unlocked__async_cb($0) {
+ $0 = $0|0;
+ var $$0 = 0, $1 = 0, $10 = 0, $11 = 0, $12 = 0, $13 = 0, $14 = 0, $15 = 0, $16 = 0, $17 = 0, $18 = 0, $19 = 0, $2 = 0, $20 = 0, $21 = 0, $22 = 0, $23 = 0, $24 = 0, $25 = 0, $3 = 0;
+ var $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, $IsAsync4 = 0, $ReallocAsyncCtx2 = 0, label = 0, sp = 0;
+ sp = STACKTOP;
+ $1 = ((($0)) + 4|0);
+ $2 = HEAP32[$1>>2]|0;
+ $3 = ((($0)) + 8|0);
+ $4 = HEAP32[$3>>2]|0;
+ $5 = ((($0)) + 12|0);
+ $6 = HEAP32[$5>>2]|0;
+ $7 = HEAP32[$2>>2]|0;
+ $8 = ($7|0)==(0|0);
+ do {
+  if ($8) {
+   $$0 = -1;
+  } else {
+   $9 = ((($4)) + 4|0);
+   $10 = HEAP32[$9>>2]|0;
+   $11 = ((($4)) + 8|0);
+   $12 = HEAP32[$11>>2]|0;
+   $13 = ($10>>>0)<($12>>>0);
+   if (!($13)) {
+    $24 = ((($4)) + 16|0);
+    HEAP32[$24>>2] = 0;
+    HEAP32[$6>>2] = 0;
+    HEAP32[$2>>2] = 0;
+    HEAP32[$11>>2] = 0;
+    HEAP32[$9>>2] = 0;
+    $$0 = 0;
+    break;
+   }
+   $14 = $10;
+   $15 = $12;
+   $16 = (($14) - ($15))|0;
+   $17 = ((($4)) + 40|0);
+   $18 = HEAP32[$17>>2]|0;
+   $ReallocAsyncCtx2 = (_emscripten_realloc_async_context(24)|0);
+   (FUNCTION_TABLE_iiii[$18 & 63]($4,$16,1)|0);
+   $IsAsync4 = ___async;
+   if (!($IsAsync4)) {
+    ___async_unwind = 0;
+   }
+   HEAP32[$ReallocAsyncCtx2>>2] = 132;
+   $19 = ((($ReallocAsyncCtx2)) + 4|0);
+   HEAP32[$19>>2] = $4;
+   $20 = ((($ReallocAsyncCtx2)) + 8|0);
+   HEAP32[$20>>2] = $6;
+   $21 = ((($ReallocAsyncCtx2)) + 12|0);
+   HEAP32[$21>>2] = $2;
+   $22 = ((($ReallocAsyncCtx2)) + 16|0);
+   HEAP32[$22>>2] = $11;
+   $23 = ((($ReallocAsyncCtx2)) + 20|0);
+   HEAP32[$23>>2] = $9;
+   sp = STACKTOP;
+   return;
+  }
+ } while(0);
+ $25 = ___async_retval;
+ HEAP32[$25>>2] = $$0;
+ return;
+}
+function ___fflush_unlocked__async_cb_71($0) {
+ $0 = $0|0;
+ var $1 = 0, $10 = 0, $11 = 0, $12 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
  sp = STACKTOP;
  $1 = ((($0)) + 4|0);
  $2 = HEAP32[$1>>2]|0;
@@ -21398,51 +21432,17 @@ function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynam
  $8 = HEAP32[$7>>2]|0;
  $9 = ((($0)) + 20|0);
  $10 = HEAP32[$9>>2]|0;
- $11 = ((($0)) + 24|0);
- $12 = HEAP32[$11>>2]|0;
- $13 = HEAP8[$2>>0]|0;
- $14 = ($13<<24>>24)==(0);
- if ($14) {
-  $$037$off038 = 4;
-  label = 4;
- } else {
-  $15 = HEAP8[$10>>0]|0;
-  $not$ = ($15<<24>>24)==(0);
-  if ($not$) {
-   $$037$off038 = 3;
-   label = 4;
-  } else {
-   $$037$off039 = 3;
-  }
- }
- if ((label|0) == 4) {
-  HEAP32[$6>>2] = $4;
-  $16 = ((($8)) + 40|0);
-  $17 = HEAP32[$16>>2]|0;
-  $18 = (($17) + 1)|0;
-  HEAP32[$16>>2] = $18;
-  $19 = ((($8)) + 36|0);
-  $20 = HEAP32[$19>>2]|0;
-  $21 = ($20|0)==(1);
-  if ($21) {
-   $22 = ((($8)) + 24|0);
-   $23 = HEAP32[$22>>2]|0;
-   $24 = ($23|0)==(2);
-   if ($24) {
-    $25 = ((($8)) + 54|0);
-    HEAP8[$25>>0] = 1;
-    $$037$off039 = $$037$off038;
-   } else {
-    $$037$off039 = $$037$off038;
-   }
-  } else {
-   $$037$off039 = $$037$off038;
-  }
- }
- HEAP32[$12>>2] = $$037$off039;
+ $11 = ((($2)) + 16|0);
+ HEAP32[$11>>2] = 0;
+ HEAP32[$4>>2] = 0;
+ HEAP32[$6>>2] = 0;
+ HEAP32[$8>>2] = 0;
+ HEAP32[$10>>2] = 0;
+ $12 = ___async_retval;
+ HEAP32[$12>>2] = 0;
  return;
 }
-function __ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_71($0) {
+function _handle_interrupt_in__async_cb($0) {
  $0 = $0|0;
  var label = 0, sp = 0;
  sp = STACKTOP;
@@ -22106,11 +22106,11 @@ var FUNCTION_TABLE_v = [b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,__ZL25default_terminate_ha
 ,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5
 ,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5,b5];
 var FUNCTION_TABLE_vi = [b6,__ZN4mbed11InterruptInD2Ev,__ZN4mbed11InterruptInD0Ev,__ZN4mbed8CallbackIFvvEE13function_callIN6events5EventIS1_EEEEvPKv,b6,__ZN4mbed8CallbackIFvvEE13function_dtorIN6events5EventIS1_EEEEvPv,b6,b6,b6,b6,b6,__ZN10__cxxabiv116__shim_type_infoD2Ev,__ZN10__cxxabiv117__class_type_infoD0Ev,__ZNK10__cxxabiv116__shim_type_info5noop1Ev,__ZNK10__cxxabiv116__shim_type_info5noop2Ev,b6,b6,b6,b6,__ZN10__cxxabiv120__si_class_type_infoD0Ev,b6,b6,b6,__ZN10__cxxabiv121__vmi_class_type_infoD0Ev,b6,b6,b6,_gpio_irq_free,__ZN4mbed11InterruptInD2Ev__async_cb
-,__ZN4mbed11InterruptInD2Ev__async_cb_64,__ZN4mbed11InterruptInD2Ev__async_cb_65,__ZN4mbed11InterruptInD2Ev__async_cb_66,__ZN4mbed11InterruptInD0Ev__async_cb,__ZN4mbed11InterruptInD0Ev__async_cb_54,__ZN4mbed11InterruptInD0Ev__async_cb_55,__ZN4mbed11InterruptInD0Ev__async_cb_56,b6,b6,b6,__ZN4mbed11InterruptInC2E7PinName__async_cb,__ZN4mbed11InterruptInC2E7PinName__async_cb_59,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_31,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_15,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_16,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_17,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_18,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_19,b6,__ZN6events10EventQueueC2EjPh__async_cb,b6,__ZN6events10EventQueue8dispatchEi__async_cb,_equeue_alloc__async_cb,_equeue_dealloc__async_cb,_equeue_post__async_cb,_equeue_enqueue__async_cb,_equeue_dispatch__async_cb,_equeue_dispatch__async_cb_10
-,_equeue_dispatch__async_cb_8,_equeue_dispatch__async_cb_9,_equeue_dispatch__async_cb_11,_mbed_assert_internal__async_cb,_mbed_die__async_cb_51,_mbed_die__async_cb_50,_mbed_die__async_cb_49,_mbed_die__async_cb_48,_mbed_die__async_cb_47,_mbed_die__async_cb_46,_mbed_die__async_cb_45,_mbed_die__async_cb_44,_mbed_die__async_cb_43,_mbed_die__async_cb_42,_mbed_die__async_cb_41,_mbed_die__async_cb_40,_mbed_die__async_cb_39,_mbed_die__async_cb_38,_mbed_die__async_cb_37,_mbed_die__async_cb,_handle_interrupt_in__async_cb,_invoke_ticker__async_cb_32,_invoke_ticker__async_cb,_wait_ms__async_cb,__GLOBAL__sub_I_main_cpp__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_63,___cxx_global_var_init__async_cb,___cxx_global_var_init_3__async_cb,b6,_main__async_cb_27
-,b6,_main__async_cb_29,b6,b6,_main__async_cb_28,__ZN4mbed8CallbackIFvvEED2Ev,_main__async_cb_25,_main__async_cb_23,_main__async_cb_26,_main__async_cb_24,__ZN6events5EventIFvvEED2Ev,_main__async_cb_22,__ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb_14,__ZN6events10EventQueue13function_dtorIPFvvEEEvPv,__ZN6events10EventQueue13function_callIPFvvEEEvPv,__ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb,__ZN6events10EventQueue5eventIvEENS_5EventIFvvEEEPFT_vE__async_cb,__ZN4mbed8CallbackIFvvEED2Ev__async_cb,__ZN6events5EventIFvvEED2Ev__async_cb,__ZN6events5EventIFvvEED2Ev__async_cb_53,__ZN6events10EventQueue16dispatch_foreverEv__async_cb,__ZN4mbed8CallbackIFvvEE13function_callIN6events5EventIS1_EEEEvPKv__async_cb,__ZN4mbed8CallbackIFvvEE13function_dtorIN6events5EventIS1_EEEEvPv__async_cb,__ZNK6events5EventIFvvEEclEv__async_cb,__ZNK6events5EventIFvvEE4callEv__async_cb,__ZNK6events5EventIFvvEE4callEv__async_cb_3,__ZNK6events5EventIFvvEE4postEv__async_cb,__ZN6events5EventIFvvEEC2IPS1_EEPNS_10EventQueueET___async_cb,b6,__ZN6events5EventIFvvEE10event_dtorIPS1_EEvPNS2_5eventE
-,__ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb_58,__ZN6events10EventQueue13function_dtorINS0_9context00IPFvvEEEEEvPv,__ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv,__ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb,__ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv__async_cb,__ZN6events10EventQueue9context00IPFvvEEclEv__async_cb,__ZN6events10EventQueue13function_callIPFvvEEEvPv__async_cb,___overflow__async_cb,_fflush__async_cb_5,_fflush__async_cb_4,_fflush__async_cb_6,_fflush__async_cb,___fflush_unlocked__async_cb,___fflush_unlocked__async_cb_12,_vfprintf__async_cb,_printf__async_cb,_fputc__async_cb_62,_fputc__async_cb,__ZL25default_terminate_handlerv__async_cb,__ZL25default_terminate_handlerv__async_cb_61,b6,_abort_message__async_cb,_abort_message__async_cb_13,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_70,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb,___dynamic_cast__async_cb,___dynamic_cast__async_cb_7,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_71
-,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZN10__cxxabiv112_GLOBAL__N_19destruct_EPv,b6,__ZSt11__terminatePFvvE__async_cb,b6,b6,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_52,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_36,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_35,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_34,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_33,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_30,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,___cxa_can_catch__async_cb,___cxa_is_pointer_type__async_cb,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
+,__ZN4mbed11InterruptInD2Ev__async_cb_14,__ZN4mbed11InterruptInD2Ev__async_cb_15,__ZN4mbed11InterruptInD2Ev__async_cb_16,__ZN4mbed11InterruptInD0Ev__async_cb,__ZN4mbed11InterruptInD0Ev__async_cb_27,__ZN4mbed11InterruptInD0Ev__async_cb_28,__ZN4mbed11InterruptInD0Ev__async_cb_29,b6,b6,b6,__ZN4mbed11InterruptInC2E7PinName__async_cb,__ZN4mbed11InterruptInC2E7PinName__async_cb_21,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb,__ZN4mbed11InterruptIn12_irq_handlerEj14gpio_irq_event__async_cb_4,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_61,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_62,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_63,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_64,__ZN4mbed11InterruptIn4fallENS_8CallbackIFvvEEE__async_cb_65,b6,__ZN6events10EventQueueC2EjPh__async_cb,b6,__ZN6events10EventQueue8dispatchEi__async_cb,_equeue_alloc__async_cb,_equeue_dealloc__async_cb,_equeue_post__async_cb,_equeue_enqueue__async_cb,_equeue_dispatch__async_cb,_equeue_dispatch__async_cb_52
+,_equeue_dispatch__async_cb_50,_equeue_dispatch__async_cb_51,_equeue_dispatch__async_cb_53,_mbed_assert_internal__async_cb,_mbed_die__async_cb_48,_mbed_die__async_cb_47,_mbed_die__async_cb_46,_mbed_die__async_cb_45,_mbed_die__async_cb_44,_mbed_die__async_cb_43,_mbed_die__async_cb_42,_mbed_die__async_cb_41,_mbed_die__async_cb_40,_mbed_die__async_cb_39,_mbed_die__async_cb_38,_mbed_die__async_cb_37,_mbed_die__async_cb_36,_mbed_die__async_cb_35,_mbed_die__async_cb_34,_mbed_die__async_cb,_handle_interrupt_in__async_cb,_invoke_ticker__async_cb_5,_invoke_ticker__async_cb,_wait_ms__async_cb,__GLOBAL__sub_I_main_cpp__async_cb,__GLOBAL__sub_I_main_cpp__async_cb_49,___cxx_global_var_init__async_cb,___cxx_global_var_init_3__async_cb,b6,_main__async_cb_11
+,b6,_main__async_cb_13,b6,b6,_main__async_cb_12,__ZN4mbed8CallbackIFvvEED2Ev,_main__async_cb_9,_main__async_cb_7,_main__async_cb_10,_main__async_cb_8,__ZN6events5EventIFvvEED2Ev,_main__async_cb_6,__ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb_2,__ZN6events10EventQueue13function_dtorIPFvvEEEvPv,__ZN6events10EventQueue13function_callIPFvvEEEvPv,__ZN6events10EventQueue10call_everyIPFvvEEEiiT___async_cb,__ZN6events10EventQueue5eventIvEENS_5EventIFvvEEEPFT_vE__async_cb,__ZN4mbed8CallbackIFvvEED2Ev__async_cb,__ZN6events5EventIFvvEED2Ev__async_cb,__ZN6events5EventIFvvEED2Ev__async_cb_33,__ZN6events10EventQueue16dispatch_foreverEv__async_cb,__ZN4mbed8CallbackIFvvEE13function_callIN6events5EventIS1_EEEEvPKv__async_cb,__ZN4mbed8CallbackIFvvEE13function_dtorIN6events5EventIS1_EEEEvPv__async_cb,__ZNK6events5EventIFvvEEclEv__async_cb,__ZNK6events5EventIFvvEE4callEv__async_cb,__ZNK6events5EventIFvvEE4callEv__async_cb_20,__ZNK6events5EventIFvvEE4postEv__async_cb,__ZN6events5EventIFvvEEC2IPS1_EEPNS_10EventQueueET___async_cb,b6,__ZN6events5EventIFvvEE10event_dtorIPS1_EEvPNS2_5eventE
+,__ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb_69,__ZN6events10EventQueue13function_dtorINS0_9context00IPFvvEEEEEvPv,__ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv,__ZN6events5EventIFvvEE10event_postIPS1_EEiPNS2_5eventE__async_cb,__ZN6events10EventQueue13function_callINS0_9context00IPFvvEEEEEvPv__async_cb,__ZN6events10EventQueue9context00IPFvvEEclEv__async_cb,__ZN6events10EventQueue13function_callIPFvvEEEvPv__async_cb,___overflow__async_cb,_fflush__async_cb_57,_fflush__async_cb_56,_fflush__async_cb_58,_fflush__async_cb,___fflush_unlocked__async_cb,___fflush_unlocked__async_cb_71,_vfprintf__async_cb,_printf__async_cb,_fputc__async_cb_32,_fputc__async_cb,__ZL25default_terminate_handlerv__async_cb,__ZL25default_terminate_handlerv__async_cb_18,b6,_abort_message__async_cb,_abort_message__async_cb_3,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb_54,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv__async_cb,___dynamic_cast__async_cb,___dynamic_cast__async_cb_1,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_55
+,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZN10__cxxabiv112_GLOBAL__N_19destruct_EPv,b6,__ZSt11__terminatePFvvE__async_cb,b6,b6,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb_31,__ZNK10__cxxabiv121__vmi_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_26,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_25,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_24,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb_23,__ZNK10__cxxabiv121__vmi_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb_19,__ZNK10__cxxabiv121__vmi_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib__async_cb,__ZNK10__cxxabiv122__base_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib__async_cb,___cxa_can_catch__async_cb,___cxa_is_pointer_type__async_cb,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6
 ,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6,b6];

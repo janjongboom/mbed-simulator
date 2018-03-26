@@ -36,13 +36,15 @@ module.exports = function(content, callback) {
                 '-s', 'ASYNCIFY=1',
                 '-s', 'NO_EXIT_RUNTIME=1',
 
-                '-g4',
-                // '-O2',
-
                 '-D__MBED__',
+                '-DTARGET_SIMULATOR',
+                '-DMBED_EXCLUSIVE_ACCESS=1U',
                 '-DMBEDTLS_TEST_NULL_ENTROPY',
                 '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
                 '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
+                '-DASSERTIONS=2',
+
+                '-g4',
 
                 '-Wall',
                 '-o', Path.join(outFolder, name + '.js')
