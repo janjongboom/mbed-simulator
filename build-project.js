@@ -50,9 +50,10 @@ for (let key of Object.keys(mbedapp_conf)) {
     let value = mbedapp_conf[key].value.toString();
 
     key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+
     value = value.replace(/"/g, '\\"');
 
-    macros.push(key + '="' + value + '"');
+    macros.push(key + '=' + value);
 }
 
 macros = macros.concat(mbedapp.macros || []);
@@ -62,9 +63,10 @@ let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbed
 for (let key of Object.keys(target_over)) {
     let value = target_over[key].toString();
     key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+
     value = value.replace(/"/g, '\\"');
 
-    macros.push(key + '="' + value + '"');
+    macros.push(key + '=' + value);
 }
 
 
@@ -76,6 +78,7 @@ let toRemove = [
     'Sht31',
     'mbed-http',
     'easy-connect',
+    'sd-driver',
 ].map(d => Path.join(Path.resolve(folder), d));
 
 includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
@@ -103,14 +106,14 @@ let args = cFiles
         '-g4',
 
         '-Wall',
-        '-Werror',
+        // '-Werror',
         '-o', outFile
     ]);
 
 args = args.concat(macros.map(m => '-D' + m));
 
 // pass in extra arguments
-args = args.concat(process.argv.slice(process.argv.slice(3)));
+args = args.concat(process.argv.slice(3));
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));

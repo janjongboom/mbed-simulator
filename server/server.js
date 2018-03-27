@@ -14,13 +14,16 @@ app.set('view engine', 'html');
 app.set('views', Path.join(__dirname, '../viewer'));
 app.engine('html', hbs.__express);
 
+let outFolder;
+
 if (process.argv[2] && fs.existsSync(process.argv[2])) {
-    let folder = Path.join(Path.resolve(process.argv[2]), 'BUILD', 'SIMULATOR');
-    app.use('/out', express.static(folder));
+    outFolder = Path.join(Path.resolve(process.argv[2]), 'BUILD', 'SIMULATOR');
 }
 else {
-    app.use('/out', express.static(__dirname + '/../out'));
+    outFolder = Path.join(__dirname, '..', 'out');
 }
+
+app.use('/out', express.static(outFolder));
 
 app.use('/demos', express.static(__dirname + '/../demos'));
 app.use(express.static(__dirname + '/../viewer'));
@@ -167,15 +170,15 @@ app.post('/api/network/socket_recv', (req, res, next) => {
 
 app.get('/view/:script', (req, res, next) => {
     if (/\.js\.mem$/.test(req.params.script)) {
-        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+        return res.sendFile(Path.join(outFolder, req.params.script));
     }
 
     if (/\.js\.map$/.test(req.params.script)) {
-        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+        return res.sendFile(Path.join(outFolder, req.params.script));
     }
 
     if (/\.data$/.test(req.params.script)) {
-        return res.sendFile(Path.join(__dirname, '..', 'out', req.params.script));
+        return res.sendFile(Path.join(outFolder, req.params.script));
     }
 
     res.render('viewer.html', { script: req.params.script });

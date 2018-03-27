@@ -112,6 +112,22 @@ $ mbed-simulator .
 
 A web browser window will open for you.
 
+To see if your program runs in the simulator, check the `TARGET_SIMULATOR` macro.
+
+**File system**
+
+A file system is automatically mounted for you, so you don't need to declare a `BlockDevice` or a `FATFileSystem`. Just call `fopen` and friends. To populate the file system at compile time pass in:
+
+```
+# the part after the @ is the mount location (in this case /fs)
+
+$ mbed-simulator . --preload-file folder-to-load/@/fs
+```
+
+**C++11**
+
+To use C++11 (or a different version), pass in `-std=c++11`.
+
 ## Attribution
 
 * `viewer/img/controller_mbed.svg` - created by [Fritzing](https://github.com/fritzing/fritzing-parts), licensed under Creative Commons Attribution-ShareALike 3.0 Unported.

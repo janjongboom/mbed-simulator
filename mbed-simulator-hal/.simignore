@@ -47,3 +47,4 @@ mbed-os/targets/TARGET_WIZNET/
 mbed-os/targets/TARGET_ublox/
 mbed-os/TESTS/
 mbed-os/tools/
+/TESTS/
