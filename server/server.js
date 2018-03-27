@@ -14,8 +14,6 @@ app.set('view engine', 'html');
 app.set('views', Path.join(__dirname, '../viewer'));
 app.engine('html', hbs.__express);
 
-console.log('exists?', fs.existsSync(process.argv[2]));
-
 if (process.argv[2] && fs.existsSync(process.argv[2])) {
     let folder = Path.join(Path.resolve(process.argv[2]), 'BUILD', 'SIMULATOR');
     app.use('/out', express.static(folder));

@@ -32,12 +32,6 @@ if (!fs.existsSync(outFolder)) {
     fs.mkdirSync(outFolder);
 }
 
-const outSourceMainCpp = Path.join(outFolder, 'source', 'main.cpp');
-if (fs.existsSync(outSourceMainCpp)) {
-    fs.unlinkSync(outSourceMainCpp);
-}
-
-
 // OK, so now... we need to build a list with all folders
 let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = [ libMbed ].concat(getAllCFiles(folder));
@@ -47,8 +41,12 @@ cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.si
 
 // so... we need to remove all folders that also exist in the simulator...
 let toRemove = [
-    "BUILD",
-    "mbed-os"
+    'BUILD',
+    'mbed-os',
+    'C12832',
+    'Sht31',
+    'mbed-http',
+    'easy-connect',
 ].map(d => Path.join(Path.resolve(folder), d));
 
 includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
@@ -74,7 +72,6 @@ let args = cFiles
         '-DASSERTIONS=2',
 
         '-g4',
-
 
         '-Wall',
         '-Werror',
