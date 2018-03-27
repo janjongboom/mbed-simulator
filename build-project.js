@@ -10,11 +10,13 @@ const spawn = require('child_process').spawn;
 const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./helpers');
 const opn = require('opn');
 
-const folder = process.argv[2];
+let folder = process.argv[2];
 if (!fs.existsSync(folder)) {
     console.log(`Path ${folder} does not exist`);
     process.exit(1);
 }
+
+folder = Path.resolve(folder);
 
 const verbose = (process.argv.indexOf('--verbose')) > -1 || (process.argv.indexOf('-v') > -1);
 
@@ -26,7 +28,7 @@ if (!fs.existsSync(libMbed)) {
 
 const outFolder = Path.join(folder, 'BUILD', 'SIMULATOR');
 if (!fs.existsSync(Path.join(folder, 'BUILD'))) {
-    fs.mkdirSync(folder, 'BUILD');
+    fs.mkdirSync(Path.join(folder, 'BUILD'));
 }
 if (!fs.existsSync(outFolder)) {
     fs.mkdirSync(outFolder);
@@ -38,6 +40,33 @@ let cFiles = [ libMbed ].concat(getAllCFiles(folder));
 
 includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
 cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
+
+let mbedapp = fs.existsSync(Path.join(folder, 'mbed_app.json')) ? JSON.parse(fs.readFileSync(Path.join(folder, 'mbed_app.json'), 'utf-8')) : {};
+
+let macros = [];
+
+let mbedapp_conf = mbedapp.config || {};
+for (let key of Object.keys(mbedapp_conf)) {
+    let value = mbedapp_conf[key].value.toString();
+
+    key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+    value = value.replace(/"/g, '\\"');
+
+    macros.push(key + '="' + value + '"');
+}
+
+macros = macros.concat(mbedapp.macros || []);
+
+// features_add is not handled correctly
+let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbedapp.target_overrides || {})['SIMULATOR']);
+for (let key of Object.keys(target_over)) {
+    let value = target_over[key].toString();
+    key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+    value = value.replace(/"/g, '\\"');
+
+    macros.push(key + '="' + value + '"');
+}
+
 
 // so... we need to remove all folders that also exist in the simulator...
 let toRemove = [
@@ -77,6 +106,11 @@ let args = cFiles
         '-Werror',
         '-o', outFile
     ]);
+
+args = args.concat(macros.map(m => '-D' + m));
+
+// pass in extra arguments
+args = args.concat(process.argv.slice(process.argv.slice(3)));
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));
