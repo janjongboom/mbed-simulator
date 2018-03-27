@@ -26,6 +26,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 ## How to run blinky (or other demo's)
 
 1. Install a recent version of node.js.
+1. Install Mbed CLI.
 1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
 1. Run:
 
