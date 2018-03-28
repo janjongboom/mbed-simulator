@@ -15,7 +15,7 @@ This is a very experimental project.
 
 ## Architecture
 
-The C++ HAL is in `mbed-simulator-hal`. This HAL reflects the Mbed C++ HAL, with most header- and source files exactly the same as their Mbed OS counterparts. The C++ HAL maps into the JS HAL (in `targets`), which implements the Mbed C API for compatibility.
+The C++ HAL is in `mbed-simulator-hal`. This HAL uses a fork of Mbed OS 5.8 (living here: [#mbed-os-5.8-simulator](https://github.com/janjongboom/mbed-os/tree/mbed-os-5.8-simulator)), where a new target was added (`TARGET_SIMULATOR`) similar to physical targets. The target handles calls coming in from the Mbed C++ HAL and passes them through to the JS HAL.
 
 The JS HAL lives in `viewer/js-hal`, and dispatches events around between JS UI components and C++ HAL. It implements an event bus to let the UI subscribe to events from C++. For instance, see `js-hal/gpio.js` for GPIO and IRQ handling.
 
@@ -26,6 +26,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 ## How to run blinky (or other demo's)
 
 1. Install a recent version of node.js.
+1. Install Mbed CLI.
 1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
 1. Run:
 
@@ -95,6 +96,32 @@ Simulator applications can be debugged using your browser's debugger, because th
     * On a user-compiled app, go to the folder that starts with `/home/ubuntu`, go to the `out` folder, and select `user_XXX.cpp`.
 1. Click in the gutter to add a breakpoint.
 1. Click the *↻* icon in the simulator to restart the debug session.
+
+## CLI
+
+To get a CLI like experience for custom projects (which is currently *very* basic), run from a folder (e.g. mbed-os-example-blinky):
+
+```
+$ /path/to/simulator/bin/mbed-simulator .
+```
+
+A web browser window will open for you.
+
+To see if your program runs in the simulator, check the `TARGET_SIMULATOR` macro.
+
+**File system**
+
+A file system is automatically mounted for you, so you don't need to declare a `BlockDevice` or a `FATFileSystem`. Just call `fopen` and friends. To populate the file system at compile time pass in:
+
+```
+# the part after the @ is the mount location (in this case /fs)
+
+$ mbed-simulator . --preload-file folder-to-load/@/fs
+```
+
+**C++11**
+
+To use C++11 (or a different version), pass in `-std=c++11`.
 
 ## Attribution
 

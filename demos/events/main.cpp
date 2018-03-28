@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "mbed_events.h"
 
 // An EventQueue is a very useful construct in Mbed OS, it allows you to schedule events
 // and to defer from one context to another (e.g. from ISR to normal thread) without

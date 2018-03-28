@@ -12,8 +12,8 @@ const outFile = Path.resolve(Path.join(outFolder, 'libmbed.bc'));
 let includeDirectories = getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal'));
 let cFiles = getAllCFiles(Path.join(__dirname, 'mbed-simulator-hal'));
 
-includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.mbedignore'))
-cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.mbedignore'));
+includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'))
+cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'));
 
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
@@ -26,13 +26,18 @@ let args = cFiles
         '-s', 'SIDE_MODULE=1',
 
         '-D__MBED__',
+        '-DTARGET_SIMULATOR',
+        '-DMBED_EXCLUSIVE_ACCESS=1U',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
+        '-DASSERTIONS=2',
 
+        '-g4',
         '-O2',
 
         '-Wall',
+        '-Werror',
         '-o', outFile
     ]);
 

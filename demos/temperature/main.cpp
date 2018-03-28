@@ -23,6 +23,6 @@ int main() {
         // turn on LED if the temperature is above 25 degrees
         led = temp > 25.0f;
 
-        wait(1.0f);
+        wait(0.5f);
     }
 }

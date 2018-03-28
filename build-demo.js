@@ -1,7 +1,6 @@
 const fs = require('fs');
 const Path = require('path');
 const spawn = require('child_process').spawn;
-const ignore = require('ignore');
 const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./helpers');
 
 const folder = process.argv[2];
@@ -33,8 +32,8 @@ if (fs.existsSync(outSourceMainCpp)) {
 let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = [ libMbed ].concat(getAllCFiles(folder));
 
-includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.mbedignore'))
-cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.mbedignore'));
+includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'));
+cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.simignore'));
 
 let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');
 
@@ -48,13 +47,18 @@ let args = cFiles
         '-s', 'NO_EXIT_RUNTIME=1',
 
         '-D__MBED__',
+        '-DTARGET_SIMULATOR',
+        '-DMBED_EXCLUSIVE_ACCESS=1U',
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
+        '-DASSERTIONS=2',
 
         '-g4',
+        '-O2',
 
         '-Wall',
+        '-Werror',
         '-o', outFile
     ]);
 

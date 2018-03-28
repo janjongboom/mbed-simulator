@@ -4,6 +4,7 @@
  */
 
 #include "mbed.h"
+#include "TCPSocket.h"
 #include "https_request.h"
 #include "EthernetInterface.h"
 

@@ -1,9 +1,8 @@
 const fs = require('fs');
 const Path = require('path');
-const ignore = require('ignore');
 
 const isDirectory = source => fs.lstatSync(source).isDirectory();
-const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory).filter(d => Path.basename(d) !== '.git');
+const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory).filter(d => Path.basename(d) !== '.git' && Path.basename(d) !== '.hg');
 const getCFiles = source => {
     return fs.readdirSync(source)
         .map(name => Path.join(source, name))
@@ -30,9 +29,14 @@ const ignoreAndFilter = (list, ignoreFile) => {
     }
 
     let parsed = fs.readFileSync(ignoreFile, 'utf8').split('\n').filter(f => !!f);
-    const ig = ignore().add(parsed);
 
-    return list.filter(l => !ig.ignores(l));
+    parsed = parsed.map(l => new RegExp(l));
+
+    list = list.filter(l => {
+        return parsed.every(p => !p.test(l));
+    });
+
+    return list;
 };
 
 module.exports = {
