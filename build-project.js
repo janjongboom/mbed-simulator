@@ -73,6 +73,7 @@ for (let key of Object.keys(target_over)) {
 // so... we need to remove all folders that also exist in the simulator...
 let toRemove = [
     'BUILD',
+    'BSP_DISCO_F413ZH',
     'mbed-os',
     'C12832',
     'Sht31',
@@ -94,6 +95,7 @@ let args = cFiles
 
         '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
+        '-s', 'ASSERTIONS=2',
 
         '-D__MBED__',
         '-DTARGET_SIMULATOR',
@@ -101,9 +103,9 @@ let args = cFiles
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
-        '-DASSERTIONS=2',
 
         '-g4',
+        // '-O2',
 
         '-Wall',
         // '-Werror',

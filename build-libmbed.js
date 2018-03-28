@@ -33,6 +33,7 @@ let args = cFiles
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
         '-DASSERTIONS=2',
 
+        '-g4',
         '-O2',
 
         '-Wall',

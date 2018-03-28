@@ -18,6 +18,7 @@ TextDisplay::TextDisplay(const char *name) : Stream(name) {
 }
 
 int TextDisplay::_putc(int value) {
+    EM_ASM_({ console.log("TextDisplay putc", $0); }, value);
     if(value == '\n') {
         _column = 0;
         _row++;

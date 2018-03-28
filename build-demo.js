@@ -55,7 +55,7 @@ let args = cFiles
         '-DASSERTIONS=2',
 
         '-g4',
-
+        '-O2',
 
         '-Wall',
         '-Werror',
