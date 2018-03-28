@@ -99,16 +99,10 @@ Simulator applications can be debugged using your browser's debugger, because th
 
 ## CLI
 
-To get a CLI like experience for custom projects (which is currently *very* basic):
+To get a CLI like experience for custom projects (which is currently *very* basic), run from a folder (e.g. mbed-os-example-blinky):
 
 ```
-$ ln -s ~/repos/mbed-simulator/build-project.js /usr/local/bin/mbed-simulator
-```
-
-Then from a folder (e.g. mbed-os-example-blinky):
-
-```
-$ mbed-simulator .
+$ /path/to/simulator/bin/mbed-simulator .
 ```
 
 A web browser window will open for you.
