@@ -7,7 +7,7 @@
 const fs = require('fs');
 const Path = require('path');
 const spawn = require('child_process').spawn;
-const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./helpers');
+const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./build-tools/helpers');
 const opn = require('opn');
 const commandExistsSync = require('command-exists').sync;
 
@@ -27,12 +27,12 @@ if (!commandExistsSync('emcc')) {
 }
 
 const verbose = (process.argv.indexOf('--verbose')) > -1 || (process.argv.indexOf('-v') > -1);
-const emterpretify = process.argv.indexOf('--emterpretify') > -1;
+let emterpretify = process.argv.indexOf('--emterpretify') > -1;
 
-const libMbed = Path.resolve(__dirname, 'mbed-simulator-hal', 'libmbed.bc');
+// const libMbed = Path.resolve(__dirname, 'mbed-simulator-hal', 'libmbed.bc');
 if (!fs.existsSync(libMbed)) {
-    console.log(libMbed + ' does not exist. Run `node build-libmbed.js` first.');
-    process.exit(1);
+    console.log(libMbed + ' does not exist. Building...');
+    require('./build-libmbed');
 }
 
 const outFolder = Path.join(folder, 'BUILD', 'SIMULATOR');
@@ -78,6 +78,12 @@ for (let key of Object.keys(target_over)) {
     macros.push(key + '=' + value);
 }
 
+let simconfig = fs.existsSync(Path.join(folder, 'simconfig.json')) ? JSON.parse(fs.readFileSync(Path.join(folder, 'simconfig.json'))) : {};
+simconfig.args = simconfig.args || [];
+
+if (simconfig.args.indexOf('--emterpretify') > -1) {
+    emterpretify = true;
+}
 
 // so... we need to remove all folders that also exist in the simulator...
 let toRemove = [
@@ -89,8 +95,11 @@ let toRemove = [
     'mbed-http',
     'easy-connect',
     'sd-driver',
-    'F413ZH_SD_BlockDevice',
 ].map(d => Path.join(Path.resolve(folder), d));
+
+toRemove = toRemove.concat((simconfig.ignore || []).map(f => {
+    Path.join(folder, f);
+}));
 
 includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
 cFiles = cFiles.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
@@ -134,9 +143,14 @@ else {
 
 args = args.concat(macros.map(m => '-D' + m));
 
+if (simconfig.args) {
+    args = args.concat(simconfig.args);
+}
+
 // pass in extra arguments
 args = args.concat(process.argv.slice(3));
 
+// filter own
 args = args.filter(a => a !== '--emterpretify');
 
 if (verbose) {
