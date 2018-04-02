@@ -40,11 +40,9 @@ let outFile = Path.join(__dirname, 'out', Path.basename(folder) + '.js');
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
     .concat([
-        //'-s', 'EMTERPRETIFY=1',
-        //'-s', 'EMTERPRETIFY_ASYNC=1',
-
         '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
+        '-s', 'ASSERTIONS=2',
 
         '-D__MBED__',
         '-DTARGET_SIMULATOR',
@@ -52,7 +50,6 @@ let args = cFiles
         '-DMBEDTLS_TEST_NULL_ENTROPY',
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
-        '-DASSERTIONS=2',
 
         '-g4',
         '-O2',

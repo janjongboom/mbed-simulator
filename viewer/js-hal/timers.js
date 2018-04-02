@@ -7,7 +7,7 @@ window.MbedJSHal.timers = (function() {
     function ticker_setup(id, interval) {
         console.log('ticker_setup', id, interval);
         tickers[id] = setInterval(() => {
-            ccall('invoke_ticker', 'void', [ 'number' ], [ id ]);
+            ccall('invoke_ticker', null, [ 'number' ], [ id ], { async: true });
         }, interval);
     }
 
@@ -23,7 +23,7 @@ window.MbedJSHal.timers = (function() {
     function timeout_setup(id, interval) {
         console.log('timeout_setup', id, interval);
         timeouts[id] = setTimeout(() => {
-            ccall('invoke_timeout', 'void', [ 'number' ], [ id ]);
+            ccall('invoke_timeout', null, [ 'number' ], [ id ], { async: true });
 
             delete timeouts[id];
         }, interval);

@@ -156,12 +156,14 @@ uint16_t ST7789H2_GetLcdPixelHeight(void);
 extern LCD_DrvTypeDef   ST7789H2_drv;
 
 /* LCD IO functions */
-// extern "C" extern void     LCD_IO_Init(void);
-// extern "C" extern void     LCD_IO_WriteMultipleData(uint16_t *pData, uint32_t Size);
-// extern "C" extern void     LCD_IO_WriteReg(uint8_t Reg);
-// extern "C" extern void     LCD_IO_WriteData(uint16_t RegValue);
-// extern "C" extern uint16_t LCD_IO_ReadData(void);
-// extern "C" extern void     LCD_IO_Delay(uint32_t delay);
+#if __cplusplus < 201103L
+extern void     LCD_IO_Init(void);
+extern void     LCD_IO_WriteMultipleData(uint16_t *pData, uint32_t Size);
+extern void     LCD_IO_WriteReg(uint8_t Reg);
+extern void     LCD_IO_WriteData(uint16_t RegValue);
+extern uint16_t LCD_IO_ReadData(void);
+extern void     LCD_IO_Delay(uint32_t delay);
+#endif
 
 /**
   * @}

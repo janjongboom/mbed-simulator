@@ -2,10 +2,11 @@
   "name": "mbed-simulator",
   "version": "1.0.0",
   "description": "Mbed OS 5 simulator",
-  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "mbed-simulator": "./build-project.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "homepage": "https://github.com/janjongboom/mbed-simulator#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "command-exists": "^1.2.2",
     "express": "^4.16.2",
     "hbs": "^4.0.1",
     "opn": "^5.3.0"

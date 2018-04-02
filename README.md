@@ -123,6 +123,10 @@ $ mbed-simulator . --preload-file folder-to-load/@/fs
 
 To use C++11 (or a different version), pass in `-std=c++11`.
 
+**Emterpretify**
+
+If you see that compilation hangs this might be due to a bug in asyncify. To switch to Emterpretify for async operations, pass in `--emterpretify`. This is f.e. used for uTensor.
+
 ## Attribution
 
 * `viewer/img/controller_mbed.svg` - created by [Fritzing](https://github.com/fritzing/fritzing-parts), licensed under Creative Commons Attribution-ShareALike 3.0 Unported.

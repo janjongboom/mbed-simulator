@@ -196,10 +196,10 @@ window.MbedJSHal.gpio = (function() {
         // handle interrupts, if registered
         if (irqPins[pin]) {
             if (value === 0 && irqPins[pin].fall) {
-                ccall('handle_interrupt_in', 'void', [ 'number', 'number' ], [ irqPins[pin].ptr, IRQ_EVENT.IRQ_FALL ]);
+                ccall('handle_interrupt_in', null, [ 'number', 'number' ], [ irqPins[pin].ptr, IRQ_EVENT.IRQ_FALL ], { async: true });
             }
             else if (value === 1 && irqPins[pin].rise) {
-                ccall('handle_interrupt_in', 'void', [ 'number', 'number' ], [ irqPins[pin].ptr, IRQ_EVENT.IRQ_RISE ]);
+                ccall('handle_interrupt_in', null, [ 'number', 'number' ], [ irqPins[pin].ptr, IRQ_EVENT.IRQ_RISE ], { async: true });
             }
         }
     }

@@ -30,11 +30,9 @@ module.exports = function(content, callback) {
         let args = c
             .concat(includeDirectories.map(i => '-I' + i))
             .concat([
-                // '-s', 'EMTERPRETIFY=1',
-                // '-s', 'EMTERPRETIFY_ASYNC=1',
-
                 '-s', 'ASYNCIFY=1',
                 '-s', 'NO_EXIT_RUNTIME=1',
+                '-s', 'ASSERTIONS=2',
 
                 '-D__MBED__',
                 '-DTARGET_SIMULATOR',
@@ -42,9 +40,9 @@ module.exports = function(content, callback) {
                 '-DMBEDTLS_TEST_NULL_ENTROPY',
                 '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
                 '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
-                '-DASSERTIONS=2',
 
                 '-g4',
+                // no -O2 because of compilation speed
 
                 '-Wall',
                 '-o', Path.join(outFolder, name + '.js')

@@ -7,8 +7,9 @@
 const fs = require('fs');
 const Path = require('path');
 const spawn = require('child_process').spawn;
-const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('../helpers');
+const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./helpers');
 const opn = require('opn');
+const commandExistsSync = require('command-exists').sync;
 
 let folder = process.argv[2];
 if (!fs.existsSync(folder)) {
@@ -18,9 +19,17 @@ if (!fs.existsSync(folder)) {
 
 folder = Path.resolve(folder);
 
-const verbose = (process.argv.indexOf('--verbose')) > -1 || (process.argv.indexOf('-v') > -1);
+if (!commandExistsSync('emcc')) {
+    console.log('Cannot find emcc');
+    console.log('Emscripten is not installed (or not in your PATH)');
+    console.log('Follow: https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html');
+    process.exit(1);
+}
 
-const libMbed = Path.resolve(__dirname, '..', 'mbed-simulator-hal', 'libmbed.bc');
+const verbose = (process.argv.indexOf('--verbose')) > -1 || (process.argv.indexOf('-v') > -1);
+const emterpretify = process.argv.indexOf('--emterpretify') > -1;
+
+const libMbed = Path.resolve(__dirname, 'mbed-simulator-hal', 'libmbed.bc');
 if (!fs.existsSync(libMbed)) {
     console.log(libMbed + ' does not exist. Run `node build-libmbed.js` first.');
     process.exit(1);
@@ -35,11 +44,11 @@ if (!fs.existsSync(outFolder)) {
 }
 
 // OK, so now... we need to build a list with all folders
-let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, '..', 'mbed-simulator-hal')));
+let includeDirectories = getAllDirectories(folder).concat(getAllDirectories(Path.join(__dirname, 'mbed-simulator-hal')));
 let cFiles = [ libMbed ].concat(getAllCFiles(folder));
 
-includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, '..', 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
-cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, '..', 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
+includeDirectories = ignoreAndFilter(includeDirectories, Path.join(__dirname, 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
+cFiles = ignoreAndFilter(cFiles, Path.join(__dirname, 'mbed-simulator-hal', '.simignore')).map(c => Path.resolve(c));
 
 let mbedapp = fs.existsSync(Path.join(folder, 'mbed_app.json')) ? JSON.parse(fs.readFileSync(Path.join(folder, 'mbed_app.json'), 'utf-8')) : {};
 
@@ -91,10 +100,6 @@ let outFile = Path.join(outFolder, Path.basename(Path.resolve(folder)) + '.js');
 let args = cFiles
     .concat(includeDirectories.map(i => '-I' + i))
     .concat([
-        //'-s', 'EMTERPRETIFY=1',
-        //'-s', 'EMTERPRETIFY_ASYNC=1',
-
-        '-s', 'ASYNCIFY=1',
         '-s', 'NO_EXIT_RUNTIME=1',
         '-s', 'ASSERTIONS=2',
 
@@ -105,18 +110,34 @@ let args = cFiles
         '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
         '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
 
-        '-g4',
-        // '-O2',
+        // '-O2',           // => speed is important here
 
         '-Wall',
         // '-Werror',
         '-o', outFile
     ]);
 
+if (emterpretify) {
+    args = args.concat([
+        '-s', 'EMTERPRETIFY=1',
+        '-s', 'EMTERPRETIFY_ASYNC=1',
+        '-g3'
+    ]);
+}
+else {
+    args = args.concat([
+        '-s', 'ASYNCIFY=1',
+
+        '-g4'
+    ]);
+}
+
 args = args.concat(macros.map(m => '-D' + m));
 
 // pass in extra arguments
 args = args.concat(process.argv.slice(3));
+
+args = args.filter(a => a !== '--emterpretify');
 
 if (verbose) {
     console.log('emcc ' + args.join(' '));
@@ -136,7 +157,7 @@ cmd.on('close', code => {
     if (code === 0) {
         process.stdout.write('Compilation successful, binary is at "' + outFile + '"\n');
 
-        require('../server/server');
+        require('./server/server');
 
         setTimeout(function() {
             let url = 'http://localhost:' + (process.env.PORT || 7829) + '/view/' + Path.basename(Path.resolve(folder));
