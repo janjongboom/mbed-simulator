@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "mbed-simulator": "./build-project.js"
+    "mbed-simulator": "./cli.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
     "body-parser": "^1.18.2",
     "command-exists": "^1.2.2",
     "commander": "^2.15.1",
+    "es6-promisify": "^6.0.0",
     "express": "^4.16.2",
     "hbs": "^4.0.1",
     "opn": "^5.3.0"

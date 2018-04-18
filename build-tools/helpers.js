@@ -1,34 +1,64 @@
 const fs = require('fs');
 const Path = require('path');
+const promisify = require('es6-promisify').promisify;
 
-const isDirectory = source => fs.lstatSync(source).isDirectory();
-const getDirectories = source => fs.readdirSync(source).map(name => Path.join(source, name)).filter(isDirectory).filter(d => Path.basename(d) !== '.git' && Path.basename(d) !== '.hg');
-const getCFiles = source => {
-    return fs.readdirSync(source)
+const exists = function(path) {
+    return new Promise((resolve, reject) => {
+        fs.exists(path, function(v) {
+            resolve(v);
+        });
+    });
+};
+
+const isDirectory = async function(source) {
+    return (await promisify(fs.lstat)(source)).isDirectory();
+};
+
+const getDirectories = async function(source) {
+    let children = await promisify(fs.readdir)(source);
+
+    let res = [];
+
+    for (let d of children) {
+        d = Path.join(source, d);
+
+        if (Path.basename(d) === '.git' && Path.basename(d) === '.hg') continue;
+        if (!await isDirectory(d)) continue;
+
+        res.push(d);
+    }
+
+    return res;
+};
+
+const getCFiles = async function(source) {
+    return (await promisify(fs.readdir)(source))
         .map(name => Path.join(source, name))
         .filter(name => ['.c', '.cpp'].indexOf(Path.extname(name).toLowerCase()) > -1);
 };
-const getAllDirectories = source => {
+
+const getAllDirectories = async function(source) {
     let dirs = [ Path.resolve(source) + Path.sep ];
-    for (let d of getDirectories(source)) {
-        dirs = dirs.concat(getAllDirectories(d));
+    for (let d of await getDirectories(source)) {
+        dirs = dirs.concat(await getAllDirectories(d));
     }
     return dirs;
 };
-const getAllCFiles = source => {
-    let files = getCFiles(source);
-    for (let d of getDirectories(source)) {
-        files = files.concat(getAllCFiles(d));
+
+const getAllCFiles = async function(source) {
+    let files = await getCFiles(source);
+    for (let d of await getDirectories(source)) {
+        files = files.concat(await getAllCFiles(d));
     }
     return files;
 };
 
-const ignoreAndFilter = (list, ignoreFile) => {
-    if (!fs.existsSync(ignoreFile)) {
+const ignoreAndFilter = async function(list, ignoreFile) {
+    if (!await exists(ignoreFile)) {
         return list;
     }
 
-    let parsed = fs.readFileSync(ignoreFile, 'utf8').split('\n').filter(f => !!f);
+    let parsed = (await promisify(fs.readFile)(ignoreFile, 'utf8')).split('\n').filter(f => !!f);
 
     parsed = parsed.map(l => new RegExp(l));
 
@@ -50,8 +80,6 @@ const defaultBuildFlags = [
     '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
     '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
 
-    '-O2',
-
     '-Wall',
 ];
 
@@ -67,30 +95,29 @@ const nonEmterpretifyFlags = [
 ];
 
 // from https://stackoverflow.com/questions/31645738/how-to-create-full-path-with-nodes-fs-mkdirsync
-const mkdirpSync = function(targetDir, {isRelativeToScript = false} = {}) {
-    const sep = path.sep;
-    const initDir = path.isAbsolute(targetDir) ? sep : '';
-    const baseDir = isRelativeToScript ? __dirname : '.';
+const mkdirpSync = function(targetDir) {
+    const sep = Path.sep;
+    const initDir = Path.isAbsolute(targetDir) ? sep : '';
+    const baseDir = '.';
 
     targetDir.split(sep).reduce((parentDir, childDir) => {
-    const curDir = path.resolve(baseDir, parentDir, childDir);
-    try {
-        fs.mkdirSync(curDir);
-        console.log(`Directory ${curDir} created!`);
-    } catch (err) {
-        if (err.code !== 'EEXIST') {
-        throw err;
+        const curDir = Path.resolve(baseDir, parentDir, childDir);
+        if (!fs.existsSync(curDir)) {
+            fs.mkdirSync(curDir);
         }
-
-        console.log(`Directory ${curDir} already exists!`);
-    }
-
-    return curDir;
+        return curDir;
     }, initDir);
 }
 
-const getMacrosFromMbedAppJson = function(filename) {
-    let mbedapp = fs.existsSync(pathname) ? JSON.parse(fs.readFileSync(pathname, 'utf-8')) : {};
+const getMacrosFromMbedAppJson = async function(filename) {
+    let mbedapp;
+
+    if (await exists(filename)) {
+        mbedapp = JSON.parse(await promisify(fs.readFile)(filename, 'utf-8'));
+    }
+    else {
+        mbedapp = {};
+    }
 
     let macros = [];
 
@@ -122,6 +149,7 @@ const getMacrosFromMbedAppJson = function(filename) {
 };
 
 module.exports = {
+    exists: exists,
     isDirectory: isDirectory,
     getDirectories: getDirectories,
     getCFiles: getCFiles,

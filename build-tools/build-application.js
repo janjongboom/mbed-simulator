@@ -1,51 +1,17 @@
-#!/usr/bin/env node
-
-/**
- * Builds a complete Mbed OS project
- */
-
 const fs = require('fs');
 const Path = require('path');
 const spawn = require('child_process').spawn;
-const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./build-tools/helpers');
-const helpers = require('./build-tools/helpers');
-const libmbed = require('./build-tools/build-libmbed');
-const opn = require('opn');
-const commandExistsSync = require('command-exists').sync;
+const { exists, getAllDirectories, getAllCFiles } = require('./helpers');
+const helpers = require('./helpers');
+const libmbed = require('./build-libmbed');
 const EventEmitter = require('events');
+const promisify = require('es6-promisify').promisify;
 
-function buildApplication(inputDir, outputDir, args, emterpretify, verbose, callback) {
-    let includeDirectories = getAllDirectories(inputDir).concat(libmbed.getAllDirectories()).map(c => Path.resolve(c));;
-    let cFiles = [ libmbed.getPath() ].concat(getAllCFiles(inputDir)).map(c => Path.resolve(c));
-
-    let macros = helpers.getMacrosFromMbedAppJson(Path.join(inputDir, 'mbed_app.json'));
-
-    let simconfig = fs.existsSync(Path.join(folder, 'simconfig.json')) ? JSON.parse(fs.readFileSync(Path.join(folder, 'simconfig.json'))) : {};
-    simconfig.args = simconfig.args || [];
-
-    if (simconfig.args.indexOf('--emterpretify') > -1) {
-        emterpretify = true;
-    }
-
-    // so... we need to remove all folders that also exist in the simulator...
-    let toRemove = [
-        'BUILD',
-        'mbed-os',
-        'sd-driver',
-    ].map(d => Path.join(Path.resolve(folder), d));
-
-    toRemove = toRemove.concat((simconfig.ignore || []).map(f => {
-        Path.join(folder, f);
-    }));
-
-    includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
-    cFiles = cFiles.filter(d => !toRemove.some(r => d.indexOf(r) === 0));
-
-    let outFile = Path.join(outputDir, Path.basename(inputDir) + '.js');
-
+let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles) {
     let args = cFiles
         .concat(includeDirectories.map(i => '-I' + i))
         .concat(helpers.defaultBuildFlags)
+        .concat(extraArgs)
         .concat([
             '-o', outFile
         ]);
@@ -57,76 +23,99 @@ function buildApplication(inputDir, outputDir, args, emterpretify, verbose, call
         args = args.concat(helpers.nonEmterpretifyFlags);
     }
 
-    args = args.concat(macros.map(m => '-D' + m));
-
-    if (simconfig.args) {
-        args = args.concat(simconfig.args);
-    }
-
-    // pass in extra arguments
-    args = args.concat(process.argv.slice(3));
-
-    // should actually filter out anything that's also on program
-    args = args.filter(a => args.indexOf(a) === -1);
-
-    if (program.verbose) {
+    if (verbose) {
         console.log('emcc ' + args.join(' '));
         args.push('-v');
     }
 
-    let cmd = spawn('emcc', args);
+    return new Promise((resolve, reject) => {
+        let cmd = spawn('emcc', args);
 
-    cmd.on('close', code => {
-        if (code === 0) {
-            callback(null, outFile);
-        }
-        else {
-            callback('Application failed to build (' + code + ')');
-        }
+        let stdout = '';
+
+        cmd.stdout.on('data', data => stdout += data.toString('utf-8'));
+        cmd.stderr.on('data', data => stdout += data.toString('utf-8'));
+
+        cmd.on('close', code => {
+            if (code === 0) {
+                resolve(outFile);
+            }
+            else {
+                reject('Application failed to build (' + code + ')\n' + stdout);
+            }
+        });
     });
+}
 
-    return cmd;
+let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify, verbose) {
+    inputDir = Path.resolve(inputDir);
+    outFile = Path.resolve(outFile);
+
+    let includeDirectories = (await getAllDirectories(inputDir)).concat(await libmbed.getAllDirectories()).map(c => Path.resolve(c));;
+    let cFiles = [ libmbed.getPath() ].concat(await getAllCFiles(inputDir)).map(c => Path.resolve(c));
+
+    let macros = await helpers.getMacrosFromMbedAppJson(Path.join(inputDir, 'mbed_app.json'));
+
+    let simconfig = await exists(Path.join(inputDir, 'simconfig.json'))
+                        ? JSON.parse(await promisify(fs.readFile)(Path.join(inputDir, 'simconfig.json')))
+                        : {};
+
+    simconfig['compiler-args'] = simconfig['compiler-args'] || [];
+
+    if (simconfig.emterpretify) {
+        emterpretify = true;
+    }
+
+    // so... we need to remove all folders that also exist in the simulator...
+    let toRemove = [
+        'BUILD',
+        'mbed-os',
+        'sd-driver',
+    ].map(d => Path.join(inputDir, d));
+
+    toRemove = toRemove.concat((simconfig.ignore || []).map(f => {
+        return Path.join(inputDir, f);
+    }));
+
+    // also get rid of all test directories (need proper mapping with Mbed CLI tbh)
+    toRemove.push('/TESTS/');
+
+    includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) !== -1));
+    cFiles = cFiles.filter(d => !toRemove.some(r => d.indexOf(r) !== -1));
+
+    extraArgs = extraArgs
+                    .concat(macros.map(m => '-D' + m))
+                    .concat(simconfig['compiler-args']);
+
+    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles);
+}
+
+let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verbose) {
+    inputFile = Path.resolve(inputFile);
+    outFile = Path.resolve(outFile);
+
+    let includeDirectories = [ Path.dirname(inputFile) ].concat(await libmbed.getAllDirectories()).map(c => Path.resolve(c));;
+    let cFiles = [ libmbed.getPath(), inputFile ].map(c => Path.resolve(c));
+
+    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles);
 }
 
 module.exports = {
-    build: function(inputDir, outputDir, emterpretify, verbose, callback) {
-        let ee = new EventEmitter();
-
-        if (!libmbed.exists()) {
+    _build: async function(buildFn, input, outFile, extraArgs, emterpretify, verbose) {
+        if (!await libmbed.exists()) {
             console.log('libmbed.bc does not exist. Building...');
 
-            let libcmd = libmbed.build(verbose, function(err) {
-                if (err) {
-                    return callback(err);
-                }
-
-                console.log('libmbed.bc built. Building application...');
-                let cmd = buildApplication(inputDir, outputDir, emterpretify, verbose, callback);
-                cmd.stdout.on('data', data => {
-                    ee.emit('stdout', data);
-                });
-                cmd.stderr.on('data', data => {
-                    ee.emit('stderr', data);
-                });
-            });
-
-            libcmd.stdout.on('data', data => {
-                ee.emit('stdout', data);
-            });
-            libcmd.stderr.on('data', data => {
-                ee.emit('stderr', data);
-            });
-        }
-        else {
-            let cmd = buildApplication(inputDir, outputDir, emterpretify, verbose, callback);
-            cmd.stdout.on('data', data => {
-                ee.emit('stdout', data);
-            });
-            cmd.stderr.on('data', data => {
-                ee.emit('stderr', data);
-            });
+            await libmbed.build(verbose);
         }
 
-        return ee;
+        await buildFn(input, outFile, extraArgs, emterpretify, verbose);
+    },
+
+    buildDirectory: function(inputDir, outFile, extraArgs, emterpretify, verbose) {
+        return module.exports._build(buildDirectory, inputDir, outFile, extraArgs, emterpretify, verbose);
+    },
+
+    buildFile: function(inputFile, outFile, extraArgs, emterpretify, verbose) {
+        return module.exports._build(buildFile, inputFile, outFile, extraArgs, emterpretify, verbose);
     }
 };

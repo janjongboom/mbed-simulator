@@ -31,24 +31,90 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
-    # resolve all C++ dependencies
-    $ mbed deploy
-
-    # resolve all JS dependencies
-    $ npm install
-
-    # build the shared libmbed library (to speed up future compilations)
-    $ node build-libmbed.js
+    $ sh build-demos.js
     ```
 
 1. Then, start a web server:
 
     ```
-    $ node server/server.js
+    $ node server.js
     ```
 
 1. Open http://localhost:7829 in your browser.
 1. Blinky runs!
+
+## CLI
+
+The simulator comes with a CLI to run any Mbed OS 5 project under the simulator.
+
+**Installation**
+
+Install the simulator via:
+
+```
+$ npm install mbed-simulator -g
+```
+
+Or if you cloned the project, via:
+
+```
+$ npm install /path/to/simulator -g
+```
+
+This will create a new `mbed-simulator` binary somewhere in your PATH.
+
+**Running**
+
+Then run from an Mbed OS 5 project:
+
+```
+$ mbed-simulator -i . --launch
+```
+
+The project will build and a web browser window will open for you.
+
+To see if your program runs in the simulator, check the `TARGET_SIMULATOR` macro.
+
+#### CLI Arguments
+
+**simconfig.json**
+
+You can specify simulator options via a `simconfig.json` object, this is useful because you can check it in. In here you can specify compiler options and ignore paths. Just create the file in your project folder according to the following structure:
+
+```json
+{
+    "compiler-args": [
+        "-std=c++11",
+        "--preload-file", "sdcard@/fs"
+    ],
+    "emterpretify": true,
+    "ignore": [
+        "./BSP_DISCO_F413ZH",
+        "./F413ZH_SD_BlockDevice"
+    ]
+}
+```
+
+It will automatically be picked up by the simulator CLI.
+
+**File system**
+
+A file system is automatically mounted for you, so you don't need to declare a `BlockDevice` or a `FATFileSystem`. Just call `fopen` and friends. To populate the file system at compile time pass in:
+
+```
+# the part after the @ is the mount location (in this case /fs)
+
+$ mbed-simulator -i . --preload-file folder-to-load/@/fs
+```
+
+**C++11**
+
+To use C++11 (or a different version), pass in `-c "-std=c++11"`.
+
+**Emterpretify**
+
+If you see that compilation hangs this might be due to a bug in asyncify. To switch to Emterpretify for async operations, pass in `--emterpretify`. This is f.e. used for uTensor.
+
 
 ## Changing mbed-simulator-hal
 
@@ -96,36 +162,6 @@ Simulator applications can be debugged using your browser's debugger, because th
     * On a user-compiled app, go to the folder that starts with `/home/ubuntu`, go to the `out` folder, and select `user_XXX.cpp`.
 1. Click in the gutter to add a breakpoint.
 1. Click the *↻* icon in the simulator to restart the debug session.
-
-## CLI
-
-To get a CLI like experience for custom projects (which is currently *very* basic), run from a folder (e.g. mbed-os-example-blinky):
-
-```
-$ /path/to/simulator/bin/mbed-simulator .
-```
-
-A web browser window will open for you.
-
-To see if your program runs in the simulator, check the `TARGET_SIMULATOR` macro.
-
-**File system**
-
-A file system is automatically mounted for you, so you don't need to declare a `BlockDevice` or a `FATFileSystem`. Just call `fopen` and friends. To populate the file system at compile time pass in:
-
-```
-# the part after the @ is the mount location (in this case /fs)
-
-$ mbed-simulator . --preload-file folder-to-load/@/fs
-```
-
-**C++11**
-
-To use C++11 (or a different version), pass in `-std=c++11`.
-
-**Emterpretify**
-
-If you see that compilation hangs this might be due to a bug in asyncify. To switch to Emterpretify for async operations, pass in `--emterpretify`. This is f.e. used for uTensor.
 
 ## Attribution
 
