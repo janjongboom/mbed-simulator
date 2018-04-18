@@ -1,9 +1,7 @@
-node build-libmbed.js
-
 for dir in demos/*
 do
     if [[ -d "$dir" && ! -L "$dir" ]]; then
         echo "Building ${dir}..."
-        node build-demo.js ${dir}
+        node cli.js -i ${dir} -o out/ --compiler-opts "-O2 -Werror"
     fi
 done
