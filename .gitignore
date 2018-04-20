@@ -9,3 +9,5 @@ mbed-simulator-hal/components/mbed-http/
 demos/*/out
 mbed-simulator-hal/components/MQTT/
 mbed-simulator-hal/mbed-os/
+mbed-simulator-hal/*.cache
+

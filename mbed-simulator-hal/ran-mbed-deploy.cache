@@ -1,7 +1,0 @@
-[mbed] WARNING: Cannot find the mbed tools directory in "/Users/janjon01/repos/mbed-simulator"
----
-[mbed] Updating library "mbed-simulator-hal/mbed-os" to rev #80bb706b9eab
-[mbed] Updating library "mbed-simulator-hal/components/MQTT" to rev #9cff7b6bbd01 (tag: tip)
-[mbed] Updating library "mbed-simulator-hal/components/MQTT/MQTTPacket" to rev #aedcaf7984d5 (tag: tip)
-[mbed] Updating library "mbed-simulator-hal/components/MQTT/FP" to rev #3c62ba1807ac (tag: tip)
-[mbed] Updating library "mbed-simulator-hal/components/mbed-http" to rev #9a04ed79d67e (tag: tip)
