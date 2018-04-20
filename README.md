@@ -123,8 +123,10 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 1. Run:
 
     ```
-    $ node build-libmbed.js
+    $ rm mbed-simulator-hal/libmbed.bc
     ```
+
+1. Rebuild your application. libmbed will automatically be generated.
 
 ## Updating demo's
 

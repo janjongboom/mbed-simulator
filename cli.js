@@ -31,7 +31,7 @@ program
 
 // shorthand so you can run `mbed simulator .`
 if (process.argv.length === 3 && fs.existsSync(process.argv[2]) && fs.statSync(process.argv[2]).isDirectory()) {
-    program.inputDir = process.argv[2];
+    program.inputDir = Path.resolve(process.argv[2]);
     program.launch = true;
 }
 
@@ -67,6 +67,7 @@ if (program.inputFile && !fs.statSync(program.inputFile).isFile()) {
 
 if (!program.outputFile) {
     if (program.inputDir) {
+        program.inputDir = Path.resolve(program.inputDir);
         program.outputFile = Path.join(program.inputDir, 'BUILD', 'SIMULATOR', Path.basename(program.inputDir) + '.js');
     }
     else {
