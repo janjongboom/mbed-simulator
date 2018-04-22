@@ -1,0 +1,6 @@
+{
+    "peripherals": [
+        { "component": "C12832", "args": { "MOSI": "PinNames.SPI_MOSI", "MISO": "PinNames.SPI_MISO", "SCK": "PinNames.SPI_SCK" } },
+        { "component": "sht31", "args": { "SDA": "PinNames.I2C_SDA", "SCL": "PinNames.I2C_SCL" } }
+    ]
+}

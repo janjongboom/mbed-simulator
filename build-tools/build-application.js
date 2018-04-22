@@ -7,7 +7,45 @@ const libmbed = require('./build-libmbed');
 const EventEmitter = require('events');
 const promisify = require('es6-promisify').promisify;
 
-let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles) {
+// gets all peripherals from mbed-simulator-hal and then returns the JS files to be loaded
+let findPeripherals = async function() {
+    let dirs  = await libmbed.getAllDirectories();
+
+    let hal = [];
+    let ui = [];
+
+    // iterate over hal folders
+    for (let d of dirs.filter(d => Path.basename(d) === 'js-hal')) {
+        // read all files that end with js and add them
+        hal = hal.concat((await promisify(fs.readdir)(d)).filter(f => /\.js$/.test(f)).map(f => Path.join(d, f)));
+    }
+
+    // iterate over ui folders
+    for (let d of dirs.filter(d => Path.basename(d) === 'js-ui')) {
+        // read all files that end with js and add them
+        ui = ui.concat((await promisify(fs.readdir)(d)).filter(f => /\.js$/.test(f)).map(f => Path.join(d, f)));
+    }
+
+    // get relative to root
+    hal = hal.map(f => Path.relative(Path.join(__dirname, '..'), f));
+    ui = ui.map(f => Path.relative(Path.join(__dirname, '..'), f));
+
+    return {
+        hal: hal,
+        ui: ui
+    };
+};
+
+let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, peripherals) {
+    let componentsOutName = Path.join(Path.dirname(outFile), Path.basename(outFile) + '.components');
+
+    let builtinPeripherals = await findPeripherals();
+    let components = {
+        jshal: builtinPeripherals.hal,
+        jsui: builtinPeripherals.ui,
+        peripherals: peripherals
+    };
+
     let args = cFiles
         .concat(includeDirectories.map(i => '-I' + i))
         .concat(helpers.defaultBuildFlags)
@@ -38,7 +76,11 @@ let build = async function(outFile, extraArgs, emterpretify, verbose, includeDir
 
         cmd.on('close', code => {
             if (code === 0) {
-                resolve(outFile);
+                fs.writeFile(componentsOutName, JSON.stringify(components, null, 4), 'utf-8', function(err) {
+                    if (err) return reject(err);
+
+                    resolve(outFile);
+                });
             }
             else {
                 reject('Application failed to build (' + code + ')\n' + stdout);
@@ -87,7 +129,7 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
                     .concat(macros.map(m => '-D' + m))
                     .concat(simconfig['compiler-args']);
 
-    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles);
+    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, simconfig.peripherals || []);
 }
 
 let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verbose) {
@@ -97,7 +139,7 @@ let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verb
     let includeDirectories = [ Path.dirname(inputFile) ].concat(await libmbed.getAllDirectories()).map(c => Path.resolve(c));;
     let cFiles = [ libmbed.getPath(), inputFile ].map(c => Path.resolve(c));
 
-    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles);
+    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, []);
 }
 
 module.exports = {

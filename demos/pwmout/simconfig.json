@@ -1,0 +1,5 @@
+{
+    "peripherals": [
+        { "component": "LedRed", "args": { "LED" : "PinNames.p5" } }
+    ]
+}

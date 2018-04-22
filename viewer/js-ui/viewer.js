@@ -7,6 +7,7 @@ window.removeComponent = function(instance) {
     var ix = activeComponents.indexOf(instance);
     activeComponentModel.splice(ix, 1);
     sessionStorage.setItem('model', JSON.stringify(activeComponentModel));
+    sessionStorage.setItem('model-dirty', true);
 };
 
 var components = [
@@ -39,16 +40,34 @@ var components = [
 ];
 
 Module.preRun.push(function() {
-    var model = sessionStorage.getItem('model');
-    if (model) {
-        model = JSON.parse(model);
+    var peripherals = window.peripheralsToLoad;
 
-        model.forEach(function(m) {
-            var component = new window.MbedJSUI[m.component](m.args);
+    // dirty model? in that case load that instead of our peripherals mentioned here...
+    if (sessionStorage.getItem('model-dirty')) {
+        try {
+            peripherals = JSON.parse(sessionStorage.getItem('model'));
+        }
+        catch (ex) {}
+    }
+
+    if (peripherals) {
+        console.log('hello im loading yeay', peripherals);
+        peripherals.forEach(function(m) {
+            var args = m.args;
+            Object.keys(args).forEach(function(k) {
+                if (typeof args[k] === 'string' && args[k].indexOf('PinNames.') === 0) {
+                    args[k] = MbedJSHal.PinNames[args[k].replace('PinNames.', '')];
+                }
+            });
+
+            var component = new window.MbedJSUI[m.component](args);
             component.init();
             activeComponents.push(component);
             activeComponentModel.push(m);
         });
+
+        sessionStorage.setItem('model', JSON.stringify(activeComponentModel));
+        sessionStorage.setItem('model-dirty', true);
     }
 });
 
@@ -115,6 +134,7 @@ document.querySelector('#select-component').onchange = function(e) {
         activeComponents.push(component);
         activeComponentModel.push({ component: obj.component, args: args });
         sessionStorage.setItem('model', JSON.stringify(activeComponentModel));
+        sessionStorage.setItem('model-dirty', true);
 
         document.querySelector('#overlay').style.display = 'none';
     };

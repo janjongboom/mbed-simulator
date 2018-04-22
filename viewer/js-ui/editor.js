@@ -2,38 +2,6 @@ var editor = ace.edit("editor");
 editor.setTheme("ace/theme/textmate");
 editor.getSession().setMode("ace/mode/c_cpp");
 
-var demoComponents = {};
-
-function setDemoComponents() {
-    demoComponents = {
-        pwmout: [
-            { component: "LedRed", args: { LED : MbedJSHal.PinNames.p5 } }
-        ],
-        lcd: [{
-            component: "C12832",
-            args: {
-                MOSI: MbedJSHal.PinNames.SPI_MOSI,
-                MISO: MbedJSHal.PinNames.SPI_MISO,
-                SCK: MbedJSHal.PinNames.SPI_SCK
-            }
-        }],
-        temperature: [
-            { component: "C12832", args: { MOSI: MbedJSHal.PinNames.SPI_MOSI, MISO: MbedJSHal.PinNames.SPI_MISO, SCK: MbedJSHal.PinNames.SPI_SCK } },
-            { component: "sht31", args: { SDA: MbedJSHal.PinNames.I2C_SDA, SCL: MbedJSHal.PinNames.I2C_SCL } }
-        ],
-        touchscreen: [
-            { component: 'ST7789H2', args: {} }
-        ]
-    };
-}
-
-if (document.readyState === 'complete') {
-    setDemoComponents();
-}
-else {
-    window.addEventListener('load', setDemoComponents);
-}
-
 var simulatorFrame = document.querySelector('#viewer iframe');
 var compilationFailed = document.querySelector('#compilation-failed');
 
@@ -69,29 +37,15 @@ if (document.location.hash) {
     }
 }
 
-function set_demo_components(demo, cb) {
-    if (document.readyState === 'complete') {
-        if (demoComponents[demo]) {
-            sessionStorage.setItem('model', JSON.stringify(demoComponents[demo]));
-        }
-        cb();
-    }
-    else {
-        window.addEventListener('load', set_demo_components.bind(this, demo, cb));
-    }
-}
-
 function load_demo(demo) {
     var x = new XMLHttpRequest();
     x.onload = function() {
         if (x.status === 200) {
-            sessionStorage.removeItem('model');
+            sessionStorage.removeItem('model-dirty');
 
-            set_demo_components(demo, function() {
-                simulatorFrame.src = '/view/' + demo;
-                simulatorFrame.style.display = 'block';
-                compilationFailed.style.display = 'none';
-            });
+            simulatorFrame.src = '/view/' + demo;
+            simulatorFrame.style.display = 'block';
+            compilationFailed.style.display = 'none';
 
             editor.setValue(x.responseText);
             editor.selection.clearSelection();

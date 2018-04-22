@@ -414,10 +414,10 @@
 	<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="4" transform="matrix(4.489659e-011 -1 1 4.489659e-011 7.4255 72.4648)">GND</text>
 	<rect fill="none" height="50.784" width="4.467" x="139.556" y="11.011"/>
 
-		<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="3" transform="matrix(4.489659e-011 -1 1 4.489659e-011 141.7673 54.7617)">http://mbed.co.uk</text>
+		<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="3" transform="matrix(4.489659e-011 -1 1 4.489659e-011 141.7673 54.7617)">https://labs.mbed.com</text>
 	<rect fill="none" height="72.434" width="4.875" x="148.714" y="0.435"/>
 
-		<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="5" transform="matrix(4.489659e-011 -1 1 4.489659e-011 152.3992 72.8691)">mbed microcontroller</text>
+		<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="5" transform="matrix(4.489659e-011 -1 1 4.489659e-011 152.3992 72.8691)">Mbed microcontroller</text>
 	<rect fill="none" height="11.658" width="3.268" x="11.678" y="60.807"/>
 
 		<text fill="#FFFFFF" font-family="'Lucida Console', Monaco, monospace" font-size="4" transform="matrix(4.489659e-011 -1 1 4.489659e-011 14.6257 72.4648)">VIN</text>

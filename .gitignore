@@ -2,12 +2,13 @@ out/user_*.js
 out/user_*.cpp
 out/user_*.map
 out/user_*.mem
+out/user_*.components
 node_modules/
 demos/mbed-cloud-client/
 *.bc
-mbed-simulator-hal/components/mbed-http/
+mbed-simulator-hal/mbed-http/
 demos/*/out
-mbed-simulator-hal/components/MQTT/
+mbed-simulator-hal/MQTT/
 mbed-simulator-hal/mbed-os/
 mbed-simulator-hal/*.cache
 
