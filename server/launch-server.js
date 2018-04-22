@@ -7,19 +7,23 @@ const hbs = require('hbs');
 const Path = require('path');
 const fs = require('fs');
 const compile = require('./compile');
+const { exists } = require('../build-tools/helpers');
+const promisify = require('es6-promisify').promisify;
 
 module.exports = function(outFolder, port, callback) {
     const app = express();
     const server = require('http').Server(app);
 
     app.set('view engine', 'html');
-    app.set('views', Path.join(__dirname, '../viewer'));
+    app.set('views', Path.join(__dirname, '..', 'viewer'));
     app.engine('html', hbs.__express);
 
     app.use('/out', express.static(outFolder));
 
-    app.use('/demos', express.static(__dirname + '/../demos'));
-    app.use(express.static(__dirname + '/../viewer'));
+    app.use('/demos', express.static(Path.join(__dirname, '..', 'demos')));
+    app.use('/peripherals', express.static(Path.join(__dirname, '..', 'mbed-simulator-hal', 'peripherals')));
+
+    app.use(express.static(Path.join(__dirname, '..', 'viewer')));
     app.use(bodyParser.json());
 
     app.get('/api/network/ip', (req, res, next) => {
@@ -174,7 +178,42 @@ module.exports = function(outFolder, port, callback) {
             return res.sendFile(Path.join(outFolder, req.params.script));
         }
 
-        res.render('viewer.html', { script: req.params.script });
+        (async function() {
+            let jshal = [];
+            let jsui = [];
+            let peripherals = [];
+
+            let componentsPath = Path.join(outFolder, req.params.script + '.js.components');
+            if (await exists(componentsPath)) {
+                let components = JSON.parse(await promisify(fs.readFile)(componentsPath, 'utf-8'));
+
+                jshal = jshal.concat(components.jshal);
+                jsui = jsui.concat(components.jsui);
+                peripherals = peripherals.concat(components.peripherals);
+            }
+
+            function normalize(a) {
+                return a.map(f => {
+                    if (f.indexOf('mbed-simulator-hal/peripherals/') === 0) {
+                        return f.replace(/^mbed-simulator-hal/, '');
+                    }
+                    return '/out/' + f;
+                }).map(f => { return { script: f } });
+            }
+
+            // map to proper route
+            jshal = normalize(jshal);
+            jsui = normalize(jsui);
+
+            res.render('viewer.html', {
+                script: req.params.script,
+                jshal: jshal,
+                jsui: jsui,
+                peripherals: JSON.stringify(peripherals)
+            });
+        })().catch(err => {
+            return next(err);
+        });
     });
 
     app.get('/', (req, res, next) => {
