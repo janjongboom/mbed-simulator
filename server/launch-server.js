@@ -197,7 +197,7 @@ module.exports = function(outFolder, port, callback) {
                     if (f.indexOf('mbed-simulator-hal/peripherals/') === 0) {
                         return f.replace(/^mbed-simulator-hal/, '');
                     }
-                    return f;
+                    return '/out/' + f;
                 }).map(f => { return { script: f } });
             }
 

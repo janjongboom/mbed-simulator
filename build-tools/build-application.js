@@ -36,13 +36,13 @@ let findPeripherals = async function() {
     };
 };
 
-let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, peripherals) {
+let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, peripherals, componentFiles) {
     let componentsOutName = Path.join(Path.dirname(outFile), Path.basename(outFile) + '.components');
 
     let builtinPeripherals = await findPeripherals();
     let components = {
-        jshal: builtinPeripherals.hal,
-        jsui: builtinPeripherals.ui,
+        jshal: builtinPeripherals.hal.concat(componentFiles.jshal || []),
+        jsui: builtinPeripherals.ui.concat(componentFiles.jsui || []),
         peripherals: peripherals
     };
 
@@ -129,7 +129,40 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
                     .concat(macros.map(m => '-D' + m))
                     .concat(simconfig['compiler-args']);
 
-    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, simconfig.peripherals || []);
+    // copy JS components to the out folder...
+    let copyComponents = async function (fileList, postfix) {
+        let files = fileList.map(f => Path.join(inputDir, f));
+        let targetFolder = Path.join(Path.dirname(outFile), Path.basename(outFile, '.js') + postfix);
+
+        let outFiles = [];
+
+        if (!(await exists(targetFolder))) {
+            await promisify(fs.mkdir)(targetFolder);
+        }
+        for (let f of files) {
+            let target = Path.join(targetFolder, Path.basename(f));
+            await promisify(fs.copyFile)(f, target);
+            outFiles.push(Path.relative(Path.dirname(outFile), target));
+        }
+        return outFiles;
+    }
+    let jshal = [];
+    let jsui = [];
+    if (simconfig.components && simconfig.components.jshal) {
+        jshal = await copyComponents(simconfig.components.jshal, '-jshal');
+    }
+    if (simconfig.components && simconfig.components.jsui) {
+        jsui = await copyComponents(simconfig.components.jsui, '-jsui');
+    }
+
+    return build(outFile,
+                 extraArgs,
+                 emterpretify,
+                 verbose,
+                 includeDirectories,
+                 cFiles,
+                 simconfig.peripherals || [],
+                 { jshal: jshal, jsui: jsui });
 }
 
 let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verbose) {
@@ -139,7 +172,7 @@ let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verb
     let includeDirectories = [ Path.dirname(inputFile) ].concat(await libmbed.getAllDirectories()).map(c => Path.resolve(c));;
     let cFiles = [ libmbed.getPath(), inputFile ].map(c => Path.resolve(c));
 
-    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, []);
+    return build(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, [], {});
 }
 
 module.exports = {

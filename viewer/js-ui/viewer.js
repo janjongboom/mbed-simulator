@@ -51,7 +51,6 @@ Module.preRun.push(function() {
     }
 
     if (peripherals) {
-        console.log('hello im loading yeay', peripherals);
         peripherals.forEach(function(m) {
             var args = m.args;
             Object.keys(args).forEach(function(k) {
