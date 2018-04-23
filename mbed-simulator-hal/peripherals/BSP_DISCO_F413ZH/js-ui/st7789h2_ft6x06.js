@@ -49,8 +49,9 @@
         cnvs.onmousemove = function(e) {
             var x = e.pageX - cnvs.offsetLeft;
             var y = e.pageY - cnvs.offsetTop;
+            var leftPressed = e.buttons === 1 || e.which === 1;
 
-            window.MbedJSHal.ST7789H2.updateTouch(e.buttons === 1, x, y);
+            window.MbedJSHal.ST7789H2.updateTouch(leftPressed, x, y);
         };
 
         cnvs.onmouseup = function(e) {
