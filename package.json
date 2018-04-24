@@ -1,7 +1,8 @@
 {
   "name": "mbed-simulator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Mbed OS 5 simulator",
+  "preferGlobal": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
