@@ -138,9 +138,22 @@ const getMacrosFromMbedAppJson = async function(filename) {
     let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbedapp.target_overrides || {})['SIMULATOR']);
     for (let key of Object.keys(target_over)) {
         let value = target_over[key].toString();
-        key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+        if (key.indexOf('.') > -1) {
+            key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+        }
+        else {
+            key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
+        }
 
         value = value.replace(/"/g, '\\"');
+
+        let alreadyInMacros = macros.filter(m => {
+            return m === key || m.indexOf(key + '=') === 0;
+        });
+
+        for (let m of alreadyInMacros) {
+            macros.splice(macros.indexOf(m), 1);
+        }
 
         macros.push(key + '=' + value);
     }
