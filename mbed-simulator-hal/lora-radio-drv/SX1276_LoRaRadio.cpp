@@ -30,8 +30,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 
-#define tr_debug(...) printf("[RADIO][DBG] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_info(...)  printf("[RADIO][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_debug(...) void(0) //dummies if feature common pal is not added
+#define tr_info(...)  void(0) //dummies if feature common pal is not added
 #define tr_error(...) printf("[RADIO][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #define tr_warn(...) printf("[RADIO][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 
