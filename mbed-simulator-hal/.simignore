@@ -13,7 +13,6 @@ mbed-os/features/FEATURE_LWIP/
 mbed-os/features/FEATURE_UVISOR/
 mbed-os/features/filesystem/
 mbed-os/features/frameworks/
-mbed-os/features/lorawan/
 mbed-os/features/mbedtls/targets/
 mbed-os/features/nanostack/
 mbed-os/features/netsocket/cellular/

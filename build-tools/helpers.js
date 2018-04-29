@@ -79,6 +79,7 @@ const defaultBuildFlags = [
     '-DMBEDTLS_TEST_NULL_ENTROPY',
     '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
     '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
+    '-DMBEDTLS_USER_CONFIG_FILE=\"simulator_mbedtls_config.h\"',
 
     '-Wall',
 ];

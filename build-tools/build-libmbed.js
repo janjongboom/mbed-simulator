@@ -118,7 +118,6 @@ let libmbed = {
             .concat([
                 '-s', 'SIDE_MODULE=1',
                 '-O2',
-                '-Werror',
                 '-o', outFile
             ]);
 
