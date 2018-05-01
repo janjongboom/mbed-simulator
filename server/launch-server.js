@@ -9,6 +9,8 @@ const fs = require('fs');
 const compile = require('./compile');
 const { exists } = require('../build-tools/helpers');
 const promisify = require('es6-promisify').promisify;
+const udp = require('dgram');
+const ttnGwClient = udp.createSocket('udp4');
 
 module.exports = function(outFolder, port, callback) {
     const app = express();
@@ -216,6 +218,47 @@ module.exports = function(outFolder, port, callback) {
         });
     });
 
+    app.post('/api/lora/send', (req, res, next) => {
+        if (!req.body.payload) return next('Missing body.payload');
+        if (!req.body.host) return next('Missing body.host');
+        if (!req.body.port) return next('Missing body.port');
+
+        let buff = Buffer.from([
+            0x2, // protocol version
+            0xff, 0xff, // random token
+            0x0, // PUSH_DATA
+            0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12, // gw mac address
+        ]);
+
+        let payload = Buffer.from(req.body.payload);
+
+        // @todo: fix this
+        let msg = {
+            "rxpk": [{
+                "time": new Date().toISOString(),
+                "chan": 2,
+                "rfch": 0,
+                "freq": 866.349812,
+                "stat": 1,
+                "modu": "LORA",
+                "datr": "SF7BW125",
+                "codr": "4/6",
+                "rssi": -35,
+                "lsnr": 5,
+                "size": payload.length,
+                "data": payload.toString('base64')
+            }]
+        };
+
+        buff = Buffer.concat([ buff, Buffer.from(JSON.stringify(msg))]);
+
+        ttnGwClient.send(buff, req.body.port, req.body.host, function(err) {
+            if (err) return next(err);
+
+            res.send('OK');
+        });
+    });
+
     app.get('/', (req, res, next) => {
         res.render('simulator.html');
     });
@@ -237,6 +280,12 @@ module.exports = function(outFolder, port, callback) {
             res.status(500).send(err);
         });
     });
+
+    ttnGwClient.on('message',function(msg, info) {
+        console.log('[TTNGW] Received %d bytes from %s:%d',msg.length, info.address, info.port);
+        console.log('[TTNGW] Message:', msg);
+    });
+
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
         console.log('Web server listening on port %s!', port);
