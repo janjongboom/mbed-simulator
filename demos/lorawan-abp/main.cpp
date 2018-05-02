@@ -55,7 +55,7 @@ static void send_message() {
 
 int main() {
     if (devaddr == 0x0) {
-        printf("Set your LoRaWAN credentials first!");
+        printf("Set your LoRaWAN credentials first!\n");
         return -1;
     }
 

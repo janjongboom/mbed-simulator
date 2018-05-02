@@ -55,7 +55,7 @@ static void send_message() {
 
 int main() {
     if (DEV_EUI[0] == 0x0 && DEV_EUI[1] == 0x0 && DEV_EUI[2] == 0x0 && DEV_EUI[3] == 0x0 && DEV_EUI[4] == 0x0 && DEV_EUI[5] == 0x0 && DEV_EUI[6] == 0x0 && DEV_EUI[7] == 0x0) {
-        printf("Set your LoRaWAN credentials first!");
+        printf("Set your LoRaWAN credentials first!\n");
         return -1;
     }
 
