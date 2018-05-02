@@ -4,10 +4,10 @@
 #include "Sht31.h"
 #include "SX1276_LoRaRadio.h"
 
-// Device credentials, register device as OTAA in The Things Network and copy credentials here
-static uint8_t DEV_EUI[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-static uint8_t APP_EUI[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-static uint8_t APP_KEY[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+// ABP Credentials - please copy them from the TTN Console
+static uint32_t devaddr = 0x0;
+static uint8_t nwk_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+static uint8_t app_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
 
 // The port we're sending and receiving on
@@ -77,11 +77,10 @@ int main() {
     lorawan.set_datarate(5); // SF7BW125
 
     lorawan_connect_t connect_params;
-    connect_params.connect_type = LORAWAN_CONNECTION_OTAA;
-    connect_params.connection_u.otaa.dev_eui = DEV_EUI;
-    connect_params.connection_u.otaa.app_eui = APP_EUI;
-    connect_params.connection_u.otaa.app_key = APP_KEY;
-    connect_params.connection_u.otaa.nb_trials = 3;
+    connect_params.connect_type = LORAWAN_CONNECTION_ABP;
+    connect_params.connection_u.abp.dev_addr = devaddr;
+    connect_params.connection_u.abp.nwk_skey = nwk_s_key;
+    connect_params.connection_u.abp.app_skey = app_s_key;
 
     lorawan_status_t retcode = lorawan.connect(connect_params);
 

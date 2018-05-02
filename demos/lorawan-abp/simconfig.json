@@ -1,0 +1,5 @@
+{
+    "peripherals": [
+        { "component": "sht31", "args": { "SDA": "PinNames.I2C_SDA", "SCL": "PinNames.I2C_SCL" } }
+    ]
+}
