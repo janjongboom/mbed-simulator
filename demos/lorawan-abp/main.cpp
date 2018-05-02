@@ -54,6 +54,11 @@ static void send_message() {
 }
 
 int main() {
+    if (devaddr == 0x0) {
+        printf("Set your LoRaWAN credentials first!");
+        return -1;
+    }
+
     printf("Press BUTTON1 to send the current value of the temperature sensor!\n");
 
     if (lorawan.initialize(&ev_queue) != LORAWAN_STATUS_OK) {

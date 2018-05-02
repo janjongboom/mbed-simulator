@@ -54,6 +54,11 @@ static void send_message() {
 }
 
 int main() {
+    if (DEV_EUI[0] == 0x0 && DEV_EUI[1] == 0x0 && DEV_EUI[2] == 0x0 && DEV_EUI[3] == 0x0 && DEV_EUI[4] == 0x0 && DEV_EUI[5] == 0x0 && DEV_EUI[6] == 0x0 && DEV_EUI[7] == 0x0) {
+        printf("Set your LoRaWAN credentials first!");
+        return -1;
+    }
+
     printf("Press BUTTON1 to send the current value of the temperature sensor!\n");
 
     if (lorawan.initialize(&ev_queue) != LORAWAN_STATUS_OK) {
