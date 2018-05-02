@@ -11,6 +11,7 @@ const { exists } = require('../build-tools/helpers');
 const promisify = require('es6-promisify').promisify;
 const udp = require('dgram');
 const ttnGwClient = udp.createSocket('udp4');
+const mac = require('getmac');
 
 module.exports = function(outFolder, port, callback) {
     const app = express();
@@ -228,6 +229,8 @@ module.exports = function(outFolder, port, callback) {
         return [ tokenVal >> 8 & 0xff, tokenVal & 0xff ];
     }
 
+    let gwId = [0, 0, 0, 0, 0, 0, 0, 0];
+
     app.post('/api/lora/send', (req, res, next) => {
         if (!req.body.payload) return next('Missing body.payload');
         if (!req.body.host) return next('Missing body.host');
@@ -242,7 +245,7 @@ module.exports = function(outFolder, port, callback) {
             0x02, // protocol version
             t1, t2, // random token
             0x0, // PUSH_DATA
-            0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12, // gw mac address
+            gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7], // gw mac address
         ]);
 
         let payload = Buffer.from(req.body.payload);
@@ -323,7 +326,7 @@ module.exports = function(outFolder, port, callback) {
         let action = msg[3];
 
         if (action === 0x03) { // PULL_RESP
-            let tx_ack = Buffer.from([ 0x02, id1, id2, 0x05 /*TX_ACK*/, 0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12 ]);
+            let tx_ack = Buffer.from([ 0x02, id1, id2, 0x05 /*TX_ACK*/, gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7] ]);
             ttnGwClient.send(tx_ack, 1700, 'router.eu.thethings.network', function(err) {
                 console.log('[TTNGW] TX_ACK OK');
             });
@@ -347,11 +350,25 @@ module.exports = function(outFolder, port, callback) {
 
     setInterval(() => {
         let [ t1, t2 ] = getNextToken();
-        let pull_data = Buffer.from([ 0x02, t1, t2, 0x02 /*PULL_DATA*/, 0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12 ]);
+        let pull_data = Buffer.from([ 0x02, t1, t2, 0x02 /*PULL_DATA*/, gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7] ]);
         ttnGwClient.send(pull_data, 1700, 'router.eu.thethings.network', function(err) {
             // console.log('PULL_DATA OK');
         });
     }, 5000);
+
+    mac.getMac(function(err, m) {
+        if (err) {
+            return console.error('Could not find MAC address... Disabling LoRa simulation');
+        }
+        gwId = m.split(':').map(d => parseInt(d, 16));
+        gwId.splice(3, 0, 0x0);
+        gwId.splice(3, 0, 0x0);
+        console.log('LoRaWAN Gateway ID is', gwId.map(d => {
+            let v = d.toString(16);
+            if (v.length === 1) return '0' + v;
+            return v;
+        }).join(':'), '-', `Make sure the gateway registered in The Things Network running the *legacy packet forwarder*`);
+    });
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
         console.log('Web server listening on port %s!', port);
