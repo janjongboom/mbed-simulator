@@ -15,6 +15,7 @@ const ttnGwClient = udp.createSocket('udp4');
 module.exports = function(outFolder, port, callback) {
     const app = express();
     const server = require('http').Server(app);
+    const io = require('socket.io')(server);
 
     app.set('view engine', 'html');
     app.set('views', Path.join(__dirname, '..', 'viewer'));
@@ -218,19 +219,51 @@ module.exports = function(outFolder, port, callback) {
         });
     });
 
+    let tokenVal = 0;
+    function getNextToken() {
+        tokenVal++;
+
+        if (tokenVal > 255*255) tokenVal = 0;
+
+        return [ tokenVal >> 8 & 0xff, tokenVal & 0xff ];
+    }
+
     app.post('/api/lora/send', (req, res, next) => {
         if (!req.body.payload) return next('Missing body.payload');
         if (!req.body.host) return next('Missing body.host');
         if (!req.body.port) return next('Missing body.port');
+        if (!req.body.freq) return next('Missing body.freq');
+        if (!req.body.bandwidth) return next('Missing body.bandwidth');
+        if (!req.body.datarate) return next('Missing body.datarate');
+
+        let [ t1, t2 ] = getNextToken();
 
         let buff = Buffer.from([
-            0x2, // protocol version
-            0xff, 0xff, // random token
+            0x02, // protocol version
+            t1, t2, // random token
             0x0, // PUSH_DATA
             0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12, // gw mac address
         ]);
 
         let payload = Buffer.from(req.body.payload);
+
+        let bw = 'BW125';
+        switch (req.body.bandwidth) {
+            case 7: bw = 'BW125'; break;
+            case 8: bw = 'BW250'; break;
+            case 9: bw = 'BW500'; break;
+            // todo
+        }
+
+        let sf = 'SF7';
+        switch (req.body.datarate) {
+            case 7: sf = 'SF7'; break;
+            case 8: sf = 'SF8'; break;
+            case 9: sf = 'SF9'; break;
+            case 10: sf = 'SF10'; break;
+            case 11: sf = 'SF11'; break;
+            case 12: sf = 'SF12'; break;
+        }
 
         // @todo: fix this
         let msg = {
@@ -238,10 +271,10 @@ module.exports = function(outFolder, port, callback) {
                 "time": new Date().toISOString(),
                 "chan": 2,
                 "rfch": 0,
-                "freq": 866.349812,
+                "freq": req.body.freq / 1000 / 1000,
                 "stat": 1,
                 "modu": "LORA",
-                "datr": "SF7BW125",
+                "datr": sf + bw,
                 "codr": "4/6",
                 "rssi": -35,
                 "lsnr": 5,
@@ -251,6 +284,8 @@ module.exports = function(outFolder, port, callback) {
         };
 
         buff = Buffer.concat([ buff, Buffer.from(JSON.stringify(msg))]);
+
+        console.log('[TTNGW] Sending', buff);
 
         ttnGwClient.send(buff, req.body.port, req.body.host, function(err) {
             if (err) return next(err);
@@ -282,10 +317,41 @@ module.exports = function(outFolder, port, callback) {
     });
 
     ttnGwClient.on('message',function(msg, info) {
-        console.log('[TTNGW] Received %d bytes from %s:%d',msg.length, info.address, info.port);
-        console.log('[TTNGW] Message:', msg);
+        if (msg[0] != 0x2) return; // not right protocol
+        let id1 = msg[1];
+        let id2 = msg[2];
+        let action = msg[3];
+
+        if (action === 0x03) { // PULL_RESP
+            let tx_ack = Buffer.from([ 0x02, id1, id2, 0x05 /*TX_ACK*/, 0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12 ]);
+            ttnGwClient.send(tx_ack, 1700, 'router.eu.thethings.network', function(err) {
+                console.log('[TTNGW] TX_ACK OK');
+            });
+
+            var data = JSON.parse(msg.slice(4).toString('utf-8'));
+
+            var buff = new Buffer(data.txpk.data, 'base64');
+
+            console.log('[TTNGW] got downlink msg', buff);
+
+            io.sockets.emit('lora-downlink', Array.from(buff));
+        }
+        else if (action === 0x04) { //PULL_DATA_OK
+            // ignore...
+        }
+        else {
+            console.log('[TTNGW] Received %d bytes from %s:%d',msg.length, info.address, info.port);
+            console.log('[TTNGW] Message:', msg);
+        }
     });
 
+    setInterval(() => {
+        let [ t1, t2 ] = getNextToken();
+        let pull_data = Buffer.from([ 0x02, t1, t2, 0x02 /*PULL_DATA*/, 0x8c, 0x85, 0x90, 0x00, 0x00, 0x54, 0xd4, 0x12 ]);
+        ttnGwClient.send(pull_data, 1700, 'router.eu.thethings.network', function(err) {
+            // console.log('PULL_DATA OK');
+        });
+    }, 5000);
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
         console.log('Web server listening on port %s!', port);

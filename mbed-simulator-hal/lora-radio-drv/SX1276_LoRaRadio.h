@@ -324,6 +324,11 @@ public:
      */
     virtual void unlock(void);
 
+    /**
+     * Process an RX frame out of band (emscripten)
+     */
+    void rx_frame(uint8_t*, uint32_t);
+
 private:
 
     // SPI and chip select control
@@ -376,6 +381,7 @@ private:
     mbed::Timeout tx_timeout_timer;
     mbed::Timeout rx_timeout_timer;
     mbed::Timeout rx_timeout_sync_word;
+    mbed::Timeout tx_done_timer;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     // Thread to handle interrupts
@@ -407,6 +413,8 @@ private:
     void rf_irq_task(void);
     void set_modem(uint8_t modem);
     void rx_chain_calibration(void);
+    void tx_done_irq();
+    void rx_done_irq();
 
     // ISRs
     void  dio0_irq_isr();

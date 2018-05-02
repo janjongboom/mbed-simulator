@@ -1,5 +1,7 @@
 var statusElement = document.getElementById('status');
 
+window.socket = io.connect(location.origin);
+
 var Module = {
     preRun: [],
     postRun: [],

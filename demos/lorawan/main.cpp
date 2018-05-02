@@ -5,9 +5,13 @@
 #include "SX1276_LoRaRadio.h"
 
 // ABP Credentials - please copy them from the TTN Console
-static uint32_t devaddr = 0x0;
-static uint8_t nwk_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-static uint8_t app_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+// static uint32_t devaddr = 0x26011272;
+// static uint8_t nwk_s_key[] = { 0x61, 0x87, 0x7C, 0x75, 0x38, 0xB1, 0xE1, 0xCC, 0x12, 0x39, 0xD0, 0x2A, 0x2A, 0x8F, 0x3C, 0x54 };
+// static uint8_t app_s_key[] = { 0xB9, 0x60, 0xC6, 0x3D, 0x37, 0xA8, 0x79, 0x40, 0x6B, 0x97, 0x92, 0xC3, 0xFF, 0x9A, 0x95, 0x83 };
+
+static uint8_t DEV_EUI[] = { 0x00, 0xA9, 0x9D, 0x49, 0x21, 0xB2, 0x6D, 0x75 };
+static uint8_t APP_EUI[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x00, 0xC1, 0x84 };
+static uint8_t APP_KEY[] = { 0xE1, 0x13, 0x6D, 0x7E, 0xB6, 0x91, 0x7F, 0xC4, 0xD5, 0x1F, 0x00, 0x14, 0x51, 0x1B, 0x86, 0xB1 };
 
 
 // The port we're sending and receiving on
@@ -74,13 +78,18 @@ int main() {
         return -1;
     }
 
-    lorawan.set_datarate(5); // SF7
+    lorawan.set_datarate(4); // SF8BW500
 
     lorawan_connect_t connect_params;
-    connect_params.connect_type = LORAWAN_CONNECTION_ABP;
-    connect_params.connection_u.abp.dev_addr = devaddr;
-    connect_params.connection_u.abp.nwk_skey = nwk_s_key;
-    connect_params.connection_u.abp.app_skey = app_s_key;
+    connect_params.connect_type = LORAWAN_CONNECTION_OTAA;
+    // connect_params.connection_u.abp.dev_addr = devaddr;
+    // connect_params.connection_u.abp.nwk_skey = nwk_s_key;
+    // connect_params.connection_u.abp.app_skey = app_s_key;
+
+    connect_params.connection_u.otaa.dev_eui = DEV_EUI;
+    connect_params.connection_u.otaa.app_eui = APP_EUI;
+    connect_params.connection_u.otaa.app_key = APP_KEY;
+    connect_params.connection_u.otaa.nb_trials = 3;
 
     lorawan_status_t retcode = lorawan.connect(connect_params);
 
@@ -113,11 +122,13 @@ static void receive_message()
         return;
     }
 
-    printf("Data received (length %d):", retcode);
+    printf("Data received on port %d (length %d):", MBED_CONF_LORA_APP_PORT, retcode);
 
     for (uint8_t i = 0; i < retcode; i++) {
-        printf("%x", rx_buffer[i]);
+        printf("%02x ", rx_buffer[i]);
     }
+
+    printf("\n");
 }
 
 // Event handler

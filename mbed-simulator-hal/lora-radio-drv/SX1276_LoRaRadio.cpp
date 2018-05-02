@@ -31,7 +31,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-LoRa.h"
 
 #define tr_debug(...) void(0) //dummies if feature common pal is not added
-#define tr_info(...)  void(0) //dummies if feature common pal is not added
+#define tr_info(...)  printf("[RADIO][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #define tr_error(...) printf("[RADIO][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #define tr_warn(...) printf("[RADIO][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 
@@ -212,6 +212,10 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
 #ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.start(mbed::callback(this, &SX1276_LoRaRadio::rf_irq_task));
 #endif
+
+    EM_ASM_({
+        window.MbedJSHal.lora.init($0);
+    }, this);
 }
 
 /**
@@ -306,7 +310,9 @@ void SX1276_LoRaRadio::set_channel(uint32_t freq)
  */
 uint32_t SX1276_LoRaRadio::random( void )
 {
-    uint32_t rnd = rand();
+    uint32_t rnd = EM_ASM_INT({
+        return Math.random() * 0x8000000 | 0;
+    });
 
     sleep();
 
@@ -672,6 +678,16 @@ void SX1276_LoRaRadio::standby( void )
     _rf_settings.state = RF_IDLE;
 }
 
+void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size) {
+    tr_info("rx_frame %u bytes", size);
+
+    memcpy(_data_buffer, data, size);
+    _rf_settings.lora_packet_handler.size = size;
+    _rf_settings.lora_packet_handler.rssi_value = -35;
+    _rf_settings.lora_packet_handler.snr_value = -5;
+    _rf_settings.lora_packet_handler.pending = true;
+}
+
 /**
  * Sets the radio module in receive mode
  *
@@ -681,17 +697,23 @@ void SX1276_LoRaRadio::standby( void )
  */
 void SX1276_LoRaRadio::receive(uint32_t timeout)
 {
-    tr_info("receive (modem=%d, timeout=%u)", _rf_settings.modem, timeout);
+    tr_info("receive (timeout=%u). has_pending=%d", timeout, _rf_settings.lora_packet_handler.pending);
 
-    rx_timeout_timer.detach();
+    _rf_settings.state = RF_RX_RUNNING;
 
-    _rf_settings.state = RF_IDLE;
+    // q:
+    if (_rf_settings.lora_packet_handler.pending) {
+        _rf_settings.lora_packet_handler.pending = false;
 
-    if ((_radio_events != NULL) && (_radio_events->rx_done)) {
-        _radio_events->rx_done(_data_buffer,
-                0,
-                -1,
-                -1);
+        // after 200 ms. we send the rx_done event
+        rx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::rx_done_irq), 200 * 1e3);
+        return;
+    }
+
+    if (timeout != 0) {
+        rx_timeout_timer.attach_us(
+                callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
+                timeout * 1e3);
     }
 
     // switch (_rf_settings.modem) {
@@ -828,8 +850,6 @@ void SX1276_LoRaRadio::receive(uint32_t timeout)
 
     //         break;
     // }
-
-    // memset(_data_buffer, 0, (size_t) MAX_DATA_BUFFER_SIZE_SX1276);
 
     // _rf_settings.state = RF_RX_RUNNING;
 
@@ -1150,10 +1170,36 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
     //                            &SX1276_LoRaRadio::timeout_irq_isr), timeout*1e3);
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 
+    // after 100ms. we fire the tx_done event
+    tx_done_timer.attach_us(callback(this, &SX1276_LoRaRadio::tx_done_irq), 100 * 1e3);
+}
+
+void SX1276_LoRaRadio::tx_done_irq() {
+    tx_done_timer.detach();
+
     _rf_settings.state = RF_IDLE;
+
     if ((_radio_events != NULL)
-            && (_radio_events->tx_done)) {
+        && (_radio_events->tx_done)) {
+
         _radio_events->tx_done();
+    }
+}
+
+void SX1276_LoRaRadio::rx_done_irq() {
+    tr_info("rx_done_irq");
+
+    rx_timeout_timer.detach();
+
+    _rf_settings.state = RF_IDLE;
+
+    if ((_radio_events != NULL)
+        && (_radio_events->rx_done)) {
+
+        _radio_events->rx_done(_data_buffer,
+                _rf_settings.lora_packet_handler.size,
+                _rf_settings.lora_packet_handler.rssi_value,
+                _rf_settings.lora_packet_handler.snr_value);
     }
 }
 
@@ -1799,69 +1845,76 @@ void SX1276_LoRaRadio::handle_timeout_irq()
 {
     tr_info("handle_timeout_irq");
 
-    // switch (_rf_settings.state) {
-    //     case RF_RX_RUNNING:
-    //         if (_rf_settings.modem == MODEM_FSK) {
-    //             _rf_settings.fsk_packet_handler.preamble_detected = 0;
-    //             _rf_settings.fsk_packet_handler.sync_word_detected = 0;
-    //             _rf_settings.fsk_packet_handler.nb_bytes = 0;
-    //             _rf_settings.fsk_packet_handler.size = 0;
+    switch (_rf_settings.state) {
+        case RF_RX_RUNNING:
+            if (_rf_settings.modem == MODEM_FSK) {
+                _rf_settings.fsk_packet_handler.preamble_detected = 0;
+                _rf_settings.fsk_packet_handler.sync_word_detected = 0;
+                _rf_settings.fsk_packet_handler.nb_bytes = 0;
+                _rf_settings.fsk_packet_handler.size = 0;
 
-    //             // Clear Irqs
-    //             write_to_register(REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI |
-    //             RF_IRQFLAGS1_PREAMBLEDETECT |
-    //             RF_IRQFLAGS1_SYNCADDRESSMATCH);
-    //             write_to_register( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
+                // Clear Irqs
+                // write_to_register(REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI |
+                // RF_IRQFLAGS1_PREAMBLEDETECT |
+                // RF_IRQFLAGS1_SYNCADDRESSMATCH);
+                // write_to_register( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
 
-    //             if (_rf_settings.fsk.rx_continuous == true) {
-    //                 // Continuous mode restart Rx chain
-    //                 write_to_register( REG_RXCONFIG,
-    //                                   read_register(REG_RXCONFIG) |
-    //                                   RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
-    //             } else {
-    //                 _rf_settings.state = RF_IDLE;
-    //                 rx_timeout_sync_word.attach_us(
-    //                         callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
-    //                         _rf_settings.fsk.rx_single_timeout * 1e3);
-    //             }
-    //         }
+                if (_rf_settings.fsk.rx_continuous == true) {
+                    // Continuous mode restart Rx chain
+                    // write_to_register( REG_RXCONFIG,
+                    //                   read_register(REG_RXCONFIG) |
+                    //                   RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
+                } else {
+                    _rf_settings.state = RF_IDLE;
+                    rx_timeout_sync_word.attach_us(
+                            callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
+                            _rf_settings.fsk.rx_single_timeout * 1e3);
+                }
+            }
 
-    //         if ((_radio_events != NULL)
-    //                 && (_radio_events->rx_timeout)) {
-    //             _radio_events->rx_timeout();
-    //         }
+            if ((_radio_events != NULL)
+                    && (_radio_events->rx_timeout)) {
+                _radio_events->rx_timeout();
+            }
 
-    //         break;
+            break;
 
-    //     case RF_TX_RUNNING:
-    //         // Tx timeout shouldn't happen.
-    //         // But it has been observed that when it happens it is a result of a
-    //         // corrupted SPI transfer
-    //         // The workaround is to put the radio in a known state.
-    //         // Thus, we re-initialize it.
+        case RF_TX_RUNNING:
+            // Tx timeout shouldn't happen.
+            // But it has been observed that when it happens it is a result of a
+            // corrupted SPI transfer
+            // The workaround is to put the radio in a known state.
+            // Thus, we re-initialize it.
 
-    //         // Reset the radio
-    //         radio_reset();
+            // // Reset the radio
+            // radio_reset();
 
-    //         // Initialize radio default values
-    //         set_operation_mode(RF_OPMODE_SLEEP);
+            // // Initialize radio default values
+            // set_operation_mode(RF_OPMODE_SLEEP);
 
-    //         setup_registers();
+            // // setup_registers();
 
-    //         set_modem(MODEM_FSK);
+            // set_modem(MODEM_FSK);
 
-    //         // Restore previous network type setting.
-    //         set_public_network(_rf_settings.lora.public_network);
+            // // Restore previous network type setting.
+            // set_public_network(_rf_settings.lora.public_network);
 
-    //         _rf_settings.state = RF_IDLE;
-    //         if ((_radio_events != NULL)
-    //                 && (_radio_events->tx_timeout)) {
-    //             _radio_events->tx_timeout();
-    //         }
-    //         break;
-    //     default:
-    //         break;
-    // }
+            _rf_settings.state = RF_IDLE;
+            if ((_radio_events != NULL)
+                    && (_radio_events->tx_timeout)) {
+                _radio_events->tx_timeout();
+            }
+            break;
+        default:
+            break;
+    }
 }
+
+
+EMSCRIPTEN_KEEPALIVE
+extern "C" void handle_lora_downlink(uint32_t radioPtr, uint32_t dataPtr, uint32_t size) {
+    ((SX1276_LoRaRadio*)radioPtr)->rx_frame((uint8_t*)dataPtr, size);
+}
+
 // EOF
 
