@@ -327,7 +327,7 @@ public:
     /**
      * Process an RX frame out of band (emscripten)
      */
-    void rx_frame(uint8_t*, uint32_t);
+    void rx_frame(uint8_t* buffer, uint32_t size, uint32_t freq, uint8_t bw, uint8_t dr);
 
 private:
 

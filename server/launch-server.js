@@ -12,6 +12,9 @@ const promisify = require('es6-promisify').promisify;
 const udp = require('dgram');
 const ttnGwClient = udp.createSocket('udp4');
 const mac = require('getmac');
+const timesyncServer = require('timesync/server');
+
+let startupTs = Date.now();
 
 module.exports = function(outFolder, port, callback) {
     const app = express();
@@ -26,6 +29,7 @@ module.exports = function(outFolder, port, callback) {
 
     app.use('/demos', express.static(Path.join(__dirname, '..', 'demos')));
     app.use('/peripherals', express.static(Path.join(__dirname, '..', 'mbed-simulator-hal', 'peripherals')));
+    app.use('/timesync', timesyncServer.requestHandler);
 
     app.use(express.static(Path.join(__dirname, '..', 'viewer')));
     app.use(bodyParser.json());
@@ -268,10 +272,18 @@ module.exports = function(outFolder, port, callback) {
             case 12: sf = 'SF12'; break;
         }
 
+        // this happens quite fast... every 72 minutes.
+        if ((Date.now() - startupTs) * 1000 > 0xffffffff) {
+            console.log('startupTs overflown');
+            startupTs = Date.now();
+        }
+
         // @todo: fix this
         let msg = {
             "rxpk": [{
                 "time": new Date().toISOString(),
+                // this needs to be uint32_t in us... it's not a lot
+                "tmst": (Date.now() - startupTs) * 1000,
                 "chan": 2,
                 "rfch": 0,
                 "freq": req.body.freq / 1000 / 1000,
@@ -285,6 +297,8 @@ module.exports = function(outFolder, port, callback) {
                 "data": payload.toString('base64')
             }]
         };
+
+        console.log('sending', msg);
 
         buff = Buffer.concat([ buff, Buffer.from(JSON.stringify(msg))]);
 
@@ -335,9 +349,50 @@ module.exports = function(outFolder, port, callback) {
 
             var buff = new Buffer(data.txpk.data, 'base64');
 
-            console.log('[TTNGW] got downlink msg', buff);
+            let sf = data.txpk.datr.match(/SF(\d+)/)[1];
+            let bw1 = data.txpk.datr.match(/BW(\d+)/)[1];
+            let bw = 7;
 
-            io.sockets.emit('lora-downlink', Array.from(buff));
+            switch (bw1) {
+                case '125': bw = 7; break;
+                case '250': bw = 8; break;
+                case '500': bw = 9; break;
+            }
+
+            console.log('[TTNGW] got downlink msg', msg, data);
+
+            let delay = 0;
+
+            // immediate?
+            if (data.txpk.imme) {
+                delay = 0;
+            }
+            else if (!data.txpk.tmst) {
+                console.warn('tmst missing from txpk');
+                delay = 0;
+            }
+            else {
+                let now = Date.now() - startupTs;
+                let tts = (data.txpk.tmst / 1000) - now;
+                console.log('time to send is', tts);
+                if (tts < 0 || tts > 5000) {
+                    console.log('tts invalid');
+                    delay = 0;
+                }
+                else {
+                    // time to start...
+                    delay = tts;
+                }
+            }
+
+            io.sockets.emit('lora-downlink', {
+                data: Array.from(buff),
+                freq: data.txpk.freq * 1000 * 1000,
+                modulation: data.txpk.modu,
+                datarate: Number(sf),
+                bandwidth: bw,
+                sendTs: Date.now() + delay
+            });
         }
         else if (action === 0x04) { //PULL_DATA_OK
             // ignore...

@@ -118,12 +118,11 @@ static void receive_message()
         return;
     }
 
-    printf("Data received on port %d (length %d):", MBED_CONF_LORA_APP_PORT, retcode);
+    printf("Data received on port %d (length %d): ", MBED_CONF_LORA_APP_PORT, retcode);
 
     for (uint8_t i = 0; i < retcode; i++) {
         printf("%02x ", rx_buffer[i]);
     }
-
     printf("\n");
 }
 

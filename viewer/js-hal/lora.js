@@ -2,10 +2,13 @@ window.MbedJSHal.lora = (function() {
     var host = window.location.protocol + '//' + window.location.host;
 
     var radioPtr = 0;
+    var ts = null; // timesync
 
-    window.socket.on('lora-downlink', function (buffer) {
+    window.socket.on('lora-downlink', function (ev) {
+        let buffer = ev.data;
+
         // todo check if its actually msg for us
-        console.log('lora-downlink', buffer);
+        console.log(Date.now(), 'lora-downlink', ev);
         obj.downlinkMsg = buffer;
 
         var dataPtr = Module._malloc(buffer.length);
@@ -18,12 +21,35 @@ window.MbedJSHal.lora = (function() {
             return console.error('LoRa radio ptr is 0!');
         }
 
-        ccall('handle_lora_downlink', null, [ 'number', 'number', 'number' ], [ radioPtr, dataPtr, buffer.length ], { async: true });
+        // when to send?
+        var delay = ev.sendTs - ts.now();
+        console.log('send delay is', delay);
+
+        function go() {
+            // @todo: check modulation
+            ccall('handle_lora_downlink', null,
+                [ 'number', 'number', 'number', 'number', 'number', 'number' ],
+                [ radioPtr, dataPtr, buffer.length, ev.freq, ev.bandwidth, ev.datarate ],
+                { async: true });
+        }
+
+        if (delay <= 0) {
+            go();
+        }
+        else {
+            setTimeout(go, delay);
+        }
     });
 
     function init(ptr) {
         console.log('LoRa radio init', ptr);
         radioPtr = ptr;
+
+        // create a timesync instance
+        ts = timesync.create({
+            server: '/timesync',
+            interval: 10000
+        });
     }
 
     function sendLoRa(channel, power, bandwidth, datarate, data, size) {

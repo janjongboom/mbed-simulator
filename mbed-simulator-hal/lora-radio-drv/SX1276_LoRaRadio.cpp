@@ -678,14 +678,34 @@ void SX1276_LoRaRadio::standby( void )
     _rf_settings.state = RF_IDLE;
 }
 
-void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size) {
-    tr_info("rx_frame %u bytes", size);
+void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency, uint8_t bandwidth, uint8_t datarate) {
+    tr_info("rx_frame, size=%u, freq=%u, bw=%u, dr=%u", size, frequency, bandwidth, datarate);
+
+    EM_ASM({
+        console.log('rx_frame', Date.now());
+    });
+
+    if (_rf_settings.lora.bandwidth != bandwidth) {
+        tr_info("rx_frame bw not correct (expecting %d, was %d)", _rf_settings.lora.bandwidth, bandwidth);
+        return;
+    }
+
+    if (_rf_settings.lora.datarate != datarate) {
+        tr_info("rx_frame dr not correct (expecting %d, was %d)", _rf_settings.lora.datarate, datarate);
+        return;
+    }
+
+    if (_rf_settings.channel != frequency) {
+        tr_info("rx_frame freq not correct (expecting %d, was %d)", _rf_settings.channel, frequency);
+        return;
+    }
 
     memcpy(_data_buffer, data, size);
     _rf_settings.lora_packet_handler.size = size;
     _rf_settings.lora_packet_handler.rssi_value = -35;
     _rf_settings.lora_packet_handler.snr_value = -5;
     _rf_settings.lora_packet_handler.pending = true;
+    _rf_settings.lora_packet_handler.timestamp_ms = EM_ASM_INT({ return Date.now(); });
 }
 
 /**
@@ -699,10 +719,18 @@ void SX1276_LoRaRadio::receive(uint32_t timeout)
 {
     tr_info("receive (timeout=%u). has_pending=%d", timeout, _rf_settings.lora_packet_handler.pending);
 
+    EM_ASM({
+        console.log('receive', Date.now());
+    });
+
     _rf_settings.state = RF_RX_RUNNING;
 
     // q:
     if (_rf_settings.lora_packet_handler.pending) {
+        uint32_t delta_ms = EM_ASM_INT({ return Date.now(); }) - _rf_settings.lora_packet_handler.timestamp_ms;
+
+        tr_info("receive delta %u ms.", delta_ms);
+
         _rf_settings.lora_packet_handler.pending = false;
 
         // after 200 ms. we send the rx_done event
@@ -1912,8 +1940,8 @@ void SX1276_LoRaRadio::handle_timeout_irq()
 
 
 EMSCRIPTEN_KEEPALIVE
-extern "C" void handle_lora_downlink(uint32_t radioPtr, uint32_t dataPtr, uint32_t size) {
-    ((SX1276_LoRaRadio*)radioPtr)->rx_frame((uint8_t*)dataPtr, size);
+extern "C" void handle_lora_downlink(uint32_t radioPtr, uint32_t dataPtr, uint32_t size, uint32_t freq, uint8_t bandwidth, uint8_t datarate) {
+    ((SX1276_LoRaRadio*)radioPtr)->rx_frame((uint8_t*)dataPtr, size, freq, bandwidth, datarate);
 }
 
 // EOF
