@@ -43,20 +43,23 @@
             var x = e.pageX - cnvs.offsetLeft;
             var y = e.pageY - cnvs.offsetTop;
 
+            this.mouseDown = true;
+
             window.MbedJSHal.ST7789H2.updateTouch(true, x, y);
         };
 
         cnvs.onmousemove = function(e) {
             var x = e.pageX - cnvs.offsetLeft;
             var y = e.pageY - cnvs.offsetTop;
-            var leftPressed = e.buttons === 1 || e.which === 1;
 
-            window.MbedJSHal.ST7789H2.updateTouch(leftPressed, x, y);
+            window.MbedJSHal.ST7789H2.updateTouch(this.mouseDown, x, y);
         };
 
         cnvs.onmouseup = function(e) {
             var x = e.pageX - cnvs.offsetLeft;
             var y = e.pageY - cnvs.offsetTop;
+
+            this.mouseDown = false;
 
             window.MbedJSHal.ST7789H2.updateTouch(false, x, y);
         };
