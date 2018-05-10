@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Mbed Emscripten Runner</title>
+  <title>Mbed Simulator</title>
   <link rel="stylesheet" href="/style/simulator.css">
 
   <!--
     Emulating Mbed OS 5 applications in the browser
-    (c) 2017 Arm Ltd. Written by Jan Jongboom.
+    (c) 2017-2018 Arm Ltd. Written by Jan Jongboom.
   -->
 </head>
 <body>
@@ -31,6 +31,7 @@
           <option name="events">Events</option>
           <option name="pwmout">PwmOut</option>
           <option name="busout">Blinky with BusOut</option>
+          <option name="trace">Tracing</option>
           <option disabled>-- Peripherals --</option>
           <option name="lcd">LCD Display</option>
           <option name="touchscreen">Touch screen</option>
@@ -41,6 +42,8 @@
           <option name="https">HTTPS</option>
           <option name="coap">CoAP</option>
           <option name="ntp">Time over UDP</option>
+          <option name="lorawan">LoRaWAN</option>
+          <option name="lorawan-abp">LoRaWAN (ABP)</option>
         </select>
         <button id="load-demo">Load demo</button>
 

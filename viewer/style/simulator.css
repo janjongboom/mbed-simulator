@@ -5,17 +5,18 @@ body {
 }
 
 #output {
-  width: calc(100% - 20px);
-  height: 200px;
   margin: auto 10px auto 0;
   border: 0;
-  padding: 10px;
   display: block;
-  background-color: black;
   color: white;
   font-family: 'Lucida Console', Monaco, monospace;
   outline: none;
-  font-size: 12px;
+  background: black;
+  max-width: calc(100vw - 20px);
+}
+
+.xterm {
+  padding: 10px;
 }
 
 #board {

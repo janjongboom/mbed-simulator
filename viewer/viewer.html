@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Mbed Emscripten Runner</title>
+  <title>{{script}} - Mbed Simulator</title>
   <link rel="stylesheet" href="/style/simulator.css">
+  <link rel="stylesheet" href="/xterm/xterm.css" />
 
   <!--
     Emulating Mbed OS 5 applications in the browser
-    (c) 2017 Arm Ltd. Written by Jan Jongboom.
+    (c) 2017-2018 Arm Ltd. Written by Jan Jongboom.
   -->
 </head>
 <body class="viewer">
@@ -27,7 +28,7 @@
 
   <section id="serial">
       <h2>Serial output</h2>
-      <textarea id="output" rows="8"></textarea>
+      <div id="output"></div>
   </section>
 
   <section id="overlay">
@@ -47,6 +48,9 @@
     window.peripheralsToLoad = {{{peripherals}}};
   </script>
 
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/timesync/timesync.js"></script>
+  <script src="/xterm/xterm.js"></script>
 
   <!-- Required parts of the JS HAL -->
   <script type="text/javascript" src="/js-ui/ga.js"></script>
@@ -56,6 +60,7 @@
   <script type="text/javascript" src="/js-hal/gpio.js"></script>
   <script type="text/javascript" src="/js-hal/timers.js"></script>
   <script type="text/javascript" src="/js-hal/network.js"></script>
+  <script type="text/javascript" src="/js-hal/lora.js"></script>
   {{#each jshal}}
   <script type="text/javascript" src="{{{script}}}"></script>
   {{/each}}
