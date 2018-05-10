@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "mbed_trace.h"
 #include "mbed_events.h"
 #include "LoRaWANInterface.h"
 #include "Sht31.h"
@@ -42,6 +43,7 @@ static void send_message() {
 
     printf("Sending %d bytes: \"%s\"\n", packet_len, tx_buffer);
 
+    // for some reason send() returns -1... I cannot find out why, the stack returns the right number. I feel that this is some weird Emscripten quirk
     int16_t retcode = lorawan.send(MBED_CONF_LORA_APP_PORT, tx_buffer, packet_len, MSG_UNCONFIRMED_FLAG);
 
     if (retcode < 0) {
@@ -65,6 +67,9 @@ int main() {
         printf("LoRa initialization failed!\n");
         return -1;
     }
+
+    // Enable trace output for this demo, so we can see what the LoRaWAN stack does
+    mbed_trace_init();
 
     // Fire a message when the button is pressed
     btn.fall(&send_message);
