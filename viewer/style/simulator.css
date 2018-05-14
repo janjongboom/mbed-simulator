@@ -221,6 +221,7 @@ body {
   align-items: center;
   justify-content: center;
   display: none;
+  z-index: 1000;
 }
 
 #overlay>div {
