@@ -16,9 +16,12 @@ module.exports = async function(content, outFolder) {
     catch (ex) {
         // remove path info
         let basename = Path.resolve(Path.join(__dirname, '..'));
-        console.log()
-        while (ex.indexOf(basename) > -1) {
-            ex = ex.replace(basename, '');
+        console.error('buildFile failed', ex);
+
+        if (typeof ex === 'string') {
+            while (ex.indexOf(basename) > -1) {
+                ex = ex.replace(basename, '');
+            }
         }
         throw ex;
     }
