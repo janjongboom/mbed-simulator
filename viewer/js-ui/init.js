@@ -17,7 +17,7 @@
         })(),
         printErr: function (text) {
             for (var ix = 0; ix < arguments.length; ix++) {
-                terminal.write(arguments[ix]);
+                // terminal.write(arguments[ix]);
                 console.error(arguments[ix]);
             }
         },
