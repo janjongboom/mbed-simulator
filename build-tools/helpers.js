@@ -76,8 +76,8 @@ const defaultBuildFlags = [
     '-D__MBED__',
     '-DTARGET_SIMULATOR',
     '-DMBED_EXCLUSIVE_ACCESS=1U',
-    '-DMBEDTLS_TEST_NULL_ENTROPY',
-    '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
+    // '-DMBEDTLS_TEST_NULL_ENTROPY',
+    // '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
     '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
     '-DMBEDTLS_USER_CONFIG_FILE=\"simulator_mbedtls_config.h\"',
     '-DMBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES=1',
@@ -127,6 +127,11 @@ const getMacrosFromMbedAppJson = async function(filename) {
 
     let mbedapp_conf = mbedapp.config || {};
     for (let key of Object.keys(mbedapp_conf)) {
+        if (!mbedapp_conf[key].value) {
+            macros.push(key);
+            continue;
+        }
+
         let value = mbedapp_conf[key].value.toString();
 
         key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
@@ -141,6 +146,8 @@ const getMacrosFromMbedAppJson = async function(filename) {
     // features_add is not handled correctly
     let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbedapp.target_overrides || {})['SIMULATOR']);
     for (let key of Object.keys(target_over)) {
+        if (!target_over[key]) continue;
+
         let value = target_over[key].toString();
         if (key.indexOf('.') > -1) {
             key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
