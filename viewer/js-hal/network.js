@@ -18,6 +18,7 @@ window.MbedJSHal.network = (function() {
         var x = new XMLHttpRequest();
         x.open('GET', host + '/api/network/ip', false);
         x.send();
+        console.log('get_ip_address', x.responseText);
         return allocate(intArrayFromString(x.responseText), 'i8', ALLOC_NORMAL);
     }
 

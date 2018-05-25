@@ -30,15 +30,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 
-#if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LRAD"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#define tr_warn(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 
 /*!
  * Sync word for Private LoRa networks
@@ -298,7 +291,7 @@ uint8_t SX1276_LoRaRadio::get_status(void)
  */
 void SX1276_LoRaRadio::set_channel(uint32_t freq)
 {
-    tr_debug("set_channel (freq=%u)", freq);
+    // tr_debug("set_channel (freq=%u)", freq);
     _rf_settings.channel = freq;
     freq = (uint32_t) ((double) freq / (double) FREQ_STEP);
 }
@@ -356,7 +349,7 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
 
             datarate = (uint16_t) ((double) XTAL_FREQ / (double) datarate);
 
-            tr_debug("set_rx_config FSK");
+            // tr_debug("set_rx_config FSK");
 
             break;
 
@@ -397,7 +390,7 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                 _rf_settings.lora.low_datarate_optimize = 0x00;
             }
 
-            tr_debug("set_rx_config LORA");
+            // tr_debug("set_rx_config LORA");
             break;
 
         default:
@@ -436,7 +429,7 @@ void SX1276_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
 
             fdev = (uint16_t) ((double) fdev / (double) FREQ_STEP);
 
-            tr_debug("set_tx_config FSK");
+            // tr_debug("set_tx_config FSK");
 
             break;
 
@@ -471,7 +464,7 @@ void SX1276_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
                 _rf_settings.lora.low_datarate_optimize = 0x00;
             }
 
-            tr_debug("set_rx_config LORA");
+            // tr_debug("set_rx_config LORA");
 
             break;
     }
@@ -487,7 +480,7 @@ uint32_t SX1276_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
 {
     uint32_t airTime = 0;
 
-    tr_debug("time_on_air");
+    // tr_debug("time_on_air");
 
     switch (modem) {
         case MODEM_FSK:
@@ -674,7 +667,7 @@ void SX1276_LoRaRadio::sleep()
  */
 void SX1276_LoRaRadio::standby( void )
 {
-    tr_debug("standby");
+    // tr_debug("standby");
 
     tx_timeout_timer.detach();
     rx_timeout_timer.detach();
@@ -931,7 +924,7 @@ bool SX1276_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
                                    int16_t rssi_threshold,
                                    uint32_t max_carrier_sense_time)
 {
-    tr_debug("perform_carrier_sense");
+    // tr_debug("perform_carrier_sense");
 
     bool status = true;
     int16_t rssi = 0;
@@ -983,7 +976,7 @@ void SX1276_LoRaRadio::set_max_payload_length(radio_modems_t modem, uint8_t max)
 {
     set_modem(modem);
 
-    tr_debug("set_max_payload_length (modem=%d, max=%u)", modem, max);
+    // tr_debug("set_max_payload_length (modem=%d, max=%u)", modem, max);
 }
 
 /**
@@ -995,7 +988,7 @@ void SX1276_LoRaRadio::set_max_payload_length(radio_modems_t modem, uint8_t max)
  */
 void SX1276_LoRaRadio::start_cad()
 {
-    tr_debug("start_cad");
+    // tr_debug("start_cad");
 }
 
 /**
@@ -1004,7 +997,7 @@ void SX1276_LoRaRadio::start_cad()
 void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
                                               uint16_t time)
 {
-    tr_debug("set_tx_continious_wave (freq=%u, power=%u, time=%u)", freq, power, time);
+    // tr_debug("set_tx_continious_wave (freq=%u, power=%u, time=%u)", freq, power, time);
 
     uint8_t reg_val;
 
@@ -1069,7 +1062,7 @@ void SX1276_LoRaRadio::rf_irq_task(void)
  */
 void SX1276_LoRaRadio::write_fifo(uint8_t *buffer, uint8_t size)
 {
-    tr_debug("write_fifo (size=%u)", size);
+    // tr_debug("write_fifo (size=%u)", size);
 }
 
 /**
@@ -1077,7 +1070,7 @@ void SX1276_LoRaRadio::write_fifo(uint8_t *buffer, uint8_t size)
  */
 void SX1276_LoRaRadio::read_fifo(uint8_t *buffer, uint8_t size)
 {
-    tr_debug("read_fifo (size=%u)", size);
+    // tr_debug("read_fifo (size=%u)", size);
 }
 
 /**
@@ -1085,7 +1078,7 @@ void SX1276_LoRaRadio::read_fifo(uint8_t *buffer, uint8_t size)
  */
 void SX1276_LoRaRadio::set_operation_mode(uint8_t mode)
 {
-    tr_debug("set_operation_mode (mode=%u)", mode);
+    // tr_debug("set_operation_mode (mode=%u)", mode);
 
     if (mode == RF_OPMODE_SLEEP) {
         set_low_power_mode();
@@ -1133,7 +1126,7 @@ void SX1276_LoRaRadio::set_sx1276_variant_type()
  */
 void SX1276_LoRaRadio::setup_registers()
 {
-    tr_debug("setup_registers");
+    // tr_debug("setup_registers");
 }
 
 /**
@@ -1144,7 +1137,7 @@ void SX1276_LoRaRadio::setup_registers()
  */
 void SX1276_LoRaRadio::rx_chain_calibration(void)
 {
-    tr_debug("rx_chain_calibration");
+    // tr_debug("rx_chain_calibration");
 }
 
 /**
@@ -1188,7 +1181,7 @@ uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
  */
 void SX1276_LoRaRadio::set_rf_tx_power(int8_t power)
 {
-    tr_debug("set_rf_tx_power (power=%u)", power);
+    // tr_debug("set_rf_tx_power (power=%u)", power);
 }
 
 /**
@@ -1216,6 +1209,8 @@ void SX1276_LoRaRadio::tx_done_irq() {
     tx_done_timer.detach();
 
     _rf_settings.state = RF_IDLE;
+
+    tr_info("tx_done_irq");
 
     if ((_radio_events != NULL)
         && (_radio_events->tx_done)) {
@@ -1246,7 +1241,7 @@ void SX1276_LoRaRadio::rx_done_irq() {
  */
 int16_t SX1276_LoRaRadio::get_rssi(radio_modems_t modem)
 {
-    tr_debug("get_rssi");
+    // tr_debug("get_rssi");
 
     return -1;
 }
@@ -1258,7 +1253,7 @@ int16_t SX1276_LoRaRadio::get_rssi(radio_modems_t modem)
 void SX1276_LoRaRadio::set_low_power_mode()
 {
 
-    tr_debug("set_low_power_mode");
+    // tr_debug("set_low_power_mode");
 
     if (_rf_ctrls.rf_switch_ctl1 != NC) {
         _rf_switch_ctl1 = 0;
@@ -1290,8 +1285,6 @@ void SX1276_LoRaRadio::set_low_power_mode()
  */
 void SX1276_LoRaRadio::setup_interrupts()
 {
-    tr_debug("setup_interrupts");
-
     _dio0_ctl.rise(callback(this, &SX1276_LoRaRadio::dio0_irq_isr));
     _dio1_ctl.rise(callback(this, &SX1276_LoRaRadio::dio1_irq_isr));
     _dio2_ctl.rise(callback(this, &SX1276_LoRaRadio::dio2_irq_isr));
@@ -1310,7 +1303,7 @@ void SX1276_LoRaRadio::setup_interrupts()
  */
 void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
 {
-    tr_debug("set_antenna_switch (mode=%u)", mode);
+    // tr_debug("set_antenna_switch (mode=%u)", mode);
 
     // // here we got to do ifdef for changing controls
     // // as some pins might be NC

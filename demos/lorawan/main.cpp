@@ -72,7 +72,7 @@ int main() {
     }
 
     // Fire a message when the button is pressed
-    btn.fall(&send_message);
+    btn.fall(ev_queue.event(&send_message));
 
     // prepare application callbacks
     callbacks.events = mbed::callback(lora_event_handler);

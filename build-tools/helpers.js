@@ -82,7 +82,9 @@ const defaultBuildFlags = [
     '-DMBEDTLS_USER_CONFIG_FILE=\"simulator_mbedtls_config.h\"',
     '-DMBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES=1',
     '-DMBED_CONF_MBED_TRACE_ENABLE=1',
+    '-DTARGET_LIKE_MBED',
     '-DFEATURE_COMMON_PAL=1', // this is annoying... it's used to feature detect tracing
+    '-DMBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION=1',
 
     '-Wall',
 ];
