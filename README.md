@@ -1,17 +1,16 @@
 # Experimental simulator for Mbed OS 5 applications
 
-**Demo: http://ec2-52-211-146-247.eu-west-1.compute.amazonaws.com:7829**
+**Demo: https://labs.mbed.com/simulator**
 
-![Screenshot](img/simulator.png)
+![Screenshot](https://os.mbed.com/media/uploads/janjongboom/simulator2.png)
 
-Ideas:
+While we have worked hard to improve embedded development tooling in Mbed (e.g. via the Online Compiler), the development for microcontrollers is still very similar to how it was in the 90s. Compilation is slow, and flashing is even slower. When fixing a bug, you need to get the device into the exact state as before encountering the bug. This makes for a very slow feedback loop, which hinders productivity and often pulls you out of the zone.
 
-* Cross-compile Mbed OS applications with Emscripten.
-* Use a custom C++ HAL - based on Mbed OS C++ HAL - which maps into JavaScript HAL. Similar to how Mbed OS C++ HAL maps into Mbed C HAL.
-* JavaScript HAL renders UI (board and components), similar to [mbed-js-simulator](https://github.com/janjongboom/mbed-js-simulator).
-* Communication with node.js backend for more complex simulations - such as HTTP, BLE (where the computer is a real BLE peripheral) and Mbed Cloud simulation.
+To make this feedback loop much shorter, we're releasing an alpha version of the Mbed Simulator. The simulator allows you to run your Mbed OS 5 applications directly on your computer, so that you can quickly test and verify applications without flashing them on a real board. This is a valuable learning tool, as you quickly learn how Mbed works. It is also very useful for developing complex applications. Within Arm, we have been using the simulator for work on [mbed-http](https://os.mbed.com/teams/sandbox/code/mbed-http/), the Mbed LoRaWAN stack and [uTensor](http://utensor.ai/).
 
-This is a very experimental project.
+**Note:** The Mbed Simulator is part of [Mbed Labs](https://labs.mbed.com/). The Mbed Labs projects showcase interesting side projects developed by Mbed engineers. However, these projects are not actively supported by Arm, and may be added, removed or break at any time.
+
+[More information in the introductionary blog post](https://os.mbed.com/blog/entry/introducing-mbed-simulator/)
 
 ## Architecture
 
