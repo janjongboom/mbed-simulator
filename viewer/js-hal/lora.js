@@ -62,8 +62,6 @@ window.MbedJSHal.lora = (function() {
         x.open('POST', host + '/api/lora/send');
         x.setRequestHeader('Content-Type', 'application/json');
         x.send(JSON.stringify({
-            host: 'router.eu.thethings.network',
-            port: 1700,
             payload:
             buffer,
             freq: channel,
