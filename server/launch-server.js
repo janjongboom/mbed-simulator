@@ -14,6 +14,9 @@ const ttnGwClient = udp.createSocket('udp4');
 const mac = require('getmac');
 const timesyncServer = require('timesync/server');
 
+const LORA_PORT = 1700;
+const LORA_HOST = 'router.eu.thethings.network';
+
 let startupTs = Date.now();
 
 module.exports = function(outFolder, port, callback) {
@@ -237,8 +240,6 @@ module.exports = function(outFolder, port, callback) {
 
     app.post('/api/lora/send', (req, res, next) => {
         if (!req.body.payload) return next('Missing body.payload');
-        if (!req.body.host) return next('Missing body.host');
-        if (!req.body.port) return next('Missing body.port');
         if (!req.body.freq) return next('Missing body.freq');
         if (!req.body.bandwidth) return next('Missing body.bandwidth');
         if (!req.body.datarate) return next('Missing body.datarate');
@@ -304,7 +305,7 @@ module.exports = function(outFolder, port, callback) {
 
         console.log('[TTNGW] Sending', buff);
 
-        ttnGwClient.send(buff, req.body.port, req.body.host, function(err) {
+        ttnGwClient.send(buff, LORA_PORT, LORA_HOST, function(err) {
             if (err) return next(err);
 
             res.send('OK');
@@ -341,7 +342,7 @@ module.exports = function(outFolder, port, callback) {
 
         if (action === 0x03) { // PULL_RESP
             let tx_ack = Buffer.from([ 0x02, id1, id2, 0x05 /*TX_ACK*/, gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7] ]);
-            ttnGwClient.send(tx_ack, 1700, 'router.eu.thethings.network', function(err) {
+            ttnGwClient.send(tx_ack, LORA_PORT, LORA_HOST, function(err) {
                 console.log('[TTNGW] TX_ACK OK');
             });
 
@@ -406,7 +407,7 @@ module.exports = function(outFolder, port, callback) {
     setInterval(() => {
         let [ t1, t2 ] = getNextToken();
         let pull_data = Buffer.from([ 0x02, t1, t2, 0x02 /*PULL_DATA*/, gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7] ]);
-        ttnGwClient.send(pull_data, 1700, 'router.eu.thethings.network', function(err) {
+        ttnGwClient.send(pull_data, LORA_PORT, LORA_HOST, function(err) {
             // console.log('PULL_DATA OK');
         });
     }, 5000);
@@ -418,11 +419,16 @@ module.exports = function(outFolder, port, callback) {
         gwId = m.split(':').map(d => parseInt(d, 16));
         gwId.splice(3, 0, 0x0);
         gwId.splice(3, 0, 0x0);
-        console.log('LoRaWAN Gateway ID is', gwId.map(d => {
+
+        console.log('LoRaWAN information:');
+        console.log('\tGateway ID:            ', gwId.map(d => {
             let v = d.toString(16);
             if (v.length === 1) return '0' + v;
             return v;
-        }).join(':'), '-', `Make sure the gateway registered in The Things Network running the *legacy packet forwarder*`);
+        }).join(':'));
+        console.log('\tPacket forwarder host: ', LORA_HOST);
+        console.log('\tPacket forwarder port: ', LORA_PORT);
+        console.log(`\tMake sure the gateway registered in the network server running the *legacy packet forwarder*`);
     });
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
