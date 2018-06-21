@@ -265,7 +265,7 @@ void SX1276_LoRaRadio::init_radio(radio_events_t *events)
  */
 void SX1276_LoRaRadio::radio_reset()
 {
-    tr_debug("radio_reset");
+    // tr_debug("radio_reset");
 }
 
 /**
@@ -331,6 +331,8 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                                      bool freq_hop_on, uint8_t hop_period,
                                      bool iq_inverted, bool rx_continuous)
 {
+    // tr_debug("set_rx_config rx_continious=%d", rx_continuous);
+
     set_modem(modem);
 
     switch (modem) {
@@ -365,6 +367,8 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             // stupid hack. TODO think something better
             bandwidth+=7;
 
+            // timeout should be
+
             _rf_settings.lora.bandwidth = bandwidth;
             _rf_settings.lora.datarate = datarate;
             _rf_settings.lora.coderate = coderate;
@@ -376,6 +380,7 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             _rf_settings.lora.hop_period = hop_period;
             _rf_settings.lora.iq_inverted = iq_inverted;
             _rf_settings.lora.rx_continuous = rx_continuous;
+            _rf_settings.lora.symb_timeout = symb_timeout;
 
             if (datarate > 12) {
                 datarate = 12;
@@ -547,8 +552,6 @@ uint32_t SX1276_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
             break;
     }
 
-    tr_debug("time_on_air will be %u", airTime);
-
     return airTime;
 }
 
@@ -652,7 +655,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
 
 void SX1276_LoRaRadio::sleep()
 {
-    tr_debug("sleep");
+    // tr_debug("sleep");
 
     // stop timers
     tx_timeout_timer.detach();
@@ -678,10 +681,6 @@ void SX1276_LoRaRadio::standby( void )
 
 void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency, uint8_t bandwidth, uint8_t datarate) {
     tr_debug("rx_frame, size=%u, freq=%u, bw=%u, dr=%u", size, frequency, bandwidth, datarate);
-
-    EM_ASM({
-        console.log('rx_frame', Date.now());
-    });
 
     if (_rf_settings.lora.bandwidth != bandwidth) {
         tr_debug("rx_frame bw not correct (expecting %d, was %d)", _rf_settings.lora.bandwidth, bandwidth);
@@ -713,13 +712,9 @@ void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency
  * and finally a DIO0 interrupt let's the state machine know that a packet is
  * ready to be read from the FIFO
  */
-void SX1276_LoRaRadio::receive(uint32_t timeout)
+void SX1276_LoRaRadio::receive(uint32_t/* timeout*/)
 {
-    tr_debug("receive (timeout=%u). has_pending=%d", timeout, _rf_settings.lora_packet_handler.pending);
-
-    EM_ASM({
-        console.log('receive', Date.now());
-    });
+    // tr_debug("receive (timeout=%u). has_pending=%d", _rf_settings.lora.symb_timeout, _rf_settings.lora_packet_handler.pending);
 
     _rf_settings.state = RF_RX_RUNNING;
 
@@ -727,12 +722,12 @@ void SX1276_LoRaRadio::receive(uint32_t timeout)
     if (_rf_settings.lora_packet_handler.pending) {
         uint32_t delta_ms = EM_ASM_INT({ return Date.now(); }) - _rf_settings.lora_packet_handler.timestamp_ms;
 
-        tr_debug("receive delta %u ms.", delta_ms);
+        // tr_debug("receive delta %u ms.", delta_ms);
 
         _rf_settings.lora_packet_handler.pending = false;
 
-        if (delta_ms > 500) {
-            tr_warn("receive delta was over 500 ms (was %u ms), discarding packet", delta_ms);
+        if (delta_ms > 1000) {
+            tr_warn("receive delta was over 1000 ms (was %u ms), discarding packet", delta_ms);
             return;
         }
 
@@ -741,10 +736,10 @@ void SX1276_LoRaRadio::receive(uint32_t timeout)
         return;
     }
 
-    if (timeout != 0) {
+    if (_rf_settings.lora.symb_timeout != 0) {
         rx_timeout_timer.attach_us(
                 callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
-                timeout * 1e3);
+                _rf_settings.lora.symb_timeout * 1e3);
     }
 
     // switch (_rf_settings.modem) {
@@ -1194,15 +1189,16 @@ void SX1276_LoRaRadio::set_rf_tx_power(int8_t power)
  */
 void SX1276_LoRaRadio::transmit(uint32_t timeout)
 {
-    tr_debug("transmit (timeout=%u)", timeout);
+    tr_debug("transmit channel=%u power=%u bandwidth=%u datarate=%u", _rf_settings.channel, _rf_settings.lora.power, _rf_settings.lora.bandwidth, _rf_settings.lora.datarate);
 
     _rf_settings.state = RF_TX_RUNNING;
     // tx_timeout_timer.attach_us(callback(this,
     //                            &SX1276_LoRaRadio::timeout_irq_isr), timeout*1e3);
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 
-    // after 100ms. we fire the tx_done event
-    tx_done_timer.attach_us(callback(this, &SX1276_LoRaRadio::tx_done_irq), 100 * 1e3);
+    // trigger interrupt here?
+    tx_done_timer.attach_us(callback(this, &SX1276_LoRaRadio::tx_done_irq),
+        (time_on_air(MODEM_LORA, _rf_settings.lora_packet_handler.size) * 1000) + (3 * 1000));
 }
 
 void SX1276_LoRaRadio::tx_done_irq() {
@@ -1210,7 +1206,7 @@ void SX1276_LoRaRadio::tx_done_irq() {
 
     _rf_settings.state = RF_IDLE;
 
-    tr_info("tx_done_irq");
+    // tr_info("tx_done_irq");
 
     if ((_radio_events != NULL)
         && (_radio_events->tx_done)) {
@@ -1220,7 +1216,7 @@ void SX1276_LoRaRadio::tx_done_irq() {
 }
 
 void SX1276_LoRaRadio::rx_done_irq() {
-    tr_debug("rx_done_irq");
+    // tr_debug("rx_done_irq");
 
     rx_timeout_timer.detach();
 
@@ -1450,6 +1446,8 @@ void SX1276_LoRaRadio::dio5_irq_isr()
 // our timers
 void SX1276_LoRaRadio::timeout_irq_isr()
 {
+    rx_timeout_timer.detach();
+
 #ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.signal_set(SIG_TIMOUT);
 #else
@@ -1874,7 +1872,7 @@ void SX1276_LoRaRadio::handle_dio5_irq()
 
 void SX1276_LoRaRadio::handle_timeout_irq()
 {
-    tr_debug("handle_timeout_irq");
+    // tr_debug("handle_timeout_irq continious=%d", _rf_settings.lora.rx_continuous);
 
     switch (_rf_settings.state) {
         case RF_RX_RUNNING:
@@ -1901,6 +1899,11 @@ void SX1276_LoRaRadio::handle_timeout_irq()
                             callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
                             _rf_settings.fsk.rx_single_timeout * 1e3);
                 }
+            }
+
+
+            if (_rf_settings.lora.rx_continuous == false) {
+                _rf_settings.state = RF_IDLE;
             }
 
             if ((_radio_events != NULL)
@@ -1930,11 +1933,11 @@ void SX1276_LoRaRadio::handle_timeout_irq()
             // // Restore previous network type setting.
             // set_public_network(_rf_settings.lora.public_network);
 
-            _rf_settings.state = RF_IDLE;
-            if ((_radio_events != NULL)
-                    && (_radio_events->tx_timeout)) {
-                _radio_events->tx_timeout();
-            }
+            // _rf_settings.state = RF_IDLE;
+            // if ((_radio_events != NULL)
+            //         && (_radio_events->tx_timeout)) {
+            //     _radio_events->tx_timeout();
+            // }
             break;
         default:
             break;
