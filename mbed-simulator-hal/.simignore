@@ -19,6 +19,8 @@ mbed-os/features/frameworks/mbed-trace/test/
 mbed-os/features/frameworks/nanostack-libservice/test/
 mbed-os/features/frameworks/unity/
 mbed-os/features/frameworks/utest/
+mbed-os/features/filesystem/fat/
+mbed-os/features/filesystem/littlefs/
 mbed-os/features/mbedtls/targets/
 mbed-os/features/nanostack/
 mbed-os/features/netsocket/cellular/
