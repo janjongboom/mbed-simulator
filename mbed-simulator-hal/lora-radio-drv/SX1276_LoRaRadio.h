@@ -407,6 +407,10 @@ private:
     void set_rf_tx_power(int8_t power);
     int16_t get_rssi(radio_modems_t modem);
     uint8_t get_fsk_bw_reg_val(uint32_t bandwidth);
+    void write_to_register(uint8_t addr, uint8_t data);
+    void write_to_register(uint8_t addr, uint8_t *data, uint8_t size);
+    uint8_t read_register(uint8_t addr);
+    void read_register(uint8_t addr, uint8_t *buffer, uint8_t size);
     void write_fifo(uint8_t *buffer, uint8_t size);
     void read_fifo(uint8_t *buffer, uint8_t size);
     void transmit(uint32_t timeout);
