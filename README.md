@@ -2,7 +2,7 @@
 
 **Demo: https://labs.mbed.com/simulator**
 
-![Screenshot](https://os.mbed.com/media/uploads/janjongboom/simulator2.png)
+![Screenshot](img/simulator.png)
 
 While we have worked hard to improve embedded development tooling in Mbed (e.g. via the Online Compiler), the development for microcontrollers is still very similar to how it was in the 90s. Compilation is slow, and flashing is even slower. When fixing a bug, you need to get the device into the exact state as before encountering the bug. This makes for a very slow feedback loop, which hinders productivity and often pulls you out of the zone.
 
