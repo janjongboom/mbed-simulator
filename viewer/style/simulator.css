@@ -43,9 +43,99 @@ body {
 }
 
 #board-svg {
+  position: relative;
+}
+
+#board-svg .board {
   width: 50vw;
-  height: 22.5vw;
+  height: 31.7833vw; /* important so that absolute positioning (in %) works */
   font-family: 'Lucida Console', Monaco, monospace;
+}
+
+#board .led {
+  position: absolute;
+  width: 0.5vw;
+  height: 1vw;
+  border: solid 1px #aaa;
+  top: 0;
+}
+
+#board #led1 {
+  left: 39vw;
+  margin-top: 23.8%;
+  transform: rotate(3deg);
+}
+
+#board #led2 {
+  left: 38.35vw;
+  margin-top: 18.8%;
+  transform: rotate(327deg);
+}
+
+#board #led3 {
+  left: 36.40vw;
+  margin-top: 15%;
+  transform: rotate(296deg);
+}
+
+#board #led4 {
+  left: 34.0vw;
+  margin-top: 13.7%;
+  transform: rotate(268deg);
+}
+
+#board #ledpwr {
+  left: 12.8vw;
+  margin-top: 41.8%;
+  transform: rotate(63deg);
+}
+
+#board #leduart {
+  left: 13.65vw;
+  margin-top: 45.55%;
+  transform: rotate(63deg);
+}
+
+#board #leddebug {
+  left: 14.5vw;
+  margin-top: 49.15%;
+  transform: rotate(63deg);
+}
+
+#board .button {
+  position: absolute;
+  width: 1.5vw;
+  height: 1.5vw;
+  border-radius: 1.5vw;
+  border: solid 1px #333;
+  box-shadow: inset -2px -2px 2px #c7c7c7,
+              1px 1px 2px #333;
+  top: 0;
+}
+
+#board .button.down {
+  box-shadow: inset 2px 2px 2px #c7c7c7,
+              1px 1px 2px #333;
+}
+
+#board #sw1 {
+  left: 44.5vw;
+  margin-top: 42.1%;
+}
+
+#board #sw2 {
+  left: 43vw;
+  margin-top: 34.1%;
+}
+
+#board .led.status.on {
+  background: #78AB46;
+  border: solid 1px darkgreen;
+}
+
+#board .led.on {
+  background: red;
+  border: solid 1px darkred;
 }
 
 #c12832 {

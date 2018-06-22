@@ -4,11 +4,25 @@
     var terminal = new Terminal();
     terminal.open(document.querySelector('#output'));
 
+    var uartLedEl = document.querySelector('#leduart');
+    var uartLedTimeout;
+
     var Module = {
         preRun: [],
-        postRun: [],
+        postRun: [
+            function() {
+                document.querySelector('#ledpwr').classList.add('on');
+            }
+        ],
         print: (function () {
             return function (text) {
+                clearTimeout(uartLedTimeout);
+                uartLedEl.classList.add('on');
+
+                uartLedTimeout = setTimeout(function() {
+                    uartLedEl.classList.remove('on');
+                }, 50);
+
                 for (var ix = 0; ix < arguments.length; ix++) {
                     // this is an emscripten thing... only flushes when a newline happens.
                     terminal.write(arguments[ix] + '\r\n');

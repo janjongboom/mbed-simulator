@@ -34,6 +34,9 @@ window.MbedJSHal.PinNames = {
     'LED4': 55,
 
     'BUTTON1': 1337,
+    'BUTTON2': 1338,
+    'SW1': 1337,
+    'SW2': 1338,
 
     'I2C_SCL1': 1,
     'I2C_SDA1': 0,

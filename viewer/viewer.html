@@ -21,14 +21,25 @@
 
 
   <section id="board">
-      <section id="components">
-          <object id="board-svg" data="/img/controller_mbed.svg" type="image/svg+xml"></object>
-      </section>
+    <section id="components">
+      <div id="board-svg">
+        <img class="board" src="/img/cloud-connect-board.png">
+        <div id="led1" class="led"></div>
+        <div id="led2" class="led"></div>
+        <div id="led3" class="led"></div>
+        <div id="led4" class="led"></div>
+        <div id="ledpwr" class="led status"></div>
+        <div id="leduart" class="led status"></div>
+        <div id="leddebug" class="led status"></div>
+        <div id="sw1" class="button"></div>
+        <div id="sw2" class="button"></div>
+      </div>
+    </section>
   </section>
 
   <section id="serial">
-      <h2>Serial output</h2>
-      <div id="output"></div>
+    <h2>Serial output</h2>
+    <div id="output"></div>
   </section>
 
   <section id="overlay">
