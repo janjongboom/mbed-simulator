@@ -20,6 +20,8 @@
         builtInButtons[MbedJSHal.PinNames.BUTTON1] = board.querySelector('#sw1');
         builtInButtons[MbedJSHal.PinNames.BUTTON2] = board.querySelector('#sw2');
 
+        var builtInLcd = document.querySelector('#builtinlcd canvas');
+
         function setBuiltInLed(pin, value, type) {
             if (type !== MbedJSHal.gpio.TYPE.DIGITAL) {
                 return console.error('PwmOut not supported on built-in LEDs');
@@ -61,6 +63,42 @@
                 window.MbedJSHal.gpio.write(pin, 0);
             };
         });
+
+        // set up lcd handlers
+        (function() {
+            window.MbedJSHal.C12832.addListener('update_display', function(mosi, miso, sck, buffer) {
+                if (mosi !== window.MbedJSHal.PinNames.p5 || miso !== window.MbedJSHal.PinNames.p6 || sck !== window.MbedJSHal.PinNames.p7) {
+                    return;
+                }
+
+                // so... we're getting 4096 bytes...
+                var x = 0;
+                var y = 0;
+                var PIXEL_SIZE = 1;
+
+                var ctx = builtInLcd.getContext('2d');
+
+                for (var ix = 0; ix < buffer.length; ix++) {
+                    ctx.fillStyle = buffer[ix] === 1 ? '#000' : '#767c69';
+                    ctx.fillRect(x, y, PIXEL_SIZE, PIXEL_SIZE);
+
+                    x += PIXEL_SIZE;
+                    if (x === (128 * PIXEL_SIZE)) {
+                        x = 0;
+                        y += PIXEL_SIZE;
+                    }
+                }
+            });
+
+            function onResize() {
+                var containerWidth = Number(getComputedStyle(builtInLcd.parentNode).width.replace(/px$/, ''));
+                var scale = containerWidth / 128;
+                builtInLcd.style.transform = 'scale(' + scale + ')';
+            }
+            window.addEventListener('resize', onResize);
+
+            onResize();
+        })();
     }
 
     attachHandlers(svg);

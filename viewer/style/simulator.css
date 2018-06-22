@@ -17,6 +17,7 @@ body {
 
 .xterm {
   padding: 10px;
+  font-size: 9px;
 }
 
 #board {
@@ -50,6 +51,9 @@ body {
   width: 50vw;
   height: 31.7833vw; /* important so that absolute positioning (in %) works */
   font-family: 'Lucida Console', Monaco, monospace;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #board .led {
@@ -108,14 +112,14 @@ body {
   height: 1.5vw;
   border-radius: 1.5vw;
   border: solid 1px #333;
-  box-shadow: inset -2px -2px 2px #c7c7c7,
-              1px 1px 2px #333;
+  box-shadow: inset -2px -2px 2px #c7c7c7/*,
+              1px 1px 2px #333*/;
   top: 0;
 }
 
 #board .button.down {
-  box-shadow: inset 2px 2px 2px #c7c7c7,
-              1px 1px 2px #333;
+  box-shadow: inset 2px 2px 2px #c7c7c7/*,
+              1px 1px 2px #333*/;
 }
 
 #board #sw1 {
@@ -137,6 +141,24 @@ body {
   background: red;
   border: solid 1px darkred;
 }
+
+#board .lcd {
+  position: absolute;
+  background: rgb(0, 42, 76);
+  top: 47.7%;
+  left: 14.2vw;
+  transform: rotate(333.8deg);
+  width: 14.7vw;
+  height: 27.3%;
+}
+
+#board .lcd canvas {
+  margin-top: 18%;
+  width: 128px;
+  height: 32px;
+  transform-origin: left top;
+}
+
 
 #c12832 {
   border: solid 1px;
@@ -244,7 +266,7 @@ body {
 }
 
 #header {
-  background: #333e48;
+  background:  #002B49;
   color: white;
   font-size: 32px;
   padding: 10px;

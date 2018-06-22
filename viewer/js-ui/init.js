@@ -1,7 +1,9 @@
 (function() {
     window.socket = io.connect(location.origin);
 
-    var terminal = new Terminal();
+    var terminal = new Terminal({
+        fontSize: 12
+    });
     terminal.open(document.querySelector('#output'));
 
     var uartLedEl = document.querySelector('#leduart');
