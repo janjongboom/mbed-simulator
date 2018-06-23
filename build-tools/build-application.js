@@ -36,7 +36,7 @@ let findPeripherals = async function() {
     };
 };
 
-let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, peripherals, componentFiles) {
+let build = async function(outFile, extraArgs, emterpretify, verbose, includeDirectories, cFiles, peripherals, componentFiles, disableTlsNullEntropy) {
     let componentsOutName = Path.join(Path.dirname(outFile), Path.basename(outFile) + '.components');
 
     let builtinPeripherals = await findPeripherals();
@@ -53,6 +53,13 @@ let build = async function(outFile, extraArgs, emterpretify, verbose, includeDir
         .concat([
             '-o', outFile
         ]);
+
+    if (!disableTlsNullEntropy) {
+        args = args.concat([
+            '-DMBEDTLS_TEST_NULL_ENTROPY',
+            '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
+        ]);
+    }
 
     if (emterpretify) {
         args = args.concat(helpers.emterpretifyFlags);
@@ -163,7 +170,8 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
                  includeDirectories,
                  cFiles,
                  simconfig.peripherals || [],
-                 { jshal: jshal, jsui: jsui });
+                 { jshal: jshal, jsui: jsui },
+                 simconfig.disableTlsNullEntropy);
 }
 
 let buildFile = async function(inputFile, outFile, extraArgs, emterpretify, verbose) {

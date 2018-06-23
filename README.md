@@ -101,7 +101,8 @@ You can specify simulator options via a `simconfig.json` object, this is useful 
         "jsui": [
             "./ui/js-ui.js"
         ]
-    }
+    },
+    "disableTlsNullEntropy": true
 }
 ```
 
@@ -149,6 +150,10 @@ To use C++11 (or a different version), pass in `-c "-std=c++11"`.
 **Emterpretify**
 
 If you see that compilation hangs this might be due to a bug in asyncify. To switch to Emterpretify for async operations, pass in `--emterpretify`. This is f.e. used for uTensor.
+
+**Null entropy**
+
+By default no entropy sources are defined. If you see an error by the build process about this (e.g. `#error "MBEDTLS_TEST_NULL_ENTROPY defined, but not all prerequisites"`), you can add `"disableTlsNullEntropy": true` to your simconfig.
 
 
 ## Changing mbed-simulator-hal
