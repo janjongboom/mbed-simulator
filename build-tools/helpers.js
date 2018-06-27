@@ -82,7 +82,9 @@ const defaultBuildFlags = [
     '-DMBED_CONF_MBED_TRACE_ENABLE=1',
     '-DTARGET_LIKE_MBED',
     '-DFEATURE_COMMON_PAL=1', // this is annoying... it's used to feature detect tracing
+    '-DDEVICE_STDIO_MESSAGES=1',
     '-DMBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION=1',
+    '-DMBED_BUILD_TIMESTAMP=' + (Date.now() / 1000),
 
     '-Wall',
 ];

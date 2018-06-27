@@ -39,6 +39,7 @@ mbed-os/hal/mbed_gpio\.c
 mbed-os/hal/mbed_sleep_manager\.c
 mbed-os/hal/TARGET_FLASH_CMSIS_ALGO/
 mbed-os/platform/mbed_critical\.c
+mbed-os/platform/mbed_debug\.h
 mbed-os/platform/mbed_retarget\.cpp
 mbed-os/platform/mbed_wait_api_no_rtos\.c
 mbed-os/rtos/
