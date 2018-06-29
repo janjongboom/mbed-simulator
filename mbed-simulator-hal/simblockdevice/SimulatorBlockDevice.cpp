@@ -117,7 +117,7 @@ int SimulatorBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     size_t size_32 = static_cast<uint32_t>(size);
 
     EM_ASM_({
-        window.MbedJSHal.blockdevice.erase(Pointer_stringify($0), $2, $3);
+        window.MbedJSHal.blockdevice.erase(Pointer_stringify($0), $1, $2);
     }, _key_name, addr_32, size_32);
 
     return 0;
