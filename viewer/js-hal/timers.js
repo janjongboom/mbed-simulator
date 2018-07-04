@@ -7,12 +7,16 @@ window.MbedJSHal.timers = (function() {
     function ticker_setup(id, interval) {
         console.log('ticker_setup', id, interval);
 
+        if (tickers[id]) {
+            clearInterval(tickers[id]);
+        }
+
         tickers[id] = setInterval(() => {
             ccall('invoke_ticker', null, [ 'number' ], [ id ], { async: true });
         }, interval);
     }
 
-    function ticker_detach(id, interval) {
+    function ticker_detach(id) {
         console.log('ticker_detach', id);
 
         if (!(id in tickers)) return // console.error('ticker_detach called on non-registered ticker...');
@@ -21,29 +25,9 @@ window.MbedJSHal.timers = (function() {
         delete tickers[id];
     }
 
-    function timeout_setup(id, interval) {
-        console.log('timeout_setup', id, interval);
-        timeouts[id] = setTimeout(() => {
-            ccall('invoke_timeout', null, [ 'number' ], [ id ], { async: true });
-
-            delete timeouts[id];
-        }, interval);
-    }
-
-    function timeout_detach(id, interval) {
-        console.log('timeout_detach', id);
-
-        if (!(id in timeouts)) return console.error('timeout_detach called on non-registered ticker...');
-
-        clearTimeout(timeouts[id]);
-        delete timeouts[id];
-    }
-
     return {
         ticker_setup: ticker_setup,
-        ticker_detach: ticker_detach,
-        timeout_setup: timeout_setup,
-        timeout_detach: timeout_detach
+        ticker_detach: ticker_detach
     };
 
 })();
