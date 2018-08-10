@@ -30,7 +30,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
-    $ sh build-demos.js
+    $ sh build-demos.sh
     ```
 
 1. Then, start a web server:
@@ -204,6 +204,10 @@ Simulator applications can be debugged using your browser's debugger, because th
     * On a user-compiled app, go to the folder that starts with `/home/ubuntu`, go to the `out` folder, and select `user_XXX.cpp`.
 1. Click in the gutter to add a breakpoint.
 1. Click the *↻* icon in the simulator to restart the debug session.
+
+## Notes
+
+* `size_t` is 8 bytes, not 4 bytes wide. Please note this when dealing with existing code. See also [emscripten#6973](https://github.com/kripken/emscripten/issues/6973).
 
 ## Attribution
 

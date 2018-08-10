@@ -119,7 +119,6 @@ let libmbed = {
                 '-DMBEDTLS_TEST_NULL_ENTROPY',
                 '-DMBEDTLS_NO_DEFAULT_ENTROPY_SOURCES',
 
-                '-s', 'SIDE_MODULE=1',
                 '-O2',
                 '-o', outFile
             ]);

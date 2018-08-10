@@ -14,8 +14,8 @@ const ttnGwClient = udp.createSocket('udp4');
 const mac = require('getmac');
 const timesyncServer = require('timesync/server');
 
-const LORA_PORT = 1700;
-const LORA_HOST = 'router.eu.thethings.network';
+const LORA_PORT = 10096;
+const LORA_HOST = 'lora-eu.iot-x.com';
 
 let startupTs = Date.now();
 
