@@ -291,3 +291,13 @@ body {
 .st7789h2 canvas {
   border: solid 1px #ccc;
 }
+
+.thermistor .voltage-min {
+  float: left;
+  margin-left: 10px;
+}
+
+.thermistor .voltage-max {
+  float: right;
+  margin-right: 10px;
+}

@@ -17,7 +17,11 @@ var components = [
     { component: 'LedWhite', name: 'White LED', pins: [ 'LED' ] },
     // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
     // { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
-    // { component: 'TMP35', name: 'TMP35 Analog temperature sensor', pins: [ 'Temperature' ] },
+    {
+        component: 'Thermistor',
+        name: 'Analog thermistor',
+        pins: [ { name: 'Thermistor', value: [ 'p15', 'p16', 'p17', 'p18', 'p19', 'p20' ] } ]
+    },
     {
         component: 'sht31',
         name: 'SHT31 temperature / humidity sensor',
