@@ -22,7 +22,7 @@ const getDirectories = async function(source) {
     for (let d of children) {
         d = Path.join(source, d);
 
-        if (Path.basename(d) === '.git' && Path.basename(d) === '.hg') continue;
+        if (Path.basename(d) === '.git' || Path.basename(d) === '.hg') continue;
         if (!await isDirectory(d)) continue;
 
         res.push(d);

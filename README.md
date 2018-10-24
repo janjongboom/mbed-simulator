@@ -22,7 +22,7 @@ UI lives in `viewer/js-ui`, and handles UI events, and only communicates with JS
 
 Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
-## How to run blinky (or other demo's)
+## How to run the hosted version
 
 1. Install a recent version of node.js.
 1. Install Mbed CLI.
@@ -33,7 +33,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
     $ sh build-demos.sh
     ```
     **Note:** If you encounter `Error: Cannot find module` errors then run `npm install` and then `sh build-demos.sh`
-    
+
 1. Then, start a web server:
 
     ```
@@ -49,7 +49,11 @@ The simulator comes with a CLI to run any Mbed OS 5 project under the simulator.
 
 **Installation**
 
-Install the simulator via:
+1. Install a recent version of node.js.
+1. Install Mbed CLI.
+1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
+
+Then, install the simulator via:
 
 ```
 $ npm install mbed-simulator -g
