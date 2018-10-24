@@ -6,19 +6,18 @@
 
 const fs = require('fs');
 const Path = require('path');
-const spawn = require('child_process').spawn;
 const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./build-tools/helpers');
 const helpers = require('./build-tools/helpers');
-const libmbed = require('./build-tools/build-libmbed');
 const application = require('./build-tools/build-application');
 const opn = require('opn');
 const commandExistsSync = require('command-exists').sync;
 const launchServer = require('./server/launch-server');
+const version = JSON.parse(fs.readFileSync(Path.join(__dirname, 'package.json'), 'utf-8')).version;
 
 var program = require('commander');
 
 program
-    .version('1.0.0')
+    .version(version)
     .option('-i --input-dir <dir>', 'Input directory')
     .option('-f --input-file <file>', 'Input file')
     .option('-o --output-file <file>', 'Output file (or directory)')
