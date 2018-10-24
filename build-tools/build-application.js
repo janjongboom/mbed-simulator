@@ -1,6 +1,5 @@
 const fs = require('fs');
 const Path = require('path');
-const spawn = require('child_process').spawn;
 const { exists, getAllDirectories, getAllCFiles } = require('./helpers');
 const helpers = require('./helpers');
 const libmbed = require('./build-libmbed');
@@ -69,13 +68,13 @@ let build = async function(outFile, extraArgs, emterpretify, verbose, includeDir
     }
 
     if (verbose) {
-        console.log('emcc ' + args.join(' '));
+        console.log(helpers.emccCmd + ' ' + args.join(' '));
         args.push('-v');
     }
 
-    return new Promise((resolve, reject) => {
-        let cmd = spawn('emcc', args);
+    let cmd = await helpers.spawnEmcc(args);
 
+    return new Promise((resolve, reject) => {
         let stdout = '';
 
         cmd.stdout.on('data', data => stdout += data.toString('utf-8'));

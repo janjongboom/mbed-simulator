@@ -1,6 +1,10 @@
 const fs = require('fs');
 const Path = require('path');
 const promisify = require('es6-promisify').promisify;
+const spawn = require('child_process').spawn;
+const os = require('os');
+const crypto = require('crypto');
+const emccCmd = process.platform === 'win32' ? 'emcc.bat' : 'emcc';
 
 const exists = function(path) {
     return new Promise((resolve, reject) => {
@@ -63,6 +67,11 @@ const ignoreAndFilter = async function(list, ignoreFile) {
     parsed = parsed.map(l => new RegExp(l));
 
     list = list.filter(l => {
+        // different path sep (like Windows)? Make sure to swap the characters - as the regex is linux style paths
+        if (Path.sep === '\\') {
+            l = l.replace(/\\/g, '/');
+        }
+
         return parsed.every(p => !p.test(l));
     });
 
@@ -174,6 +183,55 @@ const getMacrosFromMbedAppJson = async function(filename) {
     return macros;
 };
 
+const spawnEmcc = async function(args) {
+    let tmpFolder = Path.join(os.tmpdir(), (await promisify(crypto.randomBytes.bind(crypto))(32)).toString('hex'));
+
+    let clearUpOnFinally = true;
+
+    async function clear() {
+        // clear up temp folder
+        for (let file of await promisify(fs.readdir.bind(fs))(tmpFolder)) {
+            await promisify(fs.unlink.bind(fs))(Path.join(tmpFolder, file));
+        }
+
+        await promisify(fs.rmdir.bind(fs))(tmpFolder);
+    }
+
+    try {
+        // create temp folder
+        await promisify(fs.mkdir.bind(fs))(tmpFolder);
+
+        args = args.map(a => {
+            // need to double escape backslashes
+            if (Path.sep === '\\') {
+                a = a.replace(/\\/g, '\\\\');
+            }
+            a = a.replace(/"/g, '\\"');
+            a = `"${a}"`;
+            return a;
+        }).join(' ');
+
+        // write arguments to file
+        let tmpFile = Path.join(tmpFolder, 'args.txt');
+        await promisify(fs.writeFile.bind(fs))(tmpFile, args, 'utf-8');
+
+        clearUpOnFinally = false;
+
+        let cmd = spawn(emccCmd, [ '@' + tmpFile ]);
+        cmd.on('close', clear);
+        return cmd;
+    }
+    catch (ex) {
+        throw ex;
+    }
+    finally {
+        if (clearUpOnFinally) {
+            // clear up temp folder
+            await clear();
+        }
+    }
+}
+
 module.exports = {
     exists: exists,
     isDirectory: isDirectory,
@@ -186,5 +244,7 @@ module.exports = {
     emterpretifyFlags: emterpretifyFlags,
     nonEmterpretifyFlags: nonEmterpretifyFlags,
     mkdirpSync: mkdirpSync,
-    getMacrosFromMbedAppJson: getMacrosFromMbedAppJson
+    getMacrosFromMbedAppJson: getMacrosFromMbedAppJson,
+    emccCmd: emccCmd,
+    spawnEmcc: spawnEmcc
 };

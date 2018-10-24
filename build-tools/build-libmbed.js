@@ -85,6 +85,7 @@ let libmbed = {
         }
 
         try {
+            // there's helpers.emccCmd, but the weird thing is that we need to spawn emcc.bat on Windows, but this still works...
             await commandExists('emcc');
         }
         catch (ex) {
@@ -133,12 +134,13 @@ let libmbed = {
         args = args.filter(a => a !== '--emterpretify');
 
         if (verbose) {
-            console.log('emcc ' + args.join(' '));
+            console.log(helpers.emccCmd + ' ' + args.join(' '));
             args.push('-v');
         }
 
+        let cmd = await helpers.spawnEmcc(args);
+
         return new Promise((resolve, reject) => {
-            let cmd = spawn('emcc', args);
             let stdout = '';
 
             cmd.stdout.on('data', data => stdout += data.toString('utf-8'));

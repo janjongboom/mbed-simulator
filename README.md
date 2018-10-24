@@ -26,7 +26,7 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 
 1. Install a recent version of node.js.
 1. Install Mbed CLI.
-1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
+1. Install the [Emscripten SDK v1.38.11](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
 1. Run:
 
     ```
@@ -51,7 +51,7 @@ The simulator comes with a CLI to run any Mbed OS 5 project under the simulator.
 
 1. Install a recent version of node.js.
 1. Install Mbed CLI.
-1. Install the [Emscripten SDK](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
+1. Install the [Emscripten SDK v1.38.11](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
 
 Then, install the simulator via:
 
