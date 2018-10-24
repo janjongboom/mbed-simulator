@@ -30,9 +30,9 @@ Device features need to be enabled in `targets/TARGET_SIMULATOR/device.h`.
 1. Run:
 
     ```
+    $ npm install
     $ sh build-demos.sh
     ```
-    **Note:** If you encounter `Error: Cannot find module` errors then run `npm install` and then `sh build-demos.sh`
 
 1. Then, start a web server:
 

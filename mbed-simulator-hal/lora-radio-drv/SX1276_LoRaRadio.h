@@ -213,10 +213,8 @@ public:
      *  setting the receiver in continuous mode is by using set_rx_config()
      *  API.
      *
-     *  @param timeout       Reception timeout [ms]
-     *
      */
-    virtual void receive(uint32_t timeout);
+    virtual void receive();
 
     /**
      *  Sets the carrier frequency

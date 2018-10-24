@@ -10,6 +10,7 @@ static uint32_t devaddr = 0x0;
 static uint8_t nwk_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 static uint8_t app_s_key[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
+static uint8_t net_id = 0x13; // TTN NetID, don't need to change
 
 // The port we're sending and receiving on
 #define MBED_CONF_LORA_APP_PORT     15
@@ -88,6 +89,7 @@ int main() {
 
     lorawan_connect_t connect_params;
     connect_params.connect_type = LORAWAN_CONNECTION_ABP;
+    connect_params.connection_u.abp.nwk_id = net_id;
     connect_params.connection_u.abp.dev_addr = devaddr;
     connect_params.connection_u.abp.nwk_skey = nwk_s_key;
     connect_params.connection_u.abp.app_skey = app_s_key;

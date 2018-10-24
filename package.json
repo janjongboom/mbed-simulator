@@ -1,6 +1,6 @@
 {
   "name": "mbed-simulator",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Mbed OS 5 simulator",
   "preferGlobal": true,
   "scripts": {

@@ -13,6 +13,7 @@ const udp = require('dgram');
 const ttnGwClient = udp.createSocket('udp4');
 const mac = require('getmac');
 const timesyncServer = require('timesync/server');
+const version = JSON.parse(fs.readFileSync(Path.join(__dirname, '..', 'package.json'), 'utf-8')).version;
 
 const LORA_PORT = 1700;
 const LORA_HOST = 'router.eu.thethings.network';
@@ -220,7 +221,8 @@ module.exports = function(outFolder, port, callback) {
                 script: req.params.script,
                 jshal: jshal,
                 jsui: jsui,
-                peripherals: JSON.stringify(peripherals)
+                peripherals: JSON.stringify(peripherals),
+                version: version
             });
         })().catch(err => {
             return next(err);
@@ -313,7 +315,7 @@ module.exports = function(outFolder, port, callback) {
     });
 
     app.get('/', (req, res, next) => {
-        res.render('simulator.html');
+        res.render('simulator.html', { version: version });
     });
 
     let compilationId = 0;
@@ -430,6 +432,8 @@ module.exports = function(outFolder, port, callback) {
         console.log('\tPacket forwarder port: ', LORA_PORT);
         console.log(`\tMake sure the gateway registered in the network server running the *legacy packet forwarder*`);
     });
+
+    console.log('Mbed Simulator v' + version);
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
         console.log('Web server listening on port %s!', port);
