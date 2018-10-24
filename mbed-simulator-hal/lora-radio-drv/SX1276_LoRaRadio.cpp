@@ -139,11 +139,6 @@ static const fsk_bw_t fsk_bandwidths[] =
 #define SIG_DIO5    0x20
 #define SIG_TIMOUT  0x40
 
-/**
- * Radio hardware registers initialization
- */
-static const radio_registers_t radio_reg_init[] = RADIO_INIT_REGISTERS_VALUE;
-
 enum RadioVariant {
     SX1276UNDEFINED = 0,
     SX1276MB1LAS,
@@ -712,7 +707,7 @@ void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency
  * and finally a DIO0 interrupt let's the state machine know that a packet is
  * ready to be read from the FIFO
  */
-void SX1276_LoRaRadio::receive(uint32_t/* timeout*/)
+void SX1276_LoRaRadio::receive()
 {
     // tr_debug("receive (timeout=%u). has_pending=%d", _rf_settings.lora.symb_timeout, _rf_settings.lora_packet_handler.pending);
 
@@ -993,8 +988,6 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
                                               uint16_t time)
 {
     // tr_debug("set_tx_continious_wave (freq=%u, power=%u, time=%u)", freq, power, time);
-
-    uint8_t reg_val;
 
     set_channel(freq);
     set_tx_config(MODEM_FSK, power, 0, 0, 4800, 0, 5, false, false, 0, 0, 0, time);

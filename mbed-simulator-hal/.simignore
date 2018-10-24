@@ -1,10 +1,12 @@
 components/MQTTNetwork/
 mbed-os/.github/
 mbed-os/cmsis/
+mbed-os/components/
 mbed-os/drivers/Ticker\.cpp
 mbed-os/events/equeue/tests/
 mbed-os/features/cellular/
 mbed-os/features/cryptocell/
+mbed-os/features/deprecated_warnings/
 mbed-os/features/device_key/
 mbed-os/features/FEATURE_BLE/
 mbed-os/features/FEATURE_COMMON_PAL/mbed-client-randlib/test/
@@ -21,6 +23,7 @@ mbed-os/features/frameworks/unity/
 mbed-os/features/frameworks/utest/
 mbed-os/features/filesystem/fat/
 mbed-os/features/filesystem/littlefs/
+mbed-os/features/lwipstack/
 mbed-os/features/mbedtls/targets/
 mbed-os/features/nanostack/
 mbed-os/features/netsocket/cellular/
@@ -31,8 +34,11 @@ mbed-os/features/netsocket/EthernetInterface\.h
 mbed-os/features/netsocket/EthernetInterface\.cpp
 mbed-os/features/netsocket/TCPServer\.h
 mbed-os/features/netsocket/TCPServer\.cpp
-mbed-os/features/nvstore/
-mbed-os/features/storage/
+mbed-os/features/nfc/
+mbed-os/features/storage/FEATURE_STORAGE/
+mbed-os/features/storage/filesystem/
+mbed-os/features/storage/nvstore/
+mbed-os/features/storage/system_storage/
 mbed-os/features/TESTS/
 mbed-os/features/unsupported/
 mbed-os/hal/mbed_gpio\.c
@@ -59,8 +65,11 @@ mbed-os/targets/TARGET_STM/
 mbed-os/targets/TARGET_Silicon_Labs/
 mbed-os/targets/TARGET_SIMULATOR/features/FEATURE_COMMON_PAL/arm_hal_timer\.cpp
 mbed-os/targets/TARGET_TOSHIBA/
+mbed-os/targets/TARGET_WICED/
 mbed-os/targets/TARGET_WIZNET/
 mbed-os/targets/TARGET_ublox/
+mbed-os/TEST_APPS/
 mbed-os/TESTS/
 mbed-os/tools/
+mbed-os/UNITTESTS/
 /TESTS/
