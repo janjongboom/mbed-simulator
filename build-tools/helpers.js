@@ -147,8 +147,6 @@ const getMacrosFromMbedAppJson = async function(filename) {
 
         let value = mbedapp_conf[key].value.toString();
 
-        value = value.replace(/"/g, '\\"');
-
         macros.push(macroKey + '=' + value);
     }
 
@@ -166,8 +164,6 @@ const getMacrosFromMbedAppJson = async function(filename) {
         else {
             key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
         }
-
-        value = value.replace(/"/g, '\\"');
 
         let alreadyInMacros = macros.filter(m => {
             return m === key || m.indexOf(key + '=') === 0;
