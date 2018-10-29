@@ -86,7 +86,7 @@ const defaultBuildFlags = [
     '-DTARGET_SIMULATOR',
     '-DMBED_EXCLUSIVE_ACCESS=1U',
     '-DMBED_CONF_EVENTS_SHARED_EVENTSIZE=256',
-    '-DMBEDTLS_USER_CONFIG_FILE=\"simulator_mbedtls_config.h\"',
+    '-DMBEDTLS_CONFIG_FILE=\"simulator_mbedtls_config.h\"',
     '-DMBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES=1',
     '-DMBED_CONF_MBED_TRACE_ENABLE=1',
     '-DTARGET_LIKE_MBED',
