@@ -145,9 +145,7 @@ const getMacrosFromMbedAppJson = async function(filename) {
             continue;
         }
 
-        let value = mbedapp_conf[key].value.toString();
-
-        macros.push(macroKey + '=' + value);
+        macros.push(macroKey + '=' + mbedapp_conf[key].value.toString());
     }
 
     macros = macros.concat(mbedapp.macros || []);
@@ -157,7 +155,6 @@ const getMacrosFromMbedAppJson = async function(filename) {
     for (let key of Object.keys(target_over)) {
         if (!target_over[key]) continue;
 
-        let value = target_over[key].toString();
         if (key.indexOf('.') > -1) {
             key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
         }
@@ -173,7 +170,7 @@ const getMacrosFromMbedAppJson = async function(filename) {
             macros.splice(macros.indexOf(m), 1);
         }
 
-        macros.push(key + '=' + value);
+        macros.push(key + '=' + target_over[key].toString());
     }
 
     return macros;
