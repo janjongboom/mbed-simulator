@@ -67,7 +67,7 @@ int main() {
     {
         printf("\n----- HTTPS GET request -----\n");
 
-        HttpsRequest* get_req = new HttpsRequest(network, HTTP_GET, "https://httpbin.org/status/418");
+        HttpsRequest* get_req = new HttpsRequest(network, SSL_CA_PEM, HTTP_GET, "https://httpbin.org/status/418");
 
         HttpResponse* get_res = get_req->send();
         if (!get_res) {
@@ -84,7 +84,7 @@ int main() {
     {
         printf("\n----- HTTPS POST request -----\n");
 
-        HttpsRequest* post_req = new HttpsRequest(network, HTTP_POST, "https://httpbin.org/post");
+        HttpsRequest* post_req = new HttpsRequest(network, SSL_CA_PEM, HTTP_POST, "https://httpbin.org/post");
         post_req->set_header("Content-Type", "application/json");
 
         const char body[] = "{\"hello\":\"world\"}";
@@ -100,8 +100,6 @@ int main() {
 
         delete post_req;
     }
-
-    delete socket;
 
     wait(osWaitForever);
 }
