@@ -1,6 +1,7 @@
 /**
- * This demo shows how to re-use sockets, so the TLS handshake only has to happen once
- * Example from https://os.mbed.com/teams/sandbox/code/http-example
+ * This demo shows how to do an HTTPS request with mbed-http
+ * Note that it does not re-use sockets, so very wasteful.
+ * To do it the right way, see: https://os.mbed.com/teams/sandbox/code/http-example
  */
 
 #include "mbed.h"
