@@ -1,5 +1,4 @@
 #include "mbed.h"
-#include "EthernetInterface.h"
 
 uint32_t ntohl(uint32_t const net) {
     uint8_t data[4] = {};
@@ -14,18 +13,18 @@ uint32_t ntohl(uint32_t const net) {
 int main() {
     printf("Time protocol example\n");
 
-    EthernetInterface net;
-    if(net.connect() != NSAPI_ERROR_OK) {
+    NetworkInterface *net = NetworkInterface::get_default_instance();
+    if(net->connect() != NSAPI_ERROR_OK) {
         printf("Error connecting\n");
         return -1;
     }
 
     // Show the network address
-    const char *ip = net.get_ip_address();
+    const char *ip = net->get_ip_address();
     printf("IP address is: %s\n", ip ? ip : "No IP");
 
     while (1) {
-        UDPSocket sock(&net);
+        UDPSocket sock(net);
 
         nsapi_size_or_error_t n;
 

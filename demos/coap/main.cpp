@@ -1,6 +1,5 @@
 #include <string>
 #include "mbed.h"
-#include "EthernetInterface.h"
 #include "sn_coap_protocol.h"
 #include "sn_coap_header.h"
 #include "UDPSocket.h"
@@ -61,8 +60,8 @@ void recv_coap_message() {
 }
 
 int main() {
-    EthernetInterface network;
-    if (network.connect() != 0) {
+    NetworkInterface *network = NetworkInterface::get_default_instance();
+    if (network->connect() != 0) {
         printf("Cannot connect to the network, see serial output\n");
         return 1;
     }
@@ -70,7 +69,7 @@ int main() {
     printf("Connected to the network. Opening a socket...\n");
 
     // Open a socket on the network interface
-    coap_socket.open(&network);
+    coap_socket.open(network);
 
     // Initialize the CoAP protocol handle, pointing to local implementations on malloc/free/tx/rx functions
     coapHandle = sn_coap_protocol_init(&coap_malloc, &coap_free, &coap_tx_cb, &coap_rx_cb);

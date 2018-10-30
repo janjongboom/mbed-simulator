@@ -7,7 +7,6 @@
 #include "mbed_trace.h"
 #include "TCPSocket.h"
 #include "https_request.h"
-#include "EthernetInterface.h"
 
 /* List of trusted root CA certificates
  * currently one: Let's Encrypt, the CA for httpbin.org
@@ -53,35 +52,22 @@ void dump_response(HttpResponse* res) {
 }
 
 int main() {
-    EthernetInterface network;
-    if (network.connect() != 0) {
+    NetworkInterface *network = NetworkInterface::get_default_instance();
+    if (network->connect() != 0) {
         printf("Could not connect to the network...\n");
         return 1;
     }
 
     mbed_trace_init();
 
-    printf("\n----- Setting up TLS connection -----\n");
-
-    nsapi_error_t r;
-
-    TLSSocket* socket = new TLSSocket();
-    if ((r = socket->open(&network)) != NSAPI_ERROR_OK) {
-        printf("TLS socket open failed (%d)\n", r);
-        return 1;
-    }
-    if ((r = socket->set_root_ca_cert(SSL_CA_PEM)) != NSAPI_ERROR_OK) {
-        printf("TLS socket set_root_ca_cert failed (%d)\n", r);
-        return 1;
-    }
-    if ((r = socket->connect("httpbin.org", 443)) != NSAPI_ERROR_OK) {
-        printf("TLS socket connect failed (%d)\n", r);
-        return 1;
-    }
+    // note that this example sets up a new TLS socket for every request... that's wasteful!
+    // you can set up a socket manually and pass it in, see the TLS Socket example
 
     // GET request to httpbin.org
     {
-        HttpsRequest* get_req = new HttpsRequest(socket, HTTP_GET, "https://httpbin.org/status/418");
+        printf("\n----- HTTPS GET request -----\n");
+
+        HttpsRequest* get_req = new HttpsRequest(network, HTTP_GET, "https://httpbin.org/status/418");
 
         HttpResponse* get_res = get_req->send();
         if (!get_res) {
@@ -96,7 +82,9 @@ int main() {
 
     // POST request to httpbin.org
     {
-        HttpsRequest* post_req = new HttpsRequest(socket, HTTP_POST, "https://httpbin.org/post");
+        printf("\n----- HTTPS POST request -----\n");
+
+        HttpsRequest* post_req = new HttpsRequest(network, HTTP_POST, "https://httpbin.org/post");
         post_req->set_header("Content-Type", "application/json");
 
         const char body[] = "{\"hello\":\"world\"}";

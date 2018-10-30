@@ -21,6 +21,9 @@
 #define MAX_SOCKET_COUNT    100
 
 #include "nsapi.h"
+#include "EthInterface.h"
+#include "TCPSocket.h"
+#include "UDPSocket.h"
 
 // Forward declaration
 class NetworkStack;
@@ -35,7 +38,7 @@ struct simulated_socket {
 /** EthernetInterface class
  *  Implementation of the NetworkStack for LWIP
  */
-class EthernetInterface : public NetworkInterface, public NetworkStack
+class EthernetInterface : public NetworkStack, public virtual NetworkInterface, public EthInterface
 {
 public:
     /** EthernetInterface lifetime
@@ -122,6 +125,15 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     using NetworkInterface::gethostbyname;
+
+    /** Get the default Ethernet interface.
+     *
+     * @return pointer to interface, if any
+     */
+    static EthInterface* get_target_default_instance() {
+        static EthernetInterface ethernet;
+        return &ethernet;
+    }
 
 protected:
     /** Open a socket
@@ -241,6 +253,5 @@ protected:
         void *data;
     } _cbs[MAX_SOCKET_COUNT];
 };
-
 
 #endif
