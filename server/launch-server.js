@@ -63,10 +63,20 @@ module.exports = function(outFolder, port, callback) {
             s.packets = Buffer.from([]);
             res.send(socketIx + '');
 
+            let cIx = socketIx;
+
             s.on('data', data => {
                 console.log('Received TCP packet on socket', socketIx, data);
 
                 s.packets = Buffer.concat([s.packets, data]);
+            });
+            s.on('error', e => {
+                console.log('TCP error on socket', socketIx, e);
+                try {
+                    s.close();
+                }
+                catch (ex) {}
+                delete sockets[cIx];
             });
         }
         else if (req.body.protocol === 1) { // UDP
@@ -112,7 +122,7 @@ module.exports = function(outFolder, port, callback) {
         console.log('Sending socket', req.body.id, req.body.data.length, 'bytes');
 
         if (!sockets[req.body.id]) {
-            return res.send('' + -3001);
+            return res.send('-3005'); // NSAPI_ERROR_NO_SOCKET
         }
 
         let s = sockets[req.body.id];
@@ -131,7 +141,7 @@ module.exports = function(outFolder, port, callback) {
         console.log('Connecting socket', req.body.id, req.body.hostname, req.body.port);
 
         if (!sockets[req.body.id]) {
-            return res.send('' + -3001);
+            return res.send('-3005'); // NSAPI_ERROR_NO_SOCKET
         }
 
         let s = sockets[req.body.id];
@@ -169,6 +179,10 @@ module.exports = function(outFolder, port, callback) {
 
         // if no data... need to block until there is
         let iv = setInterval(() => {
+            if (!sockets[req.body.id]) {
+                clearInterval(iv);
+                return res.send('-3016'); // NSAPI_ERROR_CONNECTION_LOST
+            }
             if (s.packets.length > 0) {
                 clearInterval(iv);
                 send();
