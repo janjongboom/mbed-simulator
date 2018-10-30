@@ -141,6 +141,9 @@ const getMacrosFromMbedAppJson = async function(filename) {
         let macroKey = mbedapp_conf[key].macro_name || 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
 
         if (!mbedapp_conf[key].value) {
+            if (mbedapp_conf[key].required) {
+                throw "Required parameter '" + key + "' doesn't have a value";
+            }
             macros.push(macroKey);
             continue;
         }
