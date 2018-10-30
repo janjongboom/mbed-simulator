@@ -4,6 +4,7 @@
  */
 
 #include "mbed.h"
+#include "mbed_trace.h"
 #include "TCPSocket.h"
 #include "https_request.h"
 #include "EthernetInterface.h"
@@ -58,20 +59,29 @@ int main() {
         return 1;
     }
 
-    // Create a TLS socket (which holds a TCPSocket)
+    mbed_trace_init();
+
     printf("\n----- Setting up TLS connection -----\n");
 
-    TLSSocket* socket = new TLSSocket(&network, "httpbin.org", 443, SSL_CA_PEM);
-    socket->set_debug(true);
-    if (socket->connect() != 0) {
-        printf("TLS Connect failed %d\n", socket->error());
+    nsapi_error_t r;
+
+    TLSSocket* socket = new TLSSocket();
+    if ((r = socket->open(&network)) != NSAPI_ERROR_OK) {
+        printf("TLS socket open failed (%d)\n", r);
+        return 1;
+    }
+    if ((r = socket->set_root_ca_cert(SSL_CA_PEM)) != NSAPI_ERROR_OK) {
+        printf("TLS socket set_root_ca_cert failed (%d)\n", r);
+        return 1;
+    }
+    if ((r = socket->connect("httpbin.org", 443)) != NSAPI_ERROR_OK) {
+        printf("TLS socket connect failed (%d)\n", r);
         return 1;
     }
 
     // GET request to httpbin.org
     {
         HttpsRequest* get_req = new HttpsRequest(socket, HTTP_GET, "https://httpbin.org/status/418");
-        get_req->set_debug(true);
 
         HttpResponse* get_res = get_req->send();
         if (!get_res) {
@@ -87,7 +97,6 @@ int main() {
     // POST request to httpbin.org
     {
         HttpsRequest* post_req = new HttpsRequest(socket, HTTP_POST, "https://httpbin.org/post");
-        post_req->set_debug(true);
         post_req->set_header("Content-Type", "application/json");
 
         const char body[] = "{\"hello\":\"world\"}";
