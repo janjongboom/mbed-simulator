@@ -5,6 +5,7 @@
 
 #include "mbed.h"
 #include "mbed_trace.h"
+#include "EthernetInterface.h"
 #include "TCPSocket.h"
 #include "https_request.h"
 

@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "EthernetInterface.h"
 
 uint32_t ntohl(uint32_t const net) {
     uint8_t data[4] = {};

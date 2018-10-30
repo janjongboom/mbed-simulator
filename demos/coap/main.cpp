@@ -1,5 +1,6 @@
 #include <string>
 #include "mbed.h"
+#include "EthernetInterface.h"
 #include "sn_coap_protocol.h"
 #include "sn_coap_header.h"
 #include "UDPSocket.h"
