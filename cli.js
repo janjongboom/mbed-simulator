@@ -105,7 +105,7 @@ fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program
 
         if (program.launch) {
             let port = process.env.PORT || 7900;
-            launchServer(outputDir, port, function(err) {
+            launchServer(outputDir, port, 0, function(err) {
                 if (err) return console.error('Failed to launch server', err);
 
                 let name = Path.basename(program.outputFile, '.js');

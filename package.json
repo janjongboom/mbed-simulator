@@ -1,6 +1,6 @@
 {
   "name": "mbed-simulator",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Mbed OS 5 simulator",
   "preferGlobal": true,
   "scripts": {
@@ -27,6 +27,7 @@
     "body-parser": "^1.18.2",
     "command-exists": "^1.2.2",
     "commander": "^2.15.1",
+    "compression": "^1.7.3",
     "es6-promisify": "^6.0.0",
     "express": "^4.16.2",
     "getmac": "^1.4.1",

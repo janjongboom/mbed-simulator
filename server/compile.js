@@ -11,7 +11,9 @@ module.exports = async function(content, outFolder) {
     await promisify(fs.writeFile)(inputFile, content, 'utf-8');
 
     try {
-        await application.buildFile(inputFile, outputFile, [], false, false);
+        await application.buildFile(inputFile, outputFile, [
+            '-O2'
+        ], false, false);
     }
     catch (ex) {
         // remove path info
