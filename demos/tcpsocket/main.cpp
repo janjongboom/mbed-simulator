@@ -1,5 +1,5 @@
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include "NetworkInterface.h"
 
 // Get access to the network interface
 NetworkInterface *net = NetworkInterface::get_default_instance();

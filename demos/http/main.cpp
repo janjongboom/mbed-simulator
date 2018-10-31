@@ -1,5 +1,5 @@
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include "NetworkInterface.h"
 #include "http_request.h"
 
 void dump_response(HttpResponse* res) {
