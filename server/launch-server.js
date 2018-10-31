@@ -14,13 +14,14 @@ const ttnGwClient = udp.createSocket('udp4');
 const mac = require('getmac');
 const timesyncServer = require('timesync/server');
 const version = JSON.parse(fs.readFileSync(Path.join(__dirname, '..', 'package.json'), 'utf-8')).version;
+const compression = require('compression');
 
 const LORA_PORT = 1700;
 const LORA_HOST = 'router.eu.thethings.network';
 
 let startupTs = Date.now();
 
-module.exports = function(outFolder, port, callback) {
+module.exports = function(outFolder, port, staticMaxAge, callback) {
     const app = express();
     const server = require('http').Server(app);
     const io = require('socket.io')(server);
@@ -28,14 +29,18 @@ module.exports = function(outFolder, port, callback) {
     app.set('view engine', 'html');
     app.set('views', Path.join(__dirname, '..', 'viewer'));
     app.engine('html', hbs.__express);
+    app.use(compression({
+        filter: () => true,
+        level: 6
+    }));
 
-    app.use('/out', express.static(outFolder));
+    app.use('/out', express.static(outFolder, { maxAge: staticMaxAge }));
 
-    app.use('/demos', express.static(Path.join(__dirname, '..', 'demos')));
-    app.use('/peripherals', express.static(Path.join(__dirname, '..', 'mbed-simulator-hal', 'peripherals')));
+    app.use('/demos', express.static(Path.join(__dirname, '..', 'demos'), { maxAge: staticMaxAge }));
+    app.use('/peripherals', express.static(Path.join(__dirname, '..', 'mbed-simulator-hal', 'peripherals'), { maxAge: staticMaxAge }));
     app.use('/timesync', timesyncServer.requestHandler);
 
-    app.use(express.static(Path.join(__dirname, '..', 'viewer')));
+    app.use(express.static(Path.join(__dirname, '..', 'viewer'), { maxAge: staticMaxAge }));
     app.use(bodyParser.json());
 
     app.get('/api/network/ip', (req, res, next) => {
@@ -192,16 +197,21 @@ module.exports = function(outFolder, port, callback) {
     });
 
     app.get('/view/:script', (req, res, next) => {
+        let maxAge = 2;
+        if (req.params.script.indexOf('user_') === 0) {
+            maxAge = staticMaxAge;
+        }
+
         if (/\.js\.mem$/.test(req.params.script)) {
-            return res.sendFile(Path.join(outFolder, req.params.script));
+            return res.sendFile(Path.join(outFolder, req.params.script), { maxAge: maxAge });
         }
 
         if (/\.js\.map$/.test(req.params.script)) {
-            return res.sendFile(Path.join(outFolder, req.params.script));
+            return res.sendFile(Path.join(outFolder, req.params.script), { maxAge: maxAge });
         }
 
         if (/\.data$/.test(req.params.script)) {
-            return res.sendFile(Path.join(outFolder, req.params.script));
+            return res.sendFile(Path.join(outFolder, req.params.script), { maxAge: maxAge });
         }
 
         (async function() {

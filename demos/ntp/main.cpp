@@ -1,5 +1,6 @@
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include "NetworkInterface.h"
+#include "UDPSocket.h"
 
 uint32_t ntohl(uint32_t const net) {
     uint8_t data[4] = {};
