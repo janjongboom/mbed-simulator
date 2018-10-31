@@ -1,8 +1,7 @@
 #include "mbed.h"
 #include "mbed_trace.h"
-#include "EthernetInterface.h"
-#include "TCPSocket.h"
-#include "https_request.h"
+#include "NetworkInterface.h"
+#include "TLSSocket.h"
 
 /* List of trusted root CA certificates
  * currently one: Global Sign, the CA for os.mbed.com
@@ -69,7 +68,7 @@ int main() {
     // Send a simple http request
     char send_buffer[] = "GET /media/uploads/mbed_official/hello.txt HTTP/1.1\r\nHost: os.mbed.com\r\n\r\n";
     int scount = socket->send(send_buffer, strlen(send_buffer));
-    printf("\nSent %d bytes\n", scount, send_buffer);
+    printf("\nSent %d bytes:\n\n%s\n\n", scount, send_buffer);
 
     // Recieve an HTTP response and print out the response line
     char recv_buffer[1024] = { 0 };
