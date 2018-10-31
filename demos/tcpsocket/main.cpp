@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "NetworkInterface.h"
+#include "TCPSocket.h"
 
 // Get access to the network interface
 NetworkInterface *net = NetworkInterface::get_default_instance();
