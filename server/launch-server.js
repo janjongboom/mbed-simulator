@@ -34,6 +34,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
         level: 6
     }));
 
+    express.static.mime.define({'application/wasm': ['wasm']});
     app.use('/out', express.static(outFolder, { maxAge: staticMaxAge }));
 
     app.use('/demos', express.static(Path.join(__dirname, '..', 'demos'), { maxAge: staticMaxAge }));
