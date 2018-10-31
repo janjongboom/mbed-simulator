@@ -3,6 +3,7 @@ mbed-os/.github/
 mbed-os/cmsis/
 mbed-os/components/
 mbed-os/drivers/Ticker\.cpp
+mbed-os/events/mbed_shared_queues\.cpp
 mbed-os/events/equeue/tests/
 mbed-os/features/cellular/
 mbed-os/features/cryptocell/
@@ -72,4 +73,15 @@ mbed-os/TEST_APPS/
 mbed-os/TESTS/
 mbed-os/tools/
 mbed-os/UNITTESTS/
+simple-mbed-cloud-client/storage_helper/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Examples/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Configs/pal_config/FreeRTOS/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Configs/pal_config/Linux/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/FreeRTOS/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/Linux/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/mbedOS/Storage/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Test/
+simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Utils/stackUsage/TestSuite/
+simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/common/stubs/
+simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/lwm2m-mbed/stubs/
 /TESTS/
