@@ -1,0 +1,28 @@
+{
+    "compiler-args": [
+        "-DMBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
+        "-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
+        "-DMBED_CLOUD_DEV_UPDATE_ID",
+        "-DMBED_CLOUD_DEV_UPDATE_CERT",
+        "-w"
+    ],
+    "ignore": [
+        "./simple-mbed-cloud-client/storage_helper/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Examples/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Configs/pal_config/FreeRTOS/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Configs/pal_config/Linux/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/FreeRTOS/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/Linux/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Source/Port/Reference-Impl/OS_Specific/mbedOS/Storage/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Test/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-pal/Utils/stackUsage/TestSuite/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/common/stubs/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/lwm2m-mbed/stubs/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-randlib/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-coap/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-trace/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/nanostack-libservice/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/mbed-client-randlib/",
+        "./simple-mbed-cloud-client/mbed-cloud-client/ns-hal-pal/arm_hal_random.c"
+    ]
+}

@@ -96,8 +96,6 @@ const defaultBuildFlags = [
     '-DMBED_BUILD_TIMESTAMP=' + (Date.now() / 1000),
 
     '-DARM_UC_USE_PAL_BLOCKDEVICE=1',
-    '-DMBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"',
-    '-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"',
     '-DPAL_FS_MOUNT_POINT_PRIMARY=\"/fs\"',
 
     '-DMBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION=1',
