@@ -21,56 +21,19 @@ using namespace events;
 
 namespace mbed {
 
-#ifdef MBED_CONF_RTOS_PRESENT
-/* Create an event queue, and start the thread that dispatches it. Static
- * variables mean this happens once the first time each template instantiation
- * is called. This is currently instantiated no more than twice.
- */
-template
-<osPriority Priority, size_t QueueSize, size_t StackSize>
-EventQueue *do_shared_event_queue_with_thread()
-{
-    static uint64_t queue_buffer[QueueSize / sizeof(uint64_t)];
-    static EventQueue queue(sizeof queue_buffer, (unsigned char *) queue_buffer);
-
-    static uint64_t stack[StackSize / sizeof(uint64_t)];
-    static Thread thread(Priority, StackSize, (unsigned char *) stack);
-
-    Thread::State state = thread.get_state();
-    if (state == Thread::Inactive || state == Thread::Deleted) {
-        osStatus status = thread.start(callback(&queue, &EventQueue::dispatch_forever));
-        MBED_ASSERT(status == osOK);
-        if (status != osOK) {
-            return NULL;
-        }
-    }
-
-    return &queue;
-}
-#endif
-
-#if MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION || !defined MBED_CONF_RTOS_PRESENT
 /* Only create the EventQueue, but no dispatching thread */
-static unsigned char queue_buffer[1024];
-static EventQueue queue(sizeof queue_buffer, queue_buffer);
-#endif
+static unsigned char queue_buffer[4096];
+static EventQueue queue(4096, queue_buffer);
 
 EventQueue *mbed_event_queue()
 {
-#if MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION || !defined MBED_CONF_RTOS_PRESENT
+    printf("mbed_event_queue\n");
     return &queue;
-#else
-    return do_shared_event_queue_with_thread<osPriorityNormal, MBED_CONF_EVENTS_SHARED_EVENTSIZE, MBED_CONF_EVENTS_SHARED_STACKSIZE>();
-#endif
 }
 
 EventQueue *mbed_highprio_event_queue()
 {
-#if MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION || !defined MBED_CONF_RTOS_PRESENT
     return &queue;
-#else
-    return do_shared_event_queue_with_thread<osPriorityHigh, MBED_CONF_EVENTS_SHARED_HIGHPRIO_EVENTSIZE, MBED_CONF_EVENTS_SHARED_HIGHPRIO_STACKSIZE>();
-#endif
 }
 
 }

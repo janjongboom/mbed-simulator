@@ -17,7 +17,9 @@ mbed-os/features/FEATURE_COMMON_PAL/nanostack-libservice/test/
 mbed-os/features/FEATURE_LWIP/
 mbed-os/features/FEATURE_UVISOR/
 mbed-os/features/frameworks/greentea-client/
+mbed-os/features/frameworks/mbed-client-randlib/
 mbed-os/features/frameworks/mbed-client-randlib/test/
+mbed-os/features/frameworks/mbed-coap/
 mbed-os/features/frameworks/mbed-trace/test/
 mbed-os/features/frameworks/nanostack-libservice/test/
 mbed-os/features/frameworks/unity/

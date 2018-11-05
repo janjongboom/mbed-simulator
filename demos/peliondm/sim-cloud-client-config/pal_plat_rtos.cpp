@@ -147,6 +147,7 @@ palStatus_t pal_plat_osSemaphoreDelete(palSemaphoreID_t* semaphoreID)
 int32_t pal_plat_osAtomicIncrement(int32_t* valuePtr, int32_t increment)
 {
     *valuePtr += increment;
+    return *valuePtr;
 }
 
 
@@ -159,4 +160,17 @@ int32_t pal_plat_osAtomicIncrement(int32_t* valuePtr, int32_t increment)
  void pal_plat_free(void * buffer)
 {
 	return free(buffer);
+}
+
+palStatus_t pal_plat_osRandomBuffer(uint8_t *randomBuf, size_t bufSizeBytes, size_t* actualRandomSizeBytes)
+{
+    palStatus_t status = PAL_SUCCESS;
+
+    for (size_t ix = 0; ix < bufSizeBytes; ix++) {
+        randomBuf[ix] = rand() % 255;
+    }
+
+    *actualRandomSizeBytes = bufSizeBytes;
+
+    return status;
 }
