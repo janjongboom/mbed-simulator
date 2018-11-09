@@ -81,7 +81,7 @@ const ignoreAndFilter = async function(list, ignoreFile) {
 const defaultBuildFlags = [
     '-s', 'NO_EXIT_RUNTIME=1',
     '-s', 'ASSERTIONS=2',
-    '-s', 'ERROR_ON_UNDEFINED_SYMBOLS=1',
+    '-s', 'ERROR_ON_UNDEFINED_SYMBOLS=0',
 
     '-D__MBED__',
     '-DTARGET_SIMULATOR',

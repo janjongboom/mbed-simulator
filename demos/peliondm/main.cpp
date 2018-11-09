@@ -3,6 +3,7 @@
 #include "mbed_trace.h"
 #include "simple-mbed-cloud-client.h"
 #include "SimulatorBlockDevice.h"
+#include "eventOS_scheduler.h"
 
 EventQueue eventQueue;
 
@@ -40,11 +41,24 @@ int main() {
 
     printf("Pelion Client initialized\n");
 
+    MbedCloudClientResource *button_res = client.create_resource("3200/0/5501", "button_count");
+    button_res->set_value(0);
+    button_res->methods(M2MMethod::GET);
+    button_res->observable(true);
+    // button_res->attach_notification_callback(button_callback);
+
     // Callback that fires when registering is complete
     client.on_registered(&registered);
 
+    printf("on_registered called\n");
+
     // Register with Pelion Device Management
-    client.register_and_connect();
+    int b = client.register_and_connect();
+    printf("register_and_connect returned %d\n", b);
+
+    mbed_event_queue()->call_every(1, &eventOS_scheduler_run_until_idle);
 
     mbed_event_queue()->dispatch_forever();
+
+    wait(osWaitForever);
 }

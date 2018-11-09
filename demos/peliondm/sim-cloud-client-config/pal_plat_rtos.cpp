@@ -20,6 +20,7 @@
 #include <string.h>
 #include "pal_plat_rtos.h"
 #include "mbed.h"
+#include "arm_uc_crypto.h"
 #include "entropy_poll.h"
 
 #define TRACE_GROUP "PAL"
@@ -173,4 +174,30 @@ palStatus_t pal_plat_osRandomBuffer(uint8_t *randomBuf, size_t bufSizeBytes, siz
     *actualRandomSizeBytes = bufSizeBytes;
 
     return status;
+}
+
+int8_t mbed_cloud_client_get_rot_128bit(uint8_t *key_buf, uint32_t length)
+{
+    int8_t rv = -1;
+    palStatus_t status = PAL_ERR_GENERIC_FAILURE;
+
+#if (PAL_USE_HW_ROT)
+    status = pal_plat_osGetRoTFromHW(key_buf, length);
+#else
+    uint16_t actual_size;
+
+    sotp_result_e sotp_status = sotp_get(SOTP_TYPE_ROT, length, (uint32_t *)key_buf, &actual_size);
+    if (SOTP_SUCCESS == sotp_status && actual_size == ARM_UC_ROT_SIZE) {
+        status = PAL_SUCCESS;
+    }
+#endif
+
+    if (status == PAL_SUCCESS) {
+        rv = 0;
+    } else {
+        /* clear buffer on failure so we don't leak the rot */
+        memset(key_buf, 0, length);
+    }
+
+    return rv;
 }

@@ -33,6 +33,7 @@ EventQueue *mbed_event_queue()
 
 EventQueue *mbed_highprio_event_queue()
 {
+    printf("mbed_highprio_event_queue\n");
     return &queue;
 }
 

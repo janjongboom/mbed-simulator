@@ -2,6 +2,7 @@ components/MQTTNetwork/
 mbed-os/.github/
 mbed-os/cmsis/
 mbed-os/components/
+mbed-os/docs/
 mbed-os/drivers/Ticker\.cpp
 mbed-os/events/mbed_shared_queues\.cpp
 mbed-os/events/equeue/tests/
@@ -10,6 +11,7 @@ mbed-os/features/cryptocell/
 mbed-os/features/deprecated_warnings/
 mbed-os/features/device_key/
 mbed-os/features/FEATURE_BLE/
+mbed-os/features/FEATURE_BOOTLOADER/
 mbed-os/features/FEATURE_COMMON_PAL/mbed-client-randlib/test/
 mbed-os/features/FEATURE_COMMON_PAL/mbed-trace/test/
 mbed-os/features/FEATURE_COMMON_PAL/nanostack-hal-mbed-cmsis-rtos/

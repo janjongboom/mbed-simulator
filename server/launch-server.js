@@ -198,7 +198,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     });
 
     app.get('/view/:script', (req, res, next) => {
-        let maxAge = 2;
+        let maxAge = 0;
         if (req.params.script.indexOf('user_') === 0) {
             maxAge = staticMaxAge;
         }
