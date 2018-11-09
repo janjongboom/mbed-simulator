@@ -80,6 +80,7 @@ int EthernetInterface::socket_open(void **handle, nsapi_protocol_t proto) {
 void EthernetInterface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
     struct simulated_socket *socket = (struct simulated_socket *)handle;
+    printf("EthernetInterface::socket_attach id=%d callback=%p\n", socket->id, callback);
     _cbs[socket->id].callback = callback;
     _cbs[socket->id].data = data;
 }
@@ -197,3 +198,7 @@ int EthernetInterface::socket_accept(void *handle, void **socket, SocketAddress 
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+EMSCRIPTEN_KEEPALIVE
+extern "C" void handle_ethernet_sigio(uint32_t socketPtr) {
+    ((struct simulated_socket*)socketPtr)->callback();
+}

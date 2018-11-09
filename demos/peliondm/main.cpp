@@ -26,7 +26,7 @@ int main() {
         return -1;
     }
 
-    // mbed_trace_init();
+    mbed_trace_init();
 
     printf("Connected to the network successfully. IP address: %s\n", net->get_ip_address());
 
