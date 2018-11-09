@@ -4,6 +4,7 @@
         "-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "-DMBED_CLOUD_DEV_UPDATE_ID",
         "-DMBED_CLOUD_DEV_UPDATE_CERT",
+        "-DMBED_CONF_APP_DEVELOPER_MODE=1",
         "-w"
     ],
     "ignore": [
