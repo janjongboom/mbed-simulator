@@ -31,6 +31,11 @@ void pattern_updated(MbedCloudClientResource *resource, m2m::String newValue) {
     printf("PUT received, new value: %s\n", newValue.c_str());
 }
 
+void blink() {
+    static DigitalOut augmentedLed(LED1); // LED that is used for blinking the pattern
+    augmentedLed = !augmentedLed;
+}
+
 /**
  * POST handler
  * @param resource The resource that triggered the callback
@@ -41,24 +46,19 @@ void pattern_updated(MbedCloudClientResource *resource, m2m::String newValue) {
 void blink_callback(MbedCloudClientResource *resource, const uint8_t *buffer, uint16_t size) {
     printf("POST received. Going to blink LED pattern: %s\n", pattern_res->get_value().c_str());
 
-    static DigitalOut augmentedLed(LED2); // LED that is used for blinking the pattern
-
     // Parse the pattern string, and toggle the LED in that pattern
     string s = std::string(pattern_res->get_value().c_str());
     size_t i = 0;
     size_t pos = s.find(':');
+    int total_len = 0;
     while (pos != string::npos) {
-        printf("Blink length %d\n", atoi(s.substr(i, pos - i).c_str()));
-        wait_ms(atoi(s.substr(i, pos - i).c_str()));
-        augmentedLed = !augmentedLed;
+        int len = atoi(s.substr(i, pos - i).c_str());
 
+        mbed_event_queue()->call_in(total_len + len, &blink);
+
+        total_len += len;
         i = ++pos;
         pos = s.find(':', pos);
-
-        if (pos == string::npos) {
-            wait_ms(atoi(s.substr(i, s.length()).c_str()));
-            augmentedLed = !augmentedLed;
-        }
     }
 }
 

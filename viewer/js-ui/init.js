@@ -82,6 +82,31 @@
                     console.log('Synced /IDBFS');
                 }
             });
+        },
+        clearIdbfs: function() {
+            function rmRecursive(path) {
+                FS.readdir(path).forEach(function(item) {
+                    if (item === '.' || item === '..') return;
+
+                    item = path + '/' + item;
+
+                    console.log('reading', item, FS.stat(item).mode)
+
+                    if ((FS.stat(item).mode & 00170000) === 0040000) {
+                        console.log(item, 'is directory, gonna remove');
+                        rmRecursive(item);
+                        FS.rmdir(item);
+                    }
+                    else {
+                        console.log('unlink', item);
+                        FS.unlink(item);
+                    }
+                });
+            }
+
+            rmRecursive('/IDBFS');
+
+            window.MbedJSHal.syncIdbfs();
         }
     };
 
