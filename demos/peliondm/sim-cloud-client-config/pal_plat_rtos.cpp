@@ -47,19 +47,16 @@ palStatus_t pal_plat_osDelay(uint32_t milliseconds)
 
 uint64_t pal_plat_osKernelSysTick(void)
 {
-    printf("getkernelsystick\n");
     return 0;
 }
 
 uint64_t pal_plat_osKernelSysTickMicroSec(uint64_t microseconds)
 {
-    printf("getkernelsystickmicro\n");
     return 0;
 }
 
 uint64_t pal_plat_osKernelSysTickFrequency()
 {
-    printf("osKernelSysTickFrequency\n");
     return 100;
 }
 

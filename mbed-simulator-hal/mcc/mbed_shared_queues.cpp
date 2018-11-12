@@ -27,13 +27,11 @@ static EventQueue queue(4096, queue_buffer);
 
 EventQueue *mbed_event_queue()
 {
-    printf("mbed_event_queue\n");
     return &queue;
 }
 
 EventQueue *mbed_highprio_event_queue()
 {
-    printf("mbed_highprio_event_queue\n");
     return &queue;
 }
 

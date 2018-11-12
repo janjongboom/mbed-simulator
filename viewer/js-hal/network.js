@@ -24,6 +24,9 @@ window.MbedJSHal.network = (function() {
     const SOCKET_PROTOCOL_TCP             = 0;
     const SOCKET_PROTOCOL_UDP             = 1;
 
+    const NSDEBUG = 0;
+    const log = NSDEBUG === 1 ? console.log.bind(console) : function() {};
+
     /**
      * NOTE: THIS USES SYNCHRONOUS XMLHTTPREQUEST!
      *
@@ -113,7 +116,7 @@ window.MbedJSHal.network = (function() {
             return NSAPI_ERROR_PARAMETER;
         }
 
-        console.log('socket_open', protocol);
+        log('socket_open', protocol);
         var x = new XMLHttpRequest();
         x.open('POST', this.host + url, false);
         x.setRequestHeader('Content-Type', 'application/json');
@@ -129,7 +132,7 @@ window.MbedJSHal.network = (function() {
             ptr: socketPtr
         };
 
-        console.log('socket_open', protocol, 'OK', socketId);
+        log('socket_open', protocol, 'OK', socketId);
 
         // subscribe for changes
         this.websocket.emit('socket-subscribe', socketId);
@@ -148,7 +151,7 @@ window.MbedJSHal.network = (function() {
      * @param {*} data Byte array
      */
     Network.prototype.onSocketData = function(socket, data) {
-        console.log('onSocketData', socket.socketId, data.length + ' bytes');
+        log('onSocketData', socket.socketId, data.length + ' bytes');
 
         data = JSON.parse(data);
 
@@ -177,7 +180,7 @@ window.MbedJSHal.network = (function() {
     Network.prototype.socket_connect = function(id, hostname, port) {
         hostname = Pointer_stringify(hostname);
 
-        console.log('socket_connect', id, hostname, port);
+        log('socket_connect', id, hostname, port);
         var x = new XMLHttpRequest();
         x.open('POST', this.host + '/api/network/socket_connect', false);
         x.setRequestHeader('Content-Type', 'application/json');
@@ -198,7 +201,7 @@ window.MbedJSHal.network = (function() {
      * @param {*} id
      */
     Network.prototype.socket_close = function(id) {
-        console.log('socket_close', id);
+        log('socket_close', id);
         var x = new XMLHttpRequest();
         x.open('POST', this.host + '/api/network/socket_close', false);
         x.setRequestHeader('Content-Type', 'application/json');
@@ -228,7 +231,7 @@ window.MbedJSHal.network = (function() {
         }
 
         var rxBuffer = this.sockets[id].rxBuffer;
-        console.log('socket_recv', id, buffer_ptr, size, 'rxBuffer length', rxBuffer.length);
+        log('socket_recv', id, buffer_ptr, size, 'rxBuffer length', rxBuffer.length);
 
         // no data?
         if (rxBuffer.length === 0) {
@@ -257,17 +260,19 @@ window.MbedJSHal.network = (function() {
 
         var buffer = [].slice.call(new Uint8Array(Module.HEAPU8.buffer, data, size));
 
-        console.log('socket_send', id, data, size);
+        log('socket_send', id, data, size);
         var x = new XMLHttpRequest();
         x.open('POST', this.host + '/api/network/socket_send');
         x.setRequestHeader('Content-Type', 'application/json');
 
         x.onload = function() {
-            console.log('socket_send', id, 'OK');
+            log('socket_send', id, 'OK');
 
             setTimeout(() => {
-                self.signalEvent(self.sockets[id]);
-            }, 16);
+                if (self.sockets[id]) {
+                    self.signalEvent(self.sockets[id]);
+                }
+            }, 1);
         };
 
         x.send(JSON.stringify({ id: id, data: buffer }));
@@ -285,7 +290,7 @@ window.MbedJSHal.network = (function() {
      * - ???
      */
     Network.prototype.signalEvent = function(socket) {
-        console.log('js sigio', socket.ptr);
+        log('js sigio', socket.ptr);
         ccall('handle_ethernet_sigio', null,
             [ 'number' ],
             [ socket.ptr ],
