@@ -1,69 +1,81 @@
 #include "mbed.h"
-// #include "mbed_shared_queues.h"
+#include "mbed_shared_queues.h"
 #include "NetworkInterface.h"
 #include "TCPSocket.h"
 
-// nsapi_size_or_error_t send_query(TCPSocket *socket) {
-//     return socket->send(QUERY, QUERY_LEN);
-// }
+static TCPSocket socket;
+static char rx_buffer[256] = { 0 };
 
-// nsapi_size_or_error_t receive_data(TCPSocket *socket) {
-//     // Simplified example, does not properly handle streaming and appending to buffer
-//     return socket->recv(my_buffer, remaining_len);
-// }
+nsapi_size_or_error_t send_query() {
+    const char *query = "GET / HTTP/1.1\r\nHost: api.ipify.org\r\n\r\n";
 
-// void handle_socket_sigio(TCPSocket *socket)
-// {
-//     static enum {
-//         CONNECTING,
-//         SEND,
-//         RECEIVE,
-//         CLOSE,
-//     } next_state = CONNECTING;
+    return socket.send(query, strlen(query));
+}
 
-//     switch (next_state) {
-//         case CONNECTING:
-//             switch(socket->connect("api.ipify.org", 80)) {
-//                 case NSAPI_ERROR_IN_PROGRESS:
-//                     // Connecting to server
-//                     break;
-//                 case NSAPI_ERROR_ALREADY:
-//                     // Now connected to server
-//                     next_state = SEND;
-//                     break;
-//                 default:
-//                     // Error in connection phase
-//                     next_state = CLOSE;
-//             }
-//         case SEND:
-//             if (send_query(socket) > 0)
-//                 next_state = RECEIVE;
-//             else
-//                 next_state = CLOSE; // Error
-//             break;
-//         case RECEIVE:
-//             if (receive_data(socket) == NSAPI_ERROR_WOULD_BLOCK)
-//                 break;
-//             next_state = CLOSE;
-//             break;
-//         case CLOSE:
-//             socket->close();
-//             break;
-//     }
-// }
+nsapi_size_or_error_t receive_data() {
+    return socket.recv(rx_buffer, sizeof(rx_buffer));
+}
+
+void handle_socket_sigio()
+{
+    static enum {
+        CONNECTING,
+        SEND,
+        RECEIVE,
+        CLOSE,
+        NONE
+    } next_state = CONNECTING;
+
+    printf("socket sigio, next_state=%d\n", next_state);
+
+    switch (next_state) {
+        case CONNECTING:
+            switch(socket.connect("api.ipify.org", 80)) {
+                case NSAPI_ERROR_IN_PROGRESS:
+                    // Connecting to server
+                    printf("Connecting to server\n");
+                    break;
+                case NSAPI_ERROR_ALREADY:
+                case NSAPI_ERROR_OK:
+                    // Now connected to server
+                    next_state = SEND;
+                    printf("Connected to server\n");
+                    break;
+                default:
+                    // Error in connection phase
+                    printf("Error in connection phase\n");
+                    next_state = CLOSE;
+            }
+        case SEND:
+            printf("Sending...\n");
+            if (send_query() > 0)
+                next_state = RECEIVE;
+            else
+                next_state = CLOSE; // Error
+            break;
+        case RECEIVE:
+            if (receive_data() == NSAPI_ERROR_WOULD_BLOCK)
+                break;
+
+            printf("\nReceived:\n\n%s\n\n", rx_buffer);
+            next_state = CLOSE;
+        case CLOSE:
+            printf("Socket close\n");
+            next_state = NONE;
+            socket.close();
+            break;
+    }
+}
 
 int main() {
     NetworkInterface *net = NetworkInterface::get_default_instance();
     net->connect();
 
-    TCPSocket socket;
     socket.open(net);
 
-    // EventQueue *queue = mbed_event_queue();
+    socket.set_blocking(false);
+    socket.sigio(&handle_socket_sigio);
+    handle_socket_sigio();                   // Kick the state machine to start connecting
 
-    // Event<void()> handler = queue->event(handle_socket_sigio, &socket);
-
-    // socket.set_blocking(false);
-    // socket.sigio(handler);
-    // handler();                   // Kick the state machine to start connecting
+    wait(osWaitForever);
 }
