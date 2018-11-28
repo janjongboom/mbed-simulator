@@ -154,6 +154,10 @@ const getMacrosFromMbedAppJson = async function(filename) {
     let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbedapp.target_overrides || {})['SIMULATOR']);
     for (let key of Object.keys(target_over)) {
         if (!target_over[key]) continue;
+        if (typeof target_over[key] !== 'string') {
+            console.warn('Skipping', key, 'in target_overrides section in mbed_app.json (type is not string)', target_over[key]);
+            continue;
+        }
 
         if (key.indexOf('.') > -1) {
             key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
