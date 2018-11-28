@@ -150,11 +150,7 @@ const getMacrosFromMbedAppJson = async function(filename) {
             continue;
         }
 
-        let value = mbedapp_conf[key].value.toString();
-
-        value = value.replace(/"/g, '\\"');
-
-        macros.push(macroKey + '=' + value);
+        macros.push(macroKey + '=' + mbedapp_conf[key].value.toString());
     }
 
     macros = macros.concat(mbedapp.macros || []);
@@ -163,16 +159,17 @@ const getMacrosFromMbedAppJson = async function(filename) {
     let target_over = Object.assign({}, (mbedapp.target_overrides || {})['*'], (mbedapp.target_overrides || {})['SIMULATOR']);
     for (let key of Object.keys(target_over)) {
         if (!target_over[key]) continue;
+        if (typeof target_over[key] !== 'string') {
+            console.warn('Skipping', key, 'in target_overrides section in mbed_app.json (type is not string)', target_over[key]);
+            continue;
+        }
 
-        let value = target_over[key].toString();
         if (key.indexOf('.') > -1) {
             key = 'MBED_CONF_' + key.toUpperCase().replace(/(-|\.)/g, '_');
         }
         else {
             key = 'MBED_CONF_APP_' + key.toUpperCase().replace(/(-|\.)/g, '_');
         }
-
-        value = value.replace(/"/g, '\\"');
 
         let alreadyInMacros = macros.filter(m => {
             return m === key || m.indexOf(key + '=') === 0;
@@ -182,7 +179,7 @@ const getMacrosFromMbedAppJson = async function(filename) {
             macros.splice(macros.indexOf(m), 1);
         }
 
-        macros.push(key + '=' + value);
+        macros.push(key + '=' + target_over[key].toString());
     }
 
     return macros;
