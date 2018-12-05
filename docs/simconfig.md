@@ -45,3 +45,17 @@ If you see that compilation hangs this might be due to a bug in asyncify. To swi
 **Null entropy**
 
 By default no entropy sources are defined. If you see an error by the build process about this (e.g. `#error "MBEDTLS_TEST_NULL_ENTROPY defined, but not all prerequisites"`), you can add `"disableTlsNullEntropy": true` to your simconfig.
+
+## mbed_app.json
+
+Configuration options and macros are automatically picked up from your mbed_app.json file. To specify options that are only loaded for the simulator, use the `target_overrides` section:
+
+```json
+{
+    "target_overrides": {
+        "SIMULATOR": {
+            "some-config-option": 12
+        }
+    }
+}
+```

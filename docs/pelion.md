@@ -24,9 +24,38 @@ $ node cli.js -i demos/peliondm -o out --compiler-opts "-Os" --launch
 
 ## Application changes required
 
+**Constructor**
+
+The constructor has two arguments, instead of three. You no longer need to pass in a `FileSystem` object as the third argument.
+
+```cpp
+#include "simple-mbed-cloud-client.h"
+#include "SimulatorBlockDevice.h"
+
+// declare simulated block device, will be used to store firmware fragments
+SimulatorBlockDevice bd("myblockdevice", 128 * 512, 512);
+
+int main() {
+    // get network interface
+    NetworkInterface *net = NetworkInterface::get_default_instance();
+    nsapi_error_t status = net->connect();
+
+#ifdef TARGET_SIMULATOR
+    SimpleMbedCloudClient client(net, &bd);
+#else
+    SimpleMbedCloudClient client(net, &bd, &fs);
+#endif
+```
+
+**Queues**
+
 The Pelion Client uses the `mbed_event_queue()` for a number of operations, which runs in a separate thread in Mbed OS. In addition the client spins up a thread for its own scheduling. Because the simulator runs in a single thread this is not possible, and we need to run all of these actions on the same thread. In your application you need to add the following lines to your `main` function:
 
 ```cpp
+#include "eventOS_scheduler.h"
+
+/* snip */
+
     // Run the Pelion Client scheduler on the main event queue
     mbed_event_queue()->call_every(1, &eventOS_scheduler_run_until_idle);
 
@@ -35,6 +64,26 @@ The Pelion Client uses the `mbed_event_queue()` for a number of operations, whic
 ```
 
 Note that this will run forever. If you need an event queue to schedule things yourself use `mbed_event_queue()` instead of creating your own new queue.
+
+**PAL Mount point**
+
+You need to set the PAL file system mount point to a folder on the [persistent file system](fs.md), so under `/IDBFS`. If you don't declare this macro then it's set automatically.
+
+Otherwise, in your `mbed_app.json` file specify:
+
+```json
+"PAL_FS_MOUNT_POINT_PRIMARY=\"/IDBFS/pal\""
+```
+
+## Running via CLI
+
+If you changed the above, then no further changes are required. Make sure you have a developer certificate in your application and run:
+
+```
+$ mbed-simulator .
+```
+
+Note that you might need to set ignore paths in your [simconfig](simconfig.md) file if you use an application that can be compiled for multiple operating systems. Simple Cloud Client example should work without this.
 
 ## Clearing identity
 
