@@ -82,6 +82,7 @@ const defaultBuildFlags = [
     '-s', 'NO_EXIT_RUNTIME=1',
     '-s', 'ASSERTIONS=2',
     '-s', 'ERROR_ON_UNDEFINED_SYMBOLS=0',
+    '-s', 'FORCE_FILESYSTEM=1',
 
     '-D__MBED__',
     '-DTARGET_SIMULATOR',
@@ -112,8 +113,6 @@ const defaultBuildFlags = [
     '-DMBED_CONF_UPDATE_CLIENT_STORAGE_SIZE=0',
     '-DMBED_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h"',
     '-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h"',
-    '-DMBED_CLOUD_DEV_UPDATE_ID',
-    '-DMBED_CLOUD_DEV_UPDATE_CERT',
     '-DMBED_CONF_APP_DEVELOPER_MODE=1',
 
     // '-Wall',

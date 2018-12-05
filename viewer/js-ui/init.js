@@ -9,6 +9,7 @@
     var Module = {
         preRun: [
             function() {
+                addRunDependency('IDBFS');
                 FS.mkdir('/IDBFS');
                 FS.mount(IDBFS, {}, '/IDBFS');
 
@@ -19,6 +20,7 @@
                     else {
                         console.log('Synced /IDBFS');
                     }
+                    removeRunDependency('IDBFS');
                 });
             }
         ],
