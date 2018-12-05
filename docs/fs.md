@@ -37,3 +37,33 @@ EM_ASM({
     window.MbedJSHal.syncIdbfs();
 });
 ```
+
+**Clearing the persistent file system**
+
+To remove all files from the persistent file system, open your browsers console and run:
+
+```js
+window.MbedJSHal.clearIdbfs();
+```
+
+## Prepopulating the file system
+
+You can populate the file system at compile time with data from your computer. This can be done through the CLI or via the [simconfig](simconfig.md) file.
+
+**CLI**
+
+```
+# the part after the @ is the mount location (in this case /fs)
+
+$ mbed-simulator -i . --preload-file folder-to-load/@/fs
+```
+
+**simconfig.md**
+
+```json
+{
+    "compiler-args": [
+        "--preload-file", "sdcard@/fs"
+    ]
+}
+```

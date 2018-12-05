@@ -5,8 +5,6 @@
 #include "SimulatorBlockDevice.h"
 #include "eventOS_scheduler.h"
 
-EventQueue eventQueue;
-
 SimulatorBlockDevice bd("myblockdevice", 128 * 512, 512);
 
 // Declaring pointers for access to Pelion Device Management Client resources outside of main()
