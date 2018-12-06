@@ -33,6 +33,8 @@ struct simulated_socket {
     nsapi_protocol_t proto;
     bool connected;
     SocketAddress addr;
+    void (*callback)(void *);
+    void *data;
 };
 
 /** EthernetInterface class
@@ -247,11 +249,6 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
-
-    struct {
-        void (*callback)(void *);
-        void *data;
-    } _cbs[MAX_SOCKET_COUNT];
 };
 
 #endif

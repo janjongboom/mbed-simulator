@@ -1,11 +1,29 @@
 (function() {
     window.socket = io.connect(location.origin);
 
-    var terminal = new Terminal();
+    var terminal = new Terminal({
+        scrollback: 1000000
+    });
     terminal.open(document.querySelector('#output'));
 
     var Module = {
-        preRun: [],
+        preRun: [
+            function() {
+                addRunDependency('IDBFS');
+                FS.mkdir('/IDBFS');
+                FS.mount(IDBFS, {}, '/IDBFS');
+
+                FS.syncfs(true, function (err) {
+                    if (err) {
+                        console.error('Could not sync /IDBFS', err);
+                    }
+                    else {
+                        console.log('Synced /IDBFS');
+                    }
+                    removeRunDependency('IDBFS');
+                });
+            }
+        ],
         postRun: [],
         print: (function () {
             return function (text) {
@@ -56,6 +74,41 @@
         die: function () {
             Module.setStatus('Board has died');
             Module.printErr('[post-exception status] mbed_die() was called');
+        },
+        syncIdbfs: function() {
+            FS.syncfs(false, function (err) {
+                if (err) {
+                    console.error('Could not sync /IDBFS');
+                }
+                else {
+                    console.log('Synced /IDBFS');
+                }
+            });
+        },
+        clearIdbfs: function() {
+            function rmRecursive(path) {
+                FS.readdir(path).forEach(function(item) {
+                    if (item === '.' || item === '..') return;
+
+                    item = path + '/' + item;
+
+                    console.log('reading', item, FS.stat(item).mode)
+
+                    if ((FS.stat(item).mode & 00170000) === 0040000) {
+                        console.log(item, 'is directory, gonna remove');
+                        rmRecursive(item);
+                        FS.rmdir(item);
+                    }
+                    else {
+                        console.log('unlink', item);
+                        FS.unlink(item);
+                    }
+                });
+            }
+
+            rmRecursive('/IDBFS');
+
+            window.MbedJSHal.syncIdbfs();
         }
     };
 

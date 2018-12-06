@@ -29,6 +29,8 @@ int main() {
     int scount = socket.send(buffer, strlen(buffer));
     printf("sent %d [%.*s]\n", scount, (int)(strstr(buffer, "\r\n")-buffer), buffer);
 
+    wait_ms(100);
+
     // Recieve an HTTP response and print out the response line
     int rcount = socket.recv(buffer, 256);
     printf("recv %d [%.*s]\n", rcount, (int)(strstr(buffer, "\r\n")-buffer), buffer);

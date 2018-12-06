@@ -119,7 +119,9 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
         'BUILD',
         'mbed-os',
         'sd-driver',
-        'easy-connect'
+        'easy-connect',
+        'simple-mbed-cloud-client',
+        'mbed-cloud-client'
     ].map(d => Path.join(inputDir, d));
 
     toRemove = toRemove.concat((simconfig.ignore || []).map(f => {

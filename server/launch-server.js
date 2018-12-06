@@ -21,6 +21,27 @@ const LORA_HOST = 'router.eu.thethings.network';
 
 let startupTs = Date.now();
 
+const NSAPI_ERROR_OK                  =  0;        /*!< no error */
+const NSAPI_ERROR_WOULD_BLOCK         = -3001;     /*!< no data is not available but call is non-blocking */
+const NSAPI_ERROR_UNSUPPORTED         = -3002;     /*!< unsupported functionality */
+const NSAPI_ERROR_PARAMETER           = -3003;     /*!< invalid configuration */
+const NSAPI_ERROR_NO_CONNECTION       = -3004;     /*!< not connected to a network */
+const NSAPI_ERROR_NO_SOCKET           = -3005;     /*!< socket not available for use */
+const NSAPI_ERROR_NO_ADDRESS          = -3006;     /*!< IP address is not known */
+const NSAPI_ERROR_NO_MEMORY           = -3007;     /*!< memory resource not available */
+const NSAPI_ERROR_NO_SSID             = -3008;     /*!< ssid not found */
+const NSAPI_ERROR_DNS_FAILURE         = -3009;     /*!< DNS failed to complete successfully */
+const NSAPI_ERROR_DHCP_FAILURE        = -3010;     /*!< DHCP failed to complete successfully */
+const NSAPI_ERROR_AUTH_FAILURE        = -3011;     /*!< connection to access point failed */
+const NSAPI_ERROR_DEVICE_ERROR        = -3012;     /*!< failure interfacing with the network processor */
+const NSAPI_ERROR_IN_PROGRESS         = -3013;     /*!< operation (eg connect) in progress */
+const NSAPI_ERROR_ALREADY             = -3014;     /*!< operation (eg connect) already in progress */
+const NSAPI_ERROR_IS_CONNECTED        = -3015;     /*!< socket is already connected */
+const NSAPI_ERROR_CONNECTION_LOST     = -3016;     /*!< connection lost */
+const NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017;     /*!< connection timed out */
+const NSAPI_ERROR_ADDRESS_IN_USE      = -3018;     /*!< Address already in use */
+const NSAPI_ERROR_TIMEOUT             = -3019; /*!< operation timed out */
+
 module.exports = function(outFolder, port, staticMaxAge, callback) {
     const app = express();
     const server = require('http').Server(app);
@@ -44,70 +65,77 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     app.use(express.static(Path.join(__dirname, '..', 'viewer'), { maxAge: staticMaxAge }));
     app.use(bodyParser.json());
 
-    app.get('/api/network/ip', (req, res, next) => {
-        if (!ips.length) return res.send('');
-        res.send(ips[0].iface.address);
-    });
+    app.post('/api/network/connect', (req, res, next) => {
+        if (!ips.length) {
+            return res.json({
+                address: '127.0.0.1',
+                mac: '00:00:00:00:00:00',
+                netmask: '255.255.255.0'
+            });
+        }
 
-    app.get('/api/network/mac', (req, res, next) => {
-        if (!ips.length) return res.send('');
-        res.send(ips[0].iface.mac);
-    });
-
-    app.get('/api/network/netmask', (req, res, next) => {
-        if (!ips.length) return res.send('');
-        res.send(ips[0].iface.netmask);
+        return res.json({
+            address: ips[0].iface.address,
+            mac: ips[0].iface.mac,
+            netmask: ips[0].iface.netmask
+        });
     });
 
     let sockets = {};
     let socketIx = 0;
 
-    app.post('/api/network/socket_open', (req, res, next) => {
-        if (req.body.protocol === 0) { // TCP
-            console.log('Opening new TCP socket');
-            let s = sockets[++socketIx] = new net.Socket();
-            s.packets = Buffer.from([]);
-            res.send(socketIx + '');
+    app.post('/api/network/socket_open/tcp', (req, res, next) => {
+        let s = sockets[++socketIx] = new net.Socket();
+        console.log('Opening new TCP socket (' + socketIx + ')');
+        s.subscribers = [];
+        res.send(socketIx + '');
 
-            let cIx = socketIx;
+        let cIx = socketIx;
 
-            s.on('data', data => {
-                console.log('Received TCP packet on socket', socketIx, data);
+        s.on('data', data => {
+            console.log('Received TCP packet on socket', cIx, data, 'subcount', s.subscribers.length);
 
-                s.packets = Buffer.concat([s.packets, data]);
+            s.subscribers.forEach(ws => {
+                ws.emit('socket-data-' + cIx, JSON.stringify(Array.from(data)));
             });
-            s.on('error', e => {
-                console.log('TCP error on socket', socketIx, e);
-                try {
-                    s.close();
-                }
-                catch (ex) {}
-                delete sockets[cIx];
-            });
-        }
-        else if (req.body.protocol === 1) { // UDP
-            console.log('Opening new UDP socket');
-            let s = sockets[++socketIx] = dgram.createSocket('udp4');
-            s.packets = Buffer.from([]);
-            res.send(socketIx + '');
+        });
+        s.on('error', e => {
+            console.log('TCP error on socket', socketIx, e);
 
-            s.on('message', (msg, rinfo) => {
-                console.log('Received UDP packet on socket', socketIx, msg, rinfo);
-
-                s.packets = Buffer.concat([s.packets, msg]);
-                // s.packets.push({ msg: msg, rinfo: rinfo });
+            s.subscribers.forEach(ws => {
+                ws.emit('socket-error-' + cIx);
             });
-        }
-        else {
-            res.send('' + -1);
-        }
+
+            try {
+                s.close();
+            }
+            catch (ex) {}
+            delete sockets[cIx];
+        });
+    });
+
+    app.post('/api/network/socket_open/udp', (req, res, next) => {
+        let s = sockets[++socketIx] = dgram.createSocket('udp4');
+        console.log('Opening new UDP socket (' + socketIx + ')');
+        s.subscribers = [];
+        res.send(socketIx + '');
+
+        let cIx = socketIx;
+
+        s.on('message', (data, rinfo) => {
+            console.log('Received UDP packet on socket', cIx, data, rinfo);
+
+            s.subscribers.forEach(ws => {
+                ws.emit('socket-data-' + cIx, JSON.stringify(Array.from(data)));
+            });
+        });
     });
 
     app.post('/api/network/socket_close', (req, res, next) => {
         console.log('Closing socket', req.body.id);
 
         if (!sockets[req.body.id]) {
-            return res.send('' + -3001);
+            return res.send('' + NSAPI_ERROR_NO_SOCKET);
         }
 
         let s = sockets[req.body.id];
@@ -128,7 +156,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
         console.log('Sending socket', req.body.id, req.body.data.length, 'bytes');
 
         if (!sockets[req.body.id]) {
-            return res.send('-3005'); // NSAPI_ERROR_NO_SOCKET
+            return res.send('' + NSAPI_ERROR_NO_SOCKET); // NSAPI_ERROR_NO_SOCKET
         }
 
         let s = sockets[req.body.id];
@@ -147,58 +175,73 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
         console.log('Connecting socket', req.body.id, req.body.hostname, req.body.port);
 
         if (!sockets[req.body.id]) {
-            return res.send('-3005'); // NSAPI_ERROR_NO_SOCKET
+            return res.send('' + NSAPI_ERROR_NO_SOCKET);
         }
 
         let s = sockets[req.body.id];
 
+        // connectionState is used whenever someone calls this function again...
+        if (s.connectionState) {
+            return s.connectionState;
+        }
+
         if (s instanceof net.Socket) {
             s.connect(req.body.port, req.body.hostname);
+
+            s.connectionState = NSAPI_ERROR_IN_PROGRESS;
+
+            let erH = () => {
+                s.connectionState = NSAPI_ERROR_CONNECTION_LOST;
+
+                res.send('' + NSAPI_ERROR_CONNECTION_LOST);
+            };
+
+            s.on('connect', () => {
+                s.connectionState = NSAPI_ERROR_ALREADY;
+                s.removeListener('error', erH);
+
+                res.send('' + NSAPI_ERROR_OK);
+            });
+
+            s.on('error', erH);
         }
         else {
             s.port = req.body.port;
             s.hostname = req.body.hostname;
-        }
+            s.connectionState = NSAPI_ERROR_ALREADY;
 
-        res.send('0');
+            res.send('0');
+        }
     });
 
-    app.post('/api/network/socket_recv', (req, res, next) => {
-        console.log('Receiving from socket', req.body.id, 'max size', req.body.size);
+    io.on('connection', ws => {
+        console.log('new ws connected');
+        ws.on('socket-subscribe', id => {
+            if (!sockets[id]) return;
 
-        if (!sockets[req.body.id]) {
-            return res.send('' + -3001);
-        }
+            console.log('socket-subscribe on', id);
 
-        let s = sockets[req.body.id];
+            sockets[id].subscribers.push(ws);
+        });
 
-        function send() {
-            let buff = [].slice.call(s.packets.slice(0, req.body.size));
-            s.packets = s.packets.slice(req.body.size);
+        ws.on('disconnect', () => {
+            for (let sk of Object.keys(sockets)) {
+                let s = sockets[sk];
 
-            res.send(JSON.stringify(buff));
-        }
+                let subIx = s.subscribers.indexOf(ws);
+                if (subIx === -1) return;
 
-        if (s.packets.length > 0) {
-            return send();
-        }
-
-        // if no data... need to block until there is
-        let iv = setInterval(() => {
-            if (!sockets[req.body.id]) {
-                clearInterval(iv);
-                return res.send('-3016'); // NSAPI_ERROR_CONNECTION_LOST
+                s.subscribers.splice(subIx, 1);
             }
-            if (s.packets.length > 0) {
-                clearInterval(iv);
-                send();
-            }
-        }, 33);
-
+        });
     });
+
+    io.on('socket-subscribe', id => {
+
+    })
 
     app.get('/view/:script', (req, res, next) => {
-        let maxAge = 2;
+        let maxAge = 0;
         if (req.params.script.indexOf('user_') === 0) {
             maxAge = staticMaxAge;
         }

@@ -7,7 +7,6 @@
 // This way there's time to flush printf() calls in between network calls.
 
 EthernetInterface::EthernetInterface() {
-    memset(_cbs, 0, sizeof(_cbs));
 }
 
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway) {
@@ -22,12 +21,19 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp) {
 }
 
 nsapi_error_t EthernetInterface::connect() {
-    // immediately return OK
-    return NSAPI_ERROR_OK;
+    int ret = EM_ASM_INT({
+        return window.MbedJSHal.network.connect();
+    });
+    wait_ms(1);
+    return ret;
 }
 
 nsapi_error_t EthernetInterface::disconnect() {
-    return NSAPI_ERROR_OK;
+    int ret = EM_ASM_INT({
+        return window.MbedJSHal.network.disconnect();
+    });
+    wait_ms(1);
+    return ret;
 }
 
 const char * EthernetInterface::get_mac_address() {
@@ -59,11 +65,11 @@ int EthernetInterface::socket_open(void **handle, nsapi_protocol_t proto) {
     struct simulated_socket *socket = new struct simulated_socket();
 
     int socket_id = EM_ASM_INT({
-        return window.MbedJSHal.network.socket_open($0);
-    }, proto);
+        return window.MbedJSHal.network.socket_open($0, $1);
+    }, proto, (uint32_t*)socket);
 
     if (socket_id == -1) {
-        return -3001;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     socket->id = socket_id;
@@ -80,8 +86,8 @@ int EthernetInterface::socket_open(void **handle, nsapi_protocol_t proto) {
 void EthernetInterface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
     struct simulated_socket *socket = (struct simulated_socket *)handle;
-    _cbs[socket->id].callback = callback;
-    _cbs[socket->id].data = data;
+    socket->callback = callback;
+    socket->data = data;
 }
 
 int EthernetInterface::socket_close(void *handle)
@@ -142,14 +148,13 @@ int EthernetInterface::socket_connect(void *handle, const SocketAddress &addr)
         return window.MbedJSHal.network.socket_connect($0, $1, $2);
     }, socket->id, (uint32_t)addr.get_ip_address(), addr.get_port());
 
-    if (ret != 0) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    if (ret == NSAPI_ERROR_OK) {
+        socket->connected = true;
     }
 
     wait_ms(1);
 
-    socket->connected = true;
-    return 0;
+    return ret;
 }
 
 int EthernetInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
@@ -173,10 +178,6 @@ int EthernetInterface::socket_recv(void *handle, void *data, unsigned size)
         return window.MbedJSHal.network.socket_recv($0, $1, $2);
     }, socket->id, (uint32_t)data, size);
 
-    if (recv < 0) {
-        return NSAPI_ERROR_WOULD_BLOCK;
-    }
-
     wait_ms(1);
 
     return recv;
@@ -197,3 +198,13 @@ int EthernetInterface::socket_accept(void *handle, void **socket, SocketAddress 
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+EMSCRIPTEN_KEEPALIVE
+extern "C" void handle_ethernet_sigio(uint32_t socketPtr) {
+    struct simulated_socket *socket = (struct simulated_socket*)socketPtr;
+
+    if (socket->callback) {
+        socket->callback(socket->data);
+    }
+
+    wait_ms(1);
+}
