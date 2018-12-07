@@ -677,21 +677,6 @@ void SX1276_LoRaRadio::standby( void )
 void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency, uint8_t bandwidth, uint8_t datarate) {
     tr_debug("rx_frame, size=%u, freq=%u, bw=%u, dr=%u", size, frequency, bandwidth, datarate);
 
-    if (_rf_settings.lora.bandwidth != bandwidth) {
-        tr_debug("rx_frame bw not correct (expecting %d, was %d)", _rf_settings.lora.bandwidth, bandwidth);
-        return;
-    }
-
-    if (_rf_settings.lora.datarate != datarate) {
-        tr_debug("rx_frame dr not correct (expecting %d, was %d)", _rf_settings.lora.datarate, datarate);
-        return;
-    }
-
-    if (_rf_settings.channel != frequency) {
-        tr_debug("rx_frame freq not correct (expecting %d, was %d)", _rf_settings.channel, frequency);
-        return;
-    }
-
     memcpy(_data_buffer, data, size);
     _rf_settings.lora_packet_handler.size = size;
     _rf_settings.lora_packet_handler.rssi_value = -35;
