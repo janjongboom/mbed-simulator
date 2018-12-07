@@ -5,11 +5,15 @@
 #include "Sht31.h"
 #include "SX1276_LoRaRadio.h"
 
-// Device credentials, register device as OTAA in The Things Network and copy credentials here
-static uint8_t DEV_EUI[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-static uint8_t APP_EUI[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-static uint8_t APP_KEY[] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+00A99D4921B26D75
 
+static uint8_t CLASS_A_DEV_EUI[] = { 0x00, 0xA9, 0x9D, 0x49, 0x21, 0xB2, 0x6D, 0x75 };
+static uint8_t CLASS_A_APP_EUI[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x00, 0xC1, 0x84 };
+static uint8_t CLASS_A_APP_KEY[] = { 0xE1, 0x13, 0x6D, 0x7E, 0xB6, 0x91, 0x7F, 0xC4, 0xD5, 0x1F, 0x00, 0x14, 0x51, 0x1B, 0x86, 0xB1 };
+
+static uint32_t CLASS_C_DEVADDR = 0x0001187e;
+static uint8_t CLASS_C_NWK_S_KEY[] = { 0xd5, 0x16, 0xfb, 0x94, 0x6e, 0x1d, 0xf3, 0x67, 0xb8, 0xd8, 0x78, 0x12, 0x86, 0x36, 0x14, 0x8a };
+static uint8_t CLASS_C_APP_S_KEY[] = { 0x64, 0x42, 0x26, 0xa6, 0x6b, 0x27, 0x85, 0x4b, 0x27, 0xe9, 0x5c, 0xcc, 0xdd, 0x08, 0xe2, 0x95 };
 
 // The port we're sending and receiving on
 #define MBED_CONF_LORA_APP_PORT     15
@@ -31,8 +35,26 @@ static lorawan_app_callbacks_t callbacks;
 // LoRaWAN stack event handler
 static void lora_event_handler(lorawan_event_t event);
 
+static uint8_t send_message_counter = 0;
+static loramac_protocol_params class_a_params;
+static loramac_protocol_params class_c_params;
+
 // Send a message over LoRaWAN
 static void send_message() {
+    send_message_counter++;
+
+    printf("send_message_counter is now %u\n", send_message_counter);
+
+    if (send_message_counter == 3) {
+        printf("Gonna switch to class C now!\n");
+
+        // store the class A parameters
+        lorawan.get_session(&class_a_params);
+
+        // copy them to the class C params...
+        memcpy(&class_c_params, &class_a_params, sizeof(loramac_protocol_params));
+    }
+
     uint8_t tx_buffer[50] = { 0 };
 
     // Sending strings over LoRaWAN is not recommended
@@ -56,11 +78,6 @@ static void send_message() {
 }
 
 int main() {
-    if (DEV_EUI[0] == 0x0 && DEV_EUI[1] == 0x0 && DEV_EUI[2] == 0x0 && DEV_EUI[3] == 0x0 && DEV_EUI[4] == 0x0 && DEV_EUI[5] == 0x0 && DEV_EUI[6] == 0x0 && DEV_EUI[7] == 0x0) {
-        printf("Set your LoRaWAN credentials first!\n");
-        return -1;
-    }
-
     printf("Press BUTTON1 to send the current value of the temperature sensor!\n");
 
     // Enable trace output for this demo, so we can see what the LoRaWAN stack does
@@ -85,12 +102,13 @@ int main() {
     }
 
     lorawan.set_datarate(5); // SF7BW125
+    lorawan.set_device_class(CLASS_A);
 
     lorawan_connect_t connect_params;
     connect_params.connect_type = LORAWAN_CONNECTION_OTAA;
-    connect_params.connection_u.otaa.dev_eui = DEV_EUI;
-    connect_params.connection_u.otaa.app_eui = APP_EUI;
-    connect_params.connection_u.otaa.app_key = APP_KEY;
+    connect_params.connection_u.otaa.dev_eui = CLASS_A_DEV_EUI;
+    connect_params.connection_u.otaa.app_eui = CLASS_A_APP_EUI;
+    connect_params.connection_u.otaa.app_key = CLASS_A_APP_KEY;
     connect_params.connection_u.otaa.nb_trials = 3;
 
     lorawan_status_t retcode = lorawan.connect(connect_params);
@@ -134,6 +152,8 @@ static void receive_message()
 
 // Event handler
 static void lora_event_handler(lorawan_event_t event) {
+    loramac_protocol_params params;
+
     switch (event) {
         case CONNECTED:
             printf("Connection - Successful\n");
@@ -143,8 +163,27 @@ static void lora_event_handler(lorawan_event_t event) {
             printf("Disconnected Successfully\n");
             break;
         case TX_DONE:
+        {
             printf("Message Sent to Network Server\n");
+
+            lorawan.get_session(&params);
+
+            printf("LoRaWAN parameters: ULFrameCounter = %u DLFrameCounter = %u DevAddr = %08x\n", params.ul_frame_counter, params.dl_frame_counter, params.dev_addr);
+            printf("NwkSKey: ");
+            for (uint8_t ix = 0; ix < 16; ix++) {
+                printf("%02x ", params.keys.nwk_skey[ix]);
+            }
+            printf("\n");
+            printf("AppSKey: ");
+            for (uint8_t ix = 0; ix < 16; ix++) {
+                printf("%02x ", params.keys.app_skey[ix]);
+            }
+            printf("\n");
+
+            params.ul_frame_counter += 9;
+            lorawan.set_session(&params);
             break;
+        }
         case TX_TIMEOUT:
         case TX_ERROR:
         case TX_CRYPTO_ERROR:
@@ -164,5 +203,6 @@ static void lora_event_handler(lorawan_event_t event) {
             break;
         default:
             MBED_ASSERT("Unknown Event");
+            break;
     }
 }
