@@ -5,8 +5,6 @@
 #include "Sht31.h"
 #include "SX1276_LoRaRadio.h"
 
-00A99D4921B26D75
-
 static uint8_t CLASS_A_DEV_EUI[] = { 0x00, 0xA9, 0x9D, 0x49, 0x21, 0xB2, 0x6D, 0x75 };
 static uint8_t CLASS_A_APP_EUI[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x00, 0xC1, 0x84 };
 static uint8_t CLASS_A_APP_KEY[] = { 0xE1, 0x13, 0x6D, 0x7E, 0xB6, 0x91, 0x7F, 0xC4, 0xD5, 0x1F, 0x00, 0x14, 0x51, 0x1B, 0x86, 0xB1 };
@@ -53,6 +51,26 @@ static void send_message() {
 
         // copy them to the class C params...
         memcpy(&class_c_params, &class_a_params, sizeof(loramac_protocol_params));
+        class_c_params.dl_frame_counter = 0;
+        class_c_params.ul_frame_counter = 0;
+        class_c_params.dev_addr = CLASS_C_DEVADDR;
+        memcpy(class_c_params.keys.nwk_skey, CLASS_C_NWK_S_KEY, sizeof(CLASS_C_NWK_S_KEY));
+        memcpy(class_c_params.keys.app_skey, CLASS_C_APP_S_KEY, sizeof(CLASS_C_APP_S_KEY));
+
+        // and set the class C session
+        lorawan.set_session(&class_c_params);
+        lorawan.set_device_class(CLASS_C);
+    }
+
+    if (send_message_counter == 6) {
+        printf("Gonna switch back to class A now!\n");
+
+        // store the class C session
+        lorawan.get_session(&class_c_params);
+
+        // put back the class A session
+        lorawan.set_session(&class_a_params);
+        lorawan.set_device_class(CLASS_A);
     }
 
     uint8_t tx_buffer[50] = { 0 };
@@ -165,23 +183,6 @@ static void lora_event_handler(lorawan_event_t event) {
         case TX_DONE:
         {
             printf("Message Sent to Network Server\n");
-
-            lorawan.get_session(&params);
-
-            printf("LoRaWAN parameters: ULFrameCounter = %u DLFrameCounter = %u DevAddr = %08x\n", params.ul_frame_counter, params.dl_frame_counter, params.dev_addr);
-            printf("NwkSKey: ");
-            for (uint8_t ix = 0; ix < 16; ix++) {
-                printf("%02x ", params.keys.nwk_skey[ix]);
-            }
-            printf("\n");
-            printf("AppSKey: ");
-            for (uint8_t ix = 0; ix < 16; ix++) {
-                printf("%02x ", params.keys.app_skey[ix]);
-            }
-            printf("\n");
-
-            params.ul_frame_counter += 9;
-            lorawan.set_session(&params);
             break;
         }
         case TX_TIMEOUT:
