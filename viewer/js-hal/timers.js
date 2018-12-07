@@ -5,7 +5,7 @@ window.MbedJSHal.timers = (function() {
 
     // HAL functions (these are called from C++)
     function ticker_setup(id, interval) {
-        console.log('ticker_setup', id, interval);
+        // console.log('ticker_setup', id, interval);
 
         if (tickers[id]) {
             clearInterval(tickers[id]);
@@ -17,7 +17,7 @@ window.MbedJSHal.timers = (function() {
     }
 
     function ticker_detach(id) {
-        console.log('ticker_detach', id);
+        // console.log('ticker_detach', id);
 
         if (!(id in tickers)) return // console.error('ticker_detach called on non-registered ticker...');
 
