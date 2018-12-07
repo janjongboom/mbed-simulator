@@ -121,8 +121,9 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
         'sd-driver',
         'easy-connect',
         'simple-mbed-cloud-client',
-        'mbed-cloud-client'
-    ].map(d => Path.join(inputDir, d));
+        'mbed-cloud-client',
+        'mbed-http'
+    ].map(d => Path.join(inputDir, d) + Path.sep);
 
     toRemove = toRemove.concat((simconfig.ignore || []).map(f => {
         return Path.join(inputDir, f);
@@ -130,6 +131,8 @@ let buildDirectory = async function (inputDir, outFile, extraArgs, emterpretify,
 
     // also get rid of all test directories (need proper mapping with Mbed CLI tbh)
     toRemove.push('/TESTS/');
+
+    includeDirectories = includeDirectories.map(d => d + Path.sep);
 
     includeDirectories = includeDirectories.filter(d => !toRemove.some(r => d.indexOf(r) !== -1));
     cFiles = cFiles.filter(d => !toRemove.some(r => d.indexOf(r) !== -1));
