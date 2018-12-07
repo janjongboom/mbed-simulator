@@ -51,7 +51,7 @@ window.MbedJSHal.lora = (function() {
         // when to send?
         var timeOnAir = calculateTimeOnAir(buffer.length, ev.datarate, ev.bandwidth);
         var delay = ev.sendTs - ts.now() + timeOnAir;
-        // console.log('send delay is', delay);
+        console.log('lora RX send delay is', delay);
 
         function go() {
             console.log(/*Date.now(), */'handle_lora_downlink', 'dataLength', buffer.length, 'freq', ev.freq, 'bandwidth', ev.bandwidth, 'datarate', ev.datarate);
