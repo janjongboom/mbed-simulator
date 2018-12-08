@@ -17,7 +17,7 @@ const version = JSON.parse(fs.readFileSync(Path.join(__dirname, '..', 'package.j
 const compression = require('compression');
 
 const LORA_PORT = 1700;
-const LORA_HOST = '172.20.10.5';
+const LORA_HOST = '192.168.1.62';
 
 let startupTs = Date.now();
 
