@@ -27,8 +27,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <string.h>
 #include "mbed.h"
 #include "SX1276_LoRaRadio.h"
-#include "sx1276Regs-Fsk.h"
-#include "sx1276Regs-LoRa.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "LRAD"
@@ -202,10 +200,6 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
         _tcxo = 1;
     }
 
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.start(mbed::callback(this, &SX1276_LoRaRadio::rf_irq_task));
-#endif
-
     EM_ASM_({
         window.MbedJSHal.lora.init($0);
     }, this);
@@ -326,7 +320,7 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                                      bool freq_hop_on, uint8_t hop_period,
                                      bool iq_inverted, bool rx_continuous)
 {
-    // tr_debug("set_rx_config rx_continious=%d", rx_continuous);
+    // tr_debug("set_rx_config rx_continuous=%d, dr=%u, bw=%u", rx_continuous, datarate, bandwidth);
 
     set_modem(modem);
 
@@ -571,76 +565,6 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
         break;
     }
 
-    // tr_debug("send (modem=%d)", _rf_settings.modem);
-    // for (size_t ix = 0; ix < size; ix++) {
-    //     printf("%02x ", buffer[ix]);
-    // }
-    // printf("\n");
-
-    // switch (_rf_settings.modem) {
-    //     case MODEM_FSK:
-    //         _rf_settings.fsk_packet_handler.nb_bytes = 0;
-    //         _rf_settings.fsk_packet_handler.size = size;
-
-    //         if (_rf_settings.fsk.fix_len == false) {
-    //             write_fifo((uint8_t*) &size, 1);
-    //         } else {
-    //             write_to_register(REG_PAYLOADLENGTH, size);
-    //         }
-
-    //         if ((size > 0) && (size <= 64)) {
-    //             _rf_settings.fsk_packet_handler.chunk_size = size;
-    //         } else {
-    //             memcpy(_data_buffer, buffer, size);
-    //             _rf_settings.fsk_packet_handler.chunk_size = 32;
-    //         }
-
-    //         // Write payload buffer
-    //         write_fifo(buffer, _rf_settings.fsk_packet_handler.chunk_size);
-    //         _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                 _rf_settings.fsk_packet_handler.chunk_size;
-    //         tx_timeout = _rf_settings.fsk.tx_timeout;
-
-    //         break;
-
-    //     case MODEM_LORA:
-    //         if (_rf_settings.lora.iq_inverted == true) {
-    //             write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ)
-    //                             & RFLR_INVERTIQ_TX_MASK
-    //                             & RFLR_INVERTIQ_RX_MASK)
-    //                                 | RFLR_INVERTIQ_RX_OFF
-    //                                 | RFLR_INVERTIQ_TX_ON));
-    //             write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
-    //         } else {
-    //             write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-    //                             & RFLR_INVERTIQ_TX_MASK
-    //                             & RFLR_INVERTIQ_RX_MASK)
-    //                                 | RFLR_INVERTIQ_RX_OFF
-    //                                 | RFLR_INVERTIQ_TX_OFF));
-    //             write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
-    //         }
-
-    //         _rf_settings.lora_packet_handler.size = size;
-
-    //         // Initializes the payload size
-    //         write_to_register(REG_LR_PAYLOADLENGTH, size);
-
-    //         // Full buffer used for Tx
-    //         write_to_register(REG_LR_FIFOTXBASEADDR, 0);
-    //         write_to_register(REG_LR_FIFOADDRPTR, 0);
-
-    //         // FIFO operations can not take place in Sleep mode
-    //         if ((read_register( REG_OPMODE) & ~RF_OPMODE_MASK) == RF_OPMODE_SLEEP) {
-    //             standby();
-    //             wait_ms(1);
-    //         }
-    //         // write_to_register payload buffer
-    //         write_fifo(buffer, size);
-    //         tx_timeout = _rf_settings.lora.tx_timeout;
-
-    //         break;
-    // }
-
     transmit(tx_timeout);
 }
 
@@ -655,9 +579,6 @@ void SX1276_LoRaRadio::sleep()
     // stop timers
     tx_timeout_timer.detach();
     rx_timeout_timer.detach();
-
-    // put module in sleep mode
-    set_operation_mode(RF_OPMODE_SLEEP);
 }
 
 /**
@@ -670,12 +591,15 @@ void SX1276_LoRaRadio::standby( void )
     tx_timeout_timer.detach();
     rx_timeout_timer.detach();
 
-    set_operation_mode(RF_OPMODE_STANDBY);
     _rf_settings.state = RF_IDLE;
 }
 
 void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency, uint8_t bandwidth, uint8_t datarate) {
     tr_debug("rx_frame, size=%u, freq=%u, bw=%u, dr=%u", size, frequency, bandwidth, datarate);
+
+    // EM_ASM_({ console.log(Date.now(), 'rx_frame, expected: bw=', $0, 'dr=', $1, 'channel=', $2, '- was', $3, $4, $5 )},
+    //     _rf_settings.lora.bandwidth, _rf_settings.lora.datarate, _rf_settings.channel,
+    //     bandwidth, datarate, frequency);
 
     if (_rf_settings.lora.bandwidth != bandwidth) {
         tr_debug("rx_frame bw not correct (expecting %d, was %d)", _rf_settings.lora.bandwidth, bandwidth);
@@ -698,6 +622,12 @@ void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency
     _rf_settings.lora_packet_handler.snr_value = -5;
     _rf_settings.lora_packet_handler.pending = true;
     _rf_settings.lora_packet_handler.timestamp_ms = EM_ASM_INT({ return Date.now(); });
+
+    if (_rf_settings.state == RF_RX_RUNNING) {
+        // EM_ASM({ console.log('rf state is RF_RX_RUNNING, gonna call the rx_done_irq') });
+        _rf_settings.lora_packet_handler.pending = false;
+        rx_done_irq();
+    }
 }
 
 /**
@@ -709,7 +639,9 @@ void SX1276_LoRaRadio::rx_frame(uint8_t* data, uint32_t size, uint32_t frequency
  */
 void SX1276_LoRaRadio::receive()
 {
-    // tr_debug("receive (timeout=%u). has_pending=%d", _rf_settings.lora.symb_timeout, _rf_settings.lora_packet_handler.pending);
+    // tr_debug("receive (timeout=%u). has_pending=%d, bw=%u, dr=%u, channel=%u", _rf_settings.lora.symb_timeout, _rf_settings.lora_packet_handler.pending,
+    //     _rf_settings.lora.datarate, _rf_settings.lora.bandwidth, _rf_settings.channel);
+    // EM_ASM_({ console.log(Date.now(), 'retrieve dr=', $0)}, _rf_settings.lora.datarate);
 
     _rf_settings.state = RF_RX_RUNNING;
 
@@ -727,7 +659,7 @@ void SX1276_LoRaRadio::receive()
         }
 
         // after 200 ms. we send the rx_done event
-        rx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::rx_done_irq), 200 * 1e3);
+        rx_done_irq();
         return;
     }
 
@@ -735,168 +667,6 @@ void SX1276_LoRaRadio::receive()
         rx_timeout_timer.attach_us(
                 callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
                 _rf_settings.lora.symb_timeout * 1e3);
-    }
-
-    // switch (_rf_settings.modem) {
-    //     case MODEM_FSK:
-    //         if (timeout == 0 && _rf_settings.fsk.rx_continuous == false) {
-    //              // user messed up probably timeout was 0 but mode was not
-    //              // continuous, force it to be continuous
-    //              _rf_settings.fsk.rx_continuous = true;
-    //          }
-
-    //         // DIO0=PayloadReady
-    //         // DIO1=FifoLevel
-    //         // DIO2=SyncAddr
-    //         // DIO3=FifoEmpty
-    //         // DIO4=Preamble
-    //         // DIO5=ModeReady
-    //         write_to_register(REG_DIOMAPPING1, (read_register( REG_DIOMAPPING1)
-    //                 & RF_DIOMAPPING1_DIO0_MASK
-    //                 & RF_DIOMAPPING1_DIO1_MASK
-    //                 & RF_DIOMAPPING1_DIO2_MASK)
-    //                           | RF_DIOMAPPING1_DIO0_00
-    //                           | RF_DIOMAPPING1_DIO1_00
-    //                           | RF_DIOMAPPING1_DIO2_11);
-
-    //         write_to_register(REG_DIOMAPPING2, (read_register( REG_DIOMAPPING2)
-    //                 & RF_DIOMAPPING2_DIO4_MASK
-    //                 & RF_DIOMAPPING2_MAP_MASK)
-    //                           | RF_DIOMAPPING2_DIO4_11
-    //                           | RF_DIOMAPPING2_MAP_PREAMBLEDETECT);
-
-    //         _rf_settings.fsk_packet_handler.fifo_thresh =
-    //                 read_register(REG_FIFOTHRESH) & 0x3F;
-
-    //         write_to_register(REG_RXCONFIG, RF_RXCONFIG_AFCAUTO_ON
-    //                           | RF_RXCONFIG_AGCAUTO_ON
-    //                           | RF_RXCONFIG_RXTRIGER_PREAMBLEDETECT);
-
-    //         _rf_settings.fsk_packet_handler.preamble_detected = 0;
-    //         _rf_settings.fsk_packet_handler.sync_word_detected = 0;
-    //         _rf_settings.fsk_packet_handler.nb_bytes = 0;
-    //         _rf_settings.fsk_packet_handler.size = 0;
-
-    //         break;
-
-    //     case MODEM_LORA:
-    //         if (timeout == 0 && _rf_settings.lora.rx_continuous == false) {
-    //             // user messed up probably timeout was 0 but mode was not
-    //             // continuous, force it to be continuous
-    //             _rf_settings.lora.rx_continuous = true;
-    //         }
-    //         if (_rf_settings.lora.iq_inverted == true) {
-    //             write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-    //                             & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
-    //                             | RFLR_INVERTIQ_RX_ON | RFLR_INVERTIQ_TX_OFF));
-    //             write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
-    //         } else {
-    //             write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-    //                             & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
-    //                             | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF));
-    //             write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
-    //         }
-
-    //         // ERRATA 2.3 - Receiver Spurious Reception of a LoRa Signal
-    //         if (_rf_settings.lora.bandwidth < 9) {
-    //             write_to_register(REG_LR_DETECTOPTIMIZE,
-    //                               read_register(REG_LR_DETECTOPTIMIZE) & 0x7F);
-    //             write_to_register(REG_LR_TEST30, 0x00);
-    //             switch (_rf_settings.lora.bandwidth) {
-    //                 case 0: // 7.8 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x48);
-    //                     set_channel(_rf_settings.channel + 7.81e3);
-    //                     break;
-    //                 case 1: // 10.4 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x44);
-    //                     set_channel(_rf_settings.channel + 10.42e3);
-    //                     break;
-    //                 case 2: // 15.6 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x44);
-    //                     set_channel(_rf_settings.channel + 15.62e3);
-    //                     break;
-    //                 case 3: // 20.8 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x44);
-    //                     set_channel(_rf_settings.channel + 20.83e3);
-    //                     break;
-    //                 case 4: // 31.2 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x44);
-    //                     set_channel(_rf_settings.channel + 31.25e3);
-    //                     break;
-    //                 case 5: // 41.4 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x44);
-    //                     set_channel(_rf_settings.channel + 41.67e3);
-    //                     break;
-    //                 case 6: // 62.5 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x40);
-    //                     break;
-    //                 case 7: // 125 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x40);
-    //                     break;
-    //                 case 8: // 250 kHz
-    //                     write_to_register( REG_LR_TEST2F, 0x40);
-    //                     break;
-    //             }
-    //         } else {
-    //             write_to_register( REG_LR_DETECTOPTIMIZE,
-    //                               read_register( REG_LR_DETECTOPTIMIZE) | 0x80);
-    //         }
-
-    //         if (_rf_settings.lora.freq_hop_on == true) {
-    //             write_to_register(REG_LR_IRQFLAGSMASK, RFLR_IRQFLAGS_VALIDHEADER
-    //                               | RFLR_IRQFLAGS_TXDONE
-    //                               | RFLR_IRQFLAGS_CADDONE
-    //                               | RFLR_IRQFLAGS_CADDETECTED);
-
-    //             // DIO0=RxDone, DIO2=FhssChangeChannel
-    //             write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1)
-    //                             & RFLR_DIOMAPPING1_DIO0_MASK
-    //                             & RFLR_DIOMAPPING1_DIO2_MASK)
-    //                             | RFLR_DIOMAPPING1_DIO0_00
-    //                             | RFLR_DIOMAPPING1_DIO2_00);
-    //         } else {
-    //             write_to_register(REG_LR_IRQFLAGSMASK, RFLR_IRQFLAGS_VALIDHEADER
-    //                                | RFLR_IRQFLAGS_TXDONE
-    //                                | RFLR_IRQFLAGS_CADDONE
-    //                                | RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL
-    //                                | RFLR_IRQFLAGS_CADDETECTED);
-
-    //             // DIO0=RxDone
-    //             write_to_register(REG_DIOMAPPING1, (read_register( REG_DIOMAPPING1)
-    //                             & RFLR_DIOMAPPING1_DIO0_MASK)
-    //                               | RFLR_DIOMAPPING1_DIO0_00);
-    //         }
-    //         write_to_register(REG_LR_FIFORXBASEADDR, 0);
-    //         write_to_register(REG_LR_FIFOADDRPTR, 0);
-
-    //         break;
-    // }
-
-    // _rf_settings.state = RF_RX_RUNNING;
-
-    // if (timeout != 0) {
-    //     rx_timeout_timer.attach_us(
-    //             callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
-    //             timeout * 1e3);
-    // }
-
-    // if (_rf_settings.modem == MODEM_FSK) {
-    //     set_operation_mode(RF_OPMODE_RECEIVER);
-
-    //     if (_rf_settings.fsk.rx_continuous == false) {
-    //         rx_timeout_sync_word.attach_us(
-    //                 callback(this, &SX1276_LoRaRadio::timeout_irq_isr),
-    //                 _rf_settings.fsk.rx_single_timeout * 1e3);
-    //     }
-
-    //     return;
-    // }
-
-    // If mode is LoRa set mode
-    if (_rf_settings.lora.rx_continuous == true) {
-        set_operation_mode(RFLR_OPMODE_RECEIVER);
-    } else {
-        set_operation_mode(RFLR_OPMODE_RECEIVER_SINGLE);
     }
 }
 
@@ -921,7 +691,6 @@ bool SX1276_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
 
     set_modem(modem);
     set_channel(freq);
-    set_operation_mode(RF_OPMODE_RECEIVER);
 
     // hold on a bit, radio turn-around time
     wait_ms(1);
@@ -1000,50 +769,8 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
 
     _rf_settings.state = RF_TX_RUNNING;
     // tx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::timeout_irq_isr), time*1e3);
-    set_operation_mode(RF_OPMODE_TRANSMITTER);
 }
 
-/*****************************************************************************
- * Private APIs                                                              *
- ****************************************************************************/
-#ifdef MBED_CONF_RTOS_PRESENT
-/**
- * Thread task handling IRQs
- */
-void SX1276_LoRaRadio::rf_irq_task(void)
-{
-    for (;;) {
-        osEvent event = irq_thread.signal_wait(0, osWaitForever);
-        if (event.status != osEventSignal) {
-            continue;
-        }
-
-        lock();
-        if (event.value.signals & SIG_DIO0) {
-            handle_dio0_irq();
-        }
-        if (event.value.signals & SIG_DIO1) {
-            handle_dio1_irq();
-        }
-        if (event.value.signals & SIG_DIO2) {
-            handle_dio2_irq();
-        }
-        if (event.value.signals & SIG_DIO3) {
-            handle_dio3_irq();
-        }
-        if (event.value.signals & SIG_DIO4) {
-            handle_dio4_irq();
-        }
-        if (event.value.signals & SIG_DIO5) {
-            handle_dio5_irq();
-        }
-        if (event.value.signals & SIG_TIMOUT) {
-            handle_timeout_irq();
-        }
-        unlock();
-    }
-}
-#endif
 
 /**
  * Writes to FIIO provided by the chip
@@ -1068,12 +795,8 @@ void SX1276_LoRaRadio::set_operation_mode(uint8_t mode)
 {
     // tr_debug("set_operation_mode (mode=%u)", mode);
 
-    if (mode == RF_OPMODE_SLEEP) {
-        set_low_power_mode();
-    } else {
-        set_low_power_mode();
-        set_antenna_switch(mode);
-    }
+    set_low_power_mode();
+    set_antenna_switch(mode);
 }
 
 /**
@@ -1151,17 +874,7 @@ uint8_t SX1276_LoRaRadio::get_fsk_bw_reg_val(uint32_t bandwidth)
 
 uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
 {
-    if (radio_variant == SX1276UNDEFINED) {
-        return RF_PACONFIG_PASELECT_PABOOST;
-    } else if (channel > RF_MID_BAND_THRESH) {
-        if (radio_variant == SX1276MB1LAS) {
-            return RF_PACONFIG_PASELECT_PABOOST;
-        } else {
-            return RF_PACONFIG_PASELECT_RFO;
-        }
-    } else {
-        return RF_PACONFIG_PASELECT_RFO;
-    }
+    return 0x0;
 }
 
 /**
@@ -1187,7 +900,6 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
     _rf_settings.state = RF_TX_RUNNING;
     // tx_timeout_timer.attach_us(callback(this,
     //                            &SX1276_LoRaRadio::timeout_irq_isr), timeout*1e3);
-    set_operation_mode(RF_OPMODE_TRANSMITTER);
 
     // trigger interrupt here?
     tx_done_timer.attach_us(callback(this, &SX1276_LoRaRadio::tx_done_irq),
@@ -1210,10 +922,13 @@ void SX1276_LoRaRadio::tx_done_irq() {
 
 void SX1276_LoRaRadio::rx_done_irq() {
     // tr_debug("rx_done_irq");
+    // EM_ASM({ console.log(Date.now(), 'rx_done_irq'); });
 
     rx_timeout_timer.detach();
 
-    _rf_settings.state = RF_IDLE;
+    if (!_rf_settings.lora.rx_continuous) {
+        _rf_settings.state = RF_IDLE;
+    }
 
     if ((_radio_events != NULL)
         && (_radio_events->rx_done)) {
@@ -1274,16 +989,6 @@ void SX1276_LoRaRadio::set_low_power_mode()
  */
 void SX1276_LoRaRadio::setup_interrupts()
 {
-    _dio0_ctl.rise(callback(this, &SX1276_LoRaRadio::dio0_irq_isr));
-    _dio1_ctl.rise(callback(this, &SX1276_LoRaRadio::dio1_irq_isr));
-    _dio2_ctl.rise(callback(this, &SX1276_LoRaRadio::dio2_irq_isr));
-    _dio3_ctl.rise(callback(this, &SX1276_LoRaRadio::dio3_irq_isr));
-    if (_dio4_pin != NC) {
-        _dio4_ctl.rise(callback(this, &SX1276_LoRaRadio::dio4_irq_isr));
-    }
-    if (_dio5_pin != NC) {
-        _dio5_ctl.rise(callback(this, &SX1276_LoRaRadio::dio5_irq_isr));
-    }
 }
 
 /**
@@ -1292,146 +997,6 @@ void SX1276_LoRaRadio::setup_interrupts()
  */
 void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
 {
-    // tr_debug("set_antenna_switch (mode=%u)", mode);
-
-    // // here we got to do ifdef for changing controls
-    // // as some pins might be NC
-    // switch (mode) {
-    //     case RFLR_OPMODE_TRANSMITTER:
-    //         if (_rf_ctrls.rf_switch_ctl1 != NC
-    //             && _rf_ctrls.rf_switch_ctl2 != NC) {
-    //             // module is in transmit mode and RF latch switches
-    //             // are connected. Check if power amplifier boost is
-    //             // setup or not
-    //             if ((read_register(REG_PACONFIG) & RF_PACONFIG_PASELECT_PABOOST)
-    //                                    == RF_PACONFIG_PASELECT_PABOOST) {
-    //                 _rf_switch_ctl1 = 1;
-    //                 _rf_switch_ctl2 = 0;
-    //             } else {
-    //                 // power amplifier not selected
-    //                 _rf_switch_ctl1 = 0;
-    //                 _rf_switch_ctl2 = 1;
-    //             }
-    //         }
-    //         if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC) {
-    //             // module is in transmit mode and tx/rx submodule control
-    //             // pins are connected
-    //             if (_rf_ctrls.pwr_amp_ctl != NC) {
-    //                 if (read_register(REG_PACONFIG) & RF_PACONFIG_PASELECT_PABOOST) {
-    //                     _pwr_amp_ctl = 1;
-    //                     _txctl = 0;
-    //                 } else {
-    //                     _pwr_amp_ctl = 0;
-    //                     _txctl = 1;
-    //                 }
-    //             } else {
-    //                 _txctl = 1;
-    //             }
-    //             _rxctl = 0;
-    //         }
-    //         if (_rf_ctrls.ant_switch != NC){
-    //             _ant_switch = 1;
-    //         }
-    //         break;
-    //     case RFLR_OPMODE_RECEIVER:
-    //     case RFLR_OPMODE_RECEIVER_SINGLE:
-    //     case RFLR_OPMODE_CAD:
-    //         if (_rf_ctrls.rf_switch_ctl1 != NC
-    //             && _rf_ctrls.rf_switch_ctl2 != NC) {
-    //             // radio is in reception or CAD mode and RF latch switches
-    //             // are connected
-    //             _rf_switch_ctl1 = 1;
-    //             _rf_switch_ctl2 = 1;
-    //         }
-    //         if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC) {
-    //             _txctl = 0;
-    //             _rxctl = 1;
-    //         }
-    //         if (_rf_ctrls.ant_switch != NC) {
-    //             _ant_switch = 0;
-    //         }
-    //         if (_rf_ctrls.pwr_amp_ctl != NC) {
-    //             _pwr_amp_ctl = 0;
-    //         }
-    //         break;
-    //     default:
-    //         // Enforce default case  when any connected control pin is kept low.
-    //         if (_rf_ctrls.rf_switch_ctl1 != NC
-    //             && _rf_ctrls.rf_switch_ctl2 != NC) {
-    //             // radio is in reception or CAD mode and RF latch switches
-    //             // are connected
-    //             _rf_switch_ctl1 = 0;
-    //             _rf_switch_ctl2 = 0;
-    //         }
-    //         if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC) {
-    //             _txctl = 0;
-    //             _rxctl = 0;
-    //         }
-    //         if (_rf_ctrls.ant_switch != NC) {
-    //             _ant_switch = 0;
-    //         }
-    //         if (_rf_ctrls.pwr_amp_ctl != NC) {
-    //             _pwr_amp_ctl = 0;
-    //         }
-    //         break;
-    // }
-}
-
-/*****************************************************************************
- * Interrupt service routines (ISRs) - set signals to the irq_thread         *
- ****************************************************************************/
-void SX1276_LoRaRadio::dio0_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-   irq_thread.signal_set(SIG_DIO0);
-#else
-   handle_dio0_irq();
-#endif
-}
-
-void SX1276_LoRaRadio::dio1_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO1);
-#else
-    handle_dio1_irq();
-#endif
-}
-
-void SX1276_LoRaRadio::dio2_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO2);
-#else
-    handle_dio2_irq();
-#endif
-}
-
-void SX1276_LoRaRadio::dio3_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO3);
-#else
-    handle_dio3_irq();
-#endif
-}
-
-void SX1276_LoRaRadio::dio4_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO4);
-#else
-    handle_dio4_irq();
-#endif
-}
-
-void SX1276_LoRaRadio::dio5_irq_isr()
-{
-#ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO5);
-#else
-    handle_dio5_irq();
-#endif
 }
 
 // This is not a hardware interrupt
@@ -1447,421 +1012,6 @@ void SX1276_LoRaRadio::timeout_irq_isr()
     handle_timeout_irq();
 #endif
 }
-
-/******************************************************************************
- * Interrupt Handlers                                                         *
- *****************************************************************************/
-
-void SX1276_LoRaRadio::handle_dio0_irq()
-{
-    // volatile uint8_t irqFlags = 0;
-
-    // switch (_rf_settings.state) {
-    //     case RF_RX_RUNNING:
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_FSK:
-    //                 if (_rf_settings.fsk.crc_on == true) {
-    //                     irqFlags = read_register(REG_IRQFLAGS2);
-    //                     if ((irqFlags & RF_IRQFLAGS2_CRCOK)
-    //                             != RF_IRQFLAGS2_CRCOK) {
-    //                         // Clear Irqs
-    //                         write_to_register(REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI |
-    //                                           RF_IRQFLAGS1_PREAMBLEDETECT |
-    //                                           RF_IRQFLAGS1_SYNCADDRESSMATCH);
-    //                         write_to_register(REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
-
-
-    //                         if (_rf_settings.fsk.rx_continuous == false) {
-    //                             rx_timeout_sync_word.detach();
-    //                             _rf_settings.state = RF_IDLE;
-    //                         } else {
-    //                             // Continuous mode restart Rx chain
-    //                             write_to_register(REG_RXCONFIG,
-    //                                               read_register(REG_RXCONFIG) |
-    //                                               RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
-    //                         }
-
-    //                         rx_timeout_timer.detach();
-
-    //                         if ((_radio_events != NULL)
-    //                                 && (_radio_events->rx_error)) {
-    //                             _radio_events->rx_error();
-    //                         }
-    //                         _rf_settings.fsk_packet_handler.preamble_detected = 0;
-    //                         _rf_settings.fsk_packet_handler.sync_word_detected = 0;
-    //                         _rf_settings.fsk_packet_handler.nb_bytes = 0;
-    //                         _rf_settings.fsk_packet_handler.size = 0;
-    //                         // break from here, a CRC error happened, RX_ERROR
-    //                         // was notified. No need to go any further
-    //                         break;
-    //                     }
-    //                 }
-
-    //                 // Read received packet size
-    //                 if ((_rf_settings.fsk_packet_handler.size == 0)
-    //                         && (_rf_settings.fsk_packet_handler.nb_bytes == 0)) {
-    //                     if (_rf_settings.fsk.fix_len == false) {
-    //                         read_fifo((uint8_t*) &_rf_settings.fsk_packet_handler.size, 1);
-    //                     } else {
-    //                         _rf_settings.fsk_packet_handler.size = read_register(REG_PAYLOADLENGTH);
-    //                     }
-    //                     read_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-    //                             _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                 } else {
-    //                     read_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-    //                             _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                 }
-
-    //                 if (_rf_settings.fsk.rx_continuous == false) {
-    //                     _rf_settings.state = RF_IDLE;
-    //                     rx_timeout_sync_word.detach();
-    //                 } else {
-    //                     // Continuous mode restart Rx chain
-    //                     write_to_register(REG_RXCONFIG, read_register(REG_RXCONFIG)
-    //                                     | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
-    //                 }
-
-    //                 rx_timeout_timer.detach();
-
-    //                 if ((_radio_events != NULL) && (_radio_events->rx_done)) {
-    //                     _radio_events->rx_done(
-    //                             _data_buffer,
-    //                             _rf_settings.fsk_packet_handler.size,
-    //                             _rf_settings.fsk_packet_handler.rssi_value, 0);
-    //                 }
-    //                 _rf_settings.fsk_packet_handler.preamble_detected = 0;
-    //                 _rf_settings.fsk_packet_handler.sync_word_detected = 0;
-    //                 _rf_settings.fsk_packet_handler.nb_bytes = 0;
-    //                 _rf_settings.fsk_packet_handler.size = 0;
-    //                 break;
-
-    //             case MODEM_LORA: {
-    //                 int8_t snr = 0;
-
-    //                 // Clear Irq
-    //                 write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXDONE);
-
-    //                 irqFlags = read_register(REG_LR_IRQFLAGS);
-    //                 if ((irqFlags & RFLR_IRQFLAGS_PAYLOADCRCERROR_MASK)
-    //                         == RFLR_IRQFLAGS_PAYLOADCRCERROR) {
-    //                     // Clear Irq
-    //                     write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_PAYLOADCRCERROR);
-
-    //                     if (_rf_settings.lora.rx_continuous == false) {
-    //                         _rf_settings.state = RF_IDLE;
-    //                     }
-    //                     rx_timeout_timer.detach();
-
-    //                     if ((_radio_events != NULL)
-    //                             && (_radio_events->rx_error)) {
-    //                         _radio_events->rx_error();
-    //                     }
-    //                     break;
-    //                 }
-
-    //                 _rf_settings.lora_packet_handler.snr_value = read_register(
-    //                         REG_LR_PKTSNRVALUE);
-    //                 if (_rf_settings.lora_packet_handler.snr_value & 0x80) // The SNR sign bit is 1
-    //                         {
-    //                     // Invert and divide by 4
-    //                     snr = ((~_rf_settings.lora_packet_handler.snr_value + 1)
-    //                             & 0xFF) >> 2;
-    //                     snr = -snr;
-    //                 } else {
-    //                     // Divide by 4
-    //                     snr =
-    //                             (_rf_settings.lora_packet_handler.snr_value
-    //                                     & 0xFF) >> 2;
-    //                 }
-
-    //                 int16_t rssi = read_register( REG_LR_PKTRSSIVALUE);
-    //                 if (snr < 0) {
-    //                     if (_rf_settings.channel > RF_MID_BAND_THRESH) {
-    //                         _rf_settings.lora_packet_handler.rssi_value =
-    //                                 RSSI_OFFSET_HF + rssi + (rssi >> 4) + snr;
-    //                     } else {
-    //                         _rf_settings.lora_packet_handler.rssi_value =
-    //                                 RSSI_OFFSET_LF + rssi + (rssi >> 4) + snr;
-    //                     }
-    //                 } else {
-    //                     if (_rf_settings.channel > RF_MID_BAND_THRESH) {
-    //                         _rf_settings.lora_packet_handler.rssi_value =
-    //                                 RSSI_OFFSET_HF + rssi + (rssi >> 4);
-    //                     } else {
-    //                         _rf_settings.lora_packet_handler.rssi_value =
-    //                                 RSSI_OFFSET_LF + rssi + (rssi >> 4);
-    //                     }
-    //                 }
-
-    //                 _rf_settings.lora_packet_handler.size = read_register(REG_LR_RXNBBYTES);
-    //                 read_fifo(_data_buffer, _rf_settings.lora_packet_handler.size);
-
-    //                 if (_rf_settings.lora.rx_continuous == false) {
-    //                     _rf_settings.state = RF_IDLE;
-    //                 }
-    //                 rx_timeout_timer.detach();
-
-    //                 if ((_radio_events != NULL) && (_radio_events->rx_done)) {
-    //                     _radio_events->rx_done(_data_buffer,
-    //                             _rf_settings.lora_packet_handler.size,
-    //                             _rf_settings.lora_packet_handler.rssi_value,
-    //                             _rf_settings.lora_packet_handler.snr_value);
-    //                 }
-    //             }
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //         break;
-    //     case RF_TX_RUNNING:
-    //         tx_timeout_timer.detach();
-    //         // TxDone interrupt
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_LORA:
-    //                 // Clear Irq
-    //                 write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE);
-    //                 // Intentional fall through
-    //             case MODEM_FSK:
-    //             default:
-    //                 _rf_settings.state = RF_IDLE;
-    //                 if ((_radio_events != NULL)
-    //                         && (_radio_events->tx_done)) {
-    //                     _radio_events->tx_done();
-    //                 }
-    //                 break;
-    //         }
-    //         break;
-    //     default:
-    //         break;
-    // }
-}
-
-void SX1276_LoRaRadio::handle_dio1_irq()
-{
-    // switch (_rf_settings.state) {
-    //     case RF_RX_RUNNING:
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_FSK:
-    //                 // FifoLevel interrupt
-    //                 // Read received packet size
-    //                 if ((_rf_settings.fsk_packet_handler.size == 0)
-    //                         && (_rf_settings.fsk_packet_handler.nb_bytes == 0)) {
-    //                     if (_rf_settings.fsk.fix_len == false) {
-    //                         read_fifo((uint8_t*) &_rf_settings.fsk_packet_handler.size, 1);
-    //                     } else {
-    //                         _rf_settings.fsk_packet_handler.size =
-    //                                 read_register(REG_PAYLOADLENGTH);
-    //                     }
-    //                 }
-
-    //                 if ((_rf_settings.fsk_packet_handler.size
-    //                         - _rf_settings.fsk_packet_handler.nb_bytes)
-    //                         > _rf_settings.fsk_packet_handler.fifo_thresh) {
-    //                     read_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-    //                             _rf_settings.fsk_packet_handler.fifo_thresh);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             _rf_settings.fsk_packet_handler.fifo_thresh;
-    //                 } else {
-    //                     read_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-    //                             _rf_settings.fsk_packet_handler.size
-    //                                     - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             (_rf_settings.fsk_packet_handler.size
-    //                                     - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                 }
-
-    //                 break;
-
-    //             case MODEM_LORA:
-    //                 // Sync time out
-    //                 rx_timeout_timer.detach();
-    //                 // Clear Irq
-    //                 write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXTIMEOUT);
-    //                 _rf_settings.state = RF_IDLE;
-    //                 if ((_radio_events != NULL)
-    //                         && (_radio_events->rx_timeout)) {
-    //                     _radio_events->rx_timeout();
-    //                 }
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-
-    //         break;
-
-    //     case RF_TX_RUNNING:
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_FSK:
-    //                 // FifoLevel interrupt
-    //                 if ((_rf_settings.fsk_packet_handler.size
-    //                         - _rf_settings.fsk_packet_handler.nb_bytes)
-    //                         > _rf_settings.fsk_packet_handler.chunk_size) {
-    //                     write_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-    //                             _rf_settings.fsk_packet_handler.chunk_size);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             _rf_settings.fsk_packet_handler.chunk_size;
-    //                 } else {
-    //                     // Write the last chunk of data
-    //                     write_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-    //                             _rf_settings.fsk_packet_handler.size
-    //                                     - _rf_settings.fsk_packet_handler.nb_bytes);
-    //                     _rf_settings.fsk_packet_handler.nb_bytes +=
-    //                             _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes;
-    //                 }
-
-    //                 break;
-
-    //             case MODEM_LORA:
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //         break;
-    //     default:
-    //         break;
-    // }
-}
-
-void SX1276_LoRaRadio::handle_dio2_irq(void)
-{
-    // switch (_rf_settings.state) {
-    //     case RF_RX_RUNNING:
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_FSK:
-    //                 // DIO4 must have been asserted to set preamble_detected to true
-    //                 if ((_rf_settings.fsk_packet_handler.preamble_detected == 1)
-    //                         && (_rf_settings.fsk_packet_handler.sync_word_detected == 0)) {
-    //                     if (_rf_settings.fsk.rx_continuous == false) {
-    //                         rx_timeout_sync_word.detach();
-    //                     }
-
-    //                     _rf_settings.fsk_packet_handler.sync_word_detected = 1;
-
-    //                     _rf_settings.fsk_packet_handler.rssi_value =
-    //                             -(read_register(REG_RSSIVALUE) >> 1);
-
-    //                     _rf_settings.fsk_packet_handler.afc_value =
-    //                             (int32_t) (double) (((uint16_t) read_register(
-    //                                     REG_AFCMSB) << 8)
-    //                                     | (uint16_t) read_register( REG_AFCLSB))
-    //                                     * (double) FREQ_STEP;
-    //                     _rf_settings.fsk_packet_handler.rx_gain =
-    //                             (read_register( REG_LNA) >> 5) & 0x07;
-    //                 }
-
-    //                 break;
-
-    //             case MODEM_LORA:
-    //                 if (_rf_settings.lora.freq_hop_on == true) {
-    //                     // Clear Irq
-    //                     write_to_register(REG_LR_IRQFLAGS,
-    //                                       RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL);
-
-    //                     if ((_radio_events != NULL)
-    //                             && (_radio_events->fhss_change_channel)) {
-    //                         _radio_events->fhss_change_channel(
-    //                                 (read_register(REG_LR_HOPCHANNEL)
-    //                                         & RFLR_HOPCHANNEL_CHANNEL_MASK));
-    //                     }
-    //                 }
-
-    //                 break;
-
-    //             default:
-    //                 break;
-    //         }
-
-    //         break;
-
-    //     case RF_TX_RUNNING:
-    //         switch (_rf_settings.modem) {
-    //             case MODEM_FSK:
-    //                 break;
-    //             case MODEM_LORA:
-    //                 if (_rf_settings.lora.freq_hop_on == true) {
-    //                     // Clear Irq
-    //                     write_to_register(REG_LR_IRQFLAGS,
-    //                                       RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL);
-
-    //                     if ((_radio_events != NULL)
-    //                             && (_radio_events->fhss_change_channel)) {
-    //                         _radio_events->fhss_change_channel(
-    //                                 (read_register(REG_LR_HOPCHANNEL)
-    //                                         & RFLR_HOPCHANNEL_CHANNEL_MASK));
-    //                     }
-    //                 }
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //         break;
-    //     default:
-    //         break;
-    // }
-}
-
-void SX1276_LoRaRadio::handle_dio3_irq(void)
-{
-    // switch (_rf_settings.modem) {
-    //     case MODEM_FSK:
-    //         break;
-    //     case MODEM_LORA:
-    //         if ((read_register(REG_LR_IRQFLAGS) & RFLR_IRQFLAGS_CADDETECTED)
-    //                 == RFLR_IRQFLAGS_CADDETECTED) {
-    //             // Clear Irq
-    //             write_to_register(REG_LR_IRQFLAGS,
-    //                     RFLR_IRQFLAGS_CADDETECTED | RFLR_IRQFLAGS_CADDONE);
-    //             if ((_radio_events != NULL)
-    //                     && (_radio_events->cad_done)) {
-    //                 _radio_events->cad_done(true);
-    //             }
-    //         } else {
-    //             // Clear Irq
-    //             write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_CADDONE);
-    //             if ((_radio_events != NULL)
-    //                     && (_radio_events->cad_done)) {
-    //                 _radio_events->cad_done(false);
-    //             }
-    //         }
-    //         break;
-    //     default:
-    //         break;
-    // }
-}
-
-void SX1276_LoRaRadio::handle_dio4_irq(void)
-{
-    // is asserted when a preamble is detected (FSK modem only)
-    // switch (_rf_settings.modem) {
-    //     case MODEM_FSK: {
-    //         if (_rf_settings.fsk_packet_handler.preamble_detected == 0) {
-    //             _rf_settings.fsk_packet_handler.preamble_detected = 1;
-    //         }
-    //     }
-    //         break;
-    //     case MODEM_LORA:
-    //         break;
-    //     default:
-    //         break;
-    // }
-}
-
-void SX1276_LoRaRadio::handle_dio5_irq()
-{
-    switch (_rf_settings.modem) {
-        case MODEM_FSK:
-            break;
-        case MODEM_LORA:
-            break;
-        default:
-            break;
-    }
-}
-
 
 void SX1276_LoRaRadio::handle_timeout_irq()
 {
@@ -1940,6 +1090,7 @@ void SX1276_LoRaRadio::handle_timeout_irq()
 
 EMSCRIPTEN_KEEPALIVE
 extern "C" void handle_lora_downlink(uint32_t radioPtr, uint32_t dataPtr, uint32_t size, uint32_t freq, uint8_t bandwidth, uint8_t datarate) {
+    // EM_ASM({ console.log('handle_lora_downlink cpp')});
     ((SX1276_LoRaRadio*)radioPtr)->rx_frame((uint8_t*)dataPtr, size, freq, bandwidth, datarate);
 }
 
