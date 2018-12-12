@@ -653,12 +653,11 @@ void SX1276_LoRaRadio::receive()
 
         _rf_settings.lora_packet_handler.pending = false;
 
-        if (delta_ms > 1000) {
-            tr_warn("receive delta was over 1000 ms (was %u ms), discarding packet", delta_ms);
-            return;
-        }
+        // if (delta_ms > 1000) {
+        //     tr_warn("receive delta was over 1000 ms (was %u ms), discarding packet", delta_ms);
+        //     return;
+        // }
 
-        // after 200 ms. we send the rx_done event
         rx_done_irq();
         return;
     }
