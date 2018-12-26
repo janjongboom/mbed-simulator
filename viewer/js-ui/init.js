@@ -22,12 +22,21 @@
                     }
                     removeRunDependency('IDBFS');
                 });
+            },
+            function() {
+                if (typeof window.onStartExecution === 'function') {
+                    window.onStartExecution();
+                }
             }
         ],
         postRun: [],
         print: (function () {
             return function (text) {
                 for (var ix = 0; ix < arguments.length; ix++) {
+                    // used to communicate back to Puppeteer (see cli.js)
+                    if (typeof window.onPrintEvent === 'function') {
+                        window.onPrintEvent(arguments[ix]);
+                    }
                     // this is an emscripten thing... only flushes when a newline happens.
                     terminal.write(arguments[ix] + '\r\n');
                 }
@@ -62,18 +71,24 @@
     };
     Module.setStatus('Downloading...');
 
-    window.onerror = function (event) {
+    window.onerror = function (message) {
         // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
         Module.setStatus('Exception thrown, see JavaScript console');
         Module.setStatus = function (text) {
             if (text) Module.printErr('[post-exception status] ' + text);
         };
+        if (typeof window.onFailedExecution === 'function') {
+            window.onFailedExecution(message);
+        }
     };
 
     window.MbedJSHal = {
         die: function () {
             Module.setStatus('Board has died');
             Module.printErr('[post-exception status] mbed_die() was called');
+            if (typeof window.onFailedExecution === 'function') {
+                window.onFailedExecution('Board has died');
+            }
         },
         syncIdbfs: function() {
             FS.syncfs(false, function (err) {

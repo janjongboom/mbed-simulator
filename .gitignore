@@ -1,6 +1,7 @@
 out/*.*
 node_modules/
 demos/mbed-cloud-client/
+demos/lorawan-classc/
 *.bc
 mbed-simulator-hal/mbed-http/
 demos/*/out

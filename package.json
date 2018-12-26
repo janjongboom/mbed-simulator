@@ -1,6 +1,6 @@
 {
   "name": "mbed-simulator",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Mbed OS 5 simulator",
   "preferGlobal": true,
   "scripts": {
@@ -33,6 +33,7 @@
     "getmac": "^1.4.1",
     "hbs": "^4.0.1",
     "opn": "^5.3.0",
+    "puppeteer": "^1.11.0",
     "socket.io": "^2.1.0",
     "timesync": "^1.0.2",
     "xterm": "^3.3.0"

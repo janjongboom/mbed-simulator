@@ -42,10 +42,21 @@ const NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017;     /*!< connection timed out */
 const NSAPI_ERROR_ADDRESS_IN_USE      = -3018;     /*!< Address already in use */
 const NSAPI_ERROR_TIMEOUT             = -3019; /*!< operation timed out */
 
-module.exports = function(outFolder, port, staticMaxAge, callback) {
+/**
+ * Start a web server to run simulated applications
+ *
+ * @param outFolder Location of the build folder with the WASM files
+ * @param port Port to run the web server on
+ * @param staticMaxAge Max-age cache header to set for static files
+ * @param runtimeLogs Whether to enable runtime logs (from e.g. LoRa server)
+ * @param callback Callback to invoke when the server is started (or failed to start)
+ */
+module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) {
     const app = express();
     const server = require('http').Server(app);
     const io = require('socket.io')(server);
+
+    const consoleLog = runtimeLogs ? console.log.bind(console) : function() {};
 
     app.set('view engine', 'html');
     app.set('views', Path.join(__dirname, '..', 'viewer'));
@@ -86,21 +97,21 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
 
     app.post('/api/network/socket_open/tcp', (req, res, next) => {
         let s = sockets[++socketIx] = new net.Socket();
-        console.log('Opening new TCP socket (' + socketIx + ')');
+        consoleLog('Opening new TCP socket (' + socketIx + ')');
         s.subscribers = [];
         res.send(socketIx + '');
 
         let cIx = socketIx;
 
         s.on('data', data => {
-            console.log('Received TCP packet on socket', cIx, data, 'subcount', s.subscribers.length);
+            consoleLog('Received TCP packet on socket', cIx, data, 'subcount', s.subscribers.length);
 
             s.subscribers.forEach(ws => {
                 ws.emit('socket-data-' + cIx, JSON.stringify(Array.from(data)));
             });
         });
         s.on('error', e => {
-            console.log('TCP error on socket', socketIx, e);
+            consoleLog('TCP error on socket', socketIx, e);
 
             s.subscribers.forEach(ws => {
                 ws.emit('socket-error-' + cIx);
@@ -116,14 +127,14 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
 
     app.post('/api/network/socket_open/udp', (req, res, next) => {
         let s = sockets[++socketIx] = dgram.createSocket('udp4');
-        console.log('Opening new UDP socket (' + socketIx + ')');
+        consoleLog('Opening new UDP socket (' + socketIx + ')');
         s.subscribers = [];
         res.send(socketIx + '');
 
         let cIx = socketIx;
 
         s.on('message', (data, rinfo) => {
-            console.log('Received UDP packet on socket', cIx, data, rinfo);
+            consoleLog('Received UDP packet on socket', cIx, data, rinfo);
 
             s.subscribers.forEach(ws => {
                 ws.emit('socket-data-' + cIx, JSON.stringify(Array.from(data)));
@@ -132,7 +143,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     });
 
     app.post('/api/network/socket_close', (req, res, next) => {
-        console.log('Closing socket', req.body.id);
+        consoleLog('Closing socket', req.body.id);
 
         if (!sockets[req.body.id]) {
             return res.send('' + NSAPI_ERROR_NO_SOCKET);
@@ -153,7 +164,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     });
 
     app.post('/api/network/socket_send', (req, res, next) => {
-        console.log('Sending socket', req.body.id, req.body.data.length, 'bytes');
+        consoleLog('Sending socket', req.body.id, req.body.data.length, 'bytes');
 
         if (!sockets[req.body.id]) {
             return res.send('' + NSAPI_ERROR_NO_SOCKET); // NSAPI_ERROR_NO_SOCKET
@@ -172,7 +183,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     });
 
     app.post('/api/network/socket_connect', (req, res, next) => {
-        console.log('Connecting socket', req.body.id, req.body.hostname, req.body.port);
+        consoleLog('Connecting socket', req.body.id, req.body.hostname, req.body.port);
 
         if (!sockets[req.body.id]) {
             return res.send('' + NSAPI_ERROR_NO_SOCKET);
@@ -215,11 +226,10 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
     });
 
     io.on('connection', ws => {
-        console.log('new ws connected');
         ws.on('socket-subscribe', id => {
             if (!sockets[id]) return;
 
-            console.log('socket-subscribe on', id);
+            consoleLog('socket-subscribe on', id);
 
             sockets[id].subscribers.push(ws);
         });
@@ -345,7 +355,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
 
         // this happens quite fast... every 72 minutes.
         if ((Date.now() - startupTs) * 1000 > 0xffffffff) {
-            console.log('startupTs overflown');
+            consoleLog('startupTs overflown');
             startupTs = Date.now();
         }
 
@@ -369,11 +379,11 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
             }]
         };
 
-        console.log('sending', msg);
+        consoleLog('sending', msg);
 
         buff = Buffer.concat([ buff, Buffer.from(JSON.stringify(msg))]);
 
-        console.log('[TTNGW] Sending', buff);
+        consoleLog('[TTNGW] Sending', buff);
 
         ttnGwClient.send(buff, LORA_PORT, LORA_HOST, function(err) {
             if (err) return next(err);
@@ -394,12 +404,12 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
         compile(req.body.code, outFolder).then(name => {
             console.timeEnd('compile' + id);
 
-            console.log('Compilation succeeded', id);
+            consoleLog('Compilation succeeded', id);
             res.send(name);
         }).catch(err => {
             console.timeEnd('compile' + id);
 
-            console.log('Compilation failed', id, err);
+            consoleLog('Compilation failed', id, err);
             res.status(500).send(err);
         });
     });
@@ -413,7 +423,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
         if (action === 0x03) { // PULL_RESP
             let tx_ack = Buffer.from([ 0x02, id1, id2, 0x05 /*TX_ACK*/, gwId[0], gwId[1], gwId[2], gwId[3], gwId[4], gwId[5], gwId[6], gwId[7] ]);
             ttnGwClient.send(tx_ack, LORA_PORT, LORA_HOST, function(err) {
-                console.log('[TTNGW] TX_ACK OK');
+                consoleLog('[TTNGW] TX_ACK OK');
             });
 
             var data = JSON.parse(msg.slice(4).toString('utf-8'));
@@ -430,7 +440,7 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
                 case '500': bw = 9; break;
             }
 
-            console.log('[TTNGW] got downlink msg', msg, data);
+            consoleLog('[TTNGW] got downlink msg', msg, data);
 
             let delay = 0;
 
@@ -445,9 +455,9 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
             else {
                 let now = Date.now() - startupTs;
                 let tts = (data.txpk.tmst / 1000) - now;
-                console.log('time to send is', tts);
+                consoleLog('time to send is', tts);
                 if (tts < 0 || tts > 5000) {
-                    console.log('tts invalid');
+                    consoleLog('tts invalid');
                     delay = 0;
                 }
                 else {
@@ -469,8 +479,8 @@ module.exports = function(outFolder, port, staticMaxAge, callback) {
             // ignore...
         }
         else {
-            console.log('[TTNGW] Received %d bytes from %s:%d',msg.length, info.address, info.port);
-            console.log('[TTNGW] Message:', msg);
+            consoleLog('[TTNGW] Received %d bytes from %s:%d',msg.length, info.address, info.port);
+            consoleLog('[TTNGW] Message:', msg);
         }
     });
 
