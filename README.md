@@ -79,6 +79,10 @@ The project will build and a web browser window will open for you.
 
 To see if your program runs in the simulator, check the `TARGET_SIMULATOR` macro.
 
+**Running in headless mode**
+
+You can also run the simulator in headless mode, which is great for automated testing. All output (through `printf` and traces) will be routed to your terminal. To run in headless mode, add the `--launch-headless` option. You might also want to limit the amount of logging the server does through `--disable-runtime-logs` to keep the output clean.
+
 ## Changing mbed-simulator-hal
 
 After changing anything in the simulator HAL, you need to recompile the libmbed library:

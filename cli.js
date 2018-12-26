@@ -6,15 +6,16 @@
 
 const fs = require('fs');
 const Path = require('path');
-const { isDirectory, getDirectories, getCFiles, getAllDirectories, getAllCFiles, ignoreAndFilter } = require('./build-tools/helpers');
 const helpers = require('./build-tools/helpers');
 const application = require('./build-tools/build-application');
 const opn = require('opn');
 const commandExistsSync = require('command-exists').sync;
 const launchServer = require('./server/launch-server');
 const version = JSON.parse(fs.readFileSync(Path.join(__dirname, 'package.json'), 'utf-8')).version;
+const puppeteer = require('puppeteer');
+const promisify = require('es6-promisify').promisify;
 
-var program = require('commander');
+let program = require('commander');
 
 program
     .version(version)
@@ -23,15 +24,20 @@ program
     .option('-o --output-file <file>', 'Output file (or directory)')
     .option('-v --verbose', 'Verbose logging')
     .option('-c --compiler-opts <opts>', 'Compiler options (e.g. -std=c++11)')
-    .option('-l --launch', 'Launch the simulator for this project after building')
+    .option('-l --launch', 'Launch the simulator for this project after building (opens a browser)')
+    .option('--launch-headless',  'Launch the simulator for this project after building in headless mode (pipes output to console)')
+    .option('--skip-build', 'Skip the build step (launch only)')
+    .option('--disable-runtime-logs', 'Disable runtime logs (e.g. from the LoRa server or networking proxy)')
     .option('--emterpretify', 'Enable emterpretify mode (required if projects take a long time to compile)')
     .allowUnknownOption(true)
     .parse(process.argv);
 
 // shorthand so you can run `mbed simulator .`
-if (process.argv.length === 3 && fs.existsSync(process.argv[2]) && fs.statSync(process.argv[2]).isDirectory()) {
+if (fs.existsSync(process.argv[2]) && fs.statSync(process.argv[2]).isDirectory()) {
     program.inputDir = Path.resolve(process.argv[2]);
-    program.launch = true;
+    if (!program.launchHeadless) {
+        program.launch = true;
+    }
 }
 
 if (program.inputDir && program.inputFile) {
@@ -99,19 +105,50 @@ let extraArgs = (program.compilerOpts || '').split(' ');
 
 let fn = program.inputDir ? application.buildDirectory : application.buildFile;
 
+if (program.skipBuild) {
+    console.log('Skipping build...');
+    fn = () => Promise.resolve();
+}
+
 fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program.emterpretify, program.verbose)
-    .then(() => {
+    .then(async function() {
         console.log('Building application succeeded, output file is', program.outputFile);
 
-        if (program.launch) {
-            let port = process.env.PORT || 7900;
-            launchServer(outputDir, port, 0, function(err) {
-                if (err) return console.error('Failed to launch server', err);
+        if (program.launch || program.launchHeadless) {
+            let browser;
+            try {
+                let port = process.env.PORT || 7900;
+                let logsEnabled = !program.disableRuntimeLogs;
+                await promisify(launchServer)(outputDir, port, 0, logsEnabled);
 
                 let name = Path.basename(program.outputFile, '.js');
 
-                opn(`http://localhost:${port}/view/${name}`);
-            });
+                if (program.launch) {
+                    opn(`http://localhost:${port}/view/${name}`);
+                }
+                else if (program.launchHeadless) {
+                    browser = await puppeteer.launch();
+                    const page = await browser.newPage();
+                    await page.exposeFunction('onPrintEvent', e => {
+                        console.log(e);
+                    });
+                    await page.exposeFunction('onStartExecution', () => {
+                        console.log('Application started in headless mode');
+                    });
+                    await page.exposeFunction('onFailedExecution', async function (e) {
+                        console.error('Error while running in headless mode', e);
+                        await browser.close();
+                        process.exit(1);
+                    });
+                    await page.goto(`http://localhost:${port}/view/${name}`);
+                }
+            }
+            catch (ex) {
+                console.error('Failed to launch server', ex);
+                if (browser) {
+                    await browser.close();
+                }
+            }
         }
     })
     .catch(err => {
