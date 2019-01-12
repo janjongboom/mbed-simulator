@@ -8,4 +8,4 @@ demos/*/out
 mbed-simulator-hal/MQTT/
 mbed-simulator-hal/mbed-os/
 mbed-simulator-hal/*.cache
-
+mbed-simulator-hal/simple-mbed-cloud-client/
