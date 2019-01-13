@@ -23,8 +23,7 @@
         terminal.write(c);
     });
 
-    window.addEventListener('keydown', function(e) {
-        if (e.keyCode <= 0) return;
-        window.MbedJSHal.serial.onStdIn(e.keyCode);
+    window.addEventListener('keypress', function(e) {
+        window.MbedJSHal.serial.onStdIn(e.charCode);
     });
 })();
