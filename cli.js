@@ -120,7 +120,7 @@ function attachStdin(server) {
         }
 
         if (key) {
-            server.onStdIn(key);
+            server.onStdIn(key.charCodeAt(0));
         }
     });
 }
@@ -145,7 +145,7 @@ fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program
                     browser = await puppeteer.launch();
                     const page = await browser.newPage();
                     await page.exposeFunction('onPrintEvent', e => {
-                        console.log(e);
+                        process.stdout.write(e);
                     });
                     await page.exposeFunction('onStartExecution', () => {
                         console.log('Application started in headless mode');
