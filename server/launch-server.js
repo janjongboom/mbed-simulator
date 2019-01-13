@@ -246,10 +246,6 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
         });
     });
 
-    io.on('socket-subscribe', id => {
-
-    })
-
     app.get('/view/:script', (req, res, next) => {
         let maxAge = 0;
         if (req.params.script.indexOf('user_') === 0) {
@@ -511,11 +507,15 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
         console.log(`\tMake sure the gateway registered in the network server running the *legacy packet forwarder*`);
     });
 
+    function onStdIn(c) {
+        io.sockets.emit('stdin', c);
+    }
+
     console.log('Mbed Simulator v' + version);
 
     server.listen(port, process.env.HOST || '0.0.0.0', function () {
         console.log('Web server listening on port %s!', port);
 
-        callback();
+        callback(null, { onStdIn: onStdIn });
     });
 };
