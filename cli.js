@@ -110,6 +110,21 @@ if (program.skipBuild) {
     fn = () => Promise.resolve();
 }
 
+function attachStdin(server) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.on('data', (key) => {
+        key = key.toString('utf-8');
+        if (key === '\u0003') {
+            return process.exit(1);
+        }
+
+        if (key) {
+            server.onStdIn(key);
+        }
+    });
+}
+
 fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program.emterpretify, program.verbose)
     .then(async function() {
         console.log('Building application succeeded, output file is', program.outputFile);
@@ -119,7 +134,7 @@ fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program
             try {
                 let port = process.env.PORT || 7900;
                 let logsEnabled = !program.disableRuntimeLogs;
-                await promisify(launchServer)(outputDir, port, 0, logsEnabled);
+                let server = await promisify(launchServer)(outputDir, port, 0, logsEnabled);
 
                 let name = Path.basename(program.outputFile, '.js');
 
@@ -134,6 +149,7 @@ fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program
                     });
                     await page.exposeFunction('onStartExecution', () => {
                         console.log('Application started in headless mode');
+                        attachStdin(server);
                     });
                     await page.exposeFunction('onFailedExecution', async function (e) {
                         console.error('Error while running in headless mode', e);

@@ -1,13 +1,17 @@
 (function() {
     window.socket = io.connect(location.origin);
 
-    var terminal = new Terminal({
-        scrollback: 1000000
-    });
-    terminal.open(document.querySelector('#output'));
-
     var Module = {
         preRun: [
+            function() {
+                FS.init(function() {
+                    console.log('FS.stdin not handled (should not reach this)');
+                }, function(c) {
+                    if (c > 0) window.MbedJSHal.serial.write(c);
+                }, function(c) {
+                    if (c > 0) window.MbedJSHal.serial.write(c);
+                })
+            },
             function() {
                 addRunDependency('IDBFS');
                 FS.mkdir('/IDBFS');
@@ -30,18 +34,18 @@
             }
         ],
         postRun: [],
-        print: (function () {
-            return function (text) {
-                for (var ix = 0; ix < arguments.length; ix++) {
-                    // used to communicate back to Puppeteer (see cli.js)
-                    if (typeof window.onPrintEvent === 'function') {
-                        window.onPrintEvent(arguments[ix]);
-                    }
-                    // this is an emscripten thing... only flushes when a newline happens.
-                    terminal.write(arguments[ix] + '\r\n');
+        print: function (text) {
+            console.log('print called', text);
+            for (var ix = 0; ix < arguments.length; ix++) {
+                var line = arguments[ix];
+
+                for (var lx = 0; lx < line.length; lx++) {
+                    window.MbedJSHal.serial.write(line[lx]);
                 }
-            };
-        })(),
+                window.MbedJSHal.serial.write('\r');
+                window.MbedJSHal.serial.write('\n');
+            }
+        },
         printErr: function (text) {
             for (var ix = 0; ix < arguments.length; ix++) {
                 // terminal.write(arguments[ix]);
