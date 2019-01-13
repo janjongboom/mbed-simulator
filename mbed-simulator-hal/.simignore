@@ -12,14 +12,11 @@ mbed-os/features/deprecated_warnings/
 mbed-os/features/device_key/
 mbed-os/features/FEATURE_BLE/
 mbed-os/features/FEATURE_BOOTLOADER/
-mbed-os/features/frameworks/greentea-client/
 mbed-os/features/frameworks/mbed-client-randlib/
 mbed-os/features/frameworks/mbed-client-randlib/test/
 mbed-os/features/frameworks/mbed-coap/
 mbed-os/features/frameworks/mbed-trace/
 mbed-os/features/frameworks/nanostack-libservice/test/
-mbed-os/features/frameworks/unity/
-mbed-os/features/frameworks/utest/
 mbed-os/features/filesystem/fat/
 mbed-os/features/filesystem/littlefs/
 mbed-os/features/lwipstack/
