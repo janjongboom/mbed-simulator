@@ -23,6 +23,14 @@
         terminal.write(c);
     });
 
+    window.MbedJSHal.serial.on('stdout-line', function(l) {
+        if (typeof window.onPrintEvent === 'function') {
+            window.onPrintEvent(l);
+        }
+
+        terminal.write(l);
+    });
+
     window.addEventListener('keypress', function(e) {
         window.MbedJSHal.serial.onStdIn(e.charCode);
     });

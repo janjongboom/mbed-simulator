@@ -37,5 +37,9 @@ window.MbedJSHal.serial = (function() {
         obj.emit('stdout', c);
     };
 
+    obj.writeLine = function(l) {
+        obj.emit('stdout-line', l);
+    };
+
     return obj;
 })();
