@@ -24,7 +24,7 @@ window.MbedJSHal.network = (function() {
     const SOCKET_PROTOCOL_TCP             = 0;
     const SOCKET_PROTOCOL_UDP             = 1;
 
-    const NSDEBUG = 0;
+    const NSDEBUG = 1;
     const log = NSDEBUG === 1 ? console.log.bind(console) : function() {};
 
     /**

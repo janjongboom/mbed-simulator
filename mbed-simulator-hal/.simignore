@@ -21,9 +21,14 @@ mbed-os/features/filesystem/fat/
 mbed-os/features/filesystem/littlefs/
 mbed-os/features/lwipstack/
 mbed-os/features/mbedtls/targets/
+mbed-os/features/mbedtls/platform/TARGET_PSA/
 mbed-os/features/nanostack/
 mbed-os/features/netsocket/cellular/
 mbed-os/features/netsocket/emac-drivers/
+mbed-os/features/netsocket/DTLSSocket\.h
+mbed-os/features/netsocket/DTLSSocket\.cpp
+mbed-os/features/netsocket/DTLSSocketWrapper\.h
+mbed-os/features/netsocket/DTLSSocketWrapper\.cpp
 mbed-os/features/netsocket/EMACInterface\.h
 mbed-os/features/netsocket/EMACInterface\.cpp
 mbed-os/features/netsocket/EthernetInterface\.h
@@ -33,6 +38,7 @@ mbed-os/features/netsocket/TCPServer\.cpp
 mbed-os/features/nfc/
 mbed-os/features/storage/FEATURE_STORAGE/
 mbed-os/features/storage/filesystem/
+mbed-os/features/storage/kvstore/
 mbed-os/features/storage/nvstore/
 mbed-os/features/storage/system_storage/
 mbed-os/features/TESTS/
@@ -49,7 +55,9 @@ mbed-os/targets/TARGET_ARM_FM/
 mbed-os/targets/TARGET_ARM_SSG/
 mbed-os/targets/TARGET_Analog_Devices/
 mbed-os/targets/TARGET_Atmel/
+mbed-os/targets/TARGET_Cypress/
 mbed-os/targets/TARGET_Freescale/
+mbed-os/targets/TARGET_GigaDevice/
 mbed-os/targets/TARGET_Maxim/
 mbed-os/targets/TARGET_NORDIC/
 mbed-os/targets/TARGET_NUVOTON/
@@ -57,10 +65,12 @@ mbed-os/targets/TARGET_NXP/
 mbed-os/targets/TARGET_ONSEMI/
 mbed-os/targets/TARGET_RENESAS/
 mbed-os/targets/TARGET_Realtek/
+mbed-os/targets/TARGET_RDA/
 mbed-os/targets/TARGET_STM/
 mbed-os/targets/TARGET_Silicon_Labs/
 mbed-os/targets/TARGET_SIMULATOR/features/FEATURE_COMMON_PAL/arm_hal_timer\.cpp
 mbed-os/targets/TARGET_TOSHIBA/
+mbed-os/targets/TARGET_TT/
 mbed-os/targets/TARGET_WICED/
 mbed-os/targets/TARGET_WIZNET/
 mbed-os/targets/TARGET_ublox/

@@ -122,3 +122,8 @@ int SimulatorBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
     return 0;
 }
+
+const char* SimulatorBlockDevice::get_type() const
+{
+    return "SimulatorBlockDevice";
+}

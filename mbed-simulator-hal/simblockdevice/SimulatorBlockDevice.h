@@ -124,6 +124,11 @@ public:
      */
     virtual bd_size_t size() const;
 
+    /**
+     * Name of the type of the block device
+     */
+    virtual const char *get_type() const;
+
 private:
     const char *_key_name;
     bd_size_t _read_size;
