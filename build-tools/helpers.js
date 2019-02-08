@@ -107,6 +107,7 @@ const defaultBuildFlags = [
     '-DDEVICE_SERIAL=1',
     '-DDEVICE_FLASH=1',
     '-DDEVICE_EMAC=1',
+    '-DDEVICE_USTICKER=1',
 
 
     // Pelion device management

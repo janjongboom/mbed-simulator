@@ -3,7 +3,6 @@ mbed-os/.github/
 mbed-os/cmsis/
 mbed-os/components/
 mbed-os/docs/
-mbed-os/drivers/Ticker\.cpp
 mbed-os/events/mbed_shared_queues\.cpp
 mbed-os/events/equeue/tests/
 mbed-os/features/cellular/
