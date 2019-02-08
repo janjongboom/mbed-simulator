@@ -115,22 +115,20 @@ int main() {
 static void receive_message()
 {
     uint8_t rx_buffer[50] = { 0 };
-    int16_t retcode;
-    retcode = lorawan.receive(MBED_CONF_LORA_APP_PORT, rx_buffer,
-                              sizeof(rx_buffer),
-                              MSG_CONFIRMED_FLAG|MSG_UNCONFIRMED_FLAG);
+    uint8_t port;
+    int flags;
+    int16_t retcode = lorawan.receive(rx_buffer, sizeof(rx_buffer), port, flags);
 
     if (retcode < 0) {
-        printf("receive() - Error code %d\n", retcode);
+        printf("\r\n receive() - Error code %d \r\n", retcode);
         return;
     }
 
-    printf("Data received on port %d (length %d): ", MBED_CONF_LORA_APP_PORT, retcode);
-
+    printf("RX Data on port %u (%d bytes): ", port, retcode);
     for (uint8_t i = 0; i < retcode; i++) {
         printf("%02x ", rx_buffer[i]);
     }
-    printf("\n");
+    printf("\r\n");
 }
 
 // Event handler
