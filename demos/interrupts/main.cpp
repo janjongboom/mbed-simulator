@@ -25,11 +25,11 @@ void turn_led3_on() {
 
 int main() {
     printf("Hello world!\n");
-    printf("LED1 will blink every second, LED3 will toggle after 2.5 seconds, LED2 can be toggled through BUTTON1.\n");
+    printf("LED1 will blink every second, LED3 will toggle after 3.5 seconds, LED2 can be toggled through BUTTON1.\n");
     printf("-----------------------------------\n\n");
 
     t1.attach(callback(&blink_led1), 1.0f);
-    t2.attach(callback(&turn_led3_on), 2.5f);
+    t2.attach(callback(&turn_led3_on), 3.5f);
     btn.fall(callback(&toggle_led2));
 
     wait_ms(osWaitForever);
