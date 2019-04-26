@@ -20,6 +20,31 @@ let libmbed = {
         }
 
         let dirs = await ignoreAndFilter(await getAllDirectories(outFolder), ignoreFile);
+
+        // now filter out all directories that do not have:
+        // 1. header files in them
+        // 2. that are not the parent of a folder which would have header files
+        //    (e.g. features/ should be included because features/netsocket has header files)
+
+        // to achieve this
+        // 1. sort on longest length first - this is done so for a/b/c where all of them are empty will filter out a/b/c, then a/b, then a
+        dirs = dirs.sort((a, b) => b.length - a.length);
+
+        // 2. loop over the array, if no header files and no other folders mention the specific substring then filter out
+        let dirsToRemove = []; // don't mess with the array when iterating
+        for (let d of dirs) {
+            // check if .h or .hpp file in the current folder
+            let hasHeaderFiles = (await promisify(fs.readdir)(d)).some(f => ['.h', '.hpp'].indexOf(Path.extname(f)) > -1);
+            // should not be the same, should not be in removal array, and should match substr
+            let hasChildren = dirs.filter(sd => sd !== d && sd.indexOf(d) > -1 && dirsToRemove.indexOf(sd) === -1).length > 0;
+
+            if (!hasHeaderFiles && !hasChildren) {
+                dirsToRemove.push(d);
+            }
+        }
+
+        dirs = dirs.filter(d => dirsToRemove.indexOf(d) === -1);
+
         await promisify(fs.writeFile)(cacheFile, JSON.stringify(dirs), 'utf-8');
         return dirs;
     },

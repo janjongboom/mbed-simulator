@@ -62,7 +62,7 @@ const ignoreAndFilter = async function(list, ignoreFile) {
         return list;
     }
 
-    let parsed = (await promisify(fs.readFile)(ignoreFile, 'utf8')).split('\n').filter(f => !!f);
+    let parsed = (await promisify(fs.readFile)(ignoreFile, 'utf8')).split('\n').filter(f => !!f).map(f => f.trim());
 
     parsed = parsed.map(l => new RegExp(l));
 
@@ -115,7 +115,7 @@ const defaultBuildFlags = [
     '-DMBED_CONF_UPDATE_CLIENT_STORAGE_SIZE=0',
     '-DMBED_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h"',
     '-DMBED_CLOUD_CLIENT_USER_CONFIG_FILE="mbed_cloud_client_user_config.h"',
-    '-DMBED_CONF_APP_DEVELOPER_MODE=1',
+    '-DMBED_CONF_APP_DEVELOPER_MODE=1'
 
     // '-Wall',
 ];
