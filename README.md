@@ -22,15 +22,154 @@ To make this feedback loop much shorter, we're releasing an alpha version of the
 * [Debugging](docs/debugging.md)
 * [Architecture](docs/architecture.md)
 
+## Installation
+
+### Prerequisites
+
+1. Install [Mbed CLI](https://github.com/ARMmbed/mbed-cli).
+1. Install [Python 2.7](https://www.python.org/downloads/windows/) - **not Python 3!**.
+1. Install [Git](https://git-scm.com/).
+1. Install [Mercurial](https://www.mercurial-scm.org/wiki/Download).
+1. Install [Node.js](https://nodejs.org/en/) v8 or higher.
+
+Make sure that all of these are in your PATH. Verify this by opening a command prompt or terminal, and running:
+
+```
+$ where mbed
+C:\Python27\Scripts\mbed.exe
+
+$ where node
+C:\Program Files\nodejs2\node.exe
+
+$ where git
+C:\Program Files\Git\cmd\git.exe
+
+$ where hg
+C:\Program Files\TortoiseHg\hg.exe
+```
+
+On Linux and macOS use `which` instead of `where`.
+
+If one of the `where` / `which` commands does not yield a path, the utility is not in your PATH.
+
+### Installing Emscripten
+
+To install the Emscripten cross-compilation toolchain, open a command prompt and:
+
+1. Clone the repository and install SDK version 1.38.21:
+
+    ```
+    $ git clone https://github.com/emscripten-core/emsdk.git
+    $ cd emsdk
+    $ emsdk install sdk-1.38.21-64bit
+    $ emsdk activate sdk-1.38.21-64bit
+
+    # on Windows only:
+    $ emsdk_env.bat --global
+    ```
+
+1. Verify that the installation was successful:
+
+    ```
+    $ emcc -v
+    emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 1.38.21
+    ```
+
+1. Find the folder where emcc was installed:
+
+    **Windows**
+
+    ```
+    $ where emcc
+    C:\simulator\emsdk\emscripten\1.38.21\emcc
+    ```
+
+    **macOS and Linux**
+
+    ```
+    $ which emcc
+    ~/toolchains/emsdk/emscripten/1.38.21/emcc
+    ```
+
+1. Add this folder to your PATH.
+    * On Windows:
+        * Go to **System Properties > Advanced > Environmental variables**.
+        * Find `PATH`.
+        * Add the folder you found in the previous step, and add it prefixed by `;`. E.g.: `;C:\simulator\emsdk\emscripten\1.38.21\`
+    * On macOS / Linux:
+        * Open `~/.bash_profile` or `~/.bashrc` and add:
+
+        ```
+        PATH=$PATH:~/toolchains/emsdk/emscripten/1.38.21
+        ```
+
+1. Open a new command prompt and verify that `emcc` can still be found by running:
+
+    ```
+    $ where emcc
+    C:\simulator\emsdk\emscripten\1.38.21\emcc
+    ```
+
+1. All set!
+
+### Installing the simulator through npm
+
+Last, install the simulator. Easiest is through npm:
+
+1. Install the simulator:
+
+    ```
+    $ npm install mbed-simulator -g
+    ```
+
+1. Clone an Mbed OS example program:
+
+    ```
+    $ mbed import mbed-os-example-blinky
+    $ cd mbed-os-example-blinky
+    ```
+
+1. Run the simulator:
+
+    ```
+    $ mbed-simulator .
+    ```
+
+    Note that this will download all dependencies (including Mbed OS) and will build the common `libmbed` library so this'll take some time.
+
+### Installing the simulator from source
+
+1. Install the simulator through git:
+
+    ```
+    $ git clone https://github.com/janjongboom/mbed-simulator.git
+    $ cd mbed-simulator
+    $ npm install
+    $ npm install . -g
+    ```
+
+1. Build your first example:
+
+    ```
+    $ node cli.js -i demos\blinky -o out --launch
+    ```
+
+    Note that this will download all dependencies (including Mbed OS) and will build the common `libmbed` library so this'll take some time.
+
+1. Done! The Mbed Simulator should now launch in your default browser.
+
 ## How to run the hosted version
 
-1. Install a recent version of node.js.
-1. Install Mbed CLI.
-1. Install the [Emscripten SDK v1.38.21](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
+1. Install all dependencies, and clone the repository from source (see above).
 1. Run:
 
     ```
     $ npm install
+
+    # Windows
+    $ build-demos.bat
+
+    # macOS / Linux
     $ sh build-demos.sh
     ```
 
@@ -47,29 +186,9 @@ To make this feedback loop much shorter, we're releasing an alpha version of the
 
 The simulator comes with a CLI to run any Mbed OS 5 project under the simulator.
 
-**Installation**
-
-1. Install a recent version of node.js.
-1. Install Mbed CLI.
-1. Install the [Emscripten SDK v1.38.21](http://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) - and make sure `emcc` is in your PATH.
-
-Then, install the simulator via:
-
-```
-$ npm install mbed-simulator -g
-```
-
-Or if you cloned the project, via:
-
-```
-$ npm install /path/to/simulator -g
-```
-
-This will create a new `mbed-simulator` binary somewhere in your PATH.
-
 **Running**
 
-Then run from an Mbed OS 5 project:
+To run an Mbed OS 5 project:
 
 ```
 $ mbed-simulator .

@@ -84,4 +84,5 @@ simple-mbed-cloud-client/mbed-cloud-client/nanostack-libservice/
 simple-mbed-cloud-client/mbed-cloud-client/ns-hal-pal/arm_hal_random.c
 simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/common/stubs/
 simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/lwm2m-mbed/stubs/
+simple-mbed-cloud-client/mbed-cloud-client/update-client-hub/modules/pal-linux/
 /TESTS/
