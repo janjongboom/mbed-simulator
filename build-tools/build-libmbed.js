@@ -33,8 +33,8 @@ let libmbed = {
         // 2. loop over the array, if no header files and no other folders mention the specific substring then filter out
         let dirsToRemove = []; // don't mess with the array when iterating
         for (let d of dirs) {
-            // check if .h or .hpp file in the current folder
-            let hasHeaderFiles = (await promisify(fs.readdir)(d)).some(f => ['.h', '.hpp'].indexOf(Path.extname(f)) > -1);
+            // check if .h or .hpp file in the current folder, *ALSO* check for .js files, as these could be components
+            let hasHeaderFiles = (await promisify(fs.readdir)(d)).some(f => ['.h', '.hpp', '.js'].indexOf(Path.extname(f)) > -1);
             // should not be the same, should not be in removal array, and should match substr
             let hasChildren = dirs.filter(sd => sd !== d && sd.indexOf(d) > -1 && dirsToRemove.indexOf(sd) === -1).length > 0;
 
