@@ -456,7 +456,7 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
                 let now = Date.now() - startupTs;
                 let tts = (data.txpk.tmst / 1000) - now;
                 consoleLog('time to send is', tts);
-                if (tts < 0 || tts > 5000) {
+                if (tts < 0) {
                     consoleLog('tts invalid');
                     delay = 0;
                 }
