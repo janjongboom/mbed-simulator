@@ -284,6 +284,9 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
 
             function normalize(a) {
                 return a.map(f => {
+                    if (Path.sep === '\\') {
+                        f = f.replace(/\\/g, '/'); // use Unix paths for the browser
+                    }
                     if (f.indexOf('mbed-simulator-hal/peripherals/') === 0) {
                         return f.replace(/^mbed-simulator-hal/, '');
                     }
