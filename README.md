@@ -158,6 +158,12 @@ Last, install the simulator. Easiest is through npm:
 
 1. Done! The Mbed Simulator should now launch in your default browser.
 
+### Troubleshooting
+
+**Windows: [Error 87] The parameter is incorrect**
+
+This error is thrown on Windows systems when the path length limit is hit. Move the `mbed-simulator` folder to a folder closer to root (e.g. `C:\mbed-simulator`).
+
 ## How to run the hosted version
 
 1. Install all dependencies, and clone the repository from source (see above).
