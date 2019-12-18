@@ -61,8 +61,8 @@ To install the Emscripten cross-compilation toolchain, open a command prompt and
     ```
     $ git clone https://github.com/emscripten-core/emsdk.git
     $ cd emsdk
-    $ emsdk install sdk-1.38.21-64bit
-    $ emsdk activate sdk-1.38.21-64bit
+    $ emsdk install fastcomp-clang-tag-e1.38.21-64bit
+    $ emsdk activate fastcomp-clang-tag-e1.38.21-64bit
 
     # on Windows only:
     $ emsdk_env.bat --global
