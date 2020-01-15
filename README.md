@@ -157,7 +157,7 @@ Last, install the simulator. Easiest is through npm:
 1. Install the simulator through git:
 
     ```
-    $ git clone https://github.com/janjongboom/mbed-simulator.git
+    $ git clone https://github.com/ARMmbed/mbed-simulator.git
     $ cd mbed-simulator
     $ npm install
     $ npm install . -g
