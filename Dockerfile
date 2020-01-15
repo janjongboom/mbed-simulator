@@ -20,7 +20,7 @@ ADD . /app
 
 WORKDIR /app
 
-RUN npm install && sh build-demos.sh
+RUN npm install && npm run build-demos
 
 EXPOSE 7829
 

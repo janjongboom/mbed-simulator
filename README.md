@@ -187,11 +187,7 @@ This error is thrown on Windows systems when the path length limit is hit. Move 
     ```
     $ npm install
 
-    # Windows
-    $ build-demos.bat
-
-    # macOS / Linux
-    $ sh build-demos.sh
+    $ npm run build-demos
     ```
 
 1. Then, start a web server:
@@ -238,17 +234,8 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 ## Updating demo's
 
 In the `out` folder a number of pre-built demos are listed. To upgrade them:
-
-**macOS and Linux**
-
 ```
-$ sh build-demos.sh
-```
-
-**Windows**
-
-```
-$ build-demos.bat
+$ npm run build-demos
 ```
 
 ## Attribution
