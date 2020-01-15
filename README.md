@@ -24,7 +24,22 @@ To make this feedback loop much shorter, we're releasing an alpha version of the
 
 ## Installation
 
-### Prerequisites
+There are two ways of installing and running the simulator: either using Docker
+or installing a locally hosted version.
+
+### Docker installation
+
+1. Install Docker
+1. Build the Docker image:  
+    `docker build -t mbed/simulator .`
+1. Run the Docker image:  
+    `docker run -p 8002:7829 mbed/simulator`
+1. The simulator can now be accessed at  
+    http://localhost:8002
+
+### Local installation
+
+#### Prerequisites
 
 1. Install [Mbed CLI](https://github.com/ARMmbed/mbed-cli).
 1. Install [Python 2.7](https://www.python.org/downloads/windows/) - **not Python 3!**.
@@ -52,7 +67,7 @@ On Linux and macOS use `which` instead of `where`.
 
 If one of the `where` / `which` commands does not yield a path, the utility is not in your PATH.
 
-### Installing Emscripten
+#### Installing Emscripten
 
 To install the Emscripten cross-compilation toolchain, open a command prompt and:
 
@@ -112,7 +127,7 @@ To install the Emscripten cross-compilation toolchain, open a command prompt and
 
 1. All set!
 
-### Installing the simulator through npm
+#### Installing the simulator through npm
 
 Last, install the simulator. Easiest is through npm:
 
@@ -137,7 +152,7 @@ Last, install the simulator. Easiest is through npm:
 
     Note that this will download all dependencies (including Mbed OS) and will build the common `libmbed` library so this'll take some time.
 
-### Installing the simulator from source
+#### Installing the simulator from source
 
 1. Install the simulator through git:
 
