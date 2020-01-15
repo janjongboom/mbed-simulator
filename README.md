@@ -231,7 +231,7 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 
 1. Rebuild your application. libmbed will automatically be generated.
 
-## Updating demo's
+## Updating demos
 
 In the `out` folder a number of pre-built demos are listed. To upgrade them:
 ```
