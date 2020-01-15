@@ -1,4 +1,5 @@
 {
+    "name": "LCD Display",
     "peripherals": [{
         "component": "C12832",
         "args": {
