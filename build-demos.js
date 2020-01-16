@@ -4,15 +4,15 @@ const fs = require('fs');
 
 const demo_output_directory = 'out';
 
-function buildDirectory(demos_dir, directory) {
-    console.log(`Building ${directory}...`);
+function buildDemo(root_demos_directory, demo_directory) {
+    console.log(`Building ${demo_directory}...`);
 
     const buildResult = child_process.spawnSync(
         'node',
         [
             'cli.js',
             '-i',
-            `${demos_dir}/${directory}`,
+            `${root_demos_directory}/${demo_directory}`,
             '-o',
             demo_output_directory,
             '--compiler-opts',
@@ -37,5 +37,5 @@ if (!fs.existsSync(demo_output_directory)) {
 }
 
 fs.readdir(program.inputDir, (err, directories) => directories.map(
-    directory => buildDirectory(program.inputDir, directory)
+    directory => buildDemo(program.inputDir, directory)
 ));
