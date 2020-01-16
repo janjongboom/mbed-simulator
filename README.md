@@ -157,7 +157,7 @@ Last, install the simulator. Easiest is through npm:
 1. Install the simulator through git:
 
     ```
-    $ git clone https://github.com/janjongboom/mbed-simulator.git
+    $ git clone https://github.com/ARMmbed/mbed-simulator.git
     $ cd mbed-simulator
     $ npm install
     $ npm install . -g
@@ -187,11 +187,7 @@ This error is thrown on Windows systems when the path length limit is hit. Move 
     ```
     $ npm install
 
-    # Windows
-    $ build-demos.bat
-
-    # macOS / Linux
-    $ sh build-demos.sh
+    $ npm run build-demos
     ```
 
 1. Then, start a web server:
@@ -235,20 +231,11 @@ After changing anything in the simulator HAL, you need to recompile the libmbed 
 
 1. Rebuild your application. libmbed will automatically be generated.
 
-## Updating demo's
+## Updating demos
 
 In the `out` folder a number of pre-built demos are listed. To upgrade them:
-
-**macOS and Linux**
-
 ```
-$ sh build-demos.sh
-```
-
-**Windows**
-
-```
-$ build-demos.bat
+$ npm run build-demos
 ```
 
 ## Attribution
