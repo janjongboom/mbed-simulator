@@ -397,9 +397,17 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
 
     app.get('/', (req, res, next) => {
         const demosDirectory = process.env.DEMOS_DIRECTORY || 'demos';
+        const demoIds = fs.readdirSync(Path.join(__dirname, '..', demosDirectory));
+        const demos = demoIds.map((demoId) => {
+            const config = JSON.parse(
+                fs.readFileSync(Path.join(demosDirectory, demoId, 'simconfig.json'))
+            );
+            return {"id": demoId, "name": config.name}
+        });
+
         res.render('simulator.html', {
             version: version,
-            examples: fs.readdirSync(Path.join(__dirname, '..', demosDirectory))
+            demos: demos
         });
     });
 

@@ -27,8 +27,8 @@
     <section id="editor-container">
       <div id="editor-topbar">
         <select id="select-project">
-          {{#each examples}}
-            <option name="{{this}}">{{this}}</option>
+          {{#each demos}}
+            <option name="{{this.id}}">{{this.name}}</option>
           {{/each}}
         </select>
         <button id="load-demo">Load demo</button>
