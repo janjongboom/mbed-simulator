@@ -32,10 +32,13 @@ or installing a locally hosted version.
 1. Install Docker
 1. Build the Docker image:  
     `docker build -t mbed/simulator .`
-1. Run the Docker image:  
-    `docker run -p 8002:7829 mbed/simulator`
-1. The simulator can now be accessed at  
-    http://localhost:8002
+1. Run the Docker image with hot reload:  
+    `docker run -v $PWD/server:/app/server -v $PWD/viewer:/app/viewer -p 7829:7829 mbed/simulator npm run watch`
+1. The simulator can now be accessed at:  
+    http://localhost:7829
+1. To stop the Docker image:
+    `docker ps -a -q  --filter ancestor=mbed/simulator`
+
 
 ### Local installation
 

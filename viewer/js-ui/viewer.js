@@ -16,7 +16,7 @@ var components = [
     { component: 'LedYellow', name: 'Yellow LED', pins: [ 'LED' ] },
     { component: 'LedWhite', name: 'White LED', pins: [ 'LED' ] },
     // { component: 'LedRGB', name: 'RGB LED', pins: [ 'Red', 'Green', 'Blue' ] },
-    // { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
+    { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
     {
         component: 'Thermistor',
         name: 'Analog thermistor',

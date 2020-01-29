@@ -4,6 +4,8 @@
   "description": "Mbed OS 5 simulator",
   "preferGlobal": true,
   "scripts": {
+    "start": "node server.js",
+    "watch": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-demos": "node build-demos.js"
   },
@@ -33,6 +35,7 @@
     "express": "^4.16.2",
     "getmac": "^1.4.1",
     "hbs": "^4.0.1",
+    "nodemon": "^2.0.2",
     "opn": "^6.0.0",
     "puppeteer": "^2.0.0",
     "socket.io": "^2.1.0",
