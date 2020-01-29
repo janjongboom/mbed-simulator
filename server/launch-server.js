@@ -408,7 +408,7 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
                 return {
                     "id": dirent.name,
                     "name": config.name,
-                    "selected": dirent.name === demosConfig.default
+                    "selected": dirent.name === demosConfig.default || false
                 }
             });
 
