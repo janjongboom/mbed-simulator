@@ -396,9 +396,10 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
     });
 
     app.get('/', (req, res, next) => {
+        const demosDirectory = process.env.DEMOS_DIRECTORY || 'demos';
         res.render('simulator.html', {
             version: version,
-            examples: fs.readdirSync(Path.join(__dirname, '..', 'demos'))
+            examples: fs.readdirSync(Path.join(__dirname, '..', demosDirectory))
         });
     });
 
