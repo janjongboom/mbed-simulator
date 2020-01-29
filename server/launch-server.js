@@ -397,13 +397,20 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
 
     app.get('/', (req, res, next) => {
         const demosDirectory = process.env.DEMOS_DIRECTORY || 'demos';
-        const demoIds = fs.readdirSync(Path.join(__dirname, '..', demosDirectory));
-        const demos = demoIds.map((demoId) => {
-            const config = JSON.parse(
-                fs.readFileSync(Path.join(demosDirectory, demoId, 'simconfig.json'))
-            );
-            return {"id": demoId, "name": config.name}
-        });
+        const demosConfig = JSON.parse(fs.readFileSync(Path.join(demosDirectory, 'simconfig.json')));
+        const demosDirents = fs.readdirSync(Path.join(__dirname, '..', demosDirectory), { withFileTypes: true });
+        const demos = demosDirents
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => {
+                const config = JSON.parse(
+                    fs.readFileSync(Path.join(demosDirectory, dirent.name, 'simconfig.json'))
+                );
+                return {
+                    "id": dirent.name,
+                    "name": config.name,
+                    "selected": dirent.name === demosConfig.default
+                }
+            });
 
         res.render('simulator.html', {
             version: version,

@@ -28,7 +28,9 @@
       <div id="editor-topbar">
         <select id="select-project">
           {{#each demos}}
-            <option name="{{this.id}}">{{this.name}}</option>
+            <option name="{{this.id}}" {{#if this.selected}}selected="selected"{{/if}}>
+              {{this.name}}
+            </option>
           {{/each}}
         </select>
         <button id="load-demo">Load demo</button>
