@@ -42,6 +42,30 @@ const NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017;     /*!< connection timed out */
 const NSAPI_ERROR_ADDRESS_IN_USE      = -3018;     /*!< Address already in use */
 const NSAPI_ERROR_TIMEOUT             = -3019; /*!< operation timed out */
 
+function getDemoData() {
+    const demosDirectory = process.env.DEMOS_DIRECTORY || 'demos';
+    const demosConfig = JSON.parse(
+        fs.readFileSync(Path.join(demosDirectory, 'simconfig.json'))
+    );
+    const demosDirents = fs.readdirSync(
+        Path.join(__dirname, '..', demosDirectory), { withFileTypes: true }
+    );
+    return demosDirents
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => {
+            const config = JSON.parse(
+                fs.readFileSync(
+                    Path.join(demosDirectory, dirent.name, 'simconfig.json')
+                )
+            );
+            return {
+                "id": dirent.name,
+                "name": config.name,
+                "selected": dirent.name === demosConfig.default
+            }
+        });
+}
+
 /**
  * Start a web server to run simulated applications
  *
@@ -396,21 +420,7 @@ module.exports = function(outFolder, port, staticMaxAge, runtimeLogs, callback) 
     });
 
     app.get('/', (req, res, next) => {
-        const demosDirectory = process.env.DEMOS_DIRECTORY || 'demos';
-        const demosConfig = JSON.parse(fs.readFileSync(Path.join(demosDirectory, 'simconfig.json')));
-        const demosDirents = fs.readdirSync(Path.join(__dirname, '..', demosDirectory), { withFileTypes: true });
-        const demos = demosDirents
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => {
-                const config = JSON.parse(
-                    fs.readFileSync(Path.join(demosDirectory, dirent.name, 'simconfig.json'))
-                );
-                return {
-                    "id": dirent.name,
-                    "name": config.name,
-                    "selected": dirent.name === demosConfig.default || false
-                }
-            });
+        const demos = getDemoData();
 
         res.render('simulator.html', {
             version: version,
