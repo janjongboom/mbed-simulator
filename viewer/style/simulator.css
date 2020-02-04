@@ -301,3 +301,7 @@ body {
   float: right;
   margin-right: 10px;
 }
+
+.header-logo {
+  height: 20px;
+}
