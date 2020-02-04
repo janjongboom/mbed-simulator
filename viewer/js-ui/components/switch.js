@@ -1,12 +1,15 @@
 (function(exports) {
+    const switchOnImage = '/img/switch_on.svg';
+    const switchOffImage = '/img/switch_off.svg';
+
     function Switch(pins) {
         exports.BaseComponent.call(this);
-        
+
         this.ON =false;
 
         this.dataPin = pins.Switch;
 
-        this.componentsEl = document.querySelector('#components');   
+        this.componentsEl = document.querySelector('#components');
     }
 
     Switch.prototype = Object.create(exports.BaseComponent.prototype);
@@ -26,19 +29,19 @@
 
         this.ON = false;
         var img = document.createElement('img');
-        img.src = '/img/' + 'switch_off.png';
+        img.src = switchOffImage;
         img.style.width = '150px';
 
         el.onmousedown = function() {
             if (this.ON == false){
                 window.MbedJSHal.gpio.write(self.dataPin, 1);
                 this.ON = true;
-                img.src = '/img/' + 'switch_on.png';
+                img.src = switchOnImage;
             }
             else {
                 window.MbedJSHal.gpio.write(self.dataPin, 0);
                 this.ON = false;
-                img.src = '/img/' + 'switch_off.png';
+                img.src = switchOffImage;
                 ;
             }
         };
