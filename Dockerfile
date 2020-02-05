@@ -20,6 +20,8 @@ ADD . /app
 
 WORKDIR /app
 
+ENV DEMOS_DIRECTORY="demos"
+
 RUN npm install && npm run build-demos
 
 EXPOSE 7829
