@@ -19,9 +19,9 @@ var components = [
     { component: 'PushButton', name: 'Push button', pins: [ 'Button' ] },
     { component: 'Switch', name: 'Switch', pins: [ 'Switch' ] },
     {
-        component: 'Thermistor',
-        name: 'Analog thermistor',
-        pins: [ { name: 'Thermistor', value: [ 'p15', 'p16', 'p17', 'p18', 'p19', 'p20' ] } ]
+        component: 'Potentiometer',
+        name: 'Analog potentiometer',
+        pins: [ { name: 'Potentiometer', value: [ 'p15', 'p16', 'p17', 'p18', 'p19', 'p20' ] } ]
     },
     {
         component: 'sht31',

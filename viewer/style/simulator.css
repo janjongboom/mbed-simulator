@@ -292,12 +292,12 @@ body {
   border: solid 1px #ccc;
 }
 
-.thermistor .voltage-min {
+.potentiometer .voltage-min {
   float: left;
   margin-left: 10px;
 }
 
-.thermistor .voltage-max {
+.potentiometer .voltage-max {
   float: right;
   margin-right: 10px;
 }
