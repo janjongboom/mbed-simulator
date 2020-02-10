@@ -1,24 +1,24 @@
 (function(exports) {
-    function Thermistor(pins) {
+    function Potentiometer(pins) {
         exports.BaseComponent.call(this);
 
-        this.dataPin = pins.Thermistor;
+        this.dataPin = pins.Potentiometer;
 
         this.componentsEl = document.querySelector('#components');
     }
 
-    Thermistor.prototype = Object.create(exports.BaseComponent.prototype);
+    Potentiometer.prototype = Object.create(exports.BaseComponent.prototype);
 
-    Thermistor.prototype.init = function() {
+    Potentiometer.prototype.init = function() {
         var self = this;
 
         var el = this._el = document.createElement('div');
         el.classList.add('component');
-        el.classList.add('thermistor');
+        el.classList.add('potentiometer');
         var p = document.createElement('p');
         p.classList.add('description');
 
-        p.textContent = 'Thermistor (' + this.pinNameForPin(this.dataPin) + ')';
+        p.textContent = 'Potentiometer (' + this.pinNameForPin(this.dataPin) + ')';
 
         p.appendChild(this.createDestroyEl());
         el.appendChild(p);
@@ -55,12 +55,12 @@
         this.componentsEl.appendChild(el);
     };
 
-    Thermistor.prototype.destroy = function() {
+    Potentiometer.prototype.destroy = function() {
         window.removeComponent(this);
 
         this.componentsEl.removeChild(this._el);
     };
 
-    exports.Thermistor = Thermistor;
+    exports.Potentiometer = Potentiometer;
 
 })(window.MbedJSUI);
