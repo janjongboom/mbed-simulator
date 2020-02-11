@@ -2,10 +2,11 @@
 
 ## Simconfig
 
-You can specify simulator options via a `simconfig.json` object, this is useful because you can check it in. In here you can specify compiler options and ignore paths. Just create the file in your project folder according to the following structure:
+You can specify simulator options via a `simconfig.json` object, this is useful because you can check it in. In here you can specify compiler options and ignore paths. Just create the file in your project folder according to the following structure (the only required field is `name`):
 
 ```json
 {
+    "name": "My project",
     "compiler-args": [
         "-std=c++11",
         "--preload-file", "sdcard@/fs"
