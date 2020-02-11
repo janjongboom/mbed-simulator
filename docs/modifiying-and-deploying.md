@@ -3,7 +3,7 @@
 ## Applying a custom header logo
 
 The logo header image is located in viewer/img/headerLogo.png. In order to use
-your own logo, simply rename you logo to "headerLogo.png" and copy it into the
+your own logo, simply rename your logo to "headerLogo.png" and copy it into the
 viewer/img/ directory.
 
 ## Integrating custom demos
@@ -12,6 +12,9 @@ The demos can be found in the demos directory. Replace the contents of this
 directory for your own demos for them to be built into the simulator. For each
 demo, you must create a simconfig.json file. `name` is the only required field
 \- see demos directory for examples of how this should look.
+
+You can also set the demo which will appear by default in the dropdown selector
+by modifying the value of `default` in the main demos/simconfig.json file.
 
 ## Building and running the simulator with Docker locally
 

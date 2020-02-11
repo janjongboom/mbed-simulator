@@ -1,6 +1,6 @@
 (function(exports) {
-    const switchOnImage = '/img/switch_on.svg';
-    const switchOffImage = '/img/switch_off.svg';
+    var switchOnImage = '/img/switch_on.svg';
+    var switchOffImage = '/img/switch_off.svg';
 
     function Switch(pins) {
         exports.BaseComponent.call(this);
