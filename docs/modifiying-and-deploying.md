@@ -13,6 +13,9 @@ directory for your own demos for them to be built into the simulator. For each
 demo, you must create a simconfig.json file. `name` is the only required field
 \- see demos directory for examples of how this should look.
 
+You can also set the demo which will appear by default in the dropdown selector
+by modifying the value of `default` in the main demos/simconfig.json file.
+
 ## Building and running the simulator with Docker locally
 
 1. Make sure Docker is installed.
