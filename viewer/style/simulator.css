@@ -160,16 +160,6 @@ body {
   padding: 10px;
 }
 
-#header #links {
-  float: right;
-  line-height: 43px;
-  font-size: 14px;
-}
-
-#links a {
-  color: white;
-}
-
 #run-container {
   float: right;
   font-size: 12px;
