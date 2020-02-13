@@ -24,6 +24,11 @@ var components = [
         pins: [ { name: 'Potentiometer', value: [ 'p15', 'p16', 'p17', 'p18', 'p19', 'p20' ] } ]
     },
     {
+        component: 'PwmSpeaker',
+        name: 'Pwm Speaker',
+        pins: [ { name: 'Speaker', value: [ 'p21', 'p22', 'p23', 'p24', 'p25', 'p26' ] } ]
+    },
+    {
         component: 'sht31',
         name: 'SHT31 temperature / humidity sensor',
         pins: [ { name: 'SDA', value: [ 'p28', 'p9' ] }, { name: 'SCL', value: [ 'p27', 'p10' ] } ]

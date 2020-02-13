@@ -119,14 +119,14 @@ window.MbedJSHal.gpio = (function() {
         obj.emit('pin_write', Number(pin), value, TYPE.ANALOG);
     }
 
-    function init_pwmout(ptr, pin, pulsewidth_ms, value) {
+    function init_pwmout(ptr, pin, pulsewidth_us, value) {
         declaredPins[pin] = {
             ptr: ptr,
             type: TYPE.PWM,
             direction: DIRECTION.OUTPUT,
             mode: MODE.PullNone,
             interrupt: false,
-            pulsewidth_ms: pulsewidth_ms,
+            pulsewidth_us: pulsewidth_us,
             period_ms: 0,
             value: value
         };
@@ -154,12 +154,25 @@ window.MbedJSHal.gpio = (function() {
         obj.emit('pin_pulsewidthms', pin, pw);
     }
 
+    function pulsewidth_us(pin, pw) {
+        if (!(pin in declaredPins)) return console.error('Setting undeclared pin pulsewidth', pin, pw);
+
+        declaredPins[pin].pulsewidth_us = pw;
+
+        obj.emit('pin_pulsewidthus', pin, pw);
+    }
+
     function period_ms(pin, pw) {
         if (!(pin in declaredPins)) return console.error('Setting undeclared pin period', pin, pw);
 
         declaredPins[pin].period_ms = pw;
 
         obj.emit('pin_period', pin, pw);
+    }
+
+    function get_period_us(pin) {
+        if (!declaredPins[pin]) return;
+        if (declaredPins[pin].type == TYPE.PWM) return declaredPins[pin].period_us;
     }
 
     function read(pin) {
@@ -246,7 +259,9 @@ window.MbedJSHal.gpio = (function() {
     obj.init_analogout = init_analogout;
     obj.init_pwmout = init_pwmout;
     obj.pulsewidth_ms = pulsewidth_ms;
+    obj.pulsewidth_us = pulsewidth_us;
     obj.period_ms = period_ms;
+    obj.get_period_us = get_period_us;
     obj.mode = mode;
     obj.dir = dir;
     obj.write = write;
@@ -260,5 +275,4 @@ window.MbedJSHal.gpio = (function() {
     obj.TYPE = TYPE;
 
     return obj;
-
 })();
