@@ -1,5 +1,7 @@
 # Experimental simulator for Mbed OS 5 applications
 
+**Update:** I have left Arm (and started [Edge Impulse](https://www.edgeimpulse.com)!) and won't be updating the simulator anymore. Unfortunately no-one within Arm has taken over the project either.
+
 **Demo: https://labs.mbed.com/simulator**
 
 ![Screenshot](https://os.mbed.com/media/uploads/janjongboom/simulator2.png)
