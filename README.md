@@ -1,4 +1,8 @@
-# Experimental simulator for Mbed OS 5 applications
+# New repository
+
+I have left Arm (and started [Edge Impulse](https://www.edgeimpulse.com)!) and Arm has taken over development of the simulator. See [ArmMbed/mbed-simulator](https://github.com/armmbed/mbed-simulator) for more information.
+
+## Experimental simulator for Mbed OS 5 applications
 
 **Demo: https://labs.mbed.com/simulator**
 
