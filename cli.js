@@ -154,4 +154,5 @@ fn(program.inputDir || program.inputFile, program.outputFile, extraArgs, program
     .catch(err => {
         console.error(err);
         console.error('Building application failed');
+        process.exit(1);
     });

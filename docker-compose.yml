@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  mbed-sim:
+    build:
+      context: .
+    ports:
+      - "7829:7829"
+    volumes:
+      - "./server:/app/server"
+      - "./viewer:/app/viewer"
